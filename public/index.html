@@ -2049,6 +2049,9 @@ const a=R(40,99),b=R(11,39);return mk(a+' − '+b+' = ?',a-b,'1. 直式相減\n2
 
 function shuffleQ(q){const o=q['選項'],c=o[q['答案']];for(let i=o.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=o[i];o[i]=o[j];o[j]=t}q['答案']=o.indexOf(c);return q}
 
+/* 打亂題目陣列順序（Fisher-Yates），不回傳新陣列 */
+function shuffleQOrder(arr){for(let i=arr.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=arr[i];arr[i]=arr[j];arr[j]=t}return arr}
+
 /* 題目去重：每位學生記錄出過的題目雜湊，確保每次題目都不一樣 */
 
 function qHash(s){let h=0;s=String(s||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return h.toString(36)}
@@ -7821,7 +7824,10 @@ const deadline=dl?new Date(dl).getTime():Date.now()+7*86400000;
 
 const hws=get(LS.hw,[]);
 
-hws.unshift({id:'h'+Date.now(),classId,teacherId:u.id,title,desc,questions:PUB.qs,pdf:PUB.pdf,totalPts:PUB.qs.length*10,deadline,publishedAt:Date.now()});
+/* 發布時隨機打亂題目順序（每次發布都不同），避免學生照順序背答案 */
+const qs=shuffleQOrder(PUB.qs.slice());
+
+hws.unshift({id:'h'+Date.now(),classId,teacherId:u.id,title,desc,questions:qs,pdf:PUB.pdf,totalPts:qs.length*10,deadline,publishedAt:Date.now()});
 
 set(LS.hw,hws);
 
