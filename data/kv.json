@@ -1,0 +1,67 @@
+{
+  "ADV9_DOLLS": {},
+  "ADV9_GUILDS": [],
+  "ADV9_FRIENDS": [],
+  "ADV9_APIKEYS": {
+    "keys": []
+  },
+  "ADV9_ACADYR": 2026,
+  "ADV9_REROLL": {
+    "attr": {},
+    "gems": 0,
+    "pity": {
+      "stage": 1,
+      "count": 0
+    },
+    "autoDelete": "ZZZ",
+    "autoOn": false,
+    "autoTimer": null,
+    "totalRolls": 0
+  },
+  "ADV9_FREE_POINTS": {
+    "allocated": {
+      "luck_drop": 0,
+      "combat_power": 0,
+      "gem_bonus": 0,
+      "gold_bonus": 0,
+      "gacha_luck": 0
+    }
+  },
+  "ADV9_GSHOP": {
+    "date": "",
+    "stock": {}
+  },
+  "ADV9_GROUPS": [],
+  "ADV9_STAR_COINS": 0,
+  "ADV9_BUFFS": {
+    "inventory": [],
+    "active": null
+  },
+  "ADV9_GIFT_LOGS": [],
+  "ADV9_ARENA_MAIL": [],
+  "ADV9_SETTINGS": {
+    "pkDaily": 5,
+    "dailyMissions": 15,
+    "weeklyGoal": 200,
+    "timeLock": true,
+    "diffMode": "精靈"
+  },
+  "ADV9_EQUIP": {
+    "owned": [],
+    "equipped": {
+      "頭": null,
+      "衣服": null,
+      "褲子": null,
+      "鞋子": null,
+      "武器": null,
+      "戒指": null,
+      "項鍊": null
+    }
+  },
+  "ADV9_MARKET": [],
+  "ADV9_PM": {},
+  "ADV9_DUELS": [],
+  "ADV9_STORIES": [],
+  "ADV9_NOTIF": [],
+  "ADV9_AI_RECENT": {}
+}

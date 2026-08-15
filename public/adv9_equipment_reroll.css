@@ -1,0 +1,103 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ADV9 v1.0★ 裝備・副本・重新滾動統計值系統 CSS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 稀有度顏色 ── */
+.equipR{color:#22c55e}.equipE{color:#4fc3f7}.equipA{color:#fff176}.equipS{color:#64b5f6}
+.equipSS{color:#9575cd}.equipSSS{color:#e040fb}.equipZ{color:#ff5252}.equipZZ{color:#ff9800}
+.equipZZZ{color:#f50057}.equipINF{background:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowFlow 2s linear infinite}
+
+@keyframes rainbowFlow{0%{background-position:0% 50%}100%{background-position:400% 50%}}
+
+/* ── 裝備紙娃娃 ── */
+.dollView{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start}
+.dollAvatar{text-align:center}
+.dollAvatar .dollIcon{font-size:80px;display:block;margin:0 auto 8px;animation:bob 3s infinite;filter:drop-shadow(0 0 12px rgba(242,193,78,.4))}
+.dollSlots{display:flex;flex-direction:column;gap:8px}
+.slotRow{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;transition:.15s}
+.slotRow:hover{border-color:var(--goldD)}
+.slotIcon{font-size:22px;width:32px;text-align:center;flex:none}
+.slotLabel{font-size:11px;color:var(--mut);font-weight:700;min-width:36px}
+.slotItem{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slotEmpty{color:var(--mut);font-size:12px;font-style:italic}
+.slotBtns{display:flex;gap:4px;flex:none}
+
+/* ── 副本戰鬥 ── */
+.dungeonCanvasWrap{position:relative;width:100%;max-width:640px;margin:0 auto}
+#dungeonCanvas{width:100%;height:400px;background:#0a0e1a;border:1px solid var(--line);border-radius:8px;display:block}
+.dungeonHUD{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.dungeonWave{font-family:var(--serif);font-weight:900;color:var(--gold2);font-size:15px}
+.dungeonHPBar{flex:1;min-width:120px}
+.dungeonHPBar .bar{height:14px}
+.dungeonHPBar .bar i{background:linear-gradient(90deg,#c73a3f,#ff7b72)}
+.dungeonEnemyHP .bar i{background:linear-gradient(90deg,#e5484d,#ff8a80)}
+.dungeonMobList{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;font-size:12px}
+.dungeonMob{padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.3);border:1px solid var(--line)}
+.dungeonMob.alive{border-color:#4caf50;color:#8ee06a}
+.dungeonMob.dead{opacity:.4;text-decoration:line-through}
+.dungeonBoss{border-color:var(--gold)!important;color:var(--gold2)!important;font-weight:900}
+.dungeonLog{height:100px;overflow-y:auto;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11.5px;line-height:1.7}
+.dungeonLog .crit{color:var(--gold2);font-weight:900}
+.dungeonLog .dmg{color:#ff9d97}
+.dungeonLog .heal{color:#8ee06a}
+.dungeonLog .info{color:var(--teal)}
+/* 手機虛擬按鈕 */
+.touchControls{display:none;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.touchCtrl{width:56px;height:56px;border-radius:50%;background:rgba(242,193,78,.15);border:2px solid var(--goldD);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.touchCtrl:active{background:rgba(242,193,78,.35)}
+.touchDpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px);gap:4px}
+.touchDpad .touchCtrl{font-size:18px}
+.touchDpad .empty{visibility:hidden}
+@media(hover:none)and(pointer:coarse){.touchControls{display:flex!important}}
+
+/* ── 重新滾動統計值 ── */
+.rerollPanel{display:grid;grid-template-columns:1fr 280px;gap:14px}
+@media(max-width:860px){.rerollPanel{grid-template-columns:1fr}}
+.rerollAttrRow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;margin-bottom:6px;transition:.15s}
+.rerollAttrRow:hover{border-color:var(--goldD)}
+.rerollAttrIcon{font-size:22px;width:30px;text-align:center;flex:none}
+.rerollAttrName{flex:1;min-width:0;font-size:13px;font-weight:700}
+.rerollBadge{padding:2px 10px;border-radius:99px;font-size:12px;font-weight:900;font-family:var(--serif);flex:none}
+.rerollBadge.R{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.rerollBadge.E{background:rgba(79,195,247,.15);color:#4fc3f7;border:1px solid rgba(79,195,247,.3)}
+.rerollBadge.A{background:rgba(255,241,118,.15);color:#fff176;border:1px solid rgba(255,241,118,.3)}
+.rerollBadge.S{background:rgba(100,181,246,.15);color:#64b5f6;border:1px solid rgba(100,181,246,.3)}
+.rerollBadge.SS{background:rgba(149,117,205,.15);color:#9575cd;border:1px solid rgba(149,117,205,.3)}
+.rerollBadge.SSS{background:rgba(224,64,251,.15);color:#e040fb;border:1px solid rgba(224,64,251,.3)}
+.rerollBadge.Z{background:rgba(239,83,80,.15);color:#ff5252;border:1px solid rgba(239,83,80,.3)}
+.rerollBadge.ZZ{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.3)}
+.rerollBadge.ZZZ{background:rgba(245,0,87,.15);color:#f50057;border:1px solid rgba(245,0,87,.3)}
+.rerollBadge.INF{background:linear-gradient(90deg,rgba(255,0,0,.2),rgba(255,136,0,.2),rgba(255,255,0,.2),rgba(0,255,0,.2),rgba(0,136,255,.2),rgba(136,0,255,.2));background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:14px;border:1px solid rgba(255,255,255,.3);animation:rainbowFlow 2s linear infinite}
+.rerollBonus{font-size:12px;color:var(--mut);flex:none;width:50px;text-align:right}
+.rerollBtns{display:flex;gap:4px;flex:none;flex-wrap:wrap}
+.rerollSide{display:flex;flex-direction:column;gap:10px}
+.rerollAutoDel{margin-top:8px}
+.rerollAutoDel select{width:100%;margin-top:4px}
+
+/* ── 裝備卡片 ── */
+.equipCard{border:1px solid var(--line);border-radius:10px;padding:12px;background:linear-gradient(160deg,rgba(20,30,52,.9),rgba(10,16,30,.95));transition:.18s}
+.equipCard:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.equipCardR{border-color:rgba(34,197,94,.3)}.equipCardE{border-color:rgba(79,195,247,.3)}.equipCardA{border-color:rgba(255,241,118,.3)}.equipCardS{border-color:rgba(100,181,246,.3)}
+.equipCardSS{border-color:rgba(149,117,205,.3)}.equipCardSSS{border-color:rgba(224,64,251,.3)}.equipCardZ{border-color:rgba(239,83,80,.3)}.equipCardZZ{border-color:rgba(255,152,0,.3)}
+.equipCardZZZ{border-color:rgba(245,0,87,.3)}.equipCardINF{border-color:rgba(255,255,255,.5);animation:ssrGlow 2.2s infinite;border-image:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000)1;animation:ssrGlow 2.2s infinite,rainbowFlow 3s linear infinite}
+.equipCardINF:hover{box-shadow:0 0 20px rgba(255,255,255,.3),0 0 40px rgba(255,136,0,.2)}
+.equipName{font-family:var(--serif);font-weight:900;font-size:14px;margin-bottom:4px}
+.equipSub{font-size:11px;color:var(--mut);margin-bottom:6px}
+.equipSubs{font-size:11.5px;line-height:1.6}
+.equipSubs div{display:flex;justify-content:space-between;gap:8px;padding:1px 0}
+.equipSubs .sv{color:var(--gold2);font-weight:700}
+.equipLv{font-size:11px;color:var(--teal);margin-top:4px}
+.equipMain{font-size:12px;color:var(--txt);margin-top:3px}
+
+/* ── 副本地圖 ── */
+.dunMapGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:5px;max-height:280px;overflow-y:auto;padding:6px 4px}
+.dunTile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 4px;font-weight:700;cursor:pointer;color:#fff;transition:.15s;text-align:center;font-size:11px;background:var(--tc,#2a3050)}
+.dunTile:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.15)}
+.dunTile.done{background:linear-gradient(160deg,#2f6b45,#204d33)!important;border-color:#3c8a5a;cursor:default;color:#cdeed6}
+.dunTile.lock{background:#1c2740!important;border-color:var(--line);color:#5b6a86;cursor:not-allowed}
+.dunTile.next{box-shadow:0 0 0 2px var(--gold),0 0 14px rgba(242,193,78,.4);animation:pulse 1.6s infinite}
+.dunTile.boss{border-color:var(--gold2)}.dunTile.boss .tcNum{color:#fff;text-shadow:0 0 6px rgba(255,217,122,.8)}
+.dunTile.waveInfo{font-size:10px;opacity:.7}
+
+/* ── 道具掉落動畫 ── */
+.lootFloat{position:fixed;font-size:18px;font-family:var(--serif);font-weight:900;pointer-events:none;z-index:200;animation:rewardDrop .9s ease-out forwards}

@@ -1,0 +1,17 @@
+{
+  "max_level": 300,
+  "free_point_single_limit": 300,
+  "allow_admin_custom_infinity_req": true,
+  "event_mode_active": false,
+  "festival_mode_active": false,
+  "refund_amount": 5000,
+  "promo_codes": {
+    "ADV9_WELCOME": {
+      "star_coins": 100,
+      "gems": 5000,
+      "gold": 50000,
+      "max_uses": 999,
+      "used_users": []
+    }
+  }
+}

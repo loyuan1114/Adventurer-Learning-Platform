@@ -1,0 +1,14 @@
+services:
+  adv9:
+    build: .
+    image: adv9:latest
+    container_name: adv9
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # 資料與上傳檔獨立掛載：升級容器不會清掉帳號、AI 金鑰、照片影片
+      - ./data:/app/data
+      - ./media:/app/media
+    environment:
+      - PORT=8080

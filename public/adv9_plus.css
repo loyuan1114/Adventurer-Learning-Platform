@@ -1,0 +1,155 @@
+/* =====================================================================
+   adv9_plus.css — 《全領域冒險者養成系統 v1.0★九大強化版》增量樣式
+   所有選擇器加 gd- 前綴，避免與 adv9 原有全域樣式衝突。
+   色彩以明亮、活潑、適合學生為主；∞ 採彩虹流動閃爍。
+   ===================================================================== */
+
+/* ── 浮動啟動鈕 ── */
+.gd-launch{
+  position:fixed;right:14px;bottom:64px;z-index:9000;
+  display:flex;flex-direction:column;gap:8px;align-items:flex-end;
+}
+.gd-launch-btn{
+  background:linear-gradient(135deg,#ff8a3d,#ff5e9c);
+  color:#fff;border:none;border-radius:30px;padding:12px 18px;
+  font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,94,156,.45);
+  animation:gd-pulse 2.4s ease-in-out infinite;
+}
+.gd-launch-btn:hover{transform:translateY(-2px)}
+@keyframes gd-pulse{0%,100%{box-shadow:0 6px 18px rgba(255,94,156,.45)}50%{box-shadow:0 6px 26px rgba(255,138,61,.7)}}
+
+/* ── 通用面板 / 彈窗 ── */
+.gd-overlay{
+  position:fixed;inset:0;z-index:9100;background:rgba(10,12,30,.55);
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.gd-panel{
+  background:#fff;border-radius:18px;width:min(960px,96vw);max-height:92vh;overflow:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);font-family:"微軟正黑體","Microsoft JhengHei",sans-serif;color:#23263a;
+  display:flex;flex-direction:column;
+}
+.gd-panel.dark{background:#1b1e36;color:#eef}
+.gd-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid #eceefb;position:sticky;top:0;background:inherit;z-index:2;
+}
+.gd-panel.dark .gd-head{border-color:#33385f}
+.gd-title{font-size:19px;font-weight:800;display:flex;align-items:center;gap:8px}
+.gd-close{
+  border:none;background:#f0f1fb;color:#555;border-radius:50%;width:34px;height:34px;font-size:18px;cursor:pointer;
+}
+.gd-panel.dark .gd-close{background:#2c3158;color:#cdd}
+.gd-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.gd-section{background:#f7f8ff;border:1px solid #ecedfb;border-radius:12px;padding:12px 14px}
+.gd-panel.dark .gd-section{background:#23274a;border-color:#343a66}
+.gd-section h4{margin:0 0 8px;font-size:15px}
+.gd-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.gd-row.tight{gap:6px}
+.gd-grow{flex:1 1 160px;min-width:140px}
+.gd-label{font-size:13px;color:#6b7090}
+.gd-panel.dark .gd-label{color:#aab}
+
+/* ── 按鈕 ── */
+.gd-btn{
+  border:none;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer;
+  background:#5b6cff;color:#fff;transition:.15s;
+}
+.gd-btn:hover{filter:brightness(1.07)}
+.gd-btn.green{background:#27c08a}
+.gd-btn.pink{background:#ff5e9c}
+.gd-btn.amber{background:#ff9f2e}
+.gd-btn.ghost{background:#eef0fb;color:#4a4f73}
+.gd-panel.dark .gd-btn.ghost{background:#2c3158;color:#cdd}
+.gd-btn:disabled{opacity:.45;cursor:not-allowed}
+.gd-btn.sm{padding:6px 10px;font-size:12px}
+
+/* ── 稀有度徽章（與原滾動系統同色） ── */
+.gd-rar{
+  display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:24px;padding:0 7px;
+  border-radius:7px;font-weight:800;font-size:13px;color:#fff;
+}
+.gd-rar.R{background:#9aa3b2}
+.gd-rar.E{background:#5fcb6b}
+.gd-rar.A{background:#36a3ff}
+.gd-rar.S{background:#b76bff}
+.gd-rar.SS{background:#ff8a3d}
+.gd-rar.SSS{background:#ff5e5e}
+.gd-rar.Z{background:#ffb400}
+.gd-rar.ZZ{background:#ff4dd2}
+.gd-rar.ZZZ{background:#9d4dff}
+.gd-rar.inf{ /* ∞ 彩虹流動閃爍 */
+  background:linear-gradient(90deg,#ff5e5e,#ffb400,#27c08a,#36a3ff,#b76bff,#ff5e9c,#ff5e5e);
+  background-size:300% 100%;animation:gd-rainbow 3s linear infinite;color:#fff;
+  text-shadow:0 0 6px rgba(255,255,255,.8);box-shadow:0 0 10px rgba(255,210,90,.7);
+}
+@keyframes gd-rainbow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
+/* ── 卡片格 / 清單 ── */
+.gd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.gd-card{background:#fff;border:1px solid #e6e8f7;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.gd-panel.dark .gd-card{background:#202547;border-color:#33385f}
+.gd-card.sel{border-color:#5b6cff;box-shadow:0 0 0 2px rgba(91,108,255,.35)}
+.gd-card .gd-name{font-weight:700;font-size:14px}
+.gd-card .gd-sub{font-size:12px;color:#7a7fa3}
+
+/* ── 自由加點 ── */
+.gd-statbar{height:10px;background:#e9ebf7;border-radius:6px;overflow:hidden}
+.gd-statbar>i{display:block;height:100%;background:linear-gradient(90deg,#5b6cff,#27c08a)}
+.gd-ptbtn{width:30px;height:30px;border-radius:8px;border:none;background:#5b6cff;color:#fff;font-size:18px;font-weight:800;cursor:pointer}
+.gd-ptbtn.minus{background:#ff7a7a}
+
+/* ── 戰鬥 canvas ── */
+.gd-battle-wrap{position:relative;width:100%;max-width:780px;margin:0 auto}
+.gd-canvas{width:100%;aspect-ratio:4/3;background:#0e1024;border-radius:14px;display:block;touch-action:none}
+.gd-hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;color:#fff;font-size:13px;text-shadow:0 1px 2px #000;pointer-events:none}
+.gd-bossbar{position:absolute;top:34px;left:10px;right:10px;height:8px;background:#3a2030;border-radius:5px;overflow:hidden}
+.gd-bossbar>i{display:block;height:100%;background:linear-gradient(90deg,#ff5e5e,#ffb400)}
+.gd-touch{display:none;position:absolute;inset:0}
+.gd-touch.on{display:block}
+.gd-joy{position:absolute;left:18px;bottom:18px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3)}
+.gd-joy>i{position:absolute;left:38px;top:38px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.7)}
+.gd-keys{position:absolute;right:14px;bottom:14px;display:grid;grid-template-columns:repeat(3,56px);gap:8px}
+.gd-key{height:56px;border-radius:12px;border:none;background:rgba(91,108,255,.85);color:#fff;font-weight:800;font-size:13px}
+.gd-key.atk{background:rgba(255,94,156,.9)}
+.gd-key.dodge{background:rgba(255,159,46,.9)}
+
+/* ── 副本地圖節點 ── */
+.gd-map{display:flex;flex-direction:column;gap:6px}
+.gd-map-row{display:flex;gap:6px;justify-content:center}
+.gd-node{width:64px;height:46px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;border:2px solid #d7daf0;background:#fff;color:#555}
+.gd-node.cur{border-color:#5b6cff;background:#eef1ff;box-shadow:0 0 0 3px rgba(91,108,255,.25)}
+.gd-node.done{background:#e7fbf2;border-color:#27c08a}
+.gd-node.boss{border-color:#ff5e5e;color:#d23}
+.gd-node.chest{border-color:#ffb400}
+.gd-node.event{border-color:#b76bff}
+.gd-node.mini{border-color:#ff9f2e}
+
+/* ── 禮物盒配色 ── */
+.gd-giftbox{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid #ccc}
+.gd-giftbox.white{background:#fff;border-color:#cfd3e6}
+.gd-giftbox.blue{background:#e6f0ff;border-color:#5aa0ff}
+.gd-giftbox.purple{background:#f3e8ff;border-color:#b76bff}
+.gd-giftbox.gold{background:#fff6d6;border-color:#ffb400}
+.gd-giftbox.rainbow{background:linear-gradient(90deg,#ff5e5e,#ffb400,#27c08a,#36a3ff,#b76bff);border-color:#fff}
+
+/* ── 公告條 ── */
+.gd-ann{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:9500;
+  background:linear-gradient(90deg,#ff5e5c,#ffb400);color:#fff;padding:10px 18px;border-radius:30px;
+  font-weight:800;box-shadow:0 8px 24px rgba(255,94,92,.5);animation:gd-rainbow 3s linear infinite;background-size:300% 100%}
+
+/* ── 表格 ── */
+.gd-table{width:100%;border-collapse:collapse;font-size:13px}
+.gd-table th,.gd-table td{border:1px solid #e6e8f7;padding:7px 8px;text-align:left}
+.gd-table th{background:#f1f3ff}
+.gd-panel.dark .gd-table th{background:#262b52}
+.gd-panel.dark .gd-table th,.gd-panel.dark .gd-table td{border-color:#343a66}
+
+/* ── 提示文字 ── */
+.gd-hint{font-size:12px;color:#8a8fb0;line-height:1.6}
+.gd-ok{color:#27c08a}
+.gd-warn{color:#ff8a3d}
+.gd-bad{color:#ff5e5e}
+.gd-pill{display:inline-block;background:#eef1ff;color:#5b6cff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700}
+.gd-panel.dark .gd-pill{background:#2c3158;color:#aab}
+.gd-divider{height:1px;background:#eceefb;margin:4px 0}
+.gd-panel.dark .gd-divider{background:#33385f}
