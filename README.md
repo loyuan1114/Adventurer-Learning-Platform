@@ -160,27 +160,43 @@ mkdir adv9 -Force | Out-Null; tar xzf adv9_public.tgz -C adv9; Set-Location adv9
 
 不想用雲端 AI 金鑰？可安裝 **Ollama**，讓遊戲在本機跑 AI（出題、批改、弱點分析全可走本地模型，資料完全不離開你的伺服器）。
 
-**① 安裝 Ollama**（Linux）：
+### 一鍵命令（Linux，安裝 Ollama + 下載模型一次搞定）
+
+**推薦：Qwen2.5 7B（出題/分析全能）**：
 
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh
+curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/qwen2.5-vl-abliterated:7b
 ```
 
-macOS / Windows 直接裝 [Ollama.app](https://ollama.com/download) 即可。
-
-**② 下載模型**（二選一或都裝，每顆約 4~6GB）：
+**或：DeepSeek R1 7B（推理強、數學好）**：
 
 ```bash
-ollama pull huihui_ai/qwen2.5-vl-abliterated:7b    # 出題/分析全能
-ollama pull huihui_ai/deepseek-r1-abliterated:7b   # 推理強、數學好
+curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/deepseek-r1-abliterated:7b
 ```
 
-**③ 啟動 Ollama 服務**：`ollama serve`（裝成服務的會自動啟動）。
+**兩顆都要（模型可隨時切換）**：
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/qwen2.5-vl-abliterated:7b && ollama pull huihui_ai/deepseek-r1-abliterated:7b
+```
+
+> macOS / Windows 沒有這種安裝法，直接到 [Ollama.app 官網](https://ollama.com/download) 下載安裝，再開啟「終端機／命令提示字元」貼上 `ollama pull huihui_ai/qwen2.5-vl-abliterated:7b`（或 deepseek-r1 那條）即可。
+
+### 如何使用本地模型
+
+**① 確認 Ollama 服務有開**：`ollama serve`（Linux 裝成服務的會自動啟動），瀏覽器開 `http://127.0.0.1:11434` 有回應代表正常。
+
+**② 到遊戲設定 Ollama**：登入 → 管理員 → **API 金鑰管理** → 新增 →
+
+1. 供應商選 **「Ollama 本地」**
+2. 模型選你剛剛下載的（`huihui_ai/qwen2.5-vl-abliterated:7b` 或 `huihui_ai/deepseek-r1-abliterated:7b`，也可自訂）
+3. 「金鑰」欄位填 **`http://127.0.0.1:11434`**（Ollama 主機位址；若 Ollama 裝在別的機器，就填那台的網址，例如 `http://192.168.1.50:11434`）
+4. 儲存
+
+之後所有 AI 功能（自動出題、作業弱點分析、AI 評語…）就會優先用本地模型，完全不需要任何 API 金鑰、不花一毛錢。
 
 > ⚠️ 7B 模型約需 **6~8GB 記憶體**。RAM 不到 4GB 的機器請改拉 `qwen2.5:1.7b` 或 `qwen2.5:0.6b`；只有 2GB 的小 VPS 建議繼續用雲端 AI。
-
-**④ 讓遊戲使用本地模型**：登入 → 管理員 → **API 金鑰管理** → 新增 → 供應商選 **Ollama 本地** → 選你下載的模型 → 「金鑰」欄位填 `http://127.0.0.1:11434`（本機安裝可不填）→ 儲存。AI 功能會依優先順序自動呼叫。
-
+>
 > Ollama 呼叫走自架伺服器代理（`/rest/v1/ai/ollama`），模型與題目**不會上傳到任何第三方**。
 
 ---
