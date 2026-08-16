@@ -1,0 +1,6 @@
+# 執行期資料（本機/伺服器運行時產生，不入庫）
+data/access.log
+data/users/
+data/tokens.json
+data/kv.json
+data/settings/
