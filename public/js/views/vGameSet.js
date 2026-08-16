@@ -1,41 +1,7 @@
 /* ════════════════════════════════════════════
    vGameSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 2 個單位：MISSION_POOL, vGameSet
+   含 1 個單位：vGameSet
    ════════════════════════════════════════════ */
-const MISSION_POOL=[
-
-{id:'m1',n:'✅ 答對 10 題',k:'answer',g:10,rw:{crystal:15,gold:30}},
-
-{id:'m2',n:'🏟️ 完成 2 場 PK',k:'pk',g:2,rw:{crystal:20,gold:50}},
-
-{id:'m3',n:'🔥 達成 8 連擊',k:'combo',g:8,rw:{crystal:25,starlight:2}},
-
-{id:'m4',n:'💪 完成 5 題困難50+',k:'hard',g:5,rw:{crystal:30,gold:60}},
-
-{id:'m5',n:'📈 獲得 100 經驗',k:'exp',g:100,rw:{gold:50,starlight:1}},
-
-{id:'m6',n:'🎁 進行 1 次抽卡',k:'gacha',g:1,rw:{enhStone:1,gold:20}},
-
-{id:'m7',n:'🔨 強化武器 1 次',k:'enhance',g:1,rw:{crystal:15,gold:30}},
-
-{id:'m8',n:'❌ 重練 2 題錯題',k:'retry',g:2,rw:{crystal:20,starlight:3}},
-
-{id:'m9',n:'🗺️ 征服 1 塊領土',k:'territory',g:1,rw:{diamond:2,gold:50}},
-
-{id:'m10',n:'⚒️ 累計鍛造 2 次',k:'forge',g:2,rw:{ironOre:5,crystal:20}},
-
-{id:'m11',n:'🧪 挑戰實驗室 1 次',k:'lab',g:1,rw:{labMat:10,gold:40}},
-
-{id:'m12',n:'🤝 贈送好友精力 1 次',k:'giftEnergy',g:1,rw:{crystal:15,gold:30}},
-
-{id:'m13',n:'📥 領取好友精力 1 次',k:'recvEnergy',g:1,rw:{gold:50}},
-
-{id:'m14',n:'📖 答題累計 20 題',k:'answerTotal',g:20,rw:{quizPts:20,gold:40}},
-
-{id:'m15',n:'🏅 PK 獲勝 1 場',k:'pkWin',g:1,rw:{honor:10,crystal:15}}
-
-];
-
 function vGameSet(){
 
 const c=sysCfg();

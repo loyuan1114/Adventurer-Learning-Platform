@@ -1,23 +1,7 @@
 /* ════════════════════════════════════════════
    vGacha 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 4 個單位：plvNeed, gachaRates, plvBoxHtml, vGacha
+   含 1 個單位：vGacha
    ════════════════════════════════════════════ */
-const plvNeed=lv=>lv*2; /* 升級所需抽數：卡池等級×2（Lv1→2 需 2 抽、Lv50→51 需 100 抽） */
-
-function gachaRates(g){const lv=Math.min(100,(g.gacha&&g.gacha.plv)||1),t=(lv-1)/99;
-
-const UR=+(0.10*t).toFixed(4),SSR=+(0.15*t).toFixed(4),SR=+(0.25*t).toFixed(4),R=+(0.30*t).toFixed(4);
-
-return{UR,SSR,SR,R,N:+(1-UR-SSR-SR-R).toFixed(4)}}
-
-function plvBoxHtml(g){const gc=g.gacha,lv=Math.min(100,gc.plv||1),xp=gc.pxp||0,need=plvNeed(lv),rt=gachaRates(g),pct=v=>+(v*100).toFixed(1)+'%';
-
-return '<b style="color:var(--gold2)">🃏 卡池等級 Lv.'+lv+' / 100</b> <span style="font-size:11.5px;color:var(--mut)">升級需抽數＝等級×2・免費升級不耗任何資源</span>'+
-
-'<div class="bar" style="margin:6px 0"><i style="width:'+(lv>=100?100:Math.min(100,xp/need*100))+'%"></i></div>'+
-
-'<div style="font-size:12px;color:var(--mut)">'+(lv>=100?'🎉 已滿級！UR 機率 10%':'升級進度 '+xp+'/'+need+' 抽')+'｜目前機率：N '+pct(rt.N)+'｜R '+pct(rt.R)+'｜SR '+pct(rt.SR)+'｜SSR '+pct(rt.SSR)+'｜UR '+pct(rt.UR)+'</div>'}
-
 function vGacha(){
 
 const g=me().g,e=effOf(g),red=e.pity_reduce||0;

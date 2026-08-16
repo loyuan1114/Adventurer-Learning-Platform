@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
    vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 2 個單位：vMiss, rwText
+   含 1 個單位：vMiss
    ════════════════════════════════════════════ */
 function vMiss(){
 
@@ -41,5 +41,3 @@ return '<div class="panel2" style="display:flex;align-items:center;gap:12px;marg
 (comp&&!done?'<button class="btn mini" onclick="claimOne(\''+m.id+'\')">領取</button>':done?'<b style="color:var(--green)">已領取</b>':'')+'</div>'}).join('');
 
 }
-
-function rwText(rw){const p=[];if(rw.gold)p.push('🪙'+rw.gold);if(rw.crystal)p.push('💠'+rw.crystal);if(rw.diamond)p.push('💎'+rw.diamond);if(rw.starlight)p.push('✨'+rw.starlight);if(rw.ironOre)p.push('⛏️'+rw.ironOre);if(rw.enhStone)p.push('🔩'+rw.enhStone);if(rw.labMat)p.push('🧪'+rw.labMat);if(rw.honor)p.push('🏅'+rw.honor);if(rw.quizPts)p.push('📖'+rw.quizPts);return p.join(' ')||'—'}

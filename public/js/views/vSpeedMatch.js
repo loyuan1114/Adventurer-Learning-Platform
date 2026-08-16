@@ -1,9 +1,7 @@
 /* ════════════════════════════════════════════
    vSpeedMatch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 5 個單位：rnd, isWeekend, speedOppTime, vSpeedMatch, Q_SPD
+   含 3 個單位：isWeekend, speedOppTime, vSpeedMatch
    ════════════════════════════════════════════ */
-const rnd=(a,b)=>a+Math.random()*(b-a);
-
 function isWeekend(){const d=new Date().getDay();return d===0||d===6}
 
 function speedOppTime(o){ /* 依對手平均作答速度估算完成時間（基於其真實紀錄，加隨機波動）*/
@@ -37,5 +35,3 @@ openModal('<h3 class="mt">⚡ 周末決鬥：'+esc(subj)+'題速答賽</h3>'+
 nextSpeedQ();
 
 }
-
-let Q_SPD=null;

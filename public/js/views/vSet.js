@@ -1,16 +1,8 @@
 /* ════════════════════════════════════════════
    vSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 7 個單位：BG_PRESETS, AVATAR_EMOJIS, MUSIC, saveMusicPref, musicInit, musicSetVolume, vSet
+   含 3 個單位：AVATAR_EMOJIS, musicSetVolume, vSet
    ════════════════════════════════════════════ */
-const BG_PRESETS={bg1:['🌌 星空藍（預設）',''],bg2:['🌅 暮光橙','linear-gradient(160deg,#2b1055,#7597de 45%,#c98a5a)'],bg3:['🌲 森林綠','linear-gradient(160deg,#0f2027,#203a43 50%,#2c5364)'],bg4:['🌸 櫻花粉','linear-gradient(160deg,#41295a,#752d63 50%,#b06ab3)'],bg5:['🔥 熔岩紅','linear-gradient(160deg,#1f1c18,#5c2018 55%,#8e3b2f)'],bg6:['💜 夢幻紫','linear-gradient(160deg,#141e30,#3a2b63 55%,#6a3f8f)']};
-
 const AVATAR_EMOJIS=['🧑‍🎓','👩‍🎓','🦊','🐱','🐶','🐼','🐸','🦁','🐯','🦄','🐲','👻','🤖','👽','🧙','🥷','🦸','🧛','😎','🤠','🐧','🦉','🐢','🐳'];
-
-let MUSIC={list:[],idx:-1,audio:null};
-
-function saveMusicPref(){try{localStorage.setItem('ADV9_MUSIC',JSON.stringify({idx:MUSIC.idx}))}catch(e){}}
-
-function musicInit(){if(MUSIC.audio)return;const a=new Audio();a.loop=true;a.volume=.5;MUSIC.audio=a;try{const j=JSON.parse(localStorage.getItem('ADV9_MUSIC')||'{}');if(typeof j.idx==='number')MUSIC.idx=j.idx}catch(e){}}
 
 function musicSetVolume(v){if(MUSIC.audio)MUSIC.audio.volume=Math.max(0,Math.min(1,v))}
 
@@ -72,6 +64,18 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer"><input type="checkbox" id="hideOnline" style="width:auto"'+(pf.hideOnline?' checked':'')+' onchange="setHideOnline(this.checked)"> 🙈 隱藏我的上線狀態（好友看不到我的「● 線上」）</label></div>'+
 
+/* 語言偏好 */
+
+'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🌍 語言偏好</b> <span style="font-size:11.5px;color:var(--mut)">選一個想學的語言，語言自學會優先顯示（203 種語言可搜尋）</span>'+
+
+'<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+(langPref()?'<span style="font-size:12.5px;color:var(--teal)">⭐ 目前：'+esc(langName(langPref()))+'（'+langPref()+'）</span>':'<span style="font-size:12.5px;color:var(--mut)">尚未設定偏好</span>')+
+
+'<button class="btn ghost mini" onclick="setLangPref(\'\')">🧹 清除偏好</button></div>'+
+
+'<input id="setLangSearch" placeholder="🔍 搜尋語言（例：日語、English、fr…）" oninput="setLangGrid(this.value)" style="width:100%;margin-top:8px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+
+
+'<div id="setLangGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:8px;max-height:180px;overflow-y:auto"></div></div>'+
+
 '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
 
 '<button class="btn ghost mini" onclick="openChangeName()">✏️ 修改姓名</button>'+
@@ -85,5 +89,7 @@ loadMusicList(list=>{
   ms.innerHTML='<option value="-1">（關閉音樂）</option>'+list.map((f,i)=>'<option value="'+i+'"'+(i===MUSIC.idx?' selected':'')+'>'+esc(f)+'</option>').join('');
   if(MUSIC.idx>=0)ms.value=String(MUSIC.idx);
 });
+
+setLangGrid('');
 
 }

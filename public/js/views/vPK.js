@@ -1,23 +1,7 @@
 /* ════════════════════════════════════════════
    vPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 4 個單位：arenaOpp, arenaDiff, vPK, animPk
+   含 1 個單位：vPK
    ════════════════════════════════════════════ */
-function arenaOpp(floor){
-
-const names=['見習挑戰者','進階學習者','中等高手','觀念大師','陷阱獵人','資優學霸','魔王候補','地獄難題者','傳說級學神','全領域之王','虛空主宰','永恆戰神'];
-
-const icons=['🐣','📖','🦊','🦉','🐺','🦁','👹','🔥','👑','⚡','🌌','♾️'];
-
-const tier=Math.min(names.length-1,Math.floor((floor-1)/5));
-
-const pw=Math.floor(40+floor*32+Math.pow(floor,1.3)*8);
-
-return{n:names[tier]+'・第'+floor+'層',i:icons[tier],lv:Math.min(99,floor*2),pw,floor};
-
-}
-
-function arenaDiff(floor){return Math.min(100,5+floor);} /* 難度隨層數提升 */
-
 function vPK(){
 
 const u=me(),g=u.g;
@@ -80,5 +64,3 @@ return '<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(
 '・排名以「歷史最佳層數」計算</div></div>';
 
 }
-
-function animPk(id,cls){const el=document.getElementById(id);if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}

@@ -1,13 +1,7 @@
 /* ════════════════════════════════════════════
    vEquip 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 4 個單位：EQ_SLOT, EQ_SLOT_ICON, eqUpgradeCost, vEquip
+   含 1 個單位：vEquip
    ════════════════════════════════════════════ */
-const EQ_SLOT=['頭','衣服','褲子','鞋子','武器','戒指','項鍊'];
-
-const EQ_SLOT_ICON=['🪖','👕','👖','👟','⚔️','💍','📿'];
-
-function eqUpgradeCost(lv,rarity){return rarity==='∞'?Math.max(1,Math.ceil(lv/10)):Math.ceil((lv+1)/5)}
-
 function vEquip(){
   const u=me(),g=u.g,d=eqGet();
   const slots=EQ_SLOT.map((s,i)=>{

@@ -1,9 +1,7 @@
 /* ════════════════════════════════════════════
    vFriends 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 2 個單位：yesterday, vFriends
+   含 1 個單位：vFriends
    ════════════════════════════════════════════ */
-const yesterday=(d)=>{const dt=new Date(d);dt.setDate(dt.getDate()-1);return dt.toDateString();};
-
 function vFriends(){
 
 CUR.socialTab='fr';

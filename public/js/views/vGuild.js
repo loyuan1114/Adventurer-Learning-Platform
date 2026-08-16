@@ -1,9 +1,7 @@
 /* ════════════════════════════════════════════
    vGuild 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 2 個單位：GUILD_NEED, vGuild
+   含 1 個單位：vGuild
    ════════════════════════════════════════════ */
-const GUILD_NEED=lv=>lv*1000; /* 升級所需捐獻金幣＝等級×1000 */
-
 function vGuild(){
 
 const u=me(),g=u.g;const guilds=get(LS.guilds,[]);const gd=guildOf(g);

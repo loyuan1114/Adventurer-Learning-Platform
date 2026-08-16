@@ -761,7 +761,7 @@ display: none !important;
 
 <div id="bgfx"></div><div id="fxlayer"></div>
 
-<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">⚔️</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">正在載入...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">✨</i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">🌟</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">⭐</i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">💫</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">✨</i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">🌠</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">⚔️</div><h2 class="ldTitle">全領域冒險者養成系統</h2><p class="ldVer">v2.0　傳說冒險即將開始…</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
+<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">⚔️</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">正在載入...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">✨</i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">🌟</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">⭐</i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">💫</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">✨</i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">🌠</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">⚔️</div><h2 class="ldTitle">全領域冒險者養成系統</h2><p class="ldVer">v3.0　語言自學・AI 出題・1.3x 獎勵！</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
 
 <div id="login" style="display:grid">
 
@@ -771,7 +771,7 @@ display: none !important;
 
 <h1 class="logoT">全領域冒險者<br>養成系統</h1>
 
-<div class="verRow"><span class="verChip">v2.0</span><span class="verChip star">★ 九大強化版</span></div>
+<div class="verRow"><span class="verChip">v3.0</span><span class="verChip star">★ 九大強化版</span></div>
 
 <ul class="featL">
 
@@ -822,6 +822,13 @@ display: none !important;
 /* ════════════════════════════════════════════════════════════
    模組懶載入（由 tools/build/splitall.py 產生，勿手動改）
    每個畫面一個 js/views/ 模組：用到才載入，沒用到的完全不載
+/* ════════════════════════════════════════════
+   共用模組（splitall.py 自動拆分）：被多個畫面共用，任一畫面用到才載入
+   含 41 個單位：onlHtml, esc, fmt, pick, today, CFG, effMaxLv, SUBJ, CHARS, POOLS, EXPS, newGame…
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   模組懶載入（由 tools/build/splitall.py 產生，勿手動改）
+   每個畫面一個 js/views/ 模組：用到才載入，沒用到的完全不載
    ════════════════════════════════════════════════════════════ */
 const JSLOAD={};
 async function needJs(list){
@@ -834,6 +841,564 @@ async function needJs(list){
   })));
   return out.every(Boolean);
 }
+function onlHtml(user){
+  const un=(user&&(user.username||user.id))||'';
+  const on=_onlineSet.has(un);
+  return '<span class="onlBadge '+(on?'on':'off')+'" data-u="'+esc(un)+'">'+(on?'● 線上':'○ 離線')+'</span>';
+}
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const fmt=t=>new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+
+const pick=a=>a[(Math.random()*a.length)|0];
+
+const today=()=>new Date().toDateString();
+
+const CFG={
+
+MAX_LV:300,lvMult:l=>+(1+(l-1)*.04).toFixed(2), /* 等級上限 300 */
+
+needXp:l=>Math.floor(l*80+Math.pow(l,1.5)*20),
+
+dRew:l=>({exp:Math.floor(8+l*1.6),crystal:Math.floor(3+l*.5),gold:Math.floor(8+l*2.5)}),
+
+dropRate:l=>Math.min(.65,.08+l*.006),
+
+dDesc:l=>l<=10?'簡單-基礎題':l<=20?'普通-進階題':l<=35?'中等-多步驟':l<=50?'中上-需思考':l<=65?'較難-觀念題':l<=80?'困難-陷阱++':l<=90?'極難-資優題':'地獄-超級難',
+
+COMBO:{3:.03,6:.06,10:.12,15:.18,20:.25,30:.35},
+
+GACHA:{single:30,ten:270,rates:{N:.5,R:.3,SR:.14,SSR:.05,UR:.01},pity:{SR:10,SSR:50,UR:100}},
+
+ENH:{rate:{0:1,1:1,2:1,3:1,4:1,5:.8,6:.65,7:.5,8:.38,9:.28,10:.2,11:.14,12:.09,13:.05,14:.03},cost:l=>l<=3?1:l<=7?2:l<=11?3:5,pen:l=>l<=5?0:l<=9?1:l<=12?2:3},
+
+STAR_COST:{2:5,3:10,4:20,5:40},STAR_BONUS:{1:1,2:1.3,3:1.6,4:2,5:2.5},
+
+SIGN:{1:{t:'gold',n:100,d:'🪙 金幣 ×100'},2:{t:'crystal',n:50,d:'💠 水晶 ×50'},3:{t:'enhStone',n:10,d:'🔩 強化石 ×10'},4:{t:'starlight',n:5,d:'✨ 星光碎片 ×5'},5:{t:'gold',n:300,d:'🪙 金幣 ×300'},6:{t:'crystal',n:150,d:'💠 水晶 ×150'},7:{t:'diamond',n:10,d:'💎 鑽石 ×10'}},
+
+RAR_C:{N:'#9ca3af',R:'#22c55e',SR:'#3b82f6',SSR:'#a855f7',UR:'#f59e0b'},
+
+RAR_S:{N:'★',R:'★★',SR:'★★★',SSR:'★★★★',UR:'★★★★★'},
+
+QUAL:['普通','優秀','精良','史詩','傳說'],
+
+QUAL_C:{'普通':'#9ca3af','優秀':'#22c55e','精良':'#3b82f6','史詩':'#a855f7','傳說':'#f59e0b'},
+
+QBASE:{'普通':5,'優秀':12,'精良':25,'史詩':50,'傳說':100},
+
+UNLOCK:{1:1,31:5,51:10,71:20,86:30,96:40},
+
+MILE:[100,500,1000,2000,3000,5000,8000,10000,15000,20000],
+
+TRADE_MIN_RATIO:0.40, /* #9 交易價格不得低於物品價值 40% */
+
+FORGE_RECIPES:[
+
+{id:'r1',name:'鐵劍',slot:'武器',mats:{ironOre:3,starlight:1},rate:.85,qw:{'普通':50,'優秀':35,'精良':12,'史詩':3,'傳說':0},pool:['鐵劍','鋼鐵之刃']},
+
+{id:'r2',name:'皮甲',slot:'胸甲',mats:{ironOre:2,starlight:1},rate:.85,qw:{'??':55,'??':30,'??':12,'??':3,'??':0},pool:['??','????']},
+
+{id:'r3',name:'??',slot:'??',mats:{ironOre:2,starlight:2},rate:.8,qw:{'普通':50,'優秀':32,'精良':14,'史詩':4,'傳說':0},pool:['鐵盔','守衛頭盔']},
+
+{id:'r4',name:'護腕',slot:'護腕',mats:{ironOre:1,starlight:2},rate:.8,qw:{'普通':52,'優秀':32,'精良':13,'史詩':3,'傳說':0},pool:['護腕','精鋼護腕']},
+
+{id:'r5',name:'疾風鞋',slot:'鞋子',mats:{ironOre:2,starlight:3},rate:.75,qw:{'普通':45,'優秀':35,'精良':15,'史詩':5,'傳說':0},pool:['疾風鞋','迅捷之靴']},
+
+{id:'r6',name:'項鍊',slot:'項鍊',mats:{ironOre:3,starlight:4},rate:.7,qw:{'普通':40,'優秀':35,'精良':18,'史詩':6,'傳說':1},pool:['項鍊','星辰項鍊']},
+
+{id:'r7',name:'戒指',slot:'戒指',mats:{ironOre:3,starlight:5},rate:.65,qw:{'普通':38,'優秀':35,'精良':19,'史詩':7,'傳說':1},pool:['戒指','賢者之戒']},
+
+{id:'r8',name:'傳說之劍',slot:'武器',mats:{ironOre:10,starlight:15},rate:.4,qw:{'普通':10,'優秀':25,'精良':35,'史詩':25,'傳說':5},pool:['傳說之劍','創世之刃']},
+
+{id:'r9',name:'龍鱗甲',slot:'胸甲',mats:{ironOre:8,starlight:6,labMat:4},rate:.55,qw:{'普通':20,'優秀':32,'精良':28,'史詩':16,'傳說':4},pool:['龍鱗甲','炎龍胸鎧']},
+
+{id:'r10',name:'賢者法杖',slot:'武器',mats:{ironOre:5,starlight:8,labMat:6},rate:.55,qw:{'普通':18,'優秀':30,'精良':30,'史詩':18,'傳說':4},pool:['賢者法杖','奧術權杖']},
+
+{id:'r11',name:'星辰弓',slot:'武器',mats:{ironOre:6,starlight:10,labMat:5},rate:.5,qw:{'普通':15,'優秀':28,'精良':32,'史詩':20,'傳說':5},pool:['星辰弓','流星長弓']},
+
+{id:'r12',name:'守護巨盾',slot:'護腕',mats:{ironOre:12,starlight:4,labMat:8},rate:.6,qw:{'普通':22,'優秀':33,'精良':27,'史詩':14,'傳說':4},pool:['守護巨盾','聖壁之盾']},
+
+{id:'r13',name:'神聖護符',slot:'項鏈',mats:{ironOre:4,starlight:12,labMat:10},rate:.45,qw:{'普通':12,'優秀':26,'精良':34,'史詩':22,'傳說':6},pool:['神聖護符','天使墜飾']},
+
+{id:'r14',name:'創世皇冠',slot:'頭盔',mats:{ironOre:15,starlight:20,labMat:15},rate:.35,qw:{'普通':5,'優秀':18,'精良':32,'史詩':32,'傳說':13},pool:['創世皇冠','永恆王冠']}
+
+],
+
+EXCH:[
+
+{f:'crystal',fn:100,t:'gold',tn:200,d:'💠100 → 🪙200'},
+
+{f:'gold',fn:200,t:'crystal',tn:30,d:'🪙200 → 💠30'},
+
+{f:'honor',fn:20,t:'pkExtra',tn:1,d:'🏅榮譽幣20 → 🏟️PK挑戰券×1'},
+
+{f:'quizPts',fn:50,t:'quizExtra',tn:1,d:'📖答題積分50 → ⚔️修煉場次數×1'},
+
+{f:'honor',fn:100,t:'teammate',tn:'數學偵探',d:'🏅榮譽幣100 → 🤝稀有隊友「數學偵探」'},
+
+{f:'labMat',fn:30,t:'pet',tn:'星辰鷹',d:'🧪實驗素材30 → 🐾限定寵物「星辰鷹」'},
+
+{f:'gold',fn:500,t:'diamond',tn:1,d:'🪙500 → 💎1'},
+
+{f:'starlight',fn:20,t:'diamond',tn:2,d:'✨20 → 💎2'},
+
+{f:'gold',fn:300,t:'labMat',tn:10,d:'🪙300 → 🧪實驗素材10'},
+
+{f:'crystal',fn:100,t:'labMat',tn:15,d:'💠100 → 🧪實驗素材15'}
+
+],
+
+EGGS:{'星空密碼':{t:'starAll',d:'全部角色 +1 星！'},'水晶祕寶':{t:'crystal',n:100,d:'獲得 100 💠！'},'森林之寶':{t:'diamond',n:5,d:'獲得 5 💎！'}}
+
+};
+
+function effMaxLv(){const m=window.getMaxLevel?window.getMaxLevel():CFG.MAX_LV;return Math.max(300,m)}
+
+const SUBJ={
+
+'數學':{c:'#ff5252',i:'📐',u:{'7上':['整數運算','因數倍數與分數','一元一次方程式','二元一次聯立方程','一元一次不等式','數線與絕對值'],'7下':['指數與科學記號','平方根與畢氏定理','因式分解','分式運算','一次函數'],'8上':['乘法公式','多項式加減','分式運算','一次不等式','函數圖形'],'8下':['三角形與全等','四邊形','圓與切線','比例線段','相似形'],'9上':['一元二次方程式','二次函數','判別式與根','餘式定理'],'9下':['圓與切線長','三角比','統計與機率','空間圖形']}},
+
+'英文':{c:'#00e5ff',i:'🔤',u:{'7上':['Be動詞','代名詞','冠詞','Wh-問句','現在簡單式'],'7下':['現在進行式','There be 句型','助動詞 can','祈使句','介系詞'],'8上':['過去簡單式','頻率副詞','比較級與最高級','不定詞','動名詞'],'8下':['現在完成式','被動語態','關係代名詞','條件句','未來式'],'9上':['過去完成式','間接引語','分詞構句','假設語氣'],'9下':['總複習文法','閱讀技巧','克漏字','作文','聽力練習']}},
+
+'國文':{c:'#448aff',i:'📖',u:{'7上':['論語選','孟子選','世說新語','唐詩選','宋詞選'],'7下':['古文選讀','現代散文','新詩','小說選讀','應用文'],'8上':['史記選','唐詩','宋詞','元曲','古文觀止'],'8下':['左傳選','戰國策','明清小說','現代散文','書信'],'9上':['論孟深讀','古文觀止','新詩賞析','小說'],'9下':['總複習','寫作','閱讀測驗','國學常識']}},
+
+'自然':{c:'#69f0ae',i:'🔬',u:{'7上':['細胞與顯微鏡','光合作用','呼吸作用','酵素','生物分類'],'7下':['物質與變化','水溶液','空氣與燃燒','天氣','岩石與礦物'],'8上':['力與運動','壓力','浮力','溫度與熱','電與磁'],'8下':['光與聲音','電磁感應','化學反應速率','電池','有機物'],'9上':['地球與宇宙','板塊運動','天氣系統','能源'],'9下':['生態系','演化','遺傳','總複習']}},
+
+'社會':{c:'#ffab40',i:'🌏',u:{'7上':['臺灣史前文化','荷西統治','臺灣位置','臺灣地形','個人與成長'],'7下':['明清時期','日治時期','臺灣氣候','人口與聚落','家庭與生活'],'8上':['中國上古史','秦漢時期','中國地形','中國氣候','學校生活'],'8下':['宋元明清','民國建立','世界地理','公民社會'],'9上':['世界史','世界區域地理','國家與憲法','政府運作'],'9下':['當代世界','全球化','國際組織','總複習']}},
+
+'綜合活動':{c:'#ff6e40',i:'🧩',u:{'7上':['自我探索','人際關係','學習方法','生涯規劃'],'7下':['情緒管理','消費行為','休閒生活','環境教育'],'8上':['性別平等','法律常識','志願服務','防災教育'],'8下':['職業試探','理財教育','媒體素養','國際理解'],'9上':['升學輔導','壓力調適','生命教育','公民參與'],'9下':['畢業準備','生涯決策','社會適應','總複習']}},
+
+'健體':{c:'#ea80fc',i:'🏃',u:{'7上':['籃球','游泳','田徑','羽球','健康飲食'],'7下':['排球','桌球','體操','足球','急救常識'],'8上':['籃球進階','壘球','舞蹈','網球','用藥安全'],'8下':['羽球進階','武術','韻律活動','游泳進階','心理健康'],'9上':['綜合球類','防身術','體能訓練','運動傷害'],'9下':['終身運動','健康體位','運動計畫','總複習']}},
+
+'藝文':{c:'#b2ff59',i:'🎨',u:{'7上':['素描','水彩','直笛','合唱','版畫'],'7下':['水墨','書法','節奏樂器','戲劇','陶藝'],'8上':['透視圖法','色彩學','樂理','舞蹈','攝影'],'8下':['設計','工藝','音樂欣賞','劇場','動畫'],'9上':['藝術賞析','創作','合奏','編舞','多媒體'],'9下':['畢業製作','藝術評論','展演','總複習']}},
+
+'科技':{c:'#18ffff',i:'💻',u:{'7上':['工程與結構','Scratch 程式','演算法','3D 建模','木工'],'7下':['Python 基礎','網頁 HTML/CSS','機電整合','雷射切割','感測器'],'8上':['Python 進階','數據分析','App 開發','Arduino','AI 體驗'],'8下':['App Inventor','物聯網','機器人','能源科技','創客'],'9上':['專題製作','程式競賽','資料庫','網路安全','科技倫理'],'9下':['AI 應用','未來科技','總複習','作品發表']}},
+
+'輔導':{c:'#ffd54f',i:'🧭',u:{'7上':['自我認識','情緒覺察','人際溝通','適應新環境'],'7下':['壓力管理','時間規劃','衝突處理','生涯探索'],'8上':['自我肯定','網路安全','性別尊重','學習策略'],'8下':['家庭溝通','挫折調適','團體合作','職業認識'],'9上':['生涯抉擇','升學壓力','自我實現','人際關係'],'9下':['未來規劃','生涯輔導','心理健康','總複習']}}
+
+};
+
+const CHARS={
+
+'見習法師':{r:'N',icon:'🧙',sk:[['魔力啟蒙','簡單題經驗+5%',{exp_easy_bonus:.05}],['幸運星','掉落率+2%',{drop_bonus:.02}]]},
+
+'數學精靈':{r:'N',icon:'🧮',sk:[['數字感知','數學經驗+8%',{math_exp_bonus:.08}],['連擊共鳴','3連擊以上經驗+5%',{combo3_exp:.05}]]},
+
+'英文仙子':{r:'N',icon:'🧚',sk:[['語感天賦','英文經驗+8%',{english_exp_bonus:.08}],['守護屏障','10%連擊保護',{combo_protect:.10}]]},
+
+'國文書僮':{r:'N',icon:'📚',sk:[['文學素養','國文經驗+8%',{chinese_exp_bonus:.08}],['溫故知新','重練經驗+10%',{retry_exp_bonus:.10}]]},
+
+'幾何戰士':{r:'R',icon:'📐',sk:[['精準打擊','掉落率+3%',{drop_bonus:.03}],['弱點洞察','20%連擊保護',{combo_protect:.20}],['金幣獵手','每題金幣+5',{gold_per_correct:5}]]},
+
+'雷電忍者':{r:'R',icon:'🥷',sk:[['雷遁','困難題經驗+10%',{exp_hard_bonus:.10}],['連擊加速','連擊加成+3%',{combo_extra:.03}]]},
+
+'海洋祭司':{r:'R',icon:'🌊',sk:[['潮汐祝福','自然經驗+10%',{science_exp_bonus:.10}],['水之屏障','15%連擊保護',{combo_protect:.15}],['海之力','PK戰力+5%',{pk_power_bonus:.05}]]},
+
+'文學劍客':{r:'R',icon:'⚔️',sk:[['劍意','PK戰力+5%',{pk_power_bonus:.05}],['詩心','社會經驗+10%',{social_exp_bonus:.10}]]},
+
+'暗影獵人':{r:'R',icon:'🏹',sk:[['暗影步','25%連擊保護',{combo_protect:.25}],['鷹眼','全經驗+5%',{all_exp_bonus:.05}]]},
+
+'聖光牧師':{r:'R',icon:'✨',sk:[['神恩','每日任務獎勵+15%',{mission_bonus:.15}],['祝福','經驗+5%',{exp_bonus:.05}]]},
+
+'時空旅人':{r:'SR',icon:'🌀',sk:[['時空加速','全經驗+12%',{all_exp_bonus:.12}],['時空屏障','35%連擊保護',{combo_protect:.35}],['機緣','掉落+5%',{drop_bonus:.05}]]},
+
+'星光祭司':{r:'SR',icon:'🌟',sk:[['星光祈願','水晶+20%',{crystal_bonus:.20}],['雙倍連擊','連擊加成加倍',{combo_bonus_double:true}]]},
+
+'龍族騎士':{r:'SR',icon:'🐲',sk:[['龍魂','PK戰力+12%',{pk_power_bonus:.12}],['龍鱗','品質提升+25%',{quality_up:.25}],['龍威','40%連擊保護',{combo_protect:.40}]]},
+
+'鳳凰巫女':{r:'SR',icon:'🔮',sk:[['不死鳥','45%連擊保護',{combo_protect:.45}],['鳳焰','全經驗+10%',{all_exp_bonus:.10}]]},
+
+'大魔導師':{r:'SR',icon:'🪄',sk:[['魔力增幅','強化成功+5%',{enhance_bonus:.05}],['雷霆','數學經驗+15%',{math_exp_bonus:.15}],['魔導威壓','PK+8%',{pk_power_bonus:.08}]]},
+
+'寶藏獵人':{r:'SR',icon:'💰',sk:[['尋寶','掉落+8%',{drop_bonus:.08}],['疾風','速度加成+30%',{speed_bonus:.30}]]},
+
+'聖輝天使':{r:'SSR',icon:'👼',sk:[['聖光庇護','全經驗+20%',{all_exp_bonus:.20}],['天使之盾','每日3次連擊保護',{combo_protect_daily:3}],['神賜','掉落+8%',{drop_bonus:.08}]]},
+
+'月光女神':{r:'SSR',icon:'🌙',sk:[['月華','水晶+35%',{crystal_bonus:.35}],['月之守護','每日5次連擊保護',{combo_protect_daily:5}],['女神祝福','PK+15%',{pk_power_bonus:.15}]]},
+
+'武神戰將':{r:'SSR',icon:'🛡️',sk:[['武神','PK戰力+18%',{pk_power_bonus:.18}],['戰利品','掉落+10% 品質+35%',{drop_bonus:.10,quality_up:.35}]]},
+
+'賢者之石':{r:'SSR',icon:'💎',sk:[['鍊金','全經驗+18% 掉落+8%',{all_exp_bonus:.18,drop_bonus:.08}],['點石成金','領土加成',{territory_bonus:true}],['賢者','品質+30%',{quality_up:.30}]]},
+
+'創世之神':{r:'UR',icon:'🌌',sk:[['創世','全經驗+30%',{all_exp_bonus:.30}],['神蹟','掉落+15% 品質100%提升',{drop_bonus:.15,quality_up:1}],['天命','保底-10抽',{pity_reduce:10}]]},
+
+'永恆之王':{r:'UR',icon:'♾️',sk:[['永恆','全經驗+25%',{all_exp_bonus:.25}],['無盡','水晶+50%',{crystal_bonus:.50}],['王權','PK+20%',{pk_power_bonus:.20}]]},
+
+'財富之神':{r:'UR',icon:'🏆',sk:[['財源','掉落+20% 金幣+50%',{drop_bonus:.20,gold_bonus:.50}],['聚寶盆','每日10次連擊保護',{combo_protect_daily:10}],['金運','品質+80%',{quality_up:.80}]]},
+
+/* ── 擴充角色 50 ── */
+'烈焰領主':{r:'UR',icon:'🔥',sk:[['烈焰風暴','全經驗+15%',{all_exp_bonus:.15}],['焚盡','掉落+10%',{drop_bonus:.10}],['火種','PK+8%',{pk_power_bonus:.08}]]},
+'冰霜女王':{r:'SSR',icon:'❄️',sk:[['冰凍屏障','連擊保護30%',{combo_protect:.30}],['霜寒','PK+10%',{pk_power_bonus:.10}],['暴雪','水晶+15%',{crystal_bonus:.15}]]},
+'大地守衛':{r:'SR',icon:'🪨',sk:[['磐石','防禦+20%',{defense_bonus:.20}],['地裂','金幣+15%',{gold_bonus:.15}],['震盪','強化+3%',{enhance_bonus:.03}]]},
+'風行者':{r:'R',icon:'🌪️',sk:[['疾風步','速度+25%',{speed_bonus:.25}],['風刃','掉落+4%',{drop_bonus:.04}]]},
+'光之祭司':{r:'SR',icon:'☀️',sk:[['聖光術','任務獎勵+10%',{mission_bonus:.10}],['淨化','連擊保護25%',{combo_protect:.25}]]},
+'暗影刺客':{r:'SSR',icon:'🗡️',sk:[['暗殺','PK+15%',{pk_power_bonus:.15}],['潛行','掉落+8%',{drop_bonus:.08}],['毒刃','金幣+20%',{gold_bonus:.20}]]},
+'聖騎士':{r:'SR',icon:'🛡️',sk:[['神聖護盾','連擊保護35%',{combo_protect:.35}],['正義','全經驗+6%',{all_exp_bonus:.06}]]},
+'狂戰士':{r:'R',icon:'⚔️',sk:[['狂暴','連擊加成+5%',{combo_extra:.05}],['戰吼','困難題經驗+8%',{exp_hard_bonus:.08}]]},
+'德魯伊':{r:'SR',icon:'🌿',sk:[['自然共鳴','自然經驗+15%',{science_exp_bonus:.15}],['變形','水晶+10%',{crystal_bonus:.10}]]},
+'占星師':{r:'SSR',icon:'🔮',sk:[['星象預測','保底-5抽',{pity_reduce:5}],['命運','掉落+6%',{drop_bonus:.06}],['占卜','全經驗+8%',{all_exp_bonus:.08}]]},
+'鍊金術士':{r:'R',icon:'🧪',sk:[['轉換','強化+4%',{enhance_bonus:.04}],['調和','鐵礦+20%',{iron_bonus:.20}]]},
+'機械工程師':{r:'SR',icon:'⚙️',sk:[['裝甲','連擊保護20%',{combo_protect:.20}],['精算','金幣+18%',{gold_bonus:.18}]]},
+'海盜船長':{r:'R',icon:'🏴‍☠️',sk:[['掠奪','掉落+3%',{drop_bonus:.03}],['航海','經驗+5%',{exp_bonus:.05}]]},
+'維京戰士':{r:'SR',icon:'🪓',sk:[['狂怒','PK+10%',{pk_power_bonus:.10}],['硬皮','防禦+15%',{defense_bonus:.15}]]},
+'武士':{r:'SSR',icon:'🎌',sk:[['居合斬','PK+18%',{pk_power_bonus:.18}],['武士道','全經驗+10%',{all_exp_bonus:.10}],['刀銘','品質+20%',{quality_up:.20}]]},
+'忍者大師':{r:'R',icon:'🥷',sk:[['影分身','連擊保護15%',{combo_protect:.15}],['手裡劍','掉落+3%',{drop_bonus:.03}]]},
+'少林武僧':{r:'SR',icon:'🧘',sk:[['氣功','經驗+10%',{exp_bonus:.10}],['鐵布衫','連擊保護25%',{combo_protect:.25}]]},
+'埃及法老':{r:'UR',icon:'👑',sk:[['詛咒','PK+20%',{pk_power_bonus:.20}],['金字塔','水晶+40%',{crystal_bonus:.40}],['轉生','每日3次免死',{combo_protect_daily:3}]]},
+'希臘英雄':{r:'SSR',icon:'🏛️',sk:[['神力','PK+15%',{pk_power_bonus:.15}],['勇氣','掉落+7%',{drop_bonus:.07}],['智慧','答題積分+15%',{quiz_pts_bonus:.15}]]},
+'北歐神祇':{r:'UR',icon:'⚡',sk:[['雷神之鎚','全經驗+30%',{all_exp_bonus:.30}],['英靈殿','金幣+50%',{gold_bonus:.50}],['神域','保底-10抽',{pity_reduce:10}]]},
+'量子學者':{r:'SR',icon:'🧬',sk:[['疊加','強化+5%',{enhance_bonus:.05}],['纏繞','連擊保護30%',{combo_protect:.30}]]},
+'龍脈術士':{r:'SSR',icon:'🐉',sk:[['龍語','數學經驗+20%',{math_exp_bonus:.20}],['龍鱗','品質+25%',{quality_up:.25}],['龍焰','PK+12%',{pk_power_bonus:.12}]]},
+'精靈射手':{r:'R',icon:'🏹',sk:[['鷹眼','困難題額外水晶',{hard_crystal_bonus:3}],['精準','掉落+4%',{drop_bonus:.04}]]},
+'矮人鐵匠':{r:'SR',icon:'🔨',sk:[['鍛造大師','強化+8%',{enhance_bonus:.08}],['秘銀','鐵礦+30%',{iron_bonus:.30}]]},
+'獸人酋長':{r:'R',icon:'🦷',sk:[['戰斧','PK+6%',{pk_power_bonus:.06}],['圖騰','經驗+5%',{exp_bonus:.05}]]},
+'天使長':{r:'UR',icon:'👼',sk:[['神恩','全經驗+28%',{all_exp_bonus:.28}],['復活','每日1次連擊保護',{combo_protect_daily:1}],['聖裁','PK+18%',{pk_power_bonus:.18}]]},
+'惡魔領主':{r:'SSR',icon:'😈',sk:[['魔焰','掉落+9%',{drop_bonus:.09}],['契約','金幣+25%',{gold_bonus:.25}],['深淵','水晶+20%',{crystal_bonus:.20}]]},
+'時空行者':{r:'SSR',icon:'⏳',sk:[['時間暫停','連擊保護40%',{combo_protect:.40}],['平行','全經驗+12%',{all_exp_bonus:.12}]]},
+'元素使':{r:'R',icon:'🌍',sk:[['地火風水','全科目+5%',{all_exp_bonus:.05}],['共鳴','連擊加成+3%',{combo_extra:.03}]]},
+'星際獵人':{r:'SR',icon:'🚀',sk:[['雷射瞄準','PK+8%',{pk_power_bonus:.08}],['宇宙視野','掉落+5%',{drop_bonus:.05}]]},
+'幻術師':{r:'R',icon:'🎭',sk:[['幻影','連擊保護10%',{combo_protect:.10}],['錯覺','PK+4%',{pk_power_bonus:.04}]]},
+'聖殿騎士':{r:'SSR',icon:'⚜️',sk:[['聖盾','連擊保護45%',{combo_protect:.45}],['十字軍','全經驗+14%',{all_exp_bonus:.14}]]},
+'黑魔法師':{r:'SR',icon:'🧿',sk:[['詛咒','PK+10%',{pk_power_bonus:.10}],['黑焰','掉落+5%',{drop_bonus:.05}]]},
+'白魔法師':{r:'R',icon:'✨',sk:[['治癒','任務獎勵+8%',{mission_bonus:.08}],['祝福','經驗+4%',{exp_bonus:.04}]]},
+'拳鬥士':{r:'R',icon:'👊',sk:[['連打','連擊加成+5%',{combo_extra:.05}],['鐵拳','強化+3%',{enhance_bonus:.03}]]},
+'劍聖':{r:'UR',icon:'🗡️',sk:[['無雙','PK+25%',{pk_power_bonus:.25}],['劍意','全經驗+22%',{all_exp_bonus:.22}],['極意','品質+40%',{quality_up:.40}]]},
+'槍神':{r:'SR',icon:'🔫',sk:[['狙擊','PK+12%',{pk_power_bonus:.12}],['速射','掉落+4%',{drop_bonus:.04}]]},
+'弓神':{r:'R',icon:'🏹',sk:[['貫穿','困難題經驗+10%',{exp_hard_bonus:.10}],['神射','水晶+8%',{crystal_bonus:.08}]]},
+'盾衛':{r:'R',icon:'🛡️',sk:[['防衛','連擊保護20%',{combo_protect:.20}],['堅韌','金幣+5%',{gold_bonus:.05}]]},
+'突擊兵':{r:'SR',icon:'💣',sk:[['爆破','掉落+6%',{drop_bonus:.06}],['戰術','經驗+10%',{exp_bonus:.10}]]},
+'醫護兵':{r:'R',icon:'🏥',sk:[['急救','任務獎勵+10%',{mission_bonus:.10}],['鼓舞','連擊保護10%',{combo_protect:.10}]]},
+'通訊兵':{r:'SR',icon:'📡',sk:[['情報','答題積分+15%',{quiz_pts_bonus:.15}],['支援','全經驗+6%',{all_exp_bonus:.06}]]},
+'特務':{r:'SSR',icon:'🕶️',sk:[['滲透','掉落+8%',{drop_bonus:.08}],['偽裝','PK+14%',{pk_power_bonus:.14}],['暗殺','金幣+20%',{gold_bonus:.20}]]},
+'偵探':{r:'R',icon:'🔍',sk:[['推理','社會經驗+12%',{social_exp_bonus:.12}],['觀察','掉落+3%',{drop_bonus:.03}]]},
+'寶藏獵人・改':{r:'SR',icon:'💰',sk:[['尋寶','掉落+10%',{drop_bonus:.10}],['幸運','品質+15%',{quality_up:.15}]]},
+'冒險王':{r:'R',icon:'🧭',sk:[['導航','領土加成',{territory_bonus:true}],['生存','經驗+5%',{exp_bonus:.05}]]},
+'考古學家':{r:'SR',icon:'🏺',sk:[['古物','社會經驗+15%',{social_exp_bonus:.15}],['修復','強化+5%',{enhance_bonus:.05}]]},
+'生態學家':{r:'R',icon:'🌳',sk:[['生態','自然經驗+12%',{science_exp_bonus:.12}],['保育','水晶+5%',{crystal_bonus:.05}]]},
+'基因學家':{r:'SSR',icon:'🧬',sk:[['突變','全經驗+16%',{all_exp_bonus:.16}],['演化','掉落+7%',{drop_bonus:.07}]]},
+'太空人':{r:'UR',icon:'👨‍🚀',sk:[['失重','PK+18%',{pk_power_bonus:.18}],['探索','全經驗+24%',{all_exp_bonus:.24}],['星塵','水晶+45%',{crystal_bonus:.45}]]}
+
+};
+
+const POOLS={character:CHARS,pet:PETS,anime:ANIME,teammate:TEAMMATES};
+
+const EXPS=[
+
+{n:'🧪 酸鹼中和滴定',d:'用氫氧化鈉滴定醋酸，觀察 pH 變化',rw:{exp:80,crystal:15,labMat:8},st:['1. 準備醋酸溶液 50mL','2. 滴入酚酞指示劑數滴','3. 逐滴加入 NaOH 並搖晃','4. 觀察溶液由無色轉為粉紅色','5. 記錄數據並計算濃度'],kn:'酸 + 鹼 → 鹽 + 水，中和點 pH≈7'},
+
+{n:'🔬 光學折射實驗',d:'觀察光線穿過不同介質的折射現象',rw:{exp:90,crystal:18,labMat:9},st:['1. 準備雷射筆與半圓形玻璃','2. 調整入射角 30°','3. 觀察折射角變化','4. 測量入射角與折射角','5. 計算折射率 n=sin i/sin r'],kn:'司乃耳定律：n₁sinθ₁ = n₂sinθ₂'},
+
+{n:'⚡ 電路模擬實驗',d:'組裝串聯與並聯電路，測量電流電壓',rw:{exp:100,crystal:20,labMat:10},st:['1. 準備電池、燈泡、導線','2. 組裝串聯電路','3. 測量各點電流','4. 改組並聯電路','5. 比較串並聯差異'],kn:'歐姆定律 V=IR；串聯電流相同，並聯電壓相同'},
+
+{n:'⚗️ 金屬活性順序',d:'觀察金屬與酸反應的劇烈程度',rw:{exp:100,crystal:20,labMat:10},st:['1. 準備稀鹽酸與數種金屬','2. 分別放入鎂、鋅、鐵、銅','3. 觀察氣泡產生速率','4. 排出活性順序 Mg>Zn>Fe>Cu','5. 記錄實驗結果'],kn:'金屬活性越強，與酸反應越劇烈'},
+
+{n:'💧 水的電解',d:'電解水產生氫氣與氧氣',rw:{exp:120,crystal:25,labMat:12},st:['1. 準備電解槽與電極','2. 加入少量電解質','3. 接通電源','4. 觀察兩極氣泡（陰極 H₂／陽極 O₂）','5. 測量體積比'],kn:'2H₂O → 2H₂↑ + O₂↑，體積比 2:1'},
+
+{n:'🌿 光合作用觀察',d:'觀察水草在光下產生氣泡',rw:{exp:110,crystal:22,labMat:11},st:['1. 準備新鮮水草','2. 放入裝水的燒杯','3. 以漏斗與試管收集氣體','4. 光照一段時間','5. 以餘燼木條檢驗氧氣'],kn:'光合作用：CO₂ + H₂O →(光,葉綠素) 醣類 + O₂'},
+
+{n:'🌋 小蘇打火山',d:'小蘇打粉＋醋產生二氧化碳',rw:{exp:90,crystal:18,labMat:9},st:['1. 堆出火山造型','2. 加入小蘇打粉','3. 倒入醋與色素','4. 觀察泡沫噴發','5. 記錄反應現象'],kn:'NaHCO₃ + CH₃COOH → CO₂↑ + H₂O + CH₃COONa'},
+
+{n:'🧲 電磁感應實驗',d:'移動磁鐵穿過線圈產生感應電流',rw:{exp:115,crystal:23,labMat:11},st:['1. 準備線圈與靈敏電流計','2. 將磁鐵快速插入線圈','3. 觀察電流計指針偏轉','4. 改變磁鐵速度與方向','5. 歸納感應電流規律'],kn:'法拉第定律：磁通量變化產生感應電動勢'}
+
+];
+
+function newGame(){return{
+
+lv:1,xp:0,needXp:CFG.needXp(1),
+
+crystal:100,gold:200,diamond:5000,starlight:5,enhStone:5,protect:2,shield:0,ironOre:10,labMat:0,
+
+honor:0,quizPts:0,pkExtra:0,quizExtra:0,guildCoin:0,
+
+combo:0,forgeCount:0,forgeLv:1,
+
+stats:{total:0,correct:0,maxCombo:0,hardCorrect:0,retry:0,enhance:0,missions:0,subj:{},milestones:[]},
+
+gacha:{total:0,sinceSR:0,sinceSSR:0,sinceUR:0,hist:[],plv:1,pxp:0}, /* plv/pxp：卡池等級與升級進度（抽卡免費累積） */
+
+owned:{character:[],pet:[],anime:[],teammate:[]},
+
+equip:{character:null,pet:null,anime:null,teammate:null},
+
+stars:{},collLv:{},awaken:[],weapons:[],blueprints:[],
+
+titles:['t0'],equippedTitle:'t0',ach:{},
+
+missions:{date:'',list:[]},shop:{date:'',items:[],bought:[],refreshes:0},
+
+wrong:{},qSeen:[],qSeenTxt:[],territory:{owned:{},levels:{},target:'',targetDate:'',sweepDate:''},
+
+pk:{win:0,lose:0,today:0,date:'',streak:0,maxStreak:0,gwUsed:0,firstWin:false},
+
+arena:{floor:1,best:1}, /* #2 PK 無限競技塔 */
+
+video:{date:'',count:0,watched:[]},rankClaim:{date:'',boards:[]},arenaClaim:'', /* 影片觀看獎勵、排行榜/競技塔每日排名獎勵領取紀錄 */
+
+weekly:{wk:'',n:0,claimed:false}, /* 每週任務進度 */
+
+energy:{date:'',sent:[],received:[]},streak:{date:'',count:0},groupId:null,guildId:null,
+
+sign:{cycle:0,last:'',total:0},lab:[],potion:{at:'',bonus:0},
+
+answerLog:[], /* 作答過程紀錄（供師/管端檢視：題目、選項、對錯、作答秒數、是否用計算機）*/
+
+mail:[],rankMailDate:'', /* 📬 信箱：每日 21:00 自動發放排行榜獎勵到信箱 */
+
+theme:'深邃星空',timeLock:true,diffMode:'精準',eggs:[],feedback:[],
+
+doll:{list:[],shopBought:[]}, /* 娃娃系統：list=擁有娃娃，shopBought=已購買商店娃娃ID */
+
+  /* ★ 裝備系統：owned=背包裝備清單，equipped=7個欄位已裝備ID */
+  eq:{owned:[],equipped:{'頭':null,'衣服':null,'褲子':null,'鞋子':null,'武器':null,'戒指':null,'項鍊':null}},
+  /* ★ 重新滾動統計值系統 */
+  rr:{attr:{},pity:{stage:1,count:0},autoDelete:'ZZZ',autoOn:false,autoTimer:null,totalRolls:0},
+
+}}
+
+function maxDiff(g){let m=30;for(const k in CFG.UNLOCK)if(g.lv>=CFG.UNLOCK[k])m=+k+14;return Math.min(100,m)}
+
+function itemValue(w){return Math.max(10, Math.floor(((CFG.QBASE[w.q]||5)+(w.lv||0)*8)*6));}
+
+function fillGame(g){const base=newGame();if(!g||typeof g!=='object'||Array.isArray(g))return base;const isObj=v=>v&&typeof v==='object'&&!Array.isArray(v);const merge=(b,o)=>{if(Array.isArray(b)){if(Array.isArray(o))return o;if(isObj(o))return Object.values(o);return b}if(isObj(b)){const r={};const src=isObj(o)?o:{};for(const k in b)r[k]=merge(b[k],src[k]);for(const k in src)if(!(k in r))r[k]=src[k];return r}return o===undefined?b:o};return merge(base,g)}
+
+function loginFX(name){ /* 登入成功→全螢幕過場動畫 */
+
+const ov=document.createElement('div');
+
+ov.style.cssText='position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(36,52,94,.97),rgba(10,14,26,.985));animation:fadeOutFx .55s ease 1.05s forwards;pointer-events:none';
+
+ov.innerHTML='<div style="font-size:66px;animation:swordIn .7s cubic-bezier(.2,1.4,.4,1) both">⚔️</div>'+
+
+'<div style="font-family:var(--serif);font-size:24px;font-weight:900;color:var(--gold2);margin-top:12px;animation:riseIn .6s ease .18s both">歡迎回來，'+esc(name)+'！</div>'+
+
+'<div style="font-size:13px;color:var(--mut);margin-top:8px;animation:riseIn .6s ease .34s both">正在進入全領域冒險世界…</div>';
+
+document.body.appendChild(ov);
+
+for(let i=0;i<10;i++){const sp=document.createElement('span');sp.style.cssText='position:fixed;font-size:'+(13+Math.random()*11)+'px;pointer-events:none;z-index:301;left:'+(Math.random()*100)+'vw;top:-24px;animation:goldRain '+(1+Math.random()*1.2)+'s ease-in forwards;animation-delay:'+(Math.random()*0.5)+'s';sp.textContent=['✨','🌟','⭐','💫'][i%4];document.body.appendChild(sp);setTimeout(()=>sp.remove(),2600)}
+
+setTimeout(()=>ov.remove(),1750);
+
+}
+
+function checkSign(g){
+
+const d=today();if(g.sign.last===d)return null;
+
+const y=new Date(Date.now()-86400000).toDateString();
+
+g.sign.cycle=(g.sign.last===y)?g.sign.cycle+1:1;g.sign.last=d;g.sign.total=(g.sign.total||0)+1;
+
+const day=((g.sign.cycle-1)%7)+1,rw=CFG.SIGN[day];
+
+g[rw.t==='enhStone'?'enhStone':rw.t]+=rw.n;
+
+return{day,cycle:g.sign.cycle,rw};
+
+}
+
+let CUR={};
+
+function back(t){return '<button class="btn ghost mini back" onclick="'+(t||'vHome()')+'">← 返回</button>'}
+
+const Quiz={phase:'IDLE',mode:'normal',subj:'',sem:'',unit:'',diff:50,pub:'康軒版',useAI:true,q:null,sel:null,terrName:null,retrySubj:null,retryIdx:null,t0:0};
+
+function qReset(){Quiz.phase='IDLE';Quiz.sel=null;Quiz.q=null}
+
+function logAns(g,ok,el){
+
+if(!Quiz||!Quiz.q)return;
+
+const modeName={terr:'領土征服',retry:'錯題重練',pk:'競技場',weekend:'周末決鬥'}[Quiz.mode]||'修煉場';
+
+const opts=Quiz.q['選項']||[];
+
+g.answerLog=g.answerLog||[];
+
+g.answerLog.push({sub:Quiz.subj||Quiz.retrySubj||'',unit:Quiz.unit||'',stem:String(Quiz.q['題目']||'').slice(0,120),
+
+sel:opts[Quiz.sel]!=null?String(opts[Quiz.sel]).slice(0,40):'',ans:opts[Quiz.q['答案']]!=null?String(opts[Quiz.q['答案']]).slice(0,40):'',
+
+calc:(()=>{const c=document.getElementById('calc');return !!(c&&String(c.value||'').trim())})(), /* 🧮 是否使用計算機草稿 */
+
+calcText:(()=>{const c=document.getElementById('calc');return c?String(c.value||'').trim().slice(0,500):''})(), /* 🧮 計算機草稿內容（供老師看過程） */
+
+ok:!!ok,sec:+el,mode:modeName,t:Date.now()});
+
+if(g.answerLog.length>80)g.answerLog=g.answerLog.slice(-80);
+
+}
+
+function addWrong(g,subj,q,sel){
+
+g.wrong[subj]=g.wrong[subj]||[];
+
+g.wrong[subj].push({q:{'題目':q['題目'],'選項':q['選項'],'答案':q['答案'],'解析':q['解析']},sel,t:fmt(Date.now()),done:false});
+
+if(g.wrong[subj].length>50)g.wrong[subj]=g.wrong[subj].slice(-50);
+
+}
+
+function getShop(g){
+
+const d=today();
+
+if(g.shop.date!==d){
+
+g.shop.date=d;const pool=SHOP_POOL.slice();const items=[];
+
+while(items.length<8&&pool.length){const it=JSON.parse(JSON.stringify(pool.splice((Math.random()*pool.length)|0,1)[0]));
+
+it.disc=Math.random()<.3?(.6+Math.random()*.3):1;
+
+it.hot=Math.random()<.25;items.push(it)}
+
+g.shop.items=items;g.shop.bought=[];g.shop.refreshes=0;
+
+}
+
+return g.shop;
+
+}
+
+
+const st=(l,v)=>'<div class="panel2 statIt"><span>'+l+'</span><b>'+v+'</b></div>';
+
+function importQuestions(qs,log){
+  const el=log||document.getElementById('hwQsImportLog');
+  if(!Array.isArray(qs)||!qs.length){if(el)el.textContent='⚠️ 檔案中沒有可用的題目';return}
+  let ok=0;const bad=[];
+  qs.forEach((q,i)=>{
+    const v=validateQuestion(q);
+    if(!v.ok){bad.push('第 '+(i+1)+' 題：'+v.msg);return}
+    q.id=newQid();if(!q['解析'])q['解析']='（未提供解析）';PUB.qs.push(q);ok++;
+  });
+  renderPubQs();
+  if(el)el.textContent=bad.length?('✅ 匯入 '+ok+' 題；略過 '+bad.length+' 題：'+bad.slice(0,5).join('；')):('✅ 成功匯入 '+ok+' 題');
+}
+
+function renderPubQs(){
+
+const el=document.getElementById('pubQs');if(!el)return;
+
+el.innerHTML=PUB.qs.map((q,i)=>'<div class="panel2" style="margin-bottom:6px;display:flex;gap:8px;align-items:center"><span style="flex:1;font-size:12.5px">'+(i+1)+'. '+esc(q['題目'])+'</span><button class="btn danger mini" onclick="PUB.qs.splice('+i+',1);renderPubQs()">🗑</button></div>').join('')||'<p style="font-size:12px;color:var(--mut)">尚未加入題目</p>';
+
+}
+
+function showCalc(i){
+
+const a=(window._alogView||[])[i];if(!a)return;
+
+const txt=a.calcText||'（學生未留下計算草稿）';
+
+let pop=document.getElementById('calcPop');if(pop)pop.remove();
+
+pop=document.createElement('div');pop.id='calcPop';
+
+pop.style.cssText='position:fixed;inset:0;z-index:130;background:rgba(4,8,16,.75);display:flex;align-items:center;justify-content:center;padding:20px';
+
+pop.onclick=e=>{if(e.target.id==='calcPop')pop.remove()};
+
+pop.innerHTML='<div class="panel" style="max-width:460px;width:100%;padding:20px"><h3 class="mt">🧮 計算過程</h3>'+
+
+'<p class="msub">'+esc(a.sub||'')+'｜'+esc(a.stem||'')+'</p>'+
+
+'<pre class="calc" style="white-space:pre-wrap;word-break:break-all;padding:12px;border-radius:8px;max-height:50vh;overflow:auto;margin:0">'+esc(txt)+'</pre>'+
+
+'<div class="mBtns"><button class="btn" onclick="document.getElementById(\'calcPop\').remove()">關閉</button></div></div>';
+
+document.body.appendChild(pop);
+
+}
+
+function add2048(){const s=CUR.g2048;const em=[];s.b.forEach((v,i)=>{if(!v)em.push(i)});if(!em.length)return;s.b[em[(Math.random()*em.length)|0]]=Math.random()<.9?2:4}
+
+function can2048(){const b=CUR.g2048.b;for(let i=0;i<16;i++){if(!b[i])return true;const r=i%4;if(r<3&&b[i]===b[i+1])return true;if(i<12&&b[i]===b[i+4])return true}return false}
+
+function snakeFood(){const st=CUR.snake;let p;do{p=[(Math.random()*20)|0,(Math.random()*20)|0]}while(st.s.some(q=>q[0]===p[0]&&q[1]===p[1]));st.f=p}
+
+function snakeDir(dx,dy){const st=CUR.snake;if(!st||st.over)return;if(dx!==-st.d[0]||dy!==-st.d[1])st.nd=[dx,dy]}
+
+function gmkWin(p){
+const b=CUR.gmk.b;
+for(let y=0;y<15;y++)for(let x=0;x<15;x++){
+if(b[y*15+x]!==p)continue;
+for(const d of [[1,0],[0,1],[1,1],[1,-1]]){
+let k=1;while(k<5){const nx=x+d[0]*k,ny=y+d[1]*k;if(nx<0||nx>=15||ny<0||ny>=15||b[ny*15+nx]!==p)break;k++}
+if(k>=5)return true}}
+return false}
+
+function gmkAI(){
+const b=CUR.gmk.b;let best=-1,bs=-1;
+for(let i=0;i<225;i++){
+if(b[i])continue;
+const x=i%15,y=(i/15)|0;
+let sc=0;
+for(const d of [[1,0],[0,1],[1,1],[1,-1]]){
+for(const p of [2,1]){
+let cnt=0;
+for(let k=1;k<5;k++){const nx=x+d[0]*k,ny=y+d[1]*k;if(nx<0||nx>=15||ny<0||ny>=15||b[ny*15+nx]!==p)break;cnt++}
+for(let k=1;k<5;k++){const nx=x-d[0]*k,ny=y-d[1]*k;if(nx<0||nx>=15||ny<0||ny>=15||b[ny*15+nx]!==p)break;cnt++}
+sc+=(p===2?1.1:1)*Math.pow(10,cnt);
+}}
+sc+=Math.random();
+if(sc>bs){bs=sc;best=i}}
+return best}
+
+function tetHit(m,px,py){const s=CUR.tet;
+for(let y=0;y<m.length;y++)for(let x=0;x<m[0].length;x++){
+if(!m[y][x])continue;const nx=px+x,ny=py+y;
+if(nx<0||nx>=10||ny>=20)return true;
+if(ny>=0&&s.b[ny][nx])return true}
+return false}
+
+function tetRot(){const s=CUR.tet;const m=s.cur[0].map((_,i)=>s.cur.map(r=>r[i]).reverse());if(!tetHit(m,s.x,s.y))s.cur=m}
+
+function dollPersonaPreview(){
+  const pv=document.getElementById('dPersonaPrev');if(!pv)return;
+  const el=(document.getElementById('dNewElement')||{}).value||'金';
+  const mbti=((document.getElementById('dNewMbti')||{}).value||'INFJ').split(' ')[0];
+  const name=((DOLL_ELT_EPI[el]||'靈玉')+'·'+(DOLL_MBTI_FULL[mbti]||mbti));
+  const base=DOLL_ELT_NATURE[el]||'獨特';
+  pv.innerHTML='<b>🧬 獨一無二的人格：'+esc(name)+'</b><div style="margin-top:4px;color:var(--mut)">'+esc(base)+'，結合「'+(DOLL_MBTI_TRAITS[mbti]||mbti)+'」的特質，會隨你的互動持續改變。</div>';
+}
+
+function selDollElement(e,el){
+  document.querySelectorAll('.mbtiBtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');document.getElementById('dNewElement').value=e;
+  dollPersonaPreview();
+}
+
+function genEquipment(slot,dungeonTier){
+  const rarity=rollEqRarity(dungeonTier);
+  const name=rarity==='∞'?'∞神器·':'';
+  let itemName=name;
+  if(slot==='武器'){const w=pick(EQ_WEAPONS);itemName+=w.icon+' '+w.name}else{
+    const prefixes={'頭':['鐵','鋼','精金','魔'],'衣服':['布','皮','鎧','板'],'褲子':['腿','膝','護'],'鞋子':['皮','戰','疾'],'戒指':['銀','金','秘'],'項鍊':['骨','玉','水晶']};
+    const p=prefixes[slot]?.[Math.floor(Math.random()*4)]||'';itemName+=p+'裝';
+  }
+  const mainAttr=EQ_MAIN_ATTR[slot];
+  const mainVal=Math.round((slot==='武器'?5:slot==='戒指'?3:slot==='項鍊'?2:slot==='鞋子'?1.5:slot==='頭'?2:slot==='衣服'?20:3)*({R:1,E:1.5,A:2,S:2.5,SS:3,SSS:3.5,Z:4,ZZ:5,ZZZ:6,'∞':8}[rarity]||1)*10)/10;
+  const subN=eqSubCount(rarity);const subs=[];
+  for(let i=0;i<subN;i++){const st=pick(EQ_SUB_STAT_POOL);subs.push({stat:st,value:parseFloat(eqSubValue(rarity,st).toFixed(2))})}
+  return{id:'eq'+Date.now()+Math.random().toString(36).slice(2,6),name:itemName,rarity,slot,level:0,maxLevel:rarity==='∞'?150:100,mainAttr,mainValue:mainVal,subStats:subs};
+}
+
+function genFixedEquip(slot,rarity){
+  const name=rarity==='∞'?'∞神器·':'';
+  let itemName=name;
+  if(slot==='武器'){const w=pick(EQ_WEAPONS);itemName+=w.icon+' '+w.name}else{
+    const prefixes={'頭':['鐵','鋼','精金','魔'],'衣服':['布','皮','鎧','板'],'褲子':['腿','膝','護'],'鞋子':['皮','戰','疾'],'戒指':['銀','金','秘'],'項鍊':['骨','玉','水晶']};
+    const p=prefixes[slot]?.[Math.floor(Math.random()*4)]||'';itemName+=p+'裝';
+  }
+  const mainAttr=EQ_MAIN_ATTR[slot];
+  const mainVal=Math.round((slot==='武器'?5:slot==='戒指'?3:slot==='項鍊'?2:slot==='鞋子'?1.5:slot==='頭'?2:slot==='衣服'?20:3)*({R:1,E:1.5,A:2,S:2.5,SS:3,SSS:3.5,Z:4,ZZ:5,ZZZ:6,'∞':8}[rarity]||1)*10)/10;
+  const subN=eqSubCount(rarity);const subs=[];
+  for(let i=0;i<subN;i++){const st=pick(EQ_SUB_STAT_POOL);subs.push({stat:st,value:parseFloat(eqSubValue(rarity,st).toFixed(2))})}
+  return{id:'eq'+Date.now()+Math.random().toString(36).slice(2,6),name:itemName,rarity,slot,level:0,maxLevel:rarity==='∞'?150:100,mainAttr,mainValue:mainVal,subStats:subs};
+}
+
 const LOCK_ON=true; /* 設 false 可暫時解除保護（自己除錯時用） */
 (function(){
   if(!LOCK_ON)return;
@@ -881,7 +1446,8 @@ const LOCK_ON=true; /* 設 false 可暫時解除保護（自己除錯時用） *
 const SUPA_URL=location.origin;      /* 自動跟著服務網址：搬機/外網零修改 */
 const SUPA_ON=true;/* 自架後端允許 http（區網）*/
 const SUPA_SKIP=['ADV9_SES','ADV9_LOCAL','ADV9_WTOKEN'];/* session 與本機畢業帳號僅存本機，不上雲 */
-function supaHeaders(){const h={'apikey':SUPA_KEY,'Content-Type':'application/json'};if(WTOKEN)h['x-adv9-token']=WTOKEN;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}/* 新版 sb_publishable_ 金鑰非 JWT，僅送 apikey；舊版 anon JWT(eyJ...) 才加 Bearer */
+const SUPA_KEY='';/* 金鑰自動從後端 /rest/v1/key 取得（svcKey 流程）；此處留空即代表「尚未取得」 */
+function supaHeaders(){const h={'Content-Type':'application/json'};if(SUPA_KEY)h['apikey']=SUPA_KEY;if(WTOKEN)h['x-adv9-token']=WTOKEN;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}/* 新版 sb_publishable_ 金鑰非 JWT，僅送 apikey；舊版 anon JWT(eyJ...) 才加 Bearer */
 /* ☁️ 媒體雲端儲存：照片/影片上傳到 Supabase Storage（media 桶），訊息只存網址 → 突破 3MB 限制
    一次性設定：到 Supabase SQL Editor 執行桌面的 supabase_storage_setup.sql 建立 media 桶 */
 const MEDIA_BUCKET='media',MEDIA_MAX=50*1024*1024; /* 單檔上限 50MB */
@@ -1760,11 +2326,11 @@ set(LS.users,[
 
 ]); /* 發布版：固定管理員（密碼雜湊儲存、不存明文）；教師由管理員建立、學生由教師註冊/匯入 */
 
-set(LS.ann,[{id:1,title:'📢 歡迎來到全領域冒險者養成系統 v2.0！',content:'九大強化版上線：修煉場精靈嚮導、PK 無限競技塔、領土每科100關、好友/群組聊天傳照片、隱私保護、全服商店、好友交易40%保障⋯⋯開始冒險吧！',author:'系統',time:now}]);
+set(LS.ann,[{id:2,title:'🌍 v3.0 語言自學上線！',content:'203 種語言任你挑：在「🌍 語言自學」選一個想學的語言，AI 會自動出單字配對題；答對可得 1.3 倍經驗／金幣／水晶，每個語言的答題數都會個別記錄在「📊 統計報表」。也可以在「⚙️ 設定」把最常學的語言設為偏好，自學畫面會優先顯示。',time:now},{id:1,title:'📢 歡迎來到全領域冒險者養成系統 v3.0！',content:'九大強化版上線：修煉場精靈嚮導、PK 無限競技塔、領土每科100關、好友/群組聊天傳照片、隱私保護、全服商店、好友交易40%保障⋯⋯開始冒險吧！',author:'系統',time:now}]);
 
 set(LS.codes,[{code:'ADVENTURE',note:'新生禮包',rewards:{gold:50,crystal:30,extraPk:1},maxUses:50,usedBy:[],time:now}]);
 
-set(LS.chat,[{user:'系統',role:'system',text:'🎉 v2.0 九大強化版上線啦！',time:now}]);
+set(LS.chat,[{user:'系統',role:'system',text:'🌍 v3.0 語言自學上線！203 種語言、AI 出題、獎勵 1.3 倍！',time:now}]);
 
 set(LS.fr,[]);set(LS.gr,[]);set(LS.hw,[]);set(LS.sub,[]);set(LS.pm,{});set(LS.trades,[]);set(LS.market,[]);set(LS.duels,[]);
 if(!get(LS.classes,null)){set(LS.classes,{ids:['701','702','703'],names:{'701':'七年一班','702':'七年二班','703':'七年三班'}});}
@@ -2181,10 +2747,7 @@ async function doLogin() {
           SUPA_URL + '/rest/v1/rpc/login_user',
           {
             method: 'POST',
-            headers: {
-              'apikey': SUPA_KEY,
-              'Content-Type': 'application/json'
-            },
+            headers: supaHeaders(),
             body: JSON.stringify({ p_username: un, p_password: pw })
           }
         );
@@ -2349,6 +2912,7 @@ let FEATS=[
 ['📚','班級作業','PDF 邊看邊答','#26a69a','vHomework()'],
 
 ['🎟','密碼禮包','自動辨識','#e040fb','vCodes()'],
+['🌍','語言自學','203 種語言・AI 出題・1.3x 獎勵','#29b6f6','vLangStudy()'],
 
 ['📊','統計報表','週報・弱項','#69f0ae','vStats()'],
 
@@ -2362,10 +2926,120 @@ let FEATS=[
 
 
 ];
+/* ════════ 語言自學（v3.0）：203 種語言 × 8 大區，代碼唯一，可直接搜尋 ════════ */
+const LANG_DATA={
+'非洲':[['af','阿非利卡語'], ['am','阿姆哈拉語'], ['ha','豪薩語'], ['ig','伊博語'], ['zu','祖魯語'], ['xh','科薩語'], ['rw','盧安達語'], ['sw','史瓦希里語'], ['lin','林格拉語'], ['lug','盧幹達語'], ['mg','馬拉加斯語'], ['nya','齊切瓦語'], ['nde','恩德貝萊語'], ['nso','北索托語'], ['sn','修納語'], ['so','索馬利語'], ['st','索托語'], ['tn','塞茨瓦納語'], ['son','桑海語'], ['ti','提格利尼亞語'], ['tso','聰加語'], ['aeb','突尼西亞語'], ['ve','溫達語'], ['wo','沃洛夫語'], ['yo','約魯巴語'], ['ber','柏柏爾語'], ['ff','富拉語'], ['din','丁卡語'], ['kro','克魯語'], ['ss','斯瓦蒂語'], ['ki','吉庫尤語'], ['luo','盧歐語'], ['aka','加納語'], ['ee','埃維語'], ['bm','班巴拉語'], ['man','曼丁哥語'], ['sg','桑戈語'], ['kau','卡努里語']],
+'亞洲(西亞/南亞/中亞)':[['bn','孟加拉語'], ['hi','印地語'], ['ur','烏爾都語'], ['fa','波斯語'], ['prs','達里語'], ['ps','普什圖語'], ['si','僧伽羅語'], ['ta','坦米爾語'], ['te','泰盧固語'], ['mr','馬拉地語'], ['gu','古吉拉特語'], ['kn','卡納達語'], ['ml','馬拉雅拉姆語'], ['or','奧里亞語'], ['pa','旁遮普語'], ['ne','尼泊爾語'], ['dv','迪維希語'], ['sd','信德語'], ['as','阿薩姆語'], ['sa','梵語'], ['ku','庫德語'], ['bal','俾路支語'], ['tg','塔吉克語'], ['tk','土庫曼語'], ['kk','哈薩克語'], ['ky','吉爾吉斯語'], ['uz','烏茲別克語'], ['ug','維吾爾語'], ['tt','韃靼語'], ['bak','巴什基爾語'], ['che','車臣語'], ['sah','雅庫特語'], ['mn','蒙古語'], ['hy','亞美尼亞語'], ['ka','喬治亞語'], ['abk','阿布哈茲語']],
+'東亞':[['zh-CN','中文簡體'], ['zh-TW','中文繁體'], ['yue','粵語'], ['ja','日語'], ['ko','韓語'], ['nan','閩南語'], ['hak','客家話'], ['bo','藏語'], ['mnc','滿語'], ['ryu','琉球語']],
+'東南亞':[['vi','越南語'], ['th','泰語'], ['lo','寮語'], ['my','緬甸語'], ['km','高棉語'], ['id','印尼語'], ['ms','馬來語'], ['fil','菲律賓語'], ['jv','爪哇語'], ['su','巽他語'], ['ban','巴厘語'], ['min','米南佳保語'], ['ace','亞齊語'], ['bug','布吉語'], ['day','達雅語'], ['iba','伊班語'], ['dtp','卡達山語'], ['duz','杜順語'], ['mdh','馬京達瑙語'], ['cbk','查瓦卡諾語'], ['bik','比科爾語'], ['pam','邦板牙語'], ['ilo','伊洛卡諾語'], ['pag','班詩蘭語'], ['ceb','宿霧語'], ['hil','希利蓋農語'], ['war','瓦瑞瓦瑞語'], ['sur','蘇里高語'], ['mrw','馬拉瑙語'], ['bku','巴瑤語']],
+'歐洲':[['en','英語'], ['fr','法語'], ['de','德語'], ['es','西班牙語'], ['pt','葡萄牙語'], ['it','義大利語'], ['nl','荷蘭語'], ['pl','波蘭語'], ['ru','俄語'], ['uk','烏克蘭語'], ['be','白俄羅斯語'], ['bg','保加利亞語'], ['cs','捷克語'], ['sk','斯洛伐克語'], ['hu','匈牙利語'], ['ro','羅馬尼亞語'], ['el','希臘語'], ['sq','阿爾巴尼亞語'], ['sr','塞爾維亞語'], ['hr','克羅埃西亞語'], ['bs','波士尼亞語'], ['cnr','蒙特內哥羅語'], ['sl','斯洛維尼亞語'], ['sv','瑞典語'], ['da','丹麥語'], ['no','挪威語'], ['fi','芬蘭語'], ['et','愛沙尼亞語'], ['lv','拉脫維亞語'], ['lt','立陶宛語'], ['is','冰島語'], ['fo','法羅語'], ['mt','馬爾他語'], ['ga','愛爾蘭語'], ['gd','蘇格蘭蓋爾語'], ['cy','威爾斯語'], ['eu','巴斯克語'], ['ca','加泰隆尼亞語'], ['gl','加利西亞語'], ['oc','奧克語'], ['br','布列塔尼語'], ['co','科西嘉語'], ['sc','薩丁尼亞語'], ['fur','弗留利語'], ['rm','羅曼什語'], ['la','拉丁語'], ['cu','教會斯拉夫語']],
+'美洲':[['nv','納瓦荷語'], ['iu','因紐特語'], ['cr','克里語'], ['oj','奧吉布瓦語'], ['dak','達科他語'], ['chr','切羅基語'], ['bla','黑腳語'], ['nah','納瓦特爾語'], ['quc','基切語'], ['yua','瑪雅語'], ['qu','克丘亞語'], ['ay','艾馬拉語'], ['gn','瓜拉尼語'], ['arn','馬普切語'], ['srn','蘇里南語'], ['ht','海地克里奧爾語'], ['jam','牙買加克里奧爾語'], ['pt-BR','巴西葡萄牙語']],
+'大洋洲':[['mi','毛利語'], ['fj','斐濟語'], ['sm','薩摩亞語'], ['to','東加語'], ['ty','大溪地語'], ['haw','夏威夷語'], ['tkl','托克勞語'], ['na','諾魯語'], ['pau','帛琉語'], ['ch','查莫羅語'], ['mh','馬紹爾語'], ['pi','皮欽語'], ['ho','希里莫圖語'], ['bi','比斯拉馬語'], ['gil','吉里巴斯語'], ['tvl','吐瓦魯語']],
+'人工/特殊':[['eo','世界語'], ['tlh','克林貢語'], ['sjn','精靈語'], ['navi','納美語'], ['tok','道本語'], ['jbo','邏輯語'], ['ia','國際語'], ['ie','西方語']],
+};
+const LANG_REGIONS=Object.keys(LANG_DATA);
+function langName(code){for(const r in LANG_DATA){const f=LANG_DATA[r].find(x=>x[0]===code);if(f)return f[1]}return code||''}
+function langFind(txt){const t=(txt||'').trim().toLowerCase();const out=[];for(const r in LANG_DATA)for(const x of LANG_DATA[r]){if(!t||x[0].toLowerCase().includes(t)||x[1].includes(t))out.push([r,x[0],x[1]])}return out}
+function langPref(){const u=me();return (u&&u.prof&&u.prof.langPref)||''}
+function setLangPref(code){const u=me();if(!u)return;u.prof=u.prof||{};u.prof.langPref=code;saveU(u);toast('🌍 已設定語言偏好：'+langName(code));hud();if(typeof vSet==='function')vSet()}
+function langG(g){g.stats.lang=g.stats.lang||{};return g.stats.lang}
+/* ════════ 語言自學畫面（v3.0）：選語言 → AI 出題 → 1.3x 獎勵，每語言個別統計 ════════ */
+let LQ={code:'',name:'',q:null,phase:'IDLE',sel:-1,t0:0,diff:45};
+async function vLangStudy(){
+  if(!await needJs(['js/views/vLangStudy.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vLangStudy();
+}
+langFilter.cur='';
+function langFilter(cat){
+  langFilter.cur=cat;
+  document.querySelectorAll('[id^=lgf_]').forEach(b=>{b.style.borderColor=(b.id==='lgf_'+(cat||'全部'))?'var(--gold)':'';b.style.color=(b.id==='lgf_'+(cat||'全部'))?'var(--gold2)':''});
+  const t=$('#langSearch')?$('#langSearch').value.trim():'';
+  const rows=t?langFind(t):(cat?LANG_DATA[cat].map(x=>[cat,x[0],x[1]]):LANG_REGIONS.flatMap(r=>LANG_DATA[r].map(x=>[r,x[0],x[1]])));
+  const g=me().g,pref=langPref(),langs=langG(g);
+  const el=$('#langGrid');if(!el)return;
+  el.innerHTML=rows.map(x=>{
+    const [r,code,name]=x,st=langs[code];
+    return '<div class="panel2" style="margin:0;padding:12px;display:flex;flex-direction:column;gap:4px">'+
+    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><b style="font-size:14px">'+esc(name)+'</b><span style="font-size:10px;color:var(--mut)">'+code+'</span>'+
+    (pref===code?'<span style="font-size:10px;color:var(--gold2);border:1px solid var(--gold);border-radius:8px;padding:1px 6px">⭐ 我的偏好</span>':'')+'</div>'+
+    '<span style="font-size:11px;color:'+(st?'var(--teal)':'var(--mut)')+'">'+(st?('📊 已答 '+st.t+' 題・答對 '+st.c+' 題'):'尚未開始')+'</span>'+
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">'+
+    '<button class="btn mini" onclick="langStart(\''+code+'\')">✏️ 開始學習</button>'+
+    (pref!==code?'<button class="btn ghost mini" onclick="setLangPref(\''+code+'\')">⭐ 設為偏好</button>':'')+
+    '</div></div>';
+  }).join('')||'<div class="panel2" style="text-align:center;color:var(--mut)">找不到符合的語言，試試別的字。</div>';
+}
+function langStart(code){
+  LQ.code=code;LQ.name=langName(code);LQ.phase='LOADING';
+  $('#view').innerHTML=back('vLangStudy()')+'<h3 class="vt">🌍 '+esc(LQ.name)+' <span class="vsub">AI 出題・1.3x 獎勵</span></h3>'+
+  '<div style="text-align:center;padding:50px 0"><div style="font-size:52px;animation:spP 1s infinite">🌏</div><p style="color:var(--gold2);font-weight:900;font-family:var(--serif)">AI 正在出 '+esc(LQ.name)+' 的題目…</p></div>';
+  langAsk().then(q=>{
+    if(!q){LQ.phase='IDLE';$('#view').innerHTML=back('vLangStudy()')+'<h3 class="vt">🌍 '+esc(LQ.name)+'</h3>'+
+      '<div class="panel2" style="border-left:4px solid var(--red);margin-bottom:12px">❌ 出題服務暫時無法使用，請稍後重試。</div>'+
+      '<button class="btn big" onclick="langStart(\''+LQ.code+'\')">🔄 重試</button>';return}
+    LQ.q=q;LQ.sel=-1;LQ.t0=Date.now();LQ.phase='ANSWERING';langRenderQ();
+  }).catch(()=>{LQ.phase='IDLE';toast('⚠️ 出題失敗，請重試','bad')});
+}
+async function langAsk(){
+  const diffLabel=LQ.diff>=70?'困難':(LQ.diff>=40?'中等':'簡單');
+  try{return await langAskAI(LQ.name,LQ.code,diffLabel)}catch(e){return null}
+}
+function langRenderQ(){
+  const q=LQ.q,st=langG(me().g)[LQ.code]||{t:0,c:0};
+  $('#view').innerHTML=back('vLangStudy()')+'<h3 class="vt">🌍 '+esc(LQ.name)+' <span class="vsub">第 '+(st.t+1)+' 題・答對可獲 1.3x 獎勵</span></h3>'+
+  '<div class="panel2" style="border-left:4px solid var(--teal);font-size:15.5px;line-height:1.8;margin-bottom:12px">'+esc(q['題目'])+'</div>'+
+  '<div id="langOpts" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+q['選項'].map((o,i)=>'<button class="optBtn" id="lopt'+i+'" onclick="langPick('+i+')">'+esc(o)+'</button>').join('')+'</div>'+
+  '<div id="langFoot" style="margin-top:12px"></div>';
+}
+function langPick(i){
+  if(LQ.phase!=='ANSWERING')return;
+  LQ.sel=i;LQ.phase='SUBMITTED';
+  const q=LQ.q,ok=i===q['答案'];
+  document.querySelectorAll('#langOpts .optBtn').forEach(b=>b.classList.add('lock'));
+  document.getElementById('lopt'+q['答案']).classList.add('ok');
+  if(!ok)document.getElementById('lopt'+i).classList.add('no');
+  const g=me().g,st=langG(g)[LQ.code]=langG(g)[LQ.code]||{t:0,c:0};
+  st.t=(st.t||0)+1;if(ok)st.c=(st.c||0)+1;
+  const R=langSettle(g,ok);
+  const el=((Date.now()-LQ.t0)/1000).toFixed(1);
+  $('#langFoot').innerHTML='<div class="rwRow">'+(ok?'<span class="rwChip" style="border-color:#2e7d32;color:#a5d6a7">✅ 答對了！</span>':'<span class="rwChip" style="border-color:#8f272b;color:#ffb4ab">❌ 答錯了，正確答案：'+esc(q['選項'][q['答案']])+'</span>')+
+  '<span class="rwChip">⏱ '+el+'s</span>'+(ok?'<span class="rwChip" style="border-color:var(--gold);color:var(--gold2)">✨ 經驗 +'+R.exp+'</span><span class="rwChip" style="border-color:var(--gold);color:var(--gold2)">🪙 金幣 +'+R.au+'</span><span class="rwChip" style="border-color:var(--gold);color:var(--gold2)">💠 水晶 +'+R.cr+'</span>':'')+'</div>'+
+  '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn big" onclick="langStart(\''+LQ.code+'\')">⏭ 下一題</button>'+
+  '<button class="btn ghost big" onclick="vLangStudy()">🌍 換語言</button></div>';
+}
+function langSettle(g,ok){
+  recordAns(g,ok,LQ.diff,'lang:'+LQ.code);
+  const R={exp:0,cr:0,au:0,dm:0};
+  if(ok){
+    addCombo(g);
+    const xp=grantExp(g,LQ.diff,false,'lang:'+LQ.code),xpE=Math.floor(xp*0.3);
+    g.xp+=xpE;R.exp=xp+xpE;
+    const rw=grantRew(g,LQ.diff,g.combo),crE=Math.floor(rw.crystal*0.3),auE=Math.floor(rw.gold*0.3),dmE=Math.floor(rw.diamond*0.3);
+    g.crystal+=crE;g.gold+=auE;g.diamond=Number(g.diamond||0)+dmE;
+    R.cr=rw.crystal+crE;R.au=rw.gold+auE;R.dm=rw.diamond+dmE;
+    if(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv);toast('🌟 等級提升！Lv.'+g.lv+' 【'+titleOf(g.lv)+'】')}
+  }else resetCombo(g);
+  saveU(g);
+  return R;
+}
+async function langAskAI(name,code,diffLabel){
+  const prompt='生成 1 道語言學習選擇題：\n學習語言：'+name+'（代碼 '+code+'）\n難度：'+diffLabel+'\n題型：單字／片語 中⇄外配對（題目用繁體中文發問，外文部分用該語言正確的文字）\n要求：\n1. 恰好 4 個選項、只有 1 個正確\n2. 外文拼寫必須正確，含該語言的文字系統\n3. 純文字，禁止圖片、照片、「如圖」、聽力題\n4. 題目與選項避免與常見教材模板完全相同\n5. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]';
+  const raw=await callGemini(prompt,'你是專業的語言教學專家，精通各國語言與人工語言（含克林貢語、精靈語、納美語等）。嚴格按照 JSON 格式回應，不要包含任何額外文字或 markdown。');
+  const m=raw.match(/\[[\s\S]*?\]/);if(!m)return null;
+  let arr;
+  try{arr=JSON.parse(m[0])}catch(e){return null}
+  if(!Array.isArray(arr)||!arr[0]||typeof arr[0]['題目']!=='string'||!Array.isArray(arr[0]['選項'])||arr[0]['選項'].length<2)return null;
+  const q=arr[0];
+  q['選項']=q['選項'].slice(0,4);
+  if(typeof q['答案']!=='number'||q['答案']<0||q['答案']>=q['選項'].length)q['答案']=0;
+  if(typeof q['解析']!=='string')q['解析']='';
+  return q;
+}
+
 
 /* 🗂 功能分類（排版）：把 32+ 個功能分區顯示，不再全部平鋪 */
 const FEAT_CATS=[
-  ['📚 學習精進',['vSubj','vLearn','vHomework','vVideos','vLab','vWrong','vStats']],
+  ['📚 學習精進',['vSubj','vLearn','vHomework','vVideos','vLab','vWrong','vStats','vLangStudy']],
   ['⚔️ 戰鬥冒險',['vPK','vTerr','vDungeon','vInfinityExchange']],
   ['🎁 養成經營',['vGacha','vColl','vForge','vBag','vDoll','vEquip','vFreePoints','vBuffStore']],
   ['💬 社群互動',['vSocial','vChatV','vGuild','vAnn']],
@@ -2442,10 +3116,248 @@ const b=document.getElementById('hudXpBar');if(b)b.style.width=(g.xp/g.needXp*10
 
 }
 
+/* ════════════════════════════════════════════
+   vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 47 個單位：SUPA_KEY, WTOKEN, mediaHeaders, upProg, GDRIVE_URL, gdDelete, _hbTimer, stopHeartbeat, updateOnlBadges, _es, stopStream, closeReqPanel…
+   ════════════════════════════════════════════ */
+let WTOKEN=localStorage.getItem('ADV9_WTOKEN')||''; /* 🎫 登入 token：所有寫入需帶，僅存本機不同步 */
+
+function mediaHeaders(ct){const h={'apikey':SUPA_KEY};if(WTOKEN)h['x-adv9-token']=WTOKEN;if(ct)h['Content-Type']=ct;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}
+
+function upProg(pct,label){
+let w=document.getElementById('__upProg');
+if(pct===null){if(w)w.remove();return}
+if(!w){w=document.createElement('div');w.id='__upProg';
+w.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:2147483000;background:rgba(13,21,38,.97);border:1px solid #7a5f27;border-radius:10px;padding:10px 16px;min-width:250px;box-shadow:0 8px 24px rgba(0,0,0,.55);font-family:sans-serif;pointer-events:none';
+w.innerHTML='<div id="__upTxt" style="font-size:12.5px;color:#ffd97a;font-weight:700;margin-bottom:6px"></div><div style="height:8px;background:rgba(0,0,0,.45);border:1px solid #2c3d63;border-radius:99px;overflow:hidden"><i id="__upBar" style="display:block;height:100%;width:0%;background:linear-gradient(90deg,#c8862a,#ffd97a);transition:width .15s"></i></div>';
+(document.body||document.documentElement).appendChild(w);}
+document.getElementById('__upTxt').textContent=label||('☁️ 傳送中… '+pct+'%');
+document.getElementById('__upBar').style.width=Math.max(2,Math.min(100,pct))+'%';
+}
+
+const GDRIVE_URL=''; /* 例：https://script.google.com/macros/s/xxxxx/exec ← 留空時影片照常走 Supabase */
+
+function gdDelete(src){try{if(typeof src!=='string'||src.indexOf('gd:')!==0||!GDRIVE_URL)return;
+fetch(GDRIVE_URL,{method:'POST',body:JSON.stringify({action:'del',id:src.slice(3)})}).catch(()=>{})}catch(e){}}
+
+let _onlineSet=new Set(),_hbTimer=null;
+
+function stopHeartbeat(){if(_hbTimer){clearInterval(_hbTimer);_hbTimer=null}}
+
+function updateOnlBadges(){
+  try{
+    document.querySelectorAll('.onlBadge').forEach(el=>{
+      const un=el.getAttribute('data-u');
+      const on=un&&_onlineSet.has(un);
+      el.className='onlBadge '+(on?'on':'off');
+      el.textContent=on?'● 線上':'○ 離線';
+    });
+    document.querySelectorAll('.onDot').forEach(el=>{
+      const un=el.getAttribute('data-u');
+      const on=un&&_onlineSet.has(un);
+      el.className='onDot '+(on?'on':'off');
+    });
+  }catch(e){}
+}
+
+let _es=null;
+
+function stopStream(){try{if(_es)_es.close()}catch(e){}_es=null}
+
+function closeReqPanel(){const el=document.getElementById('reqPanel');if(el)el.remove()}
+
+function sanitizeText(s,max){s=String(s==null?'':s);
+s=s.replace(/<\/?[a-z][\s\S]*?>/gi,'').replace(/<[^>]*$/,'') /* 移除 HTML 標籤 */
+.replace(/javascript:/gi,'').replace(/data:text\/html/gi,'').replace(/on\w+\s*=/gi,'') /* 移除危險協定與事件屬性 */
+.replace(/[\u0000-\u001f\u007f]/g,''); /* 控制字元 */
+return max?s.slice(0,max):s}
+
+function validPassword(p){return /^[\x21-\x7E]{4,100}$/.test(String(p||''))}
+
+let QID=1; const newQid=()=>'q'+(QID++)+'_'+Date.now().toString(36);
+
+async function callOneAI(k,prompt,sys){
+const pv=AI_PROVIDERS[k.provider||'gemini'];let model=k.model||pv.defModel;
+if(pv.banned&&pv.banned.includes(model))model=pv.defModel; /* 禁用模型自動改用預設 */
+if(pv.type==='ol'){ /* 本地 Ollama：經自架伺服器代理，金鑰欄位 = 主機位址 */
+const res=await fetch(pv.url,{method:'POST',headers:{'Content-Type':'application/json',...((typeof WTOKEN!=='undefined'&&WTOKEN)?{'x-adv9-token':WTOKEN}:{})},body:JSON.stringify({model,host:k.key||'http://127.0.0.1:11434',messages:[{role:'system',content:sys||'你是一個專業的出題助手。'},{role:'user',content:prompt}],temperature:0.7})});
+if(!res.ok)throw new Error('HTTP '+res.status);
+const j=await res.json();if(!j.message||!j.message.content)throw new Error('No content');
+return j.message.content}
+if(pv.type==='gm'){
+const url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+k.key;
+const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sys||'你是一個專業的出題助手。'}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})});
+if(!res.ok)throw new Error('HTTP '+res.status);
+const j=await res.json();if(!j.candidates||!j.candidates[0])throw new Error('No candidates');
+return j.candidates[0].content.parts[0].text}
+const res=await fetch(pv.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k.key},body:JSON.stringify({model,messages:[{role:'system',content:sys||'你是一個專業的出題助手。'},{role:'user',content:prompt}],temperature:0.7,max_tokens:4096})});
+if(!res.ok)throw new Error('HTTP '+res.status);
+const j=await res.json();if(!j.choices||!j.choices[0])throw new Error('No choices');
+return j.choices[0].message.content}
+
+const TIPS=['💡 氫氣是密度最小的氣體','💡 英文的 I 永遠大寫','💡 歐姆定律 V = IR','💡 電流 I = Q/t','💡 光的入射角等於反射角','💡 質量守恆定律','💡 pH 值越小越酸','💡 地球自轉一圈約 24 小時','💡 三角形內角和 180°','💡 水的電解：氫:氧 = 2:1','💡 光合作用需要光與葉綠素','💡 牛頓第二運動定律 F = ma','💡 連擊 10 以上經驗加成 12%！'];
+
+function procMathQ(tier){
+
+const R=(a,b)=>a+((Math.random()*(b-a+1))|0);
+
+const mk=(q,ans,exp)=>{const s=new Set([ans]);while(s.size<4){const c=ans+R(-9,9);if(c!==ans)s.add(c)}const o=[...s].sort(()=>Math.random()-.5);return{'題目':q,'選項':o.map(String),'答案':o.indexOf(ans),'解析':exp}};
+
+if(tier==='困難'){const t=R(1,4);
+
+if(t===1){const s=R(3,9),p=R(2,18);return mk('若 a + b = '+s+'，ab = '+p+'，則 a² + b² = ?',s*s-2*p,'1. (a+b)² = a²+2ab+b²\n2. a²+b² = '+s+'² − 2×'+p+'\n3. = '+(s*s)+' − '+(2*p)+' = '+(s*s-2*p))}
+
+if(t===2){const a=R(2,9),x=R(2,12),b=R(1,20),c=a*x+b;return mk('解方程式：'+a+'x + '+b+' = '+c+'，x = ?',x,'1. '+a+'x = '+c+' − '+b+' = '+(c-b)+'\n2. x = '+(c-b)+' ÷ '+a+'\n3. x = '+x)}
+
+if(t===3){const k=R(1,5);return mk('直角三角形兩股為 '+(3*k)+' 與 '+(4*k)+'，斜邊長 = ?',5*k,'1. 畢氏定理 c² = a²+b²\n2. c² = '+(9*k*k)+'+'+(16*k*k)+' = '+(25*k*k)+'\n3. c = '+(5*k))}
+
+const n=R(2,6),m=R(2,4);return mk('2^'+n+' × 2^'+m+' = 2 的幾次方？',n+m,'1. 同底數相乘、指數相加\n2. '+n+' + '+m+' = '+(n+m)+'\n3. 答案為 2^'+(n+m))}
+
+const t=R(1,4);
+
+if(t===1){const a=R(11,99),b=R(11,99);return mk(a+' + '+b+' = ?',a+b,'1. 直式相加\n2. '+a+' + '+b+'\n3. = '+(a+b))}
+
+if(t===2){const a=R(3,12),b=R(3,12);return mk(a+' × '+b+' = ?',a*b,'1. 九九乘法延伸\n2. '+a+' × '+b+'\n3. = '+(a*b))}
+
+if(t===3){const x=R(2,9),c=R(1,9);return mk('若 x = '+x+'，則 2x + '+c+' = ?',2*x+c,'1. 代入 x = '+x+'\n2. 2×'+x+' + '+c+'\n3. = '+(2*x+c))}
+
+const a=R(40,99),b=R(11,39);return mk(a+' − '+b+' = ?',a-b,'1. 直式相減\n2. '+a+' − '+b+'\n3. = '+(a-b))}
+
+function shuffleQ(q){const o=q['選項'],c=o[q['答案']];for(let i=o.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=o[i];o[i]=o[j];o[j]=t}q['答案']=o.indexOf(c);return q}
+
+function shuffleQOrder(arr){for(let i=arr.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=arr[i];arr[i]=arr[j];arr[j]=t}return arr}
+
+function qHash(s){let h=0;s=String(s||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return h.toString(36)}
+
+function qSeenHas(g,q){return !!g&&(g.qSeen||[]).includes(qHash(q&&q['題目']))}
+
+function fallbackQ(subj,unit,tier){
+
+if(subj==='數學')return procMathQ(tier); /* 數學一律用隨機出題器，不再固定同一題 */
+
+const T={
+
+'數學':tier==='困難'?{'題目':'若 a + b = 5，ab = 6，則 a² + b² = ?','選項':['13','11','25','19'],'答案':0,'解析':'1. (a+b)² = a² + 2ab + b²\n2. 25 = a² + b² + 12\n3. a² + b² = 13'}:{'題目':'若 x = 3，則 2x + 1 = ?','選項':['5','7','6','9'],'答案':1,'解析':'1. 代入 x = 3\n2. 2×3 + 1 = 7\n3. 代入法'},
+
+'英文':{'題目':'Choose the correct sentence.','選項':['She go to school.','She goes to school.','She going to school.','She gone to school.'],'答案':1,'解析':'1. 第三人稱單數現在簡單式\n2. 動詞加 es\n3. goes 正確'},
+
+'國文':{'題目':'「床前明月光」的作者是誰？','選項':['杜甫','李白','白居易','王維'],'答案':1,'解析':'1. 出自《靜夜思》\n2. 作者為詩仙李白\n3. 唐詩代表作'},
+
+'自然':{'題目':'下列何者為光合作用必需的條件？','選項':['光照與葉綠素','高溫與高壓','氧氣與糖分','土壤與風'],'答案':0,'解析':'1. 光合作用需要光與葉綠素\n2. 產生醣類與氧氣\n3. 場所為葉綠體'},
+
+'社會':{'題目':'臺灣在荷西時期，哪國曾占領臺南？','選項':['西班牙','荷蘭','葡萄牙','英國'],'答案':1,'解析':'1. 1624 年荷蘭占領臺南\n2. 西班牙占領北部\n3. 1662 年鄭成功驅逐荷蘭'}
+
+};
+
+return T[subj]||{'題目':'【'+subj+'・'+unit+'】下列敘述何者正確？','選項':['選項 A（正確答案）','選項 B','選項 C','選項 D'],'答案':0,'解析':'1. 本題為該單元觀念題\n2. A 為正確敘述\n3. 其餘為常見迷思觀念'};
+
+}
+
+function collCount(g){return g.owned.character.length+g.owned.pet.length+g.owned.anime.length+g.owned.teammate.length}
+
+function findIt(cat,n){return POOLS[cat][n]}
+
+function titleOf(lv){const T=['見習冒險者','初級冒險者','青銅冒險者','白銀冒險者','黃金冒險者','白金冒險者','鑽石冒險者','大師冒險者','傳說冒險者','全領域之王'];return T[Math.min(lv-1,9)]}
+
+function acadYear(){const d=new Date();return d.getMonth()+1>=8?d.getFullYear():d.getFullYear()-1} /* 學年度以 8/1 為界 */
+
+function promoteClassId(id){const m=String(id||'').match(/^([1-9])(\d+)(.*)$/);if(!m)return null;const gr=+m[1];if(gr>=9)return 'GRAD';return (gr+1)+m[2]+m[3]}
+
+function promoteNameOnce(name){if(!name)return name;if(name.includes('八年'))return name.replace('八年','九年');if(name.includes('七年'))return name.replace('七年','八年');return name}
+
+function isGrade9(u){return !u.graduated&&/^9/.test(String(u.classId||''))}
+
 async function vHome(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vHome();
 }
+
+function addMail(g,title,body,rw){g.mail=g.mail||[];g.mail.push({id:'m'+Date.now()+Math.floor(Math.random()*1e4),title,body,rw:rw||null,t:Date.now(),claimed:false});if(g.mail.length>50)g.mail=g.mail.slice(-50)}
+
+function unreadMail(g){return (g&&g.mail||[]).filter(m=>!m.claimed&&m.rw).length}
+
+function avatarHtml(usr,px){px=px||30;const av=usr&&usr.prof&&usr.prof.avatar;
+
+if(av&&av.indexOf('data:')===0)return '<img src="'+av+'" style="width:'+px+'px;height:'+px+'px;border-radius:50%;object-fit:cover;vertical-align:middle;border:1px solid var(--goldD)">';
+
+return '<span style="font-size:'+Math.round(px*.8)+'px;line-height:1;vertical-align:middle">'+(av||'🧑‍🎓')+'</span>'}
+
+function compressImgFile(f,mx,q,cb){const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,mx/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);cb(cv.toDataURL('image/jpeg',q))};img.src=e.target.result};r.readAsDataURL(f)}
+
+function vidTag(src,muted,mw){mw=mw||440;src=mediaUrl(src);
+
+if(typeof src==='string'&&src.indexOf('gd:')===0)return '<iframe src="https://drive.google.com/file/d/'+src.slice(3)+'/preview" style="width:min(100%,'+(mw+90)+'px);height:'+Math.round(mw*0.7)+'px;border:none;border-radius:8px;display:block" allow="autoplay; fullscreen" allowfullscreen></iframe>'+(muted?'<div style="font-size:10.5px;color:var(--mut)">🔇 建議靜音觀看</div>':'');
+
+return '<video src="'+src+'" controls preload="metadata" '+(muted?'muted onvolumechange="this.muted=true"':'')+' style="max-width:'+mw+'px;border-radius:8px;display:block"></video>'+(muted?'<div style="font-size:10.5px;color:var(--mut)">🔇 靜音影片</div>':'');
+
+}
+
+function mediaUrl(src){
+  try{
+    if(typeof src!=='string'||!src)return src;
+    if(src.indexOf('gd:')===0)return src;
+    const p='/storage/v1/object/public/media/';
+    const i=src.indexOf(p);
+    if(i>=0)return location.origin+src.slice(i);
+    if(src.indexOf('/storage/v1/object/public/')===0)return src;
+  }catch(e){}
+  return src;
+}
+
+function pmId(a,b){return [a,b].sort().join('|')}
+
+
+let PUB={qs:[],pdf:null};
+
+let HW_SCOPE='class';
+
+function hwScope(s){
+  HW_SCOPE=s;
+  const g=document.getElementById('hwScopeGrade'),c=document.getElementById('hwScopeClass');
+  g.className='btn '+(s==='grade'?'':'ghost')+' mini';c.className='btn '+(s==='class'?'':'ghost')+' mini';
+  document.getElementById('hwGradeWrap').style.display=s==='grade'?'block':'none';
+  document.getElementById('hwClassWrap').style.display=s==='class'?'block':'none';
+}
+
+function hwGrades(classId){return classId&&classId[0]==='G'?classId.slice(1):null}
+
+function hwTargetLabel(h){
+  const gs=hwGrades(h.classId);
+  if(gs)return gs.split('').map(d=>d+' 年級').join('+');
+  return h.classId+' 班';
+}
+
+function hwForTeacher(h,u){return h.teacherId===u.id||(u.managedClassIds||[]).includes(h.classId)||(hwGrades(h.classId)&&(u.managedClassIds||[]).some(c=>hwGrades(h.classId).indexOf(String(c||'')[0])>-1))}
+
+function validateQuestion(q){
+  if(!q||typeof q!=='object')return{ok:false,msg:'題目格式錯誤'};
+  const stem=String(q['題目']||'').trim();if(!stem)return{ok:false,msg:'題目內容為空'};
+  const opts=q['選項'];if(!Array.isArray(opts)||opts.length!==4)return{ok:false,msg:'必須恰好 4 個選項'};
+  for(let i=0;i<4;i++){if(!String(opts[i]||'').trim())return{ok:false,msg:'選項 '+(i+1)+' 為空'}}
+  const seen={};for(let i=0;i<4;i++){const v=String(opts[i]).trim();if(seen[v])return{ok:false,msg:'選項重複：'+v};seen[v]=1}
+  const ans=q['答案'];
+  if(!(ans===0||ans===1||ans===2||ans===3))return{ok:false,msg:'答案索引必須為 0-3（對應 A-D）'};
+  return{ok:true};
+}
+
+function parseTxtQuestions(text){
+  const t=(text||'').trim().replace(/^\uFEFF/,'');
+  if(t.startsWith('[')){try{const j=JSON.parse(t);if(Array.isArray(j))return j}catch(_){}}
+  const lines=t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const qs=[];let cur=null;
+  for(const line of lines){
+    let m=line.match(/^(?:題目\s*)?(\d+)[\.、\)]\s*(.*)$/);
+    if(m){if(cur&&cur['選項'].length)qs.push(cur);cur={'題目':m[2],'選項':[],'答案':0,'解析':''};continue}
+    m=line.match(/^([A-D])[\.、\)：:]?\s*(.*)$/i);
+    if(m&&cur){cur['選項'].push(m[2]);continue}
+    m=line.match(/^(?:答案|正確答案)[:：]?\s*([A-D1-4])/i);
+    if(m&&cur){const a=m[1].toUpperCase();cur['答案']=(a>='1'&&a<='4')?(+a)-1:'ABCD'.indexOf(a);continue}
+    if(cur&&line.startsWith('解析'))cur['解析']=line.replace(/^[^:：]*[:：]/,'');
+  }
+  if(cur&&cur['選項'].length)qs.push(cur);
+  return qs;
+}
+
 
 
 /* ════════ 影片專區：影片已全部內嵌於同層的「影片專區.html」，不再依賴影片資料夾 ════════ */
@@ -2453,15 +3365,34 @@ async function vHome(){
 const VIDEO_HUB='videos.html'; /* 影片專區（自架部署改用 ASCII 檔名）*/
 
 
+/* ════════════════════════════════════════════
+   vVideos 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：VIDEO_SUBJ, vVideos
+   ════════════════════════════════════════════ */
+
 async function vVideos(){
-  if(!await needJs(['js/shared.js', 'js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vVideos();
 }
 
+
+/* ════════════════════════════════════════════
+   vVideoSub 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：showRewardFX, vVideoSub, grantRw
+   ════════════════════════════════════════════ */
+function showRewardFX(rewards){const icons={gold:'💰',crystal:'💎',diamond:'💠',starlight:'✨',honor:'🏅',quizPts:'📝',enhStone:'⚒️',ironOre:'⛏️',labMat:'🧪'};let delay=0;Object.entries(rewards).forEach(([k,v])=>{if(v&&v>0&&icons[k]){setTimeout(()=>{const el=document.createElement('span');el.style.cssText='position:fixed;font-size:24px;pointer-events:none;z-index:200;left:'+(30+Math.random()*40)+'vw;top:10vh;animation:rewardDrop .8s ease-out forwards';el.textContent=icons[k]+' +'+v;document.body.appendChild(el);setTimeout(()=>el.remove(),1200)},delay);delay+=150}})}
+
 async function vVideoSub(){
-  if(!await needJs(['js/shared.js', 'js/views/vVideoSub.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vVideoSub.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vVideoSub();
 }
+
+function grantRw(g,rw){if(rw.gold)g.gold+=rw.gold;if(rw.crystal)g.crystal+=rw.crystal;if(rw.diamond)g.diamond+=rw.diamond;
+
+if(rw.starlight)g.starlight+=rw.starlight;if(rw.ironOre)g.ironOre+=rw.ironOre;if(rw.enhStone)g.enhStone+=rw.enhStone;
+
+if(rw.labMat)g.labMat+=rw.labMat;if(rw.honor)g.honor+=rw.honor;if(rw.quizPts)g.quizPts+=rw.quizPts;showRewardFX(rw)}
+
 
 function openVideoT(s,sem,t){
 
@@ -2573,10 +3504,15 @@ function checkArenaDailyMail(){
   }catch(e){}
 }
 
+/* ════════════════════════════════════════════
+   vMail 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMail
+   ════════════════════════════════════════════ */
 async function vMail(){
-  if(!await needJs(['js/shared.js', 'js/views/vMail.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vMail.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMail();
 }
+
 
 function claimMail(id){
 
@@ -2588,10 +3524,15 @@ m.claimed=true;grantRw(g,m.rw);saveU(u);hud();toast('🎁 獎勵已領取！');v
 
 }
 
+/* ════════════════════════════════════════════
+   vNotifs 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vNotifs
+   ════════════════════════════════════════════ */
 async function vNotifs(){
-  if(!await needJs(['js/shared.js', 'js/views/vNotifs.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vNotifs.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vNotifs();
 }
+
 
 /* ❤️ 動態點讚：再點一次取消；對方會收到通知 */
 
@@ -2609,10 +3550,15 @@ set(LS.stories,st);vStory();
 
 }
 
+/* ════════════════════════════════════════════
+   vStory 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStory
+   ════════════════════════════════════════════ */
 async function vStory(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vStory.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vStory.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vStory();
 }
+
 
 function onStoryPhoto(inp){ /* ☁️ 優先上雲端（原圖、附進度條）；雲端未就緒時退回壓縮內嵌 */
 
@@ -2757,10 +3703,15 @@ toast('🎁 '+s.name+' 開啟：'+matTxt+(gotChar?'｜🧑 '+gotChar:''));vGuild
 
 /* ════════ 📚 課本講解：115 年南一/翰林課本與課外考卷解析（網址，由管理員新增） ════════ */
 
+/* ════════════════════════════════════════════
+   vLearn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLearn
+   ════════════════════════════════════════════ */
 async function vLearn(){
-  if(!await needJs(['js/shared.js', 'js/views/vLearn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vLearn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLearn();
 }
+
 
 function openLearnUrl(id){
 
@@ -2784,10 +3735,17 @@ document.body.appendChild(ov);
 
 }
 
+/* ════════════════════════════════════════════
+   vGuild 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：GUILD_NEED, vGuild
+   ════════════════════════════════════════════ */
+const GUILD_NEED=lv=>lv*1000; /* 升級所需捐獻金幣＝等級×1000 */
+
 async function vGuild(){
-  if(!await needJs(['js/shared.js', 'js/views/vGuild.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGuild.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGuild();
 }
+
 
 function guildCreate(){
 
@@ -3106,24 +4064,62 @@ openModal('<h3 class="mt">🔥 限次觀看內容 <span style="font-size:11px;co
 
 
 
+/* ════════════════════════════════════════════
+   vSubj 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSubj
+   ════════════════════════════════════════════ */
 async function vSubj(){
-  if(!await needJs(['js/shared.js', 'js/views/vSubj.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vSubj.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSubj();
 }
 
+
 /* 第一步：選學期→單元（點單元直接進設定，解決卡住問題）*/
 
+/* ════════════════════════════════════════════
+   vUnitList 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUnitList
+   ════════════════════════════════════════════ */
 async function vUnitList(){
-  if(!await needJs(['js/shared.js', 'js/views/vUnitList.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vUnitList.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vUnitList();
 }
 
+
 /* 第二步：出發設定（難度/版本/AI）＋ 超大開始按鈕 */
 
+/* ════════════════════════════════════════════
+   vReady 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 4 個單位：deTex, parseAiQuestions, vReady, aiRecentPromptBlock
+   ════════════════════════════════════════════ */
+function deTex(s){if(typeof s!=='string')return s;let t=s;
+t=t.replace(/\\\\(?=[A-Za-z])/g,'\\'); /* JSON 雙反斜線形式（\\\\times）先歸一為單反斜線 */
+t=t.replace(/\\left|\\right/g,'');
+t=t.replace(/\\text\{([^{}]*)\}/g,'$1');
+t=t.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'($1)/($2)');
+t=t.replace(/\frac\{([^{}]*)\}\{([^{}]*)\}/g,'($1)/($2)');
+t=t.replace(/\\sqrt\{([^{}]*)\}/g,'√($1)');
+t=t.replace(/\\times/g,'×');
+t=t.replace(/\times/g,'×');
+t=t.replace(/\\div/g,'÷').replace(/\\cdot/g,'·').replace(/\\pm/g,'±');
+t=t.replace(/\\neq/g,'≠');
+t=t.replace(/\neq/g,'≠');
+t=t.replace(/\\leq?/g,'≤').replace(/\\geq?/g,'≥');
+t=t.replace(/\\pi/g,'π').replace(/\\degree/g,'°').replace(/\^\{?\\circ\}?/g,'°');
+t=t.replace(/\^\{([^{}]*)\}/g,'^($1)');
+t=t.replace(/\\%/g,'%').replace(/\\,|\\;|\\ /g,' ');
+t=t.replace(/\$\$?/g,'');
+return t}
+
+function parseAiQuestions(text,subject){let cleaned=text.trim();cleaned=cleaned.replace(/```json\s*/gi,'').replace(/```\s*/g,'');cleaned=deTex(cleaned);/* 先轉換 LaTeX，避免 \\times 等被 JSON 轉義成亂碼 */const arrMatch=cleaned.match(/\[[\s\S]*\]/);if(!arrMatch)throw new Error('無法解析 AI 回應，請重試');let questions;try{questions=JSON.parse(arrMatch[0])}catch{throw new Error('JSON 解析失敗，請重試')}if(!Array.isArray(questions))throw new Error('回應格式錯誤');const badWords=['圖','照片','圖片','圖像','如圖','下圖','附圖','看圖'];const listenWords=['聽力','聽','錄音','播放','audio','listening','請聽'];questions=questions.filter(q=>{if(!q['題目']||!q['選項']||!Array.isArray(q['選項'])||q['選項'].length!==4)return false;if(typeof q['答案']!=='number'||q['答案']<0||q['答案']>3)return false;const all=q['題目']+' '+q['選項'].join(' ');for(const w of badWords){if(all.includes(w))return false}for(const w of listenWords){if(all.toLowerCase().includes(w.toLowerCase()))return false}/* 所有科目一律過濾照片與聽力題 */return true});questions.forEach(q=>{q['題目']=deTex(q['題目']);q['選項']=q['選項'].map(deTex);if(q['解析'])q['解析']=deTex(q['解析'])});/* 解析後再清一次殘留符號 */return questions}
+
 async function vReady(){
-  if(!await needJs(['js/shared.js', 'js/views/vReady.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vReady.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vReady();
 }
+
+function aiRecentPromptBlock(recent){return recent&&recent.length?('8. 下列是最近已出過的題目，絕對禁止與其完全相同、僅改數字或僅換人名：\n'+recent.map((r,i)=>(i+1)+'. '+r).join('\n')+'\n9. 請刻意使用與上述範例完全不同的數字組合、情境與題型（若題目型態一直相同，請換一種問法）\n10. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'，每題必須是全新題目\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]'):('8. 必須是全新題目，不可與常見模板完全相同或僅改數字\n9. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'，請從不同角度、數字、情境出題\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]')}
+
 
 function diffChg(){
 
@@ -3200,10 +4196,32 @@ $('#view').innerHTML='<div style="text-align:center;padding:60px 0"><div style="
 
 }
 
+/* ════════════════════════════════════════════
+   vQuestion 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 5 個單位：showLevelUpFX, qMarkSeen, vQuestion, weekKey, getWeekly
+   ════════════════════════════════════════════ */
+function showLevelUpFX(newLv){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);animation:fadeIn .3s';overlay.innerHTML='<div style="text-align:center;animation:levelUp 1s ease-out"><div style="font-size:48px">🎉</div><div style="font-size:28px;color:var(--gold);font-family:var(--serif);margin:8px 0">LEVEL UP!</div><div style="font-size:20px;color:var(--txt)">Lv.'+newLv+'</div></div>';overlay.onclick=()=>overlay.remove();document.body.appendChild(overlay);for(let i=0;i<12;i++){const p=document.createElement('span');p.style.cssText='position:fixed;font-size:'+(14+Math.random()*10)+'px;pointer-events:none;z-index:201;left:'+(Math.random()*100)+'vw;top:-20px;animation:rewardDrop '+(1+Math.random()*1.5)+'s ease-in forwards;animation-delay:'+(Math.random()*0.5)+'s';p.textContent=['⭐','✨','🌟','💫','🎊'][Math.floor(Math.random()*5)];document.body.appendChild(p);setTimeout(()=>p.remove(),3000)}setTimeout(()=>overlay.remove(),3000)}
+
+
 async function vQuestion(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vQuestion.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vQuestion.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vQuestion();
 }
+
+function weekKey(){const d=new Date();const on=new Date(d.getFullYear(),0,1);const wn=Math.ceil((((d-on)/86400000)+on.getDay()+1)/7);return d.getFullYear()+'-W'+wn}
+
+function getWeekly(g){
+
+if(!g.weekly)g.weekly={wk:'',n:0,claimed:false};
+
+const wk=weekKey();
+
+if(g.weekly.wk!==wk)g.weekly={wk,n:0,claimed:false};
+
+return g.weekly;
+
+}
+
 
 function selectOpt(i){
 
@@ -3291,10 +4309,15 @@ return R;
 
 }
 
+/* ════════════════════════════════════════════
+   vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResult
+   ════════════════════════════════════════════ */
 async function vResult(){
-  if(!await needJs(['js/shared.js', 'js/views/vResult.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vResult.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vResult();
 }
+
 
 /* ════════ 引擎：經驗/獎勵/連擊/掉落 ════════ */
 
@@ -3475,10 +4498,23 @@ for(const m of CFG.MILE)if(pw>=m&&!g.stats.milestones.includes(m)){g.stats.miles
 /* ════════ #7 收藏四分頁＋升星/強化分流說明 ════════ */
 
 
+/* ════════════════════════════════════════════
+   vColl 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 5 個單位：imgQOf, collImg, collLvOf, collLvCost, vColl
+   ════════════════════════════════════════════ */
+function imgQOf(name,cat){const sfx={character:' 奇幻角色 插畫',pet:' 奇幻寵物 插畫',anime:' 動漫風格 動漫角色',teammate:' 動漫 隊友 組隊小隊 角色'}[cat]||' 插畫';return encodeURIComponent(name+sfx)}
+
+function collImg(name,cat,icon,px){px=px||52;return '<img src="https://tse2.mm.bing.net/th?q='+imgQOf(name,cat)+'&w='+(px*2)+'&h='+(px*2)+'&c=7&rs=1" alt="" loading="lazy" style="width:'+px+'px;height:'+px+'px;border-radius:10px;object-fit:cover;background:rgba(0,0,0,.25)" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'\'"><span style="display:none;font-size:'+Math.round(px*.72)+'px;line-height:1">'+icon+'</span>'}
+
+const collLvOf=(g,n)=>((g.collLv||{})[n])||1;
+
+const collLvCost=lv=>({au:120+lv*80,cr:25+lv*15});
+
 async function vColl(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vColl.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vColl.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vColl();
 }
+
 
 function equip(cat,n){const u=me();u.g.equip[cat]=n;saveU(u);hud();toast('✅ 已裝備 '+n);vColl()}
 
@@ -3529,10 +4565,31 @@ saveU(u);hud();toast('🌟 已自動裝備最強陣容');vColl()}
 
 
 
+/* ════════════════════════════════════════════
+   vGacha 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 4 個單位：plvNeed, gachaRates, plvBoxHtml, vGacha
+   ════════════════════════════════════════════ */
+const plvNeed=lv=>lv*2; /* 升級所需抽數：卡池等級×2（Lv1→2 需 2 抽、Lv50→51 需 100 抽） */
+
+function gachaRates(g){const lv=Math.min(100,(g.gacha&&g.gacha.plv)||1),t=(lv-1)/99;
+
+const UR=+(0.10*t).toFixed(4),SSR=+(0.15*t).toFixed(4),SR=+(0.25*t).toFixed(4),R=+(0.30*t).toFixed(4);
+
+return{UR,SSR,SR,R,N:+(1-UR-SSR-SR-R).toFixed(4)}}
+
+function plvBoxHtml(g){const gc=g.gacha,lv=Math.min(100,gc.plv||1),xp=gc.pxp||0,need=plvNeed(lv),rt=gachaRates(g),pct=v=>+(v*100).toFixed(1)+'%';
+
+return '<b style="color:var(--gold2)">🃏 卡池等級 Lv.'+lv+' / 100</b> <span style="font-size:11.5px;color:var(--mut)">升級需抽數＝等級×2・免費升級不耗任何資源</span>'+
+
+'<div class="bar" style="margin:6px 0"><i style="width:'+(lv>=100?100:Math.min(100,xp/need*100))+'%"></i></div>'+
+
+'<div style="font-size:12px;color:var(--mut)">'+(lv>=100?'🎉 已滿級！UR 機率 10%':'升級進度 '+xp+'/'+need+' 抽')+'｜目前機率：N '+pct(rt.N)+'｜R '+pct(rt.R)+'｜SR '+pct(rt.SR)+'｜SSR '+pct(rt.SSR)+'｜UR '+pct(rt.UR)+'</div>'}
+
 async function vGacha(){
-  if(!await needJs(['js/shared.js', 'js/views/vGacha.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGacha.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGacha();
 }
+
 
 function doPull(g,pool,randomValue){
 
@@ -3641,10 +4698,21 @@ return r>=1.35?95:r>=1.15?80:r>=1?65:r>=.85?45:r>=.7?30:15}
 
 
 
+/* ════════════════════════════════════════════
+   vSpeedMatch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 5 個單位：rnd, isWeekend, speedOppTime, vSpeedMatch, Q_SPD
+   ════════════════════════════════════════════ */
+const rnd=(a,b)=>a+Math.random()*(b-a);
+
+
+
 async function vSpeedMatch(){
-  if(!await needJs(['js/shared.js', 'js/views/vSpeedMatch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vSpeedMatch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSpeedMatch();
 }
+
+let Q_SPD=null;
+
 
 
 function nextSpeedQ(){
@@ -3711,10 +4779,33 @@ Q_SPD=null;
 
 }
 
+/* ════════════════════════════════════════════
+   vPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 4 個單位：arenaOpp, arenaDiff, vPK, animPk
+   ════════════════════════════════════════════ */
+function arenaOpp(floor){
+
+const names=['見習挑戰者','進階學習者','中等高手','觀念大師','陷阱獵人','資優學霸','魔王候補','地獄難題者','傳說級學神','全領域之王','虛空主宰','永恆戰神'];
+
+const icons=['🐣','📖','🦊','🦉','🐺','🦁','👹','🔥','👑','⚡','🌌','♾️'];
+
+const tier=Math.min(names.length-1,Math.floor((floor-1)/5));
+
+const pw=Math.floor(40+floor*32+Math.pow(floor,1.3)*8);
+
+return{n:names[tier]+'・第'+floor+'層',i:icons[tier],lv:Math.min(99,floor*2),pw,floor};
+
+}
+
+function arenaDiff(floor){return Math.min(100,5+floor);} /* 難度隨層數提升 */
+
 async function vPK(){
-  if(!await needJs(['js/shared.js', 'js/views/vSpeedMatch.js', 'js/views/vPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vSpeedMatch.js', 'js/views/vPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vPK();
 }
+
+function animPk(id,cls){const el=document.getElementById(id);if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+
 
 function startPk(replayFloor){
 
@@ -4039,16 +5130,26 @@ toast('🎁 競技塔第 '+r+' 名獎勵已領取！');vPK();
 
 }
 
+/* ════════════════════════════════════════════
+   vPkRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPkRank
+   ════════════════════════════════════════════ */
 async function vPkRank(){
-  if(!await needJs(['js/shared.js', 'js/views/vPkRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vPkRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vPkRank();
 }
 
+
 /* 🏫 班級總題數 PK：全班累計作答總題數對抗 */
+/* ════════════════════════════════════════════
+   vClassPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClassPK
+   ════════════════════════════════════════════ */
 async function vClassPK(){
-  if(!await needJs(['js/shared.js', 'js/views/vClassPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vClassPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vClassPK();
 }
+
 
 function spectate(){const a=arenaOpp(1+((Math.random()*10)|0)),b=arenaOpp(1+((Math.random()*10)|0));
 
@@ -4116,10 +5217,15 @@ return TERR_MAP[subj].t.filter(t=>g.territory.owned[subj+'|'+t.n]).length;
 
 }
 
+/* ════════════════════════════════════════════
+   vTerr 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTerr
+   ════════════════════════════════════════════ */
 async function vTerr(){
-  if(!await needJs(['js/shared.js', 'js/views/vTerr.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vTerr.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vTerr();
 }
+
 
 function terrTarget(g){
 
@@ -4317,10 +5423,17 @@ if(!list.every(m=>m.status==='CLAIMED'))g._allDone=false;
 
 }
 
+/* ════════════════════════════════════════════
+   vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vMiss, rwText
+   ════════════════════════════════════════════ */
 async function vMiss(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vQuestion.js', 'js/views/vMiss.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vMiss.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMiss();
 }
+
+function rwText(rw){const p=[];if(rw.gold)p.push('🪙'+rw.gold);if(rw.crystal)p.push('💠'+rw.crystal);if(rw.diamond)p.push('💎'+rw.diamond);if(rw.starlight)p.push('✨'+rw.starlight);if(rw.ironOre)p.push('⛏️'+rw.ironOre);if(rw.enhStone)p.push('🔩'+rw.enhStone);if(rw.labMat)p.push('🧪'+rw.labMat);if(rw.honor)p.push('🏅'+rw.honor);if(rw.quizPts)p.push('📖'+rw.quizPts);return p.join(' ')||'—'}
+
 
 
 
@@ -4366,10 +5479,41 @@ saveU(u);hud();toast('🎉 每週任務達標！💎20 🪙1000 ✨20 已入帳'
 
 
 
+/* ════════════════════════════════════════════
+   vShopV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：SHOP_POOL, vShopV
+   ════════════════════════════════════════════ */
+const SHOP_POOL=[
+
+{n:'強化石 ×5',ty:'mat',k:'enhStone',a:5,c:'gold',p:50,r:'N'},{n:'強化石 ×20',ty:'mat',k:'enhStone',a:20,c:'gold',p:180,r:'R'},
+
+{n:'保護卷軸 ×1',ty:'mat',k:'protect',a:1,c:'gold',p:80,r:'R'},{n:'防爆盾 ×1',ty:'mat',k:'shield',a:1,c:'diamond',p:5,r:'SR'},
+
+{n:'💠 水晶 ×30',ty:'cur',k:'crystal',a:30,c:'gold',p:120,r:'N'},{n:'💠 水晶 ×100',ty:'cur',k:'crystal',a:100,c:'gold',p:380,r:'R'},
+
+{n:'🪙 金幣 ×200',ty:'cur',k:'gold',a:200,c:'diamond',p:5,r:'R'},{n:'🎫 十連券',ty:'cur',k:'crystal',a:270,c:'diamond',p:15,r:'SSR'},
+
+{n:'經驗藥水(小)+200',ty:'exp',a:200,c:'gold',p:60,r:'N'},{n:'經驗藥水(大)+800',ty:'exp',a:800,c:'gold',p:200,r:'SR'},
+
+{n:'✨ 星光碎片 ×5',ty:'mat',k:'starlight',a:5,c:'gold',p:150,r:'SR'},{n:'✨ 星光碎片 ×20',ty:'mat',k:'starlight',a:20,c:'diamond',p:8,r:'SSR'},
+
+{n:'⛏️ 鐵礦 ×10',ty:'mat',k:'ironOre',a:10,c:'gold',p:90,r:'N'},{n:'⛏️ 鐵礦 ×30',ty:'mat',k:'ironOre',a:30,c:'gold',p:250,r:'R'},
+
+{n:'🧪 實驗素材 ×15',ty:'mat',k:'labMat',a:15,c:'gold',p:110,r:'R'},{n:'🏅 榮譽幣 ×20',ty:'cur',k:'honor',a:20,c:'crystal',p:60,r:'R'},
+
+{n:'🏟️ PK挑戰券 ×1',ty:'cur',k:'pkExtra',a:1,c:'diamond',p:8,r:'SR'},{n:'⚔️ 修煉場次數 ×1',ty:'cur',k:'quizExtra',a:1,c:'diamond',p:6,r:'SR'},
+
+{n:'🎖 限時稱號「商店常客」',ty:'title',a:0,c:'gold',p:500,r:'SR'},{n:'🧩 角色碎片（隨機）',ty:'shard',a:1,c:'crystal',p:100,r:'SR'},
+
+{n:'🛡️ 高階材料包',ty:'mat',k:'enhStone',a:10,c:'diamond',p:12,r:'SSR'}
+
+];
+
 async function vShopV(){
-  if(!await needJs(['js/shared.js', 'js/views/vShopV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vShopV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vShopV();
 }
+
 
 function refreshShop(){
 
@@ -4449,10 +5593,39 @@ return gs;
 }
 
 
+/* ════════════════════════════════════════════
+   vGShop 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：GSHOP_ITEMS, vGShop
+   ════════════════════════════════════════════ */
+const GSHOP_ITEMS=[
+
+{id:'g1',n:'🧩 UR角色「創世之神」',ty:'char',cat:'character',name:'創世之神',r:'UR',price:800,cur:'diamond',stock:1},
+
+{id:'g2',n:'🐾 UR寵物「創世鳳凰」',ty:'char',cat:'pet',name:'創世鳳凰',r:'UR',price:600,cur:'diamond',stock:2},
+
+{id:'g3',n:'🤝 SSR隊友「���法學園長」',ty:'char',cat:'teammate',name:'魔法學園長',r:'SSR',price:300,cur:'diamond',stock:3},
+
+{id:'g4',n:'✨ 星光碎片 ×50',ty:'mat',k:'starlight',a:50,r:'SSR',price:5000,cur:'gold',stock:5},
+
+{id:'g5',n:'🔩 強化石 ×100',ty:'mat',k:'enhStone',a:100,r:'SR',price:3000,cur:'gold',stock:8},
+
+{id:'g6',n:'⛏️ 鐵礦 ×200',ty:'mat',k:'ironOre',a:200,r:'SR',price:2500,cur:'gold',stock:10},
+
+{id:'g7',n:'🎫 十連抽獎券',ty:'cur',k:'crystal',a:270,r:'SSR',price:20,cur:'diamond',stock:6},
+
+{id:'g8',n:'🏅 榮譽幣 ×500',ty:'cur',k:'honor',a:500,r:'SR',price:150,cur:'diamond',stock:4},
+
+{id:'g9',n:'📜 高階鍛造圖紙「傳說之劍」',ty:'bp',name:'傳說之劍',r:'UR',price:100,cur:'diamond',stock:2},
+
+{id:'g10',n:'💎 鑽石 ×30',ty:'cur',k:'diamond',a:30,r:'UR',price:10000,cur:'gold',stock:3}
+
+];
+
 async function vGShop(){
-  if(!await needJs(['js/shared.js', 'js/views/vMarket.js', 'js/views/vGShop.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vMarket.js', 'js/views/vGShop.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGShop();
 }
+
 
 function buyG(id){
 
@@ -4482,10 +5655,15 @@ saveU(u);hud();toast('✅ 搶購成功！'+it.n+'（剩餘 '+(gs.stock[id])+' �
 
 /* ════════ 全服玩家自由交易市集 ════════ */
 
+/* ════════════════════════════════════════════
+   vMarket 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMarket
+   ════════════════════════════════════════════ */
 async function vMarket(){
-  if(!await needJs(['js/shared.js', 'js/views/vMarket.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGShop.js', 'js/views/vMarket.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMarket();
 }
+
 
 function marketListItem(ri){
 
@@ -4567,10 +5745,15 @@ saveU(u);toast('↩️ 已下架「'+it.w.n+'」，物品已退回背包');vMark
 
 /* ════════ 鍛造坊 ════════ */
 
+/* ════════════════════════════════════════════
+   vForge 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vForge
+   ════════════════════════════════════════════ */
 async function vForge(){
-  if(!await needJs(['js/shared.js', 'js/views/vForge.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vForge.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vForge();
 }
+
 
 function doForge(id){
 
@@ -4622,10 +5805,15 @@ vForge();
 
 /* ════════ 背包/強化（#7 裝備強化＝戰力）════════ */
 
+/* ════════════════════════════════════════════
+   vBag 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBag
+   ════════════════════════════════════════════ */
 async function vBag(){
-  if(!await needJs(['js/shared.js', 'js/views/vBag.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vBag.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vBag();
 }
+
 
 function renderBagList(){
 
@@ -4745,10 +5933,15 @@ return arr.map((e,i)=>({...e,rank:i+1}));
 
 }
 
+/* ════════════════════════════════════════════
+   vRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRank
+   ════════════════════════════════════════════ */
 async function vRank(){
-  if(!await needJs(['js/shared.js', 'js/views/vRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vRank();
 }
+
 
 const RANK_RW={1:{diamond:20,gold:1000,crystal:300,starlight:10,honor:10},2:{diamond:12,gold:600,crystal:180,starlight:6,honor:6},3:{diamond:8,gold:400,crystal:120,starlight:4,honor:4}}; /* 加碼版排名獎勵 */
 
@@ -4790,10 +5983,15 @@ $('#lbBox').innerHTML=lb(g,b).map(e=>'<div class="panel2 rankIt'+(e.rank===1?' t
 
 /* ════════ 稱號成就 ════════ */
 
+/* ════════════════════════════════════════════
+   vTitleV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTitleV
+   ════════════════════════════════════════════ */
 async function vTitleV(){
-  if(!await needJs(['js/shared.js', 'js/views/vTitleV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vTitleV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vTitleV();
 }
+
 
 function setTitle(id){const u=me();u.g.equippedTitle=id;saveU(u);toast('👑 已配戴稱號');vTitleV()}
 
@@ -4811,10 +6009,15 @@ saveU(u);hud();toast('🏅 成就「'+a.n+'」階段'+(claimed+1)+' 已領取！
 
 /* ════════ 兌換所 ════════ */
 
+/* ════════════════════════════════════════════
+   vExch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vExch
+   ════════════════════════════════════════════ */
 async function vExch(){
-  if(!await needJs(['js/shared.js', 'js/views/vExch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vExch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vExch();
 }
+
 
 function exch(i){
 
@@ -4838,10 +6041,15 @@ saveU(u);hud();toast('✅ 兌換成功');vExch();
 
 /* ════════ 自然實驗室 ════════ */
 
+/* ════════════════════════════════════════════
+   vLab 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLab
+   ════════════════════════════════════════════ */
 async function vLab(){
-  if(!await needJs(['js/shared.js', 'js/views/vLab.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vLab.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLab();
 }
+
 
 function doExp(i){
 
@@ -4943,10 +6151,15 @@ out.innerHTML=html;
 
 /* ════════ 密碼禮包 ════════ */
 
+/* ════════════════════════════════════════════
+   vCodes 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vCodes
+   ════════════════════════════════════════════ */
 async function vCodes(){
-  if(!await needJs(['js/shared.js', 'js/views/vCodes.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vCodes.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vCodes();
 }
+
 
 function redeemAny(){
 
@@ -5015,15 +6228,27 @@ function socialTabs(active){const g=me()&&me().g;const um=g?unreadMail(g):0;retu
 
 [['fr','👥 好友'+(pmUnreadTotal()?' <span id="frTabBadge" style="display:inline-flex;min-width:16px;height:16px;line-height:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;justify-content:center;align-items:center;margin-left:3px">'+Math.min(pmUnreadTotal(),9)+'</span>':'<span id="frTabBadge" style="display:none"></span>'),'vSocial(\'fr\')'],['gr','🏰 群組','vSocial(\'gr\')'],['story','📸 限時動態','vSocial(\'story\')'],['mail','📩 信箱'+(um?' ('+um+')':''),'vSocial(\'mail\')']].map(t=>'<button class="tabB '+(active===t[0]?'on':'')+'" onclick="'+t[2]+'">'+t[1]+'</button>').join('')+'</div>'}
 
+/* ════════════════════════════════════════════
+   vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSocial
+   ════════════════════════════════════════════ */
 async function vSocial(){
-  if(!await needJs(['js/shared.js', 'js/views/vFriends.js', 'js/views/vGroup.js', 'js/views/vHome.js', 'js/views/vMail.js', 'js/views/vStory.js', 'js/views/vSocial.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vFriends.js', 'js/views/vGroup.js', 'js/views/vMail.js', 'js/views/vStory.js', 'js/views/vSocial.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSocial();
 }
 
+
+/* ════════════════════════════════════════════
+   vFriends 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：yesterday, vFriends
+   ════════════════════════════════════════════ */
+const yesterday=(d)=>{const dt=new Date(d);dt.setDate(dt.getDate()-1);return dt.toDateString();};
+
 async function vFriends(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vFriends.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vFriends.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vFriends();
 }
+
 
 function tradeRow(t,isIn){
 
@@ -5461,10 +6686,15 @@ toast('已撤回交易');vFriends();
 
 ════════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════
+   vGroup 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGroup
+   ════════════════════════════════════════════ */
 async function vGroup(){
-  if(!await needJs(['js/shared.js', 'js/views/vGroup.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGroup.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGroup();
 }
+
 
 function sendGroupMsg(gid){
 
@@ -5652,10 +6882,24 @@ toast('💥 群組��'+gr.name+'」已解散');vGroup();
 
 /* ════════ 班級作業（#6 題目ID修復）════════ */
 
+/* ════════════════════════════════════════════
+   vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 6 個單位：vHomework, hwSeed, hwShuffle, hwShowNum, hwGuardOff, hwForStudent
+   ════════════════════════════════════════════ */
 async function vHomework(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vHomework.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vHomework.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vHomework();
 }
+
+function hwSeed(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+
+function hwShuffle(arr,rng){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+
+function hwShowNum(o,sh){return sh?(parseInt(String(o).trim(),10)+sh):o}
+
+function hwGuardOff(){if(window._hwCtx){document.removeEventListener('contextmenu',window._hwCtx,true);window._hwCtx=null}if(window._hwCopy){document.removeEventListener('copy',window._hwCopy,true);document.removeEventListener('selectstart',window._hwCopy,true);window._hwCopy=null}if(window._hwBlur){window.removeEventListener('blur',window._hwBlur);document.removeEventListener('visibilitychange',window._hwBlur);window._hwBlur=null}const wm=document.getElementById('hwWatermark');if(wm)wm.remove();}
+
+
 
 /* ── 作業防作弊：每學生專屬變體（題序/選項/數字皆不同）＋浮水印＋離窗警示 ── */
 function hwRng(seed){let s=seed>>>0;return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -5784,10 +7028,15 @@ return '<div class="panel2" style="margin-bottom:8px"><div style="font-size:14px
 
 /* ════════ 錯題/統計/設定/世界頻道/公告 ════════ */
 
+/* ════════════════════════════════════════════
+   vWrong 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vWrong
+   ════════════════════════════════════════════ */
 async function vWrong(){
-  if(!await needJs(['js/shared.js', 'js/views/vWrong.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vWrong.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vWrong();
 }
+
 
 function retryQ(s,i){
 
@@ -5801,10 +7050,33 @@ vQuestion();
 
 }
 
+/* ════════════════════════════════════════════
+   vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStats
+   ════════════════════════════════════════════ */
 async function vStats(){
-  if(!await needJs(['js/shared.js', 'js/views/vStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vStats();
 }
+
+function langStatsHtml(g){
+  const langs=(g.stats&&g.stats.lang)||{};
+  const codes=Object.keys(langs);
+  const langT=Object.values(langs).reduce((a,b)=>a+(b.t||0),0);
+  const langC=Object.values(langs).reduce((a,b)=>a+(b.c||0),0);
+  let h='答題：<b style="color:var(--teal)">'+langT+'</b> 題｜答對：'+langC+' 題｜正確率：'+(langT?(Math.round(langC/langT*100)):0)+'%<br>';
+  if(!codes.length)h+='<span style="color:var(--mut)">還沒開始語言自學，去「🌍 語言自學」挑一個語言吧！</span>';
+  else{
+    codes.sort((a,b)=>(langs[b].t||0)-(langs[a].t||0));
+    h+=codes.slice(0,12).map(c=>{
+      const s=langs[c],t=s.t||0,cq=s.c||0;
+      return '<div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span style="width:110px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(langName(c))+'</span><div class="bar" style="flex:1"><i style="width:'+Math.min(100,Math.round(t/Math.max(1,langT)*100))+'%;background:var(--teal)"></i></div><b style="font-size:12px;width:110px;text-align:right;color:'+(t?'var(--teal)':'var(--mut)')+'">'+t+' 題・'+cq+' 對</b></div>';
+    }).join('');
+    if(codes.length>12)h+='<div style="font-size:11.5px;color:var(--mut);margin-top:4px">…共 '+codes.length+' 種語言</div>';
+  }
+  return h;
+}
+
 
 
 /* ── 背景音樂播放器（教師把 mp3/ogg 放 media/music/，學生可選曲）── */
@@ -5818,10 +7090,35 @@ function musicPick(v){musicInit();MUSIC.idx=parseInt(v,10);if(MUSIC.idx>=0)playM
 
 /* ── 新手引導（首登教學，只顯示一次）── */
 
+/* ════════════════════════════════════════════
+   vSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 7 個單位：BG_PRESETS, AVATAR_EMOJIS, MUSIC, saveMusicPref, musicInit, musicSetVolume, vSet
+   ════════════════════════════════════════════ */
+const BG_PRESETS={bg1:['🌌 星空藍（預設）',''],bg2:['🌅 暮光橙','linear-gradient(160deg,#2b1055,#7597de 45%,#c98a5a)'],bg3:['🌲 森林綠','linear-gradient(160deg,#0f2027,#203a43 50%,#2c5364)'],bg4:['🌸 櫻花粉','linear-gradient(160deg,#41295a,#752d63 50%,#b06ab3)'],bg5:['🔥 熔岩紅','linear-gradient(160deg,#1f1c18,#5c2018 55%,#8e3b2f)'],bg6:['💜 夢幻紫','linear-gradient(160deg,#141e30,#3a2b63 55%,#6a3f8f)']};
+
+
+let MUSIC={list:[],idx:-1,audio:null};
+
+function saveMusicPref(){try{localStorage.setItem('ADV9_MUSIC',JSON.stringify({idx:MUSIC.idx}))}catch(e){}}
+
+function musicInit(){if(MUSIC.audio)return;const a=new Audio();a.loop=true;a.volume=.5;MUSIC.audio=a;try{const j=JSON.parse(localStorage.getItem('ADV9_MUSIC')||'{}');if(typeof j.idx==='number')MUSIC.idx=j.idx}catch(e){}}
+
+
 async function vSet(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSet();
 }
+
+function setLangGrid(t){
+  const rows=langFind(t||'');
+  const g=me().g;
+  const el=document.getElementById('setLangGrid');if(!el)return;
+  el.innerHTML=rows.slice(0,60).map(x=>{
+    const [r,code,name]=x,st=(g.stats.lang||{})[code];
+    return '<button class="btn ghost mini" style="font-size:12px;text-align:left" onclick="setLangPref(\''+code+'\')">'+esc(name)+(st?' <span style="color:var(--teal)">('+st.t+')</span>':'')+'</button>';
+  }).join('')+(rows.length>60?'<span style="font-size:11px;color:var(--mut)">…共 '+rows.length+' 種，輸入關鍵字可搜尋</span>':'')||'<span style="font-size:12px;color:var(--mut)">找不到，試試別的字。</span>';
+}
+
 
 function setHideOnline(v){const u=myProf();u.prof.hideOnline=!!v;saveU(u);toast(v?'🙈 已隱藏上線狀態（好友將看不到你在線上）':'👁 已公開上線狀態');heartbeat()}
 
@@ -5894,10 +7191,15 @@ return '<div class="chatMsg '+(mine?'mine':'')+(isSys?' system':c.role||'')+'">'
 
 }
 
+/* ════════════════════════════════════════════
+   vChatV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vChatV
+   ════════════════════════════════════════════ */
 async function vChatV(){
-  if(!await needJs(['js/shared.js', 'js/views/vChatV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vChatV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vChatV();
 }
+
 
 function sendChat(){const u=me();const t=$('#chatIn').value.trim();if(!t)return;
 
@@ -5907,10 +7209,15 @@ if(ch.length>100)ch.splice(0,ch.length-100);
 
 set(LS.chat,ch);$('#chatIn').value='';vChatV()}
 
+/* ════════════════════════════════════════════
+   vAnn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAnn
+   ════════════════════════════════════════════ */
 async function vAnn(){
-  if(!await needJs(['js/shared.js', 'js/views/vAnn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vAnn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAnn();
 }
+
 
 /* ════════ 老師工作台（#5 隱私：只看世界頻道）════════ */
 
@@ -6334,10 +7641,15 @@ toast('📤 已分享作業模板給 '+(fr?fr.name:'好友')+'！');
 
 }
 
+/* ════════════════════════════════════════════
+   vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRoster
+   ════════════════════════════════════════════ */
 async function vRoster(){
-  if(!await needJs(['js/shared.js', 'js/views/vRoster.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vRoster.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vRoster();
 }
+
 
 /* 🔍 學生詳情：師/管端檢視作答過程與作答時間 */
 
@@ -6402,10 +7714,17 @@ const mb=$('#mbody');if(mb)mb.style.maxWidth='900px'; /* 加寬面板以容納 1
 
 
 
+/* ════════════════════════════════════════════
+   vAiAudit 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：auditMetrics, auditFlags, vAiAudit
+   ════════════════════════════════════════════ */
+
+
 async function vAiAudit(){
-  if(!await needJs(['js/shared.js', 'js/views/vAiAudit.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vAiAudit.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAiAudit();
 }
+
 
 function auditAI(){
 
@@ -6427,10 +7746,15 @@ callGemini(prompt,'你是客觀的學習數據分析師，只提供參考研判�
 
 /* #5 老師聊天監控：僅世界頻道（公開）；好友私聊(LS.pm)與群組聊天絕不顯示 */
 
+/* ════════════════════════════════════════════
+   vMonitor 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMonitor
+   ════════════════════════════════════════════ */
 async function vMonitor(){
   if(!await needJs(['js/views/vMonitor.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMonitor();
 }
+
 
 function clearChat(){if(!confirm('清空所有聊天紀錄？'))return;set(LS.chat,[]);vMonitor();toast('🗑 已清空')}
 
@@ -6468,10 +7792,27 @@ else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==
 
 /* ════ 🎁 資源發放：單人或全服，可直接發資源、送角色、編輯等級 ════ */
 
+/* ════════════════════════════════════════════
+   vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：vGrantAdmin, eqSubCount, eqSubValue
+   ════════════════════════════════════════════ */
 async function vGrantAdmin(){
-  if(!await needJs(['js/shared.js', 'js/views/vGrantAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGrantAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGrantAdmin();
 }
+
+function eqSubCount(rarity){
+  if(rarity==='R'||rarity==='E')return 1;if(rarity==='A'||rarity==='S')return 2;
+  if(rarity==='SS'||rarity==='SSS')return 3;return 4;
+}
+
+function eqSubValue(rarity,stat){
+  const base={'暴擊':.8,'暴傷':1.2,'冷卻':.6,'減傷':.7,'運氣':.5,'生命':15,'防禦':.8}[stat]||1;
+  let mult={R:1,E:1.2,A:1.4,S:1.6,SS:1.8,SSS:2,Z:2.5,ZZ:3,ZZZ:3.5,'∞':5}[rarity]||1;
+  if(rarity==='∞')mult*=1.5;
+  return Math.round(base*mult*100)/100;
+}
+
 
 function grTgtChg(){const one=document.querySelector('input[name=grTgt]:checked').value==='one';const s=$('#grUser');if(s)s.style.display=one?'':'none'}
 
@@ -6518,10 +7859,23 @@ function adminGrantEquip(){
 /* ════ 🎀 娃娃管理後台 ════ */
 
 
+/* ════════════════════════════════════════════
+   vDollAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 5 個單位：_dAdminCat, vDollAdmin, DOLL_IMPRINTS, _dGenId, _dImprint
+   ════════════════════════════════════════════ */
+let _dAdminCat='角色',_dAdminEditId=null,_dAdminEditIdx=-1;
+
 async function vDollAdmin(){
   if(!await needJs(['js/views/vDollAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDollAdmin();
 }
+
+const DOLL_IMPRINTS=['自由之息','烈焰痕跡','靜水流深','大地的懷抱','風之足跡','火之光環','水之淚滴','土之印章','雲中漫步','燼中重生','潮汐記憶','山巒低語','飛翔夢境','永恆火焰','深海之心','磐石之誓'];
+
+function _dGenId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+function _dImprint(){return DOLL_IMPRINTS[Math.floor(Math.random()*DOLL_IMPRINTS.length)]}
+
 
 function renderDollAdmin(cat){
   if(cat)_dAdminCat=cat;
@@ -6934,10 +8288,15 @@ function _dSetForUser(uid,d){
 
 /* ════ 🛡️ 公會管理：查看、調等級、解散 ════ */
 
+/* ════════════════════════════════════════════
+   vGuildsAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuildsAdmin
+   ════════════════════════════════════════════ */
 async function vGuildsAdmin(){
-  if(!await needJs(['js/shared.js', 'js/views/vGuildsAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGuildsAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGuildsAdmin();
 }
+
 
 function adminSetGuildLv(id){
 
@@ -6963,10 +8322,15 @@ set(LS.guilds,guilds.filter(x=>x.id!==id));toast('💥 已解散公會「'+gd.na
 
 /* ════ 📸 動態管理：查看全部限時動態、刪除違規內容 ════ */
 
+/* ════════════════════════════════════════════
+   vContentAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vContentAdmin
+   ════════════════════════════════════════════ */
 async function vContentAdmin(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vContentAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vContentAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vContentAdmin();
 }
+
 
 function adminDelStory(id){
 
@@ -6988,10 +8352,15 @@ set(LS.stories,[]);toast('🧹 已清空所有動態');vContentAdmin();
 
 /* ════ 📚 課本網址管理：新增/刪除課本講解與課外考卷的連結 ════ */
 
+/* ════════════════════════════════════════════
+   vBooksAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBooksAdmin
+   ════════════════════════════════════════════ */
 async function vBooksAdmin(){
-  if(!await needJs(['js/shared.js', 'js/views/vBooksAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vBooksAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vBooksAdmin();
 }
+
 
 function adminAddBook(){
 
@@ -7017,10 +8386,49 @@ set(LS.books,get(LS.books,[]).filter(x=>x.id!==id));toast('🗑 已刪除');vBoo
 
 }
 
+/* ════════════════════════════════════════════
+   vGameSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：MISSION_POOL, vGameSet
+   ════════════════════════════════════════════ */
+const MISSION_POOL=[
+
+{id:'m1',n:'✅ 答對 10 題',k:'answer',g:10,rw:{crystal:15,gold:30}},
+
+{id:'m2',n:'🏟️ 完成 2 場 PK',k:'pk',g:2,rw:{crystal:20,gold:50}},
+
+{id:'m3',n:'🔥 達成 8 連擊',k:'combo',g:8,rw:{crystal:25,starlight:2}},
+
+{id:'m4',n:'💪 完成 5 題困難50+',k:'hard',g:5,rw:{crystal:30,gold:60}},
+
+{id:'m5',n:'📈 獲得 100 經驗',k:'exp',g:100,rw:{gold:50,starlight:1}},
+
+{id:'m6',n:'🎁 進行 1 次抽卡',k:'gacha',g:1,rw:{enhStone:1,gold:20}},
+
+{id:'m7',n:'🔨 強化武器 1 次',k:'enhance',g:1,rw:{crystal:15,gold:30}},
+
+{id:'m8',n:'❌ 重練 2 題錯題',k:'retry',g:2,rw:{crystal:20,starlight:3}},
+
+{id:'m9',n:'🗺️ 征服 1 塊領土',k:'territory',g:1,rw:{diamond:2,gold:50}},
+
+{id:'m10',n:'⚒️ 累計鍛造 2 次',k:'forge',g:2,rw:{ironOre:5,crystal:20}},
+
+{id:'m11',n:'🧪 挑戰實驗室 1 次',k:'lab',g:1,rw:{labMat:10,gold:40}},
+
+{id:'m12',n:'🤝 贈送好友精力 1 次',k:'giftEnergy',g:1,rw:{crystal:15,gold:30}},
+
+{id:'m13',n:'📥 領取好友精力 1 次',k:'recvEnergy',g:1,rw:{gold:50}},
+
+{id:'m14',n:'📖 答題累計 20 題',k:'answerTotal',g:20,rw:{quizPts:20,gold:40}},
+
+{id:'m15',n:'🏅 PK 獲勝 1 場',k:'pkWin',g:1,rw:{honor:10,crystal:15}}
+
+];
+
 async function vGameSet(){
   if(!await needJs(['js/views/vGameSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGameSet();
 }
+
 
 function saveGameSet(){
 
@@ -7055,10 +8463,15 @@ set(LS.users,us);toast('🔄 已重置 '+n+' 名學生的遊戲數據');
 }
 
 /* 用戶管理：改用本機資料（透過 set() 自動同步雲端）；含搜尋與單獨重設密碼 */
+/* ════════════════════════════════════════════
+   vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUsers
+   ════════════════════════════════════════════ */
 async function vUsers(){
   if(!await needJs(['js/views/vUsers.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vUsers();
 }
+
 function nuRoleChange(sel){const w=$('#nuClsWrap');if(w)w.style.display=sel.value==='student'?'':'none'}
 /* 帳號主檔（伺服器 users_index.json）：列出所有帳號（有誰誰誰），並顯示主檔與本機差異 */
 async function showUsersIndex(){
@@ -7126,10 +8539,16 @@ toast('🗑 已刪除 '+username);
 uRenderRows();
 }
 
+/* ════════════════════════════════════════════
+   vCodesAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vCodesAdmin, codeRwText
+   ════════════════════════════════════════════ */
 async function vCodesAdmin(){
-  if(!await needJs(['js/shared.js', 'js/views/vCodesAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vCodesAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vCodesAdmin();
 }
+
+
 
 
 const randCode=()=>Array.from({length:8},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[(Math.random()*32)|0]).join('');
@@ -7172,10 +8591,15 @@ function copyCode(c){if(navigator.clipboard)navigator.clipboard.writeText(c);toa
 
 function delCode(c){if(!confirm('刪除此禮包碼？'))return;set(LS.codes,get(LS.codes,[]).filter(x=>x.code!==c));vCodesAdmin()}
 
+/* ════════════════════════════════════════════
+   vPostAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPostAdmin
+   ════════════════════════════════════════════ */
 async function vPostAdmin(){
-  if(!await needJs(['js/shared.js', 'js/views/vPostAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vPostAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vPostAdmin();
 }
+
 
 function postAnn(){const u=me();const t=$('#annT').value.trim(),c=$('#annC').value.trim();
 
@@ -7187,10 +8611,18 @@ set(LS.ann,as);toast('📢 公告已發布');vPostAdmin()}
 
 function delAnn(id){if(!confirm('刪除此公告？'))return;set(LS.ann,get(LS.ann,[]).filter(a=>a.id!==id));vPostAdmin()}
 
+/* ════════════════════════════════════════════
+   vApiKeys 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：AI_PRIORITY, apiModelOpts, vApiKeys
+   ════════════════════════════════════════════ */
+const AI_PRIORITY=['openai','deepseek','gemini','qwen','kimi','ollama'];
+
+
 async function vApiKeys(){
   if(!await needJs(['js/views/vApiKeys.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vApiKeys();
 }
+
 function addApiKey(){const input=$('#newApiKey');const key=(input.value||'').trim();if(!key){toast('請輸入 API 金鑰','bad');return}const provider=$('#newApiProvider').value;let model=($('#newApiModel').value||'').trim()||AI_PROVIDERS[provider].defModel;const pv=AI_PROVIDERS[provider];if(pv.banned&&pv.banned.includes(model)){model=pv.defModel;toast('🚫 該模型已禁用，改用 '+model)}const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(data.keys.some(k=>k.key===key)){toast('此金鑰已存在','bad');return}data.keys.push({key:key,provider:provider,model:model,addedAt:new Date().toISOString(),useCount:0,lastUsed:null});set(LS.apiKeys,data);toast('✅ 金鑰已新增（'+pv.n+'）');vApiKeys()}
 function importApiKeysTxt(){
 const raw=($('#apiKeyTxt').value||'').trim();if(!raw)return toast('請先貼上金鑰（每行一組）','bad');
@@ -7212,21 +8644,36 @@ vApiKeys();}
 function removeApiKey(idx){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(idx<0||idx>=data.keys.length)return;const removed=data.keys.splice(idx,1)[0];if(data.currentIndex>=data.keys.length)data.currentIndex=0;else if(data.currentIndex>idx)data.currentIndex--;set(LS.apiKeys,data);toast('🗑️ 已刪除金鑰');vApiKeys()}
 async function testApiKey(idx){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(idx>=data.keys.length)return toast('金鑰不存在','bad');const key=data.keys[idx];const pv=AI_PROVIDERS[key.provider||'gemini'];toast('正在測試金鑰（'+pv.n+'）...');try{const start=Date.now();const answer=await callOneAI(key,'請回答：1+1=? 只回答數字','你是計算小助手。');const elapsed=Date.now()-start;toast('✅ 金鑰 '+(idx+1)+'（'+pv.n+'）可用 ('+elapsed+'ms) 回應：'+String(answer).substring(0,20));}catch(e){toast('❌ 金鑰 '+(idx+1)+'（'+pv.n+'）測試失敗：'+e.message,'bad');}}
 async function testAllApiKeys(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(!data.keys.length)return toast('尚無金鑰','bad');toast('正在依序測試所有金鑰...');for(let i=0;i<data.keys.length;i++){await testApiKey(i);await new Promise(r=>setTimeout(r,500));}}
+/* ════════════════════════════════════════════
+   vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClasses
+   ════════════════════════════════════════════ */
 async function vClasses(){
   if(!await needJs(['js/views/vClasses.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vClasses();
 }
+
 function addClass(){const id=$('#newClassId').value.trim();const name=$('#newClassName').value.trim();if(!id||!name)return toast('請填寫班級代號和名稱','bad');const classes=get(LS.classes,{ids:[],names:{}});if(classes.ids.includes(id))return toast('此班級代號已存在','bad');classes.ids.push(id);classes.names[id]=name;set(LS.classes,classes);const u=me();if(u&&u.role==='teacher'){u.managedClassIds=u.managedClassIds||[];if(!u.managedClassIds.includes(id))u.managedClassIds.push(id);saveU(u)}toast('✅ 班級 '+name+' 已新增');if(me().role==='teacher')tGo('cls');else vClasses()}
 function removeClass(id){if(!confirm('確定刪除此班級？'))return;const classes=get(LS.classes,{ids:[],names:{}});classes.ids=classes.ids.filter(x=>x!==id);delete classes.names[id];set(LS.classes,classes);const us=get(LS.users,[]);us.forEach(x=>{if(x.managedClassIds)x.managedClassIds=x.managedClassIds.filter(c=>c!==id)});set(LS.users,us);toast('🗑️ 班級已刪除');if(me().role==='teacher')tGo('cls');else vClasses()}
 function editClassName(id){const classes=get(LS.classes,{ids:[],names:{}});const newName=prompt('請輸入新的班級名稱：',classes.names[id]||id);if(!newName)return;classes.names[id]=newName;set(LS.classes,classes);toast('✅ 班級名稱已更新');if(me().role==='teacher')tGo('cls');else vClasses()}
+/* ════════════════════════════════════════════
+   vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTHome
+   ════════════════════════════════════════════ */
 async function vTHome(){
-  if(!await needJs(['js/shared.js', 'js/views/vHome.js', 'js/views/vTHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vTHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vTHome();
 }
+
+/* ════════════════════════════════════════════
+   vRegStu 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRegStu
+   ════════════════════════════════════════════ */
 async function vRegStu(){
   if(!await needJs(['js/views/vRegStu.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vRegStu();
 }
+
 function impStuFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{$('#impStuTxt').value=e.target.result;toast('📄 已讀入 '+f.name+'，請確認後點「批次匯入」')};rd.readAsText(f,'utf-8')}
 async function doImportStu(){
   const txt = ($('#impStuTxt').value || '').trim();
@@ -7301,10 +8748,7 @@ async function doRegStu() {
       SUPA_URL + '/rest/v1/rpc/teacher_register_student',
       {
         method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY,
-          'Content-Type': 'application/json'
-        },
+        headers: supaHeaders(),
         body: JSON.stringify({
           p_username: username,
           p_name: name,
@@ -7348,16 +8792,27 @@ async function doRegStu() {
   }
 }
 
+/* ════════════════════════════════════════════
+   vAStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAStats, st2
+   ════════════════════════════════════════════ */
 async function vAStats(){
   if(!await needJs(['js/views/vAStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAStats();
 }
 
 
+
+
+/* ════════════════════════════════════════════
+   vResetAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResetAdmin
+   ════════════════════════════════════════════ */
 async function vResetAdmin(){
   if(!await needJs(['js/views/vResetAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vResetAdmin();
 }
+
 
 function resetDefault(){if(!confirm('確定要重置為預設資料嗎？'))return;seed();localStorage.removeItem(LS.ses);toast('🔄 已重置');enter()}
 
@@ -7527,10 +8982,19 @@ const st=d.status==='done'?(d.winner?(d.winner===u.id?'🏆 你贏了':'💀 你
 const btn=(!mine&&d.status==='waiting'&&d.bScore==null)?'<button class="btn mini" onclick="duelAccept(\''+d.id+'\')">⚔️ 應戰</button>':(mine&&d.status==='playing'&&d.aScore==null?'<button class="btn mini" onclick="duelAccept(\''+d.id+'\')">▶️ 繼續挑戰</button>':'');
 return '<div class="panel2 frIt"><b style="flex:1">'+(mine?'📤 你 → '+esc(d.bName):'📥 '+esc(d.aName)+' → 你')+'｜'+esc(d.game)+'</b><span style="font-size:12px;color:var(--mut)">'+(d.aScore!=null?esc(d.aName)+' '+d.aScore+'分':'')+(d.bScore!=null?'｜'+esc(d.bName)+' '+d.bScore+'分':'')+'</span><span style="font-size:12.5px">'+st+'</span>'+btn+'</div>'}).join('');
 }
+/* ════════════════════════════════════════════
+   vGames 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：gameKey, gameStop, vGames
+   ════════════════════════════════════════════ */
+function gameKey(fn){if(window._gKey)window.removeEventListener('keydown',window._gKey);window._gKey=fn;if(fn)window.addEventListener('keydown',fn)}
+
+function gameStop(){gameKey(null);if(window._gTimer){clearInterval(window._gTimer);window._gTimer=null}}
+
 async function vGames(){
-  if(!await needJs(['js/shared.js', 'js/views/vGames.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vGames.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGames();
 }
+
 /* --- 2048 --- */
 function g2048(){
 gameStop();
@@ -7804,10 +9268,15 @@ _bu.appendChild(sp);setTimeout(()=>sp.remove(),1400)}}
 })();
 
 // === AI 出題功能 (Teacher) ===
+/* ════════════════════════════════════════════
+   vAiQuiz 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAiQuiz
+   ════════════════════════════════════════════ */
 async function vAiQuiz(){
-  if(!await needJs(['js/shared.js', 'js/views/vAiQuiz.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vAiQuiz.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAiQuiz();
 }
+
 
 function updateAiUnits(){
 const grade=$('#aiGrade').value;
@@ -7994,10 +9463,101 @@ async function _dTalkRespAI(doll,msg){
   return fallback;
 }
 
+/* ════════════════════════════════════════════
+   vDoll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 22 個單位：DOLL_MBTI, DOLL_MBTI_FULL, DOLL_ELT_EPI, DOLL_ELT_NATURE, DOLL_MBTI_DELTA, DOLL_ELT_DELTA, DOLL_ELT, _dInputOpen, _dRand, _dDefaultMbti, _dPersonality, _dPersonaName…
+   ════════════════════════════════════════════ */
+const DOLL_ELEMENTS=['金','木','水','火','土']; const DOLL_MBTI=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP']; const DOLL_MBTI_TRAITS={INTJ:'策略觀察',INTP:'好奇研究',ENTJ:'領導果斷',ENTP:'創意辯證',INFJ:'深情洞察',INFP:'理想溫柔',ENFJ:'溫暖引導',ENFP:'熱情探索',ISTJ:'可靠守序',ISFJ:'細心守護',ESTJ:'務實管理',ESFJ:'親切照顧',ISTP:'冷靜實作',ISFP:'感性自由',ESTP:'勇敢行動',ESFP:'開朗感染'};
+
+const DOLL_MBTI_FULL={INTJ:'建築師',INTP:'邏輯學家',ENTJ:'指揮官',ENTP:'辯論家',INFJ:'提倡者',INFP:'調停者',ENFJ:'主人公',ENFP:'競選者',ISTJ:'物流師',ISFJ:'守衛者',ESTJ:'總經理',ESFJ:'執政官',ISTP:'鑑賞家',ISFP:'探險家',ESTP:'企業家',ESFP:'表演者'};
+
+const DOLL_ELT_EPI={'金':'金石','木':'靈木','水':'流水','火':'燄火','土':'磐土'};
+
+const DOLL_ELT_NATURE={'金':'穩重睿智，重視承諾','木':'生機蓬勃，溫柔包容','水':'沉靜靈敏，善解人意','火':'熱情洋溢，敢想敢做','土':'敦厚踏實，堅守原則'};
+
+const DOLL_MBTI_DELTA={INTJ:{logic:14,curiosity:6},INTP:{logic:12,curiosity:12},ENTJ:{logic:10,energy:6},ENTP:{curiosity:12,energy:8},INFJ:{empathy:14,warmth:8},INFP:{empathy:14,warmth:12},ENFJ:{warmth:14,empathy:10},ENFP:{energy:12,warmth:8},ISTJ:{logic:10},ISFJ:{empathy:10,warmth:8},ESTJ:{logic:8,energy:6},ESFJ:{warmth:12,empathy:8},ISTP:{logic:8,curiosity:6},ISFP:{empathy:10,warmth:6},ESTP:{energy:10,logic:4},ESFP:{energy:10,warmth:8}};
+
+const DOLL_ELT_DELTA={'金':{logic:12},'木':{warmth:8,curiosity:4},'水':{empathy:12,warmth:4},'火':{energy:12,curiosity:6},'土':{logic:6,empathy:8}};
+
+const DOLL_ELT={
+  '金':{icon:'🪙',color:'#f6d365',border:'#b8860b',trait:'堅定睿智',bondRate:.75,talk:['（閃著沉穩的光）我會替你想清楚。','（認真端詳）細節也很重要。'],feed:['（仔細品嚐）很有價值的心意。']},
+  '木':{icon:'🌿',color:'#8bd17c',border:'#3f8f4f',trait:'成長仁慈',bondRate:.9,talk:['（伸展枝葉）我們一起慢慢長大。','（溫柔地）今天也要照顧好自己。'],feed:['（枝葉舒展）好溫暖的心意。']},
+  '風':{icon:'🌬️',color:'#7ff0dd',border:'#38d9c0',trait:'自由輕盈',bondRate:.8,
+    talk:['（輕盈地飄動）好高好遠…','（轉了個圈）風告訴我一個秘密！','（翹起腳丫）呼～好舒服～','（閉眼感受）你聽，風在唱歌…'],
+    feed:['（輕盈地吃下，像羽毛一樣飄起來）','（開心地轉圈）風的味道！','（飄來飄去）好好吃～']},
+  '火':{icon:'🔥',color:'#ff8a65',border:'#e64a19',trait:'熱情衝動',bondRate:.6,
+    talk:['（眼睛發亮）我想到一個超棒的計畫！','（握拳）讓我來做！現在就現在！','（燦爛笑）太好了太好了！','（激動地跳）我們一起來吧！'],
+    feed:['（一口咬下，火花飛濺）好美味！','（吃得熱熱的）嗯～好滿足！','（開心地吃）哈哈哈太好吃了！']},
+  '水':{icon:'💧',color:'#82b1ff',border:'#2979ff',trait:'溫柔包容',bondRate:.95,
+    talk:['（輕輕微笑）你今天過得好嗎？','（安靜地看著你）我陪著你。','（像水一樣柔和）沒關係的，慢慢來。','（輕柔地）我懂你的感覺…'],
+    feed:['（小口品嚐，表情溫柔）謝謝你。','（安靜地吃）好好吃…','（輕柔笑）你的心意我收到了。']},
+  '土':{icon:'🌍',color:'#a1887f',border:'#5d4037',trait:'穩重可靠',bondRate:.7,
+    talk:['（穩穩地站著）嗯，我聽懂了。','（沉穩地點頭）讓我來幫你。','（堅定的眼神）我會一直陪著你。','（踏實地）一步一步來就好。'],
+    feed:['（穩穩地吃）嗯，很實在的味道。','（認真品嚐）這是大地的味道。','（滿意的點頭）很棒的點心。']}
+};
+
+let _dCur=null,_dChat=[],_dInputOpen=false;
+
+function _dRand(a,b){return a+Math.random()*(b-a)}
+
+function _dDefaultMbti(d){return DOLL_MBTI[(String(d.id||d.name||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0))%DOLL_MBTI.length]}
+
+function _dPersonality(d){d.mbti=d.mbti||_dDefaultMbti(d);if(!d.personality||typeof d.personality.warmth!=='number'){const base={warmth:50,energy:50,curiosity:50,logic:50,empathy:50};const ed=DOLL_ELT_DELTA[d.element]||{};const md=DOLL_MBTI_DELTA[d.mbti]||{};Object.keys(base).forEach(k=>{base[k]=Math.max(0,Math.min(100,base[k]+(ed[k]||0)+(md[k]||0)))});d.personality=base;}return d.personality}
+
+function _dPersonaName(d){const el=d.element||'金';const ep=DOLL_ELT_EPI[el]||'靈玉';const fn=DOLL_MBTI_FULL[d.mbti]||d.mbti;return ep+'·'+fn}
+
+function _dPersonaDesc(d){const x=_dPersonality(d);const el=d.element||'金';const base=DOLL_ELT_NATURE[el]||'獨特';const tags=[];if(x.empathy>=65)tags.push('心思細膩、善於傾聽');if(x.logic>=65)tags.push('理性果斷、條理分明');if(x.curiosity>=65)tags.push('求知慾旺盛、愛問為什麼');if(x.warmth>=65)tags.push('待人溫暖、總在身旁');if(x.energy>=65)tags.push('活力四射、行動力強');const lows=[];if(x.empathy<=35)lows.push('偶爾顯得疏離');if(x.logic<=35)lows.push('有時憑感覺行事');if(x.energy<=35)lows.push('沉靜慢熱');const bond=d.bond||0;const mood=d.mood||50;const trust=d.trust||0;const bondLine=bond>=80?'與你默契深厚、心意相通':bond>=50?'與你愈來愈有默契':'正一步步向你敞開心房';return base+'，性格'+(tags.length?tags.slice(0,3).join('、'):'中庸沉穩')+(lows.length?'（'+lows.join('、')+'）':'')+'。'+bondLine+'。目前心情'+(mood>=65?'愉悅':mood>=35?'平穩':'低落')+'，對你的信任'+(trust>=65?'深厚':trust>=35?'漸增':'尚淺')+'。'}
+
+function _dPersona(d){d.personaName=d.personaName||_dPersonaName(d);return{name:d.personaName,desc:_dPersonaDesc(d)}}
+
+function _dEvolve(d,type,foodType){
+  const x=_dPersonality(d);
+  const evo={talk:{curiosity:2,warmth:1},pet:{empathy:2,warmth:1},feed:{}};
+  const feed={sweet:{warmth:3},spicy:{energy:3},sour:{curiosity:3},bitter:{logic:3}};
+  const ed=DOLL_ELT_DELTA[d.element]||{};
+  const aff=ed.energy>ed.empathy?'energy':ed.empathy>ed.logic?'empathy':ed.logic>ed.warmth?'logic':ed.warmth?'warmth':'curiosity';
+  const cur=(evo[type]||{});const fx=(type==='feed'&&foodType&&feed[foodType])?feed[foodType]:{};
+  Object.keys(x).forEach(k=>{let delta=(cur[k]||0)+(fx[k]||0);if(k===aff)delta+=0.5;delta+=Math.random()>.5?0.6:-0.4;x[k]=Math.max(0,Math.min(100,Math.round((x[k]+delta)*10)/10))});
+  d.personalityVersion=(d.personalityVersion||0)+1;d.personalityUpdatedAt=new Date().toISOString();
+}
+
+function _dTalkResp(doll,msg){
+  const r=DOLL_ELT[doll.element]||DOLL_ELT['?'];
+  const base=r.talk[Math.floor(Math.random()*r.talk.length)];
+  if(doll.bond>80)return '（很有默契地）'+base;
+  if(doll.bond>50)return base;
+  return '（有點害羞地）'+base;
+}
+
+function _dPetResp(doll){
+  const el=DOLL_ELT[doll.element]||DOLL_ELT['風'];
+  const r={
+    '風':['（輕盈地蹭你的手心，像一陣風）','（轉個圈，發出了輕快的聲音）','（飄來飄去，最後安靜下來）'],
+    '火':['（身體微微發燙，蹭了蹭你）','（開心地跳了一下）','（溫暖地靠過來）'],
+    '水':['（溫柔地貼近你）','（輕輕波動，像水面）','（安靜地靠在你身邊）'],
+    '土':['（穩穩地靠過來）','（輕輕蹭了蹭，很踏實）','（安靜地陪伴著）']
+  };
+  return (r[doll.element]||r['風'])[Math.floor(Math.random()*(r[doll.element]||r['風']).length)];
+}
+
 async function vDoll(){
-  if(!await needJs(['js/shared.js', 'js/views/vDoll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vDoll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDoll();
 }
+
+function dollStatHtml(label,label2,val,color){
+  return '<div class="statBar"><div class="statLbl"><span>'+label2+'</span><span>'+Math.round(val)+'</span></div><div class="statTrack"><div class="statFill w" style="width:'+Math.min(100,Math.max(0,val))+'%;background:'+color+'"></div></div></div>';
+}
+
+function showDollTalkInput(){
+  document.getElementById('dollTalkInput').style.display='flex';
+  document.getElementById('dollTalkTxt').focus();
+}
+
+function doDollTalk(){_dInputOpen=true;showDollTalkInput();}
+
+let DOLL_EVENTS=[];
+
 
 function dollListHtml(owned,shopDolls,u,g,d,mult){
   if(owned.length===0){
@@ -8260,7 +9820,7 @@ function loadDollEvents(){
 loadDollEvents();
 
 /* ═══════════════════════════════════════════════════════════════════
-   ★ 裝備・副本戰鬥・重新滾動統計值系統（v2.0★ 九大強化版）
+   ★ 裝備・副本戰鬥・重新滾動統計值系統（v3.0★ 九大強化版）
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── 稀有度系統 ── */
@@ -8469,10 +10029,21 @@ function simulateDungeonBattle(playerPower,waveNum,difficulty){
    ══════════════════════════════════════════════════════════════ */
 
 /* ── 裝備面板 ── */
+/* ════════════════════════════════════════════
+   vEquip 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 4 個單位：EQ_SLOT, EQ_SLOT_ICON, eqUpgradeCost, vEquip
+   ════════════════════════════════════════════ */
+const EQ_SLOT=['頭','衣服','褲子','鞋子','武器','戒指','項鍊'];
+
+const EQ_SLOT_ICON=['🪖','👕','👖','👟','⚔️','💍','📿'];
+
+function eqUpgradeCost(lv,rarity){return rarity==='∞'?Math.max(1,Math.ceil(lv/10)):Math.ceil((lv+1)/5)}
+
 async function vEquip(){
-  if(!await needJs(['js/shared.js', 'js/views/vEquip.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vEquip.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vEquip();
 }
+
 function eqCardHtml(eq,d){
   const rc=eq.rarity;const borderCls='equipCard'+{R:'R',E:'E',A:'A',S:'S',SS:'SS',SSS:'SSS',Z:'Z',ZZ:'ZZ',ZZZ:'ZZZ','∞':'INF'}[rc]||'';
   const mainStr=EQ_MAIN_ATTR[eq.slot]+': '+eq.mainValue;
@@ -8538,10 +10109,177 @@ function eqUpgradeNow(id){
 /* ── 副本面板 ── */
 let _dunLoopToken=0,_dunWaveTimer=null; /* 防止重複開戰造成多條 rAF 鏈 */
 
+/* ════════════════════════════════════════════
+   vDungeon 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 18 個單位：EQ_RARITIES, EQ_RAR_WEIGHT, rollEqRarity, DUNGEON_DUNGEONS, DUNGEON_WAVES, DUNGEON_LOOT, genDungeonMap, CUR_DUNGEON, DUNGEON_CANVAS, DUNGEON_PLAYER, DUNGEON_ENEMIES, dunLog…
+   ════════════════════════════════════════════ */
+const EQ_RARITIES=['R','E','A','S','SS','SSS','Z','ZZ','ZZZ','∞'];
+
+const EQ_RAR_WEIGHT={R:307799,E:250000,A:180000,S:120000,SS:80000,SSS:40000,Z:20000,ZZ:2000,ZZZ:200,'∞':1};
+
+function rollEqRarity(dungeonTier){
+  /* dungeonTier: 0=普通,1=困難,2=地獄,3=神話,4=∞神域 */
+  const keys=EQ_RARITIES;const weights={...EQ_RAR_WEIGHT};
+  if(dungeonTier===0){delete weights['Z'];delete weights['ZZ'];delete weights['ZZZ'];delete weights['∞']}
+  else if(dungeonTier===1){delete weights['Z'];delete weights['ZZ'];delete weights['ZZZ'];delete weights['∞']}
+  else if(dungeonTier===2){delete weights['ZZ'];delete weights['ZZZ'];delete weights['∞']}
+  else if(dungeonTier===3){delete weights['∞']}
+  const total=Object.values(weights).reduce((a,b)=>a+b,0);
+  let r=Math.random()*total;for(const k of keys){if(!weights[k])continue;r-=weights[k];if(r<=0)return k}
+  return 'R';
+}
+
+const DUNGEON_DUNGEONS={
+  normal:{name:'普通副本',tier:0,rarityPool:['R','E','A','S','SS'],minTerritory:0,pkTower:0},
+  hard:{name:'困難副本',tier:1,rarityPool:['S','SS','SSS','Z'],minTerritory:50,pkTower:0},
+  hell:{name:'地獄副本',tier:2,rarityPool:['SS','SSS','Z','ZZ'],minTerritory:100,pkTower:100},
+  myth:{name:'神話副本',tier:3,rarityPool:['SSS','Z','ZZ','ZZZ'],minTerritory:0,pkTower:300},
+  inf:{name:'∞神域',tier:4,rarityPool:['Z','ZZ','ZZZ','∞'],minTerritory:0,pkTower:500}
+};
+
+const DUNGEON_WAVES={normal:5,hard:10,hell:20,myth:20,inf:20};
+
+const DUNGEON_LOOT={normal:1,hard:2,hell:5,myth:5,inf:5};
+
+function genDungeonMap(difficulty){
+  const cfg=DUNGEON_DUNGEONS[difficulty];if(!cfg)return[];
+  const waves=DUNGEON_WAVES[difficulty];const map=[];
+  for(let w=1;w<=waves;w++){
+    const isBoss=w===waves;
+    const isMiniBoss=w%5===0&&!isBoss;
+    map.push({wave:w,type:isBoss?'boss':isMiniBoss?'mini':'normal',name:isBoss?'💀 BOSS':'👹 小怪波 '+w});
+  }
+  return map;
+}
+
+let CUR_DUNGEON=null; /* {type, map, currentWave, battleState} */
+
+let DUNGEON_CANVAS=null,DUNGEON_CTX=null,DUNGEON_ANIM=null;
+
+let DUNGEON_PLAYER={x:320,y:300,hp:100,maxHp:100,pw:50,cd:0,autoAtk:true,keys:{}};
+
+let DUNGEON_ENEMIES=[];
+
+function dunLog(html){ /* 前置加入日誌，最多保留 60 筆，避免快速點擊讓 DOM 無限膨脹 */
+  const log=document.getElementById('dunLog');if(!log)return;
+  log.insertAdjacentHTML('afterbegin',html);
+  while(log.children.length>60)log.removeChild(log.lastChild);
+}
+
 async function vDungeon(){
-  if(!await needJs(['js/shared.js', 'js/views/vDungeon.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vDungeon.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDungeon();
 }
+
+function initDungeonCanvas(){
+  const c=document.getElementById('dungeonCanvas');if(!c)return;
+  DUNGEON_CANVAS=c;DUNGEON_CTX=c.getContext('2d');
+  /* 鍵盤事件 */
+  if(!window._dunKeyHandler){
+    window._dunKeyHandler=function(e){
+      if(!CUR_DUNGEON||CUR_DUNGEON.phase!=='playing')return;
+      if(e.key==='w'||e.key==='W'||e.key==='ArrowUp')DUNGEON_PLAYER.y=Math.max(20,DUNGEON_PLAYER.y-6);
+      if(e.key==='s'||e.key==='S'||e.key==='ArrowDown')DUNGEON_PLAYER.y=Math.min(380,DUNGEON_PLAYER.y+6);
+      if(e.key==='a'||e.key==='A'||e.key==='ArrowLeft')DUNGEON_PLAYER.x=Math.max(20,DUNGEON_PLAYER.x-6);
+      if(e.key==='d'||e.key==='D'||e.key==='ArrowRight')DUNGEON_PLAYER.x=Math.min(620,DUNGEON_PLAYER.x+6);
+      if(e.key==='j'||e.key==='J')dunAction('attack');
+      if(e.key==='1')dunAction('skill1');
+      if(e.key==='2')dunAction('skill2');
+      if(e.key===' ')dunAction('dodge');
+    };
+    window.addEventListener('keydown',window._dunKeyHandler);
+  }
+  dunDraw();
+}
+
+function dunKey(down,key){
+  if(!down)return;
+  if(key==='w'||key==='arrowup')DUNGEON_PLAYER.y=Math.max(20,DUNGEON_PLAYER.y-6);
+  if(key==='s'||key==='arrowdown')DUNGEON_PLAYER.y=Math.min(380,DUNGEON_PLAYER.y+6);
+  if(key==='a'||key==='arrowleft')DUNGEON_PLAYER.x=Math.max(20,DUNGEON_PLAYER.x-6);
+  if(key==='d'||key==='arrowright')DUNGEON_PLAYER.x=Math.min(620,DUNGEON_PLAYER.x+6);
+}
+
+function dunAction(action){
+  if(!CUR_DUNGEON||CUR_DUNGEON.phase!=='playing')return;
+  const p=DUNGEON_PLAYER;if(!p)return;
+  if(action==='attack'){
+    /* 攻擊最接近的敵人 */
+    let nearest=null,minDist=9999;
+    DUNGEON_ENEMIES.forEach(e=>{if(!e.alive)return;const dx=p.x-e.x,dy=p.y-e.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<minDist){minDist=dist;nearest=e}});
+    if(nearest&&minDist<80){
+      const dmg=Math.round(p.pw*(0.8+Math.random()*0.4));
+      nearest.hp-=dmg;
+      dunLog('<div class="dmg">⚔️ 你對 '+nearest.name+' 造成 '+dmg+' 點傷害！（剩餘 '+Math.max(0,nearest.hp)+' HP）</div>');
+      if(nearest.hp<=0){nearest.alive=false;dunLog('<div class="info">💀 '+nearest.name+' 被擊敗！</div>')}
+    }else dunLog('<div class="info">📭 太遠了，接近敵人再攻擊！</div>');
+  }else if(action==='skill1'){
+    if(p.skills[1]>0)return;p.skills[1]=60;
+    DUNGEON_ENEMIES.forEach(e=>{if(!e.alive)return;const dmg=Math.round(p.pw*1.5*(0.8+Math.random()*0.4));e.hp-=dmg;
+      if(e.hp<=0){e.alive=false;dunLog('<div class="crit">🔥 技能1 擊敗了 '+e.name+'！</div>')}
+      else dunLog('<div class="dmg">🔥 技能1 對 '+e.name+' 造成 '+dmg+' 點傷害！</div>');
+    });
+  }else if(action==='skill2'){
+    if(p.skills[2]>0)return;p.skills[2]=90;
+    const heal=Math.round(p.maxHp*0.3);p.hp=Math.min(p.maxHp,p.hp+heal);
+    dunLog('<div class="heal">💫 技能2 恢復 '+heal+' HP！</div>');
+  }else if(action==='dodge'){
+    if(p.dodgeCd>0)return;p.dodgeCd=120;p.dodging=true;
+    setTimeout(()=>{if(DUNGEON_PLAYER)DUNGEON_PLAYER.dodging=false},500);
+    dunLog('<div class="info">💨 閃避中！（5秒內不受傷害）</div>');
+  }
+  updateDunUI();dunDraw();
+}
+
+function dunDraw(){
+  const c=DUNGEON_CANVAS;if(!c)return;const ctx=DUNGEON_CTX;if(!ctx)return;
+  ctx.fillStyle='#0a0e1a';ctx.fillRect(0,0,640,400);
+  /* 網格 */
+  ctx.strokeStyle='rgba(44,61,99,.3)';ctx.lineWidth=1;
+  for(let x=0;x<640;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,400);ctx.stroke()}
+  for(let y=0;y<400;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(640,y);ctx.stroke()}
+  /* 玩家 */
+  const p=DUNGEON_PLAYER;if(p){
+    ctx.fillStyle=p.dodging?'rgba(255,217,122,.5)':'rgba(56,217,192,.8)';
+    ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🧑',p.x,p.y+5);
+  }
+  /* 敵人 */
+  DUNGEON_ENEMIES.forEach(e=>{
+    if(!e.alive)return;
+    ctx.fillStyle='#ef5350';ctx.beginPath();ctx.arc(e.x,e.y,14,0,Math.PI*2);ctx.fill();
+    ctx.font='16px serif';ctx.textAlign='center';
+    ctx.fillText(e.type==='boss'?'👹':'👾',e.x,e.y+5);
+    /* HP bar */
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(e.x-14,e.y-22,28,4);
+    ctx.fillStyle='#ef5350';ctx.fillRect(e.x-14,e.y-22,28*(e.hp/e.maxHp),4);
+  });
+  /* 紅圈預警（BOSS技能） */
+  DUNGEON_ENEMIES.forEach(e=>{
+    if(!e.alive||e.type!=='boss')return;
+    if(e.atkCd>40){ctx.strokeStyle='rgba(239,83,80,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p?p.x:320,p?p.y:300,60,0,Math.PI*2);ctx.stroke()}
+  });
+}
+
+function updateDunUI(){
+  const p=DUNGEON_PLAYER;if(!p)return;
+  const hpBar=document.getElementById('dunPlayerHp');const hpTxt=document.getElementById('dunHpTxt');
+  const enemyHpBar=document.getElementById('dunEnemyHp');const enemyHpTxt=document.getElementById('dunEnemyHpTxt');
+  const mobList=document.getElementById('dunMobList');
+  if(hpBar)hpBar.style.width=(p.hp/p.maxHp*100)+'%';
+  if(hpTxt)hpTxt.textContent=Math.max(0,p.hp)+'/'+p.maxHp;
+  const alive=DUNGEON_ENEMIES.filter(e=>e.alive);
+  if(alive.length){
+    const boss=alive.find(e=>e.type==='boss');
+    if(boss&&enemyHpBar){enemyHpBar.style.width=(boss.hp/boss.maxHp*100)+'%'}
+    if(enemyHpTxt)enemyHpTxt.textContent=alive.map(e=>e.name+(e.type==='boss'?'(BOSS)':'')).join(', ')+' ('+alive.length+'隻)';
+  }else{if(enemyHpBar)enemyHpBar.style.width='0%';if(enemyHpTxt)enemyHpTxt.textContent='-'}
+  if(mobList)mobList.innerHTML=DUNGEON_ENEMIES.map(e=>
+    '<span class="dungeonMob '+(e.alive?(e.type==='boss'?'boss':'alive'):'dead')+'">'+e.emoji+' '+(e.type==='boss'?'BOSS':'小怪')+'</span>'
+  ).join('');
+}
+
 function renderDungeonBattle(){
   const d=CUR_DUNGEON;if(!d||d.phase==='done')return'';
   let html='';
@@ -8698,10 +10436,16 @@ function dunCancel(){
 
 /* ── 重新滾動統計值面板 ── */
 
+/* ════════════════════════════════════════════
+   vReroll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：EQ_BADGE_CSS, vReroll
+   ════════════════════════════════════════════ */
+
 async function vReroll(){
-  if(!await needJs(['js/shared.js', 'js/views/vReroll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vReroll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vReroll();
 }
+
 function rerollOne(attrId){
   const r=rerollRollAttr(attrId);
   if(!r.ok){toast(r.msg,'bad');return}
@@ -8771,10 +10515,15 @@ function isFreePointsFullyAllocated(){
   return allMaxed;
 }
 
+/* ════════════════════════════════════════════
+   vFreePoints 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFreePoints
+   ════════════════════════════════════════════ */
 async function vFreePoints(){
-  if(!await needJs(['js/shared.js', 'js/views/vFreePoints.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vFreePoints.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vFreePoints();
 }
+
 
 function addFreePoint(key, delta){
   const info = getFreePointsInfo();
@@ -8803,10 +10552,16 @@ function resetFreePoints(){
 
 /* ── 2. ∞ 七階段換取系統 ── */
 
+/* ════════════════════════════════════════════
+   vInfinityExchange 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：getAdaptedLevelRequirement, vInfinityExchange
+   ════════════════════════════════════════════ */
+
 async function vInfinityExchange(){
-  if(!await needJs(['js/shared.js', 'js/views/vInfinityExchange.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vInfinityExchange.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vInfinityExchange();
 }
+
 
 function executeInfinityExchange(stageNum){
   const sel = $('#exAttrSel_' + stageNum);
@@ -8856,10 +10611,15 @@ function checkBuffActive(){
 }
 function activeBuff(t){const b=checkBuffActive();return (b&&(!t||b.type===t))?b:null;}
 
+/* ════════════════════════════════════════════
+   vBuffStore 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBuffStore
+   ════════════════════════════════════════════ */
 async function vBuffStore(){
-  if(!await needJs(['js/shared.js', 'js/views/vBuffStore.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vBuffStore.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vBuffStore();
 }
+
 
 function buyBuff(idx, payMethod){
   const shopItems = [
@@ -8961,10 +10721,16 @@ function sendGiftBox(buffIndex){
 }
 
 /* ── 5. 管理員專屬面板與設定 ── */
+/* ════════════════════════════════════════════
+   vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAdminPanel, adminSystemBackup
+   ════════════════════════════════════════════ */
 async function vAdminPanel(){
-  if(!await needJs(['js/shared.js', 'js/views/vAdminPanel.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vAdminPanel.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAdminPanel();
 }
+
+
 
 function saveAdminSysSettings(){
   const maxLvl = Math.max(300, +$('#admMaxLvlInput').value || 300); /* 最低 300，不可調低 */

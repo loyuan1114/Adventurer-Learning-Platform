@@ -1,11 +1,7 @@
 /* ════════════════════════════════════════════
    vGames 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 3 個單位：gameKey, gameStop, vGames
+   含 1 個單位：vGames
    ════════════════════════════════════════════ */
-function gameKey(fn){if(window._gKey)window.removeEventListener('keydown',window._gKey);window._gKey=fn;if(fn)window.addEventListener('keydown',fn)}
-
-function gameStop(){gameKey(null);if(window._gTimer){clearInterval(window._gTimer);window._gTimer=null}}
-
 function vGames(){
 gameStop();
 const playable=GAME_LIST.filter(x=>x.play);

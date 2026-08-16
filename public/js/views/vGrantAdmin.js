@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
    vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 3 個單位：vGrantAdmin, eqSubCount, eqSubValue
+   含 1 個單位：vGrantAdmin
    ════════════════════════════════════════════ */
 function vGrantAdmin(){
 
@@ -53,16 +53,4 @@ $('#view').innerHTML='<h3 class="vt">🎁 資源發放 <span class="vsub">全服
 '</div>'+
 '<button class="btn" style="margin-top:12px" onclick="adminGrant()">🚀 發放</button>';
 
-}
-
-function eqSubCount(rarity){
-  if(rarity==='R'||rarity==='E')return 1;if(rarity==='A'||rarity==='S')return 2;
-  if(rarity==='SS'||rarity==='SSS')return 3;return 4;
-}
-
-function eqSubValue(rarity,stat){
-  const base={'暴擊':.8,'暴傷':1.2,'冷卻':.6,'減傷':.7,'運氣':.5,'生命':15,'防禦':.8}[stat]||1;
-  let mult={R:1,E:1.2,A:1.4,S:1.6,SS:1.8,SSS:2,Z:2.5,ZZ:3,ZZZ:3.5,'∞':5}[rarity]||1;
-  if(rarity==='∞')mult*=1.5;
-  return Math.round(base*mult*100)/100;
 }

@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
    vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 6 個單位：vHomework, hwSeed, hwShuffle, hwShowNum, hwGuardOff, hwForStudent
+   含 2 個單位：vHomework, hwForStudent
    ════════════════════════════════════════════ */
 function vHomework(){
 
@@ -37,13 +37,5 @@ return '<div class="panel2" style="margin-bottom:10px"><b style="font-family:var
 :'<p class="empty">目前沒有作業</p>');
 
 }
-
-function hwSeed(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-
-function hwShuffle(arr,rng){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
-
-function hwShowNum(o,sh){return sh?(parseInt(String(o).trim(),10)+sh):o}
-
-function hwGuardOff(){if(window._hwCtx){document.removeEventListener('contextmenu',window._hwCtx,true);window._hwCtx=null}if(window._hwCopy){document.removeEventListener('copy',window._hwCopy,true);document.removeEventListener('selectstart',window._hwCopy,true);window._hwCopy=null}if(window._hwBlur){window.removeEventListener('blur',window._hwBlur);document.removeEventListener('visibilitychange',window._hwBlur);window._hwBlur=null}const wm=document.getElementById('hwWatermark');if(wm)wm.remove();}
 
 function hwForStudent(h,u){return h.classId===u.classId||(hwGrades(h.classId)&&hwGrades(h.classId).indexOf(String(u.classId||'')[0])>-1)}

@@ -12,8 +12,7 @@ while ((m = re.exec(html))) {
   const before = html.slice(0, m.index);
   const code = m[1];
   const nlBefore = (before.match(/\n/g) || []).length;
-  const startsNewLine = code.startsWith('\n');
-  scripts.push({ code, startLine: nlBefore + 1 + (startsNewLine ? 1 : 0) });
+  scripts.push({ code, startLine: nlBefore + 1 });
 }
 const scriptsAll = scripts.filter(s => s.code.trim().length > 0);
 

@@ -1,370 +1,168 @@
 # 🎮 冒險者學習平台
 
-單一 Node.js 伺服器、零套件依賴（只用 Node 內建模組）。內建：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動等遊戲化學習功能。
+把課業變成冒險遊戲的學習平台：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動。**單一 Node.js 伺服器、零 npm 套件依賴**。
 
 - **免安裝任何軟體**：GitHub Codespaces 開箱即用
 - **Docker 一鍵部署**：任何 Linux / macOS / Windows
-- **資料全在本機**：帳號、設定、AI 金鑰都在 `data/` 與 `media/` 資料夾，換機複製就走
+- **資料全在本機**：帳號、設定、AI 金鑰都在 `data/`、`media/`，換機複製就走
 - **預設管理員**：`adv9boss` / `admin123`（**首次登入請改密碼**）
 
----
+## ✨ v3.0 新增
 
-## 🎯 遊戲介紹
-
-一款**把課業變成冒險遊戲**的學習平台，學生登入就像進入一個 RPG 世界：
-
-- **📚 答題冒險**：數學、國文、英文、自然、社會五科題庫，答對推進冒險地圖、挑戰 BOSS、累積經驗升級
-- **⚔️ 戰鬥對決**：班級 PK 賽、競技場爬塔、公會戰，考驗學生的知識與策略
-- **🎁 抽卡養成**：收集角色、寵物、動漫夥伴；鍛造與洗練裝備、領土經營、星球資源
-- **🤖 AI 助理**：寵物會長大、會跟你聊天；AI 自動出題、解題輔助（需在管理員設定 AI 金鑰）
-- **📝 作業系統**：老師一鍵發布作業（支援 **Word / PDF 題目自動匯入**與全班／全年級發布）、學生繳交、自動批改統計
-- **💬 社群互動**：好友、私訊、貼文動態、送禮、公會聊天
-- **🏆 成就與商城**：稱號、成就徽章、兌換商城、課金點數與優惠券系統
-- **⚙️ 管理後台**：帳號批次管理、題庫管理、作業發布、AI 金鑰管理、系統設定
-
-> 老師管理、學生遊玩、家長安心——全部在同一個網址，免安裝、免註冊，開瀏覽器就能玩。
-
----
+- **🌍 語言自學**：203 種語言可搜尋、可設偏好；AI 自動出題（單字中⇄外配對），答對 **1.3 倍** 經驗／金幣／水晶，每語言答題數個別統計
+- **🔒 安全性修復**：公開版移除 Supabase 金鑰，登入改走代理（金鑰只存在你自己的伺服器）
 
 ## ⚠️ 免責聲明
 
-1. **教育用途**：本平台為免費、開源的教育工具，僅供教學與學習使用；使用與部署風險由部署者自負。
-2. **AI 內容**：AI 回覆由第三方模型供應商（Gemini／OpenAI／DeepSeek／Qwen／Kimi）生成，內容不代表本平台立場，可能出錯或涉版權；教師請審閱 AI 出題與回覆內容後再使用。使用 AI 功能需自行申請 API 金鑰並負擔費用。
-3. **圖片素材**：遊戲內「收集圖鑑」圖片來自 Microsoft Bing 圖像檢索的即時縮圖，版權屬原作者，僅供課堂教學顯示；載入失敗會自動退回 emoji。公開網站使用時請自行確認授權。
-4. **學生資料**：帳號、照片、影片、聊天紀錄等資料儲存在**部署者自己的伺服器**（`data/`、`media/`），資料安全、備份與個資保護責任由部署者負責。
-5. **無擔保**：本專案依 MIT 授權「現況」提供，不提供任何明示或默示擔保，開發者不對任何直接或間接損失負責。
-6. **第三方服務**：本專案會連線的外部服務與其授權，完整清單見 `THIRD_PARTY_NOTICES.md`。
-
----
+1. **教育用途**：免費、開源的教育工具，部署風險由部署者自負。
+2. **AI 內容**：AI 回覆由第三方模型（Gemini／OpenAI／DeepSeek／Qwen／Kimi／Ollama）生成，可能出錯；教師請審閱後再使用。AI 功能需自行申請 API 金鑰並負擔費用。
+3. **圖片素材**：「收集圖鑑」圖片來自 Bing 即時縮圖，版權屬原作者，載入失敗自動退回 emoji；公開使用請自行確認授權。
+4. **學生資料**：帳號、照片、聊天紀錄存在**部署者自己的伺服器**（`data/`、`media/`），資安、備份與個資責任由部署者負責。
+5. **無擔保**：MIT 授權「現況」提供，開發者不對任何直接或間接損失負責。
+6. 第三方服務完整清單見 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
 
 ## 📸 照片授權政策（CC0）
 
-本專案**所有照片一律採 CC0 公眾領域授權**（Public Domain Dedication，[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.zh-hant)）——任何人皆可自由複製、修改、散布、商用，無需署名、無需詢問。
-
-- 玩家／老師上傳的頭像、背景、動態照片，**上傳即代表同意以 CC0 授權釋出**（遊戲介面已明示）
-- 內建背景請選用 CC0 素材來源（如 [Pixabay](https://pixabay.com/)、[Unsplash](https://unsplash.com/)、[Wikimedia Commons](https://commons.wikimedia.org/) 的 CC0 素材）
-- 詳見 `THIRD_PARTY_NOTICES.md`
-
----
+所有照片一律 **CC0 公眾領域授權**——可自由複製、修改、散布、商用，無需署名。玩家／老師上傳照片**即代表同意以 CC0 授權釋出**（介面已明示）。內建背景請選用 CC0 素材來源（Pixabay／Unsplash／Wikimedia Commons）。
 
 ## 📜 開源授權
 
-本專案以 **MIT License** 開源（見 `LICENSE`）。歡迎自由使用、修改、複製、商用，只需保留版權宣告。
+**MIT License**（見 `LICENSE`）。原始碼在倉庫根目錄：`server.js`（單一檔案，零外部套件）、`public/`（遊戲前端）、`docx_extract.py`（PDF/Word 題目匯入）。
 
-- **原始碼**就在本倉庫根目錄：`server.js`（單一檔案，零外部套件）、`public/`（遊戲前端）、`docx_extract.py`（PDF/Word 題目匯入）
-- 想自己改程式？直接 clone 下來就能建置：
-  ```bash
-  git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
-  cd Adventurer-Learning-Platform
-  docker compose up -d --build
-  ```
-- 不會程式也沒關係：上面的安裝方法二～五用現成 `adv9_public.tgz` 就能跑，兩種方式結果一樣
+```bash
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+docker compose up -d --build
+```
 
-### 🧩 前端多檔案架構（全畫面懶載入，只跑需要的檔案）
-
-遊戲前端不是一個超大檔案——已拆分為「外殼 + 每畫面一個模組」：
+### 🧩 前端多檔案架構（全畫面懶載入）
 
 ```
 public/index.html          應用程式外殼（登入、主介面、核心系統）
-public/js/shared.js        共用模組（被多個畫面共用，任一畫面用到才載入）
+public/js/shared.js        共用模組（被多個畫面共用時自動產生）
 public/js/views/vHome.js   主頁
 public/js/views/vCodes.js  兌換碼（沒點進去就完全不載入！）
-public/js/views/vSubj.js   修練場
-public/js/views/vDungeon.js 副本戰鬥
-public/js/views/vPK.js     競技場 PK
-public/js/views/vAdminPanel.js  管理員控制台
-public/js/views/…          共 68 個畫面，一畫面一檔
+public/js/views/…          共 69 個畫面，一畫面一檔
 ```
 
-**用哪個畫面，才載哪個畫面的程式碼**：進入畫面時由包裝函式 `needJs()` 動態載入對應模組（含該畫面依賴的共用模組）——例如只看主頁、不去兌換碼，`vCodes.js` 就**完全不載入**；API 請求也只在畫面開啟後才發送，**學校舊電腦／低網速也能順暢開局**。每個畫面約 10～300 行，拆分的行數對照與規則由 `tools/build/splitall.py` 自動處理，改完 `index.html` 執行：
+**用哪個畫面，才載哪個畫面的程式碼**：進入畫面時由 `needJs()` 動態載入對應模組（含依賴），學校舊電腦／低網速也能順暢開局。拆分由 `tools/build/splitall.py` 自動處理，改完 `index.html` 執行：
 
 ```bash
-python3 tools/build/splitall.py    # 重新切分（需要 Python 3 + Node.js）
-node --check public/js/*.js        # 驗證語法（需要 Node.js）
+python3 tools/build/splitall.py   # 重新切分（Python 3 + Node.js）
+node --check public/js/*.js       # 驗證語法
 ```
-
-每個模組載入失敗會跳出提示並可重新整理重試，不會影響外殼運作。
 
 ### 🛠️ 多語言開發工具鏈
 
-本專案依各語言特性分工：
-
 | 語言 | 角色 |
 |---|---|
-| **JavaScript (Node.js)** | 伺服器（`server.js`，零 npm 套件）與遊戲前端 |
-| **Python 3** | 建置工具（`tools/build/splitall.py` 全畫面切分、`merge.py` 合回單檔）、文件題目文字擷取（`docx_extract.py`）、跨平台控制工具（`tools/adv9ctl/adv9ctl.py`） |
-| **Shell** | 一鍵安裝與部署腳本（Docker 安裝、VPS 部署） |
+| **JavaScript (Node.js)** | 伺服器（零 npm 套件）與遊戲前端 |
+| **Python 3** | 建置工具（`tools/build/` 全畫面切分/合回/驗證）、題目文字擷取（`docx_extract.py`）、跨平台控制工具（`tools/adv9ctl/`） |
+| **Shell** | 一鍵安裝與部署腳本 |
 
-各工具都已驗證可在 Python 3.7+／Node 18+ 環境執行，無需額外套件。
+## 🚀 部署方法（擇一，全部同一條指令）
 
----
-
-## 🚀 方法一：GitHub Codespaces（最簡單，免費臨時伺服器）
-
-1. 開一個 GitHub 帳號，進到本倉庫頁面
-2. 點 **Code → Codespaces → Create codespace on main**
-3. **Docker 已內建**，免安裝（可用 `docker --version` 確認版本）
-4. 在終端機（Terminal）貼上這一行：
+**① Codespaces（免費臨時伺服器）**：進倉庫頁 → **Code → Codespaces → Create codespace on main**，在終端機貼上：
 
 ```bash
 [ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
 ```
 
-5. 建置完成後，左邊 **Ports（連接埠）** 面板 → 找到 **8080** → 滑鼠右鍵 → **Port Visibility → Public**
-6. 點 🌐 圖示開啟，或把網址貼給學生就能玩
+建置完成後：左邊 **Ports** 面板 → 8080 → 右鍵 → **Port Visibility → Public** → 點 🌐 開啟，把網址貼給學生即可。
 
-> ⚠️ 注意：Codespaces 關閉後資料不會馬上消失，但免費時數用完或你刪除 Codespaces 後**資料會不見**——重要資料請定期備份（見下方「備份」）。
+> ⚠️ Codespaces 關閉後資料不會馬上消失，但免費時數用完或刪除後**資料會不見**——請定期備份（見下方「備份」）。
 
----
-
-## 🐧 方法二：Ubuntu / Debian（VPS、雲主機）
-
-**一整行搞定**（自動安裝 Docker → 下載 → 啟動）：
+**② Ubuntu / Debian（VPS）**：
 
 ```bash
 command -v docker >/dev/null 2>&1 || curl -fsSL https://get.docker.com | sh; docker compose version >/dev/null 2>&1 || sudo apt-get install -y docker-compose-plugin; [ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
 ```
 
-完成後開啟 `http://你的IP:8080`（記得在雲主機的防火牆／安全群組放行 8080）。
+完成後開啟 `http://你的IP:8080`（雲主機請放行 8080）。
 
----
+**③ 其他 Linux（Fedora / CentOS / Rocky…）**：先 `curl -fsSL https://get.docker.com | sh`（Arch 用 `sudo pacman -S docker docker-compose-plugin docker-buildx` 再 `sudo systemctl enable --now docker`），再執行①的那條下載啟動指令。
 
-## 💻 方法三：其他 Linux（Fedora / CentOS / Rocky…）
+**④ macOS**：`brew install --cask docker`（或到 docker.com 下載）→ 開啟 Docker Desktop → 執行①的指令。
 
-**步驟 1：安裝 Docker**（`get.docker.com` 支援主流發行版，會自動偵測並安裝含 compose 外掛）：
-
-```bash
-curl -fsSL https://get.docker.com | sh
-```
-
-> Arch 用：`sudo pacman -S docker docker-compose-plugin docker-buildx` 再 `sudo systemctl enable --now docker`
-
-**步驟 2：下載並啟動遊戲**：
-
-```bash
-[ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
-```
-
----
-
-## 🍎 方法四：macOS
-
-**步驟 1：安裝 Docker Desktop**（二選一）：
-
-```bash
-brew install --cask docker
-```
-
-或到 https://www.docker.com/products/docker-desktop/ 下載安裝。
-
-**步驟 2：開啟 Docker Desktop**（首次請等它啟動完成）
-
-**步驟 3：打開「終端機」，貼上**：
-
-```bash
-[ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
-```
-
----
-
-## 🪟 方法五：Windows
-
-**步驟 1：安裝 Docker Desktop**（二選一）：
-
-```powershell
-winget install Docker.DockerDesktop
-```
-
-或到 https://www.docker.com/products/docker-desktop/ 下載安裝。
-
-**步驟 2：開啟 Docker Desktop**（首次請等它啟動完成）
-
-**步驟 3：打開 PowerShell，貼上**：
+**⑤ Windows**：`winget install Docker.DockerDesktop`（或到 docker.com 下載）→ 開啟 Docker Desktop → PowerShell 貼上：
 
 ```powershell
 if (!(Test-Path adv9_public.tgz)) { curl.exe -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz }
 mkdir adv9 -Force | Out-Null; tar xzf adv9_public.tgz -C adv9; Set-Location adv9; docker compose up -d --build
 ```
 
-**步驟 4：開啟 `http://localhost:8080`**
-
----
+開啟 `http://localhost:8080`。
 
 ## 🛠️ 管理員設定
 
 | 項目 | 說明 |
 |---|---|
-| 預設帳號 | `adv9boss`，密碼 `admin123` |
-| 改密碼 | 登入後到「帳號」頁修改 |
-| 改管理員密碼（進階） | 管理員密碼寫在 `server.js` 開頭的 `MASTER` 設定裡：`hash` = sha256(`adv9boss|新密碼|ADV9|v1|9f3a7`)，改完重啟容器 |
-| AI 金鑰 | 登入後 → 管理員 → **API 金鑰管理** → 貼上你的金鑰（Gemini / DeepSeek / Qwen / Kimi / 本地 Ollama 皆可） |
+| 預設帳號 | `adv9boss` / `admin123` |
+| 改密碼 | 登入後到「帳號」頁 |
+| 改管理員密碼（進階） | `server.js` 開頭 `MASTER` 設定：`hash` = sha256(`adv9boss|新密碼|ADV9|v1|9f3a7`)，改完重啟 |
+| AI 金鑰 | 登入後 → 管理員 → **API 金鑰管理**（Gemini / DeepSeek / Qwen / Kimi / 本地 Ollama 皆可） |
 
-> 🔒 本公開版**不含任何 AI 金鑰或學生資料**。金鑰貼上後只存在**你自己的** `data/kv.json`，不會外洩；別人部署是全新空環境。
-
----
+> 🔒 公開版**不含任何 AI 金鑰或學生資料**。金鑰只存在你自己的 `data/kv.json`。
 
 ## 🤖 本地 AI（Ollama，免金鑰）
 
-不想用雲端 AI 金鑰？可安裝 **Ollama**，讓遊戲在本機跑 AI（出題、批改、弱點分析全可走本地模型，資料完全不離開你的伺服器）。
-
-### 一鍵命令（Linux，安裝 Ollama + 下載模型一次搞定）
-
-**推薦：Qwen2.5 7B（出題/分析全能）**：
+不想用雲端金鑰？安裝 Ollama 讓 AI 全部在本機跑（出題、批改、弱點分析），資料不離開伺服器：
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/qwen2.5-vl-abliterated:7b
 ```
 
-**或：DeepSeek R1 7B（推理強、數學好）**：
+- macOS / Windows：到 [Ollama.app](https://ollama.com/download) 下載，終端機貼 `ollama pull huihui_ai/qwen2.5-vl-abliterated:7b`（也可拉 `deepseek-r1-abliterated:7b`）
+- 然後登入 → 管理員 → **API 金鑰管理** → 新增 → 供應商選「Ollama 本地」→ 模型選剛下載的 → 「金鑰」欄填 `http://127.0.0.1:11434` → 儲存
+- ⚠️ 7B 模型約需 **6~8GB 記憶體**；RAM 不足可改拉 `qwen2.5:1.7b`／`qwen2.5:0.6b`；2GB 小 VPS 建議用雲端 AI
+- 模型為第三方 `huihui_ai` 於 Ollama 官方庫發佈的開放權重模型（Qwen2.5-VL、DeepSeek-R1-Distill-Qwen 的微調版），授權以 Ollama 模型頁為準；本專案僅呼叫 API，不含模型權重
 
-```bash
-curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/deepseek-r1-abliterated:7b
-```
+### 🔍 AI／工具呼叫全揭露
 
-**兩顆都要（模型可隨時切換）**：
-
-```bash
-curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/qwen2.5-vl-abliterated:7b && ollama pull huihui_ai/deepseek-r1-abliterated:7b
-```
-
-> macOS / Windows 沒有這種安裝法，直接到 [Ollama.app 官網](https://ollama.com/download) 下載安裝，再開啟「終端機／命令提示字元」貼上 `ollama pull huihui_ai/qwen2.5-vl-abliterated:7b`（或 deepseek-r1 那條）即可。
-
-### 如何使用本地模型
-
-**① 確認 Ollama 服務有開**：`ollama serve`（Linux 裝成服務的會自動啟動），瀏覽器開 `http://127.0.0.1:11434` 有回應代表正常。
-
-**② 到遊戲設定 Ollama**：登入 → 管理員 → **API 金鑰管理** → 新增 →
-
-1. 供應商選 **「Ollama 本地」**
-2. 模型選你剛剛下載的（`huihui_ai/qwen2.5-vl-abliterated:7b` 或 `huihui_ai/deepseek-r1-abliterated:7b`，也可自訂）
-3. 「金鑰」欄位填 **`http://127.0.0.1:11434`**（Ollama 主機位址；若 Ollama 裝在別的機器，就填那台的網址，例如 `http://192.168.1.50:11434`）
-4. 儲存
-
-之後所有 AI 功能（自動出題、作業弱點分析、AI 評語…）就會優先用本地模型，完全不需要任何 API 金鑰、不花一毛錢。
-
-> ⚠️ 7B 模型約需 **6~8GB 記憶體**。RAM 不到 4GB 的機器請改拉 `qwen2.5:1.7b` 或 `qwen2.5:0.6b`；只有 2GB 的小 VPS 建議繼續用雲端 AI。
->
-> Ollama 呼叫走自架伺服器代理（`/rest/v1/ai/ollama`），模型與題目**不會上傳到任何第三方**。
-
-### 📜 模型出處與版權聲明（請務必閱讀）
-
-本專案**沒有製作、訓練或修改任何 AI 模型**。上述兩顆模型是第三方在 **Ollama 官方模型庫**發佈的現成模型，由 Ollama 平台帳號 **`huihui_ai`** 提供，與本專案無關：
-
-| 模型 | Ollama 模型庫頁面 | 來源 |
+| 功能 | 呼叫 | 資料流向 |
 |---|---|---|
-| `huihui_ai/qwen2.5-vl-abliterated:7b` | https://ollama.com/huihui_ai/qwen2.5-vl-abliterated | Qwen2.5-VL（阿里雲通義千問）的開源微調版，由 huihui_ai 打包發佈於 Ollama |
-| `huihui_ai/deepseek-r1-abliterated:7b` | https://ollama.com/huihui_ai/deepseek-r1-abliterated | DeepSeek-R1-Distill-Qwen-7B 的開源微調版，由 huihui_ai 打包發佈於 Ollama |
-
-使用這些模型時請注意：
-
-- **授權條款以 Ollama 模型頁面與各模型原始權重頁為準**（兩顆皆為開放權重模型），部署前請自行確認符合你的使用情境。
-- 本專案只是透過 Ollama 的標準 API（`/api/chat`）呼叫模型，**不含任何模型權重、不改寫模型**；因此模型本身的版權責任不屬於本專案。
-- 若因商標／名稱衍生問題，可隨時改用其他 Ollama 模型（例如官方 `qwen2.5`、`deepseek-r1` 等），做法完全一樣：`ollama pull <模型名>` 後在「API 金鑰管理」選該模型即可。
-
-### 🔍 本專案 AI／工具呼叫全揭露
-
-所有用到 AI 或第三方服務的功能如下，資料去向一目瞭然：
-
-| 功能 | 呼叫的服務 | 資料流向 |
-|---|---|---|
-| 🤖 自動出題 | 你設定的供應商（OpenAI / DeepSeek / Gemini / Qwen / Kimi / **Ollama 本地**） | 題目要求 → 供應商 → 回傳題目 |
-| 📊 作業弱點分析（AI 評估） | 同上（預設 Ollama 本地） | 每題錯誤人數統計 → 供應商 → 回傳教學建議（**不含學生個資**，只有統計數字） |
+| 🤖 自動出題 | 你設定的供應商（OpenAI/DeepSeek/Gemini/Qwen/Kimi/**Ollama 本地**） | 題目要求 → 供應商 → 回傳題目 |
+| 📊 作業弱點分析 | 同上（預設 Ollama 本地） | 每題錯誤統計 → 供應商 → 教學建議（**不含學生個資**） |
 | 💬 AI 評語／畢業祝福 | 同上 | 學生姓名、成績摘要 → 供應商 |
-| 📝 會考日期查詢 | 你設定的供應商 | 查詢日期要求 → 供應商 |
-| 🔤 字型 | Google Fonts（Noto Sans/Serif TC） | 瀏覽器載入字型檔 |
-| 🖼 縮圖 | Bing（tse2.mm.bing.net） | 顯示搜尋縮圖 |
-| 📎 Google Drive 教材 | Google Drive（老師自己貼的連結） | 瀏覽器載入 |
+| 🔤 字型 | Google Fonts | 瀏覽器載入字型檔 |
+| 🖼 縮圖 | Bing | 顯示搜尋縮圖 |
+| 📎 Google Drive 教材 | Google Drive（老師貼的連結） | 瀏覽器載入 |
 
-> 完整清單見 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。任何雲端供應商都會收到你**自己設定**的 API 金鑰請求；**只有 Ollama 本地模式**是資料完全不離開伺服器的。若對隱私最嚴格，全部 AI 功能改用 Ollama 本地模型即可。
-
----
+> 完整清單見 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。**只有 Ollama 本地模式**資料完全不離開伺服器。
 
 ## 📁 資料與備份
-
-所有資料都在兩個資料夾：
 
 ```
 data/    帳號、設定、AI 金鑰、作業、聊天紀錄…（json 檔）
 media/   上傳的照片、影片
 ```
 
-- **升級容器不會刪資料**：`docker compose down` 再 `up -d --build` 資料都還在
-- **完整備份**（一行）：
-  ```bash
-  tar czf backup.tgz data media
-  ```
-- **還原**：把備份檔放到專案資料夾，解壓即可：
-  ```bash
-  tar xzf backup.tgz
-  docker compose restart
-  ```
-
----
+- **升級不刪資料**：`docker compose down` 再 `up -d --build` 資料都在
+- **完整備份（一行）**：`tar czf backup.tgz data media`
+- **還原**：把備份解壓回專案資料夾，`docker compose restart`
 
 ## 🗑️ 刪除與卸載
 
-**只想停止遊戲（資料保留）**：
-
-```bash
-cd adv9 && docker compose down
-```
-
-想再啟動：`cd adv9 && docker compose up -d --build`（或 `docker compose start`）
-
-**刪除遊戲（連資料一起刪）**：
-
-```bash
-docker compose down; cd ..; rm -rf adv9 adv9_public.tgz
-```
-
-Windows PowerShell 版：
-
-```powershell
-Set-Location adv9; docker compose down; Set-Location ..; Remove-Item -Recurse -Force adv9
-```
-
-**刪掉遊戲但保留資料**：只刪 `adv9` 資料夾裡 `data/`、`media/` 以外的檔案（或先 `tar czf backup.tgz data media` 備份再整個刪）。
-
-**卸載 Docker**：
-
-| 平台 | 指令 |
-|---|---|
-| Ubuntu/Debian | `sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras` 再 `sudo rm -rf /var/lib/docker` |
-| Fedora/CentOS | `sudo dnf remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin` 再 `sudo rm -rf /var/lib/docker` |
-| macOS | `brew uninstall --cask docker`（或把 Docker Desktop 拖進垃圾桶） |
-| Windows | `winget uninstall Docker.DockerDesktop`（或 設定 → 應用程式 → Docker Desktop → 解除安裝） |
-| Codespaces | 不用卸載 Docker——直接在 GitHub 倉庫頁 **Code → Codespaces → 你的 Codespaces → … → Delete** 整台刪掉 |
-
----
+- **停止（資料保留）**：`cd adv9 && docker compose down`（再啟動：`docker compose up -d --build`）
+- **全部刪除**：`docker compose down; cd ..; rm -rf adv9 adv9_public.tgz`（Windows：`Set-Location adv9; docker compose down; Set-Location ..; Remove-Item -Recurse -Force adv9`）
+- **只刪遊戲留資料**：先 `tar czf backup.tgz data media` 備份再刪整個資料夾
+- **卸載 Docker**：Ubuntu/Debian `sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`；Fedora/CentOS 把 apt-get 換成 `dnf remove`；macOS `brew uninstall --cask docker`；Windows `winget uninstall Docker.DockerDesktop`；Codespaces 直接刪整台
 
 ## 🖥️ 遠端管理工具（adv9ctl）
 
-想用自己的電腦（Windows / macOS / Linux）遠端管理伺服器？倉庫裡的 [`tools/adv9ctl/`](tools/adv9ctl/) 附贈跨平台控制工具 `adv9ctl`：
-
-- 開／關公開網址（cloudflared）、查網址、看狀態、重啟後端、重新佈署，全部一行指令
-- 只用系統內建 `ssh/scp`，**不用裝任何套件**；Windows 可直接用打包好的 `adv9ctl.exe`（雙擊）
-- 支援 systemd 與 Docker 兩種安裝方式，設定寫在 `adv9ctl.ini`
+用自己的電腦遠端管理伺服器？[`tools/adv9ctl/`](tools/adv9ctl/) 附跨平台控制工具（Windows 可直接用 `adv9ctl.exe`，雙擊）：
 
 ```bash
-adv9ctl.exe up          # 開公開網址
+adv9ctl.exe up          # 開公開網址（cloudflared）
 adv9ctl.exe status      # 看狀態
 adv9ctl.exe restart     # 重啟
 ```
 
-詳細說明見 [`tools/adv9ctl/README-adv9ctl.md`](tools/adv9ctl/README-adv9ctl.md)。
-
----
+只用系統內建 `ssh/scp`、免裝套件。詳見 [`tools/adv9ctl/README-adv9ctl.md`](tools/adv9ctl/README-adv9ctl.md)。
 
 ## ❓ 常見問題
 
-**Q：8080 打不開？**
-雲主機要放行防火牆／安全群組的 8080 連接埠；本機（localhost）則無需。
-
-**Q：Codespaces 的網址要怎麼給學生？**
-Ports 面板 → 8080 → 右鍵 → Port Visibility → **Public**，再用 🌐 開啟；也可以直接分享「轉送網址」（Forwarded Address）。
-
-**Q：要更新程式？**
-刪掉舊的 `adv9` 資料夾**以外的檔案**，重新下載最新的 `adv9_public.tgz` 解壓覆蓋，然後 `docker compose up -d --build`。**不要刪 `data/` 和 `media/`**，帳號資料才會保留。
-
-**Q：沒裝 Docker 的舊版怎麼跑？**
-直接 `node server.js`（需 Node.js 18+）；作業 PDF 匯入需另裝 `python3`。
+- **8080 打不開？** 雲主機要放行防火牆／安全群組的 8080；本機無需。
+- **Codespaces 網址怎麼給學生？** Ports → 8080 → 右鍵 → Port Visibility → **Public** → 分享轉送網址。
+- **要更新程式？** 刪掉舊 `adv9` 資料夾**以外的檔案**，下載最新 `adv9_public.tgz` 解壓覆蓋，`docker compose up -d --build`。**不要刪 `data/` 和 `media/`**。
+- **沒裝 Docker？** 直接 `node server.js`（需 Node.js 18+）；作業 PDF 匯入需另裝 `python3`。

@@ -26,6 +26,10 @@ st('🗺️ 領土',Object.keys(g.territory.owned).length)+st('🏟️ 競技塔
 
 return '<div class="abRow"><span style="width:70px;font-size:12.5px;color:'+SUBJ[s].c+'">'+SUBJ[s].i+' '+s+'</span><div class="bar"><i style="width:'+v+'%;background:'+SUBJ[s].c+'"></i></div><b style="font-size:12px;width:30px;text-align:right">'+v+'</b></div>'}).join('')+'</div></div>'+
 
+'<div class="panel2" style="margin:12px 0"><b style="font-family:var(--serif);color:var(--gold2)">🌍 語言自學</b><div style="font-size:13px;line-height:2;margin-top:6px">'+
+
+langStatsHtml(g)+'</div></div>'+
+
 '<div class="panel2"><b style="font-family:var(--serif);color:var(--gold2)">📋 本週報告</b><div style="font-size:13px;line-height:2;margin-top:6px">'+
 
 '答題：'+g.stats.total+'｜正確率：'+acc+'%｜最高連擊：'+g.stats.maxCombo+'<br>PK：'+g.pk.win+'/'+(g.pk.win+g.pk.lose)+'｜鍛造：'+g.forgeCount+' 次｜實驗：'+g.lab.length+' 個｜競技塔：第'+(g.arena.best||1)+'層<br>'+

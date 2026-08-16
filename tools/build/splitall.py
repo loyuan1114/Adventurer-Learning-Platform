@@ -163,6 +163,16 @@ def main():
                 continue
             if needed_refs(nm) & shell:
                 shell.add(nm); changed = True
+    # 外殼單位引用的單位 → 也留在外殼（外殼先載入，不能依賴懶載入模組）
+    changed = True
+    while changed:
+        changed = False
+        for nm in list(shell):
+            if is_view(nm):
+                continue
+            for r in needed_refs(nm):
+                if r in allnames and not is_view(r) and r not in shell:
+                    shell.add(r); changed = True
 
     # ---- 5) 模組引用表（單遍）：target -> 引用它的模組集合 ----
     mods_map = {}
@@ -323,6 +333,9 @@ def main():
                   % (len(us), ", ".join(us[:12]) + ("…" if len(us) > 12 else "")))
         with io.open(SHARED, "w", encoding="utf-8") as f:
             f.write(header + body + "\n")
+    else:
+        if os.path.exists(SHARED):
+            os.remove(SHARED)
 
     # ---- 11) 重寫 index.html ----
     removed = set()

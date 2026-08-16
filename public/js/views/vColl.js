@@ -1,15 +1,7 @@
 /* ════════════════════════════════════════════
    vColl 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 5 個單位：imgQOf, collImg, collLvOf, collLvCost, vColl
+   含 1 個單位：vColl
    ════════════════════════════════════════════ */
-function imgQOf(name,cat){const sfx={character:' 奇幻角色 插畫',pet:' 奇幻寵物 插畫',anime:' 動漫風格 動漫角色',teammate:' 動漫 隊友 組隊小隊 角色'}[cat]||' 插畫';return encodeURIComponent(name+sfx)}
-
-function collImg(name,cat,icon,px){px=px||52;return '<img src="https://tse2.mm.bing.net/th?q='+imgQOf(name,cat)+'&w='+(px*2)+'&h='+(px*2)+'&c=7&rs=1" alt="" loading="lazy" style="width:'+px+'px;height:'+px+'px;border-radius:10px;object-fit:cover;background:rgba(0,0,0,.25)" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'\'"><span style="display:none;font-size:'+Math.round(px*.72)+'px;line-height:1">'+icon+'</span>'}
-
-const collLvOf=(g,n)=>((g.collLv||{})[n])||1;
-
-const collLvCost=lv=>({au:120+lv*80,cr:25+lv*15});
-
 function vColl(){
 
 const g=me().g,tab=CUR.collTab,filter=CUR.collFilter,sort=CUR.collSort;

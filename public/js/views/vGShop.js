@@ -1,30 +1,8 @@
 /* ════════════════════════════════════════════
    vGShop 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 2 個單位：GSHOP_ITEMS, vGShop
+   含 2 個單位：gshopTabs, vGShop
    ════════════════════════════════════════════ */
-const GSHOP_ITEMS=[
-
-{id:'g1',n:'🧩 UR角色「創世之神」',ty:'char',cat:'character',name:'創世之神',r:'UR',price:800,cur:'diamond',stock:1},
-
-{id:'g2',n:'🐾 UR寵物「創世鳳凰」',ty:'char',cat:'pet',name:'創世鳳凰',r:'UR',price:600,cur:'diamond',stock:2},
-
-{id:'g3',n:'🤝 SSR隊友「���法學園長」',ty:'char',cat:'teammate',name:'魔法學園長',r:'SSR',price:300,cur:'diamond',stock:3},
-
-{id:'g4',n:'✨ 星光碎片 ×50',ty:'mat',k:'starlight',a:50,r:'SSR',price:5000,cur:'gold',stock:5},
-
-{id:'g5',n:'🔩 強化石 ×100',ty:'mat',k:'enhStone',a:100,r:'SR',price:3000,cur:'gold',stock:8},
-
-{id:'g6',n:'⛏️ 鐵礦 ×200',ty:'mat',k:'ironOre',a:200,r:'SR',price:2500,cur:'gold',stock:10},
-
-{id:'g7',n:'🎫 十連抽獎券',ty:'cur',k:'crystal',a:270,r:'SSR',price:20,cur:'diamond',stock:6},
-
-{id:'g8',n:'🏅 榮譽幣 ×500',ty:'cur',k:'honor',a:500,r:'SR',price:150,cur:'diamond',stock:4},
-
-{id:'g9',n:'📜 高階鍛造圖紙「傳說之劍」',ty:'bp',name:'傳說之劍',r:'UR',price:100,cur:'diamond',stock:2},
-
-{id:'g10',n:'💎 鑽石 ×30',ty:'cur',k:'diamond',a:30,r:'UR',price:10000,cur:'gold',stock:3}
-
-];
+function gshopTabs(tab){return '<div class="tabRow" style="margin-bottom:10px"><button class="tabB '+(tab==='official'?'on':'')+'" onclick="CUR.gshopTab=\'official\';vGShop()">🏪 官方商店</button><button class="tabB '+(tab==='market'?'on':'')+'" onclick="CUR.gshopTab=\'market\';vGShop()">🛒 玩家市集</button></div>'}
 
 function vGShop(){
 
