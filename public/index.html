@@ -761,7 +761,7 @@ display: none !important;
 
 <div id="bgfx"></div><div id="fxlayer"></div>
 
-<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">⚔️</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">正在載入...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">✨</i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">🌟</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">⭐</i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">💫</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">✨</i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">🌠</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">⚔️</div><h2 class="ldTitle">全領域冒險者養成系統</h2><p class="ldVer">v1.0　傳說冒險即將開始…</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
+<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">⚔️</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">正在載入...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">✨</i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">🌟</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">⭐</i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">💫</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">✨</i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">🌠</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">⚔️</div><h2 class="ldTitle">全領域冒險者養成系統</h2><p class="ldVer">v2.0　傳說冒險即將開始…</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
 
 <div id="login" style="display:grid">
 
@@ -771,7 +771,7 @@ display: none !important;
 
 <h1 class="logoT">全領域冒險者<br>養成系統</h1>
 
-<div class="verRow"><span class="verChip">v1.0</span><span class="verChip star">★ 九大強化版</span></div>
+<div class="verRow"><span class="verChip">v2.0</span><span class="verChip star">★ 九大強化版</span></div>
 
 <ul class="featL">
 
@@ -1968,137 +1968,9 @@ const EXPS=[
 
 ];
 
-/* ════════ 題庫 ════════ */
-
-const BANK={
-
-'數學':{'整數運算':{'簡單':[
-
-{'題目':'計算 (-3) + (+5) = ?','選項':['-8','2','-2','8'],'答案':1,'解析':'1. 異號兩數相加\n2. 取絕對值大的符號：|5|>|3| 故為正\n3. 5 - 3 = 2'},
-
-{'題目':'數線上 -2 與 3 的距離為何？','選項':['1','5','-5','3'],'答案':1,'解析':'1. 距離 = |a - b|\n2. |3 - (-2)| = |3 + 2| = 5\n3. 距離恆為非負數'},
-
-{'題目':'(-4) × (-3) = ?','選項':['-12','12','-7','7'],'答案':1,'解析':'1. 負負得正\n2. |−4|×|−3| = 12\n3. 兩負數相乘為正'}],
-
-'困難':[{'題目':'若 a=-2、b=3、c=-1，求 |a×b - c²| + a² = ?','選項':['9','11','7','13'],'答案':1,'解析':'1. a×b = -6，c² = 1，a² = 4\n2. |−6 − 1| = 7\n3. 7 + 4 = 11'}]},
-
-'一元一次方程式':{'簡單':[
-
-{'題目':'解方程式 x + 3 = 11，x = ?','選項':['3','4','5','7'],'答案':1,'解析':'1. 移項：x = 11 − 3 = 8\n2. x = 8\n3. 移項要變號'},
-
-{'題目':'解方程式 3x - 5 = 10，x = ?','選項':['3','5','15','4'],'答案':1,'��析':'1. 3x = 10 + 5 = 15\n2. x = 15 ÷ 3 = 5\n3. 先移項���除���係數'}],
-
-'困難':[{'題目':'解 3(2x-1) - 2(x+4) = x + 5，x = ?','選項':['16/3','4','6','5'],'答案':0,'解析':'1. 展開：6x − 3 − 2x − 8 = x + 5\n2. 4x ��� 11 = x + 5 → 3x = 16\n3. x = 16/3'}]}},
-
-'英文':{'Be動詞':{'簡單':[
-
-{'題目':'She ___ a student.','選項':['am','is','are','be'],'答案':1,'解析':'1. 主詞 She 為第三人稱單數\n2. Be 動詞用 is\n3. 口訣：I 用 am，You/複數用 are，He/She/It 用 is'},
-
-{'題目':'Which sentence is correct?','選項':['They is happy.','We am students.','I are a teacher.','You are my friend.'],'答案':3,'解析':'1. You 搭配 are\n2. They 應配 are\n3. 注意主詞與 Be 動詞一致性'}],
-
-'困難':[{'題目':"Neither Tom nor his brothers ___ at home, but either his mother or his father ___ there.",'選項':['is; are','are; is','are; are','is; is'],'答案':1,'解析':'1. neither…nor 動詞隨最近主詞 brothers → are\n2. either…or 隨 father → is\n3. 就近原則'}]},
-
-'現在簡單式':{'簡單':[
-
-{'題目':'He ___ to school every day.','選項':['go','goes','going','gone'],'答案':1,'解析':'1. 第三人稱單數現在簡單式\n2. 動詞加 s/es → goes\n3. every day 為現在簡單式訊號'},
-
-{'題目':'They ___ basketball after school.','選項':['plays','play','playing','played'],'答案':1,'解析':'1. They 為複數主詞\n2. 動詞用原形 play\n3. 第三人稱單數才加 s'}],
-
-'困難':[{'題目':'Which sentence is grammatically INCORRECT?','選項':["She doesn't like coffee.","He don't have a car.",'Do they know the answer?','Does she play tennis?'],'答案':1,'解析':"1. He 應搭配 doesn't\n2. 正確：He doesn't have a car\n3. 三單否定用 doesn't + 原形動詞"}]}}
-
-};
-
-function bankQ(subj,unit,diff){
-
-const tier=diff>=50?'困難':'簡單';
-
-const _mu=(typeof me==='function'&&me())?me():null;const g=_mu&&_mu.g?_mu.g:null;
-
-if(subj==='數學'&&Math.random()<.5)return procMathQ(tier); /* 數學半數改用隨機出題器，避免題庫太小一直重複 */
-
-try{const qs=BANK[subj][unit][tier];if(qs&&qs.length){
-
-const unseen=g?qs.filter(q=>!qSeenHas(g,q)):qs; /* 優先出沒出過的題 */
-
-if(!unseen.length){if(subj==='數學')return procMathQ(tier); /* 數學全出過→改隨機出題器，不重複 */
-
-if(g){g.qSeen=(g.qSeen||[]).filter(h=>!qs.some(q=>qHash(q['題目'])===h));saveU(_mu)}} /* 其餘科目全部出過則重置本單元輪迴 */
-
-return shuffleQ(JSON.parse(JSON.stringify(pick(unseen.length?unseen:qs))))}}catch(e){}
-
-return fallbackQ(subj,unit,tier);
-
-}
-
-/* 數學隨機出題器：每次隨機數字，題目永不重複 */
-
-function procMathQ(tier){
-
-const R=(a,b)=>a+((Math.random()*(b-a+1))|0);
-
-const mk=(q,ans,exp)=>{const s=new Set([ans]);while(s.size<4){const c=ans+R(-9,9);if(c!==ans)s.add(c)}const o=[...s].sort(()=>Math.random()-.5);return{'題目':q,'選項':o.map(String),'答案':o.indexOf(ans),'解析':exp}};
-
-if(tier==='困難'){const t=R(1,4);
-
-if(t===1){const s=R(3,9),p=R(2,18);return mk('若 a + b = '+s+'，ab = '+p+'，則 a² + b² = ?',s*s-2*p,'1. (a+b)² = a²+2ab+b²\n2. a²+b² = '+s+'² − 2×'+p+'\n3. = '+(s*s)+' − '+(2*p)+' = '+(s*s-2*p))}
-
-if(t===2){const a=R(2,9),x=R(2,12),b=R(1,20),c=a*x+b;return mk('解方程式：'+a+'x + '+b+' = '+c+'，x = ?',x,'1. '+a+'x = '+c+' − '+b+' = '+(c-b)+'\n2. x = '+(c-b)+' ÷ '+a+'\n3. x = '+x)}
-
-if(t===3){const k=R(1,5);return mk('直角三角形兩股為 '+(3*k)+' 與 '+(4*k)+'，斜邊長 = ?',5*k,'1. 畢氏定理 c² = a²+b²\n2. c² = '+(9*k*k)+'+'+(16*k*k)+' = '+(25*k*k)+'\n3. c = '+(5*k))}
-
-const n=R(2,6),m=R(2,4);return mk('2^'+n+' × 2^'+m+' = 2 的幾次方？',n+m,'1. 同底數相乘、指數相加\n2. '+n+' + '+m+' = '+(n+m)+'\n3. 答案為 2^'+(n+m))}
-
-const t=R(1,4);
-
-if(t===1){const a=R(11,99),b=R(11,99);return mk(a+' + '+b+' = ?',a+b,'1. 直式相加\n2. '+a+' + '+b+'\n3. = '+(a+b))}
-
-if(t===2){const a=R(3,12),b=R(3,12);return mk(a+' × '+b+' = ?',a*b,'1. 九九乘法延伸\n2. '+a+' × '+b+'\n3. = '+(a*b))}
-
-if(t===3){const x=R(2,9),c=R(1,9);return mk('若 x = '+x+'，則 2x + '+c+' = ?',2*x+c,'1. 代入 x = '+x+'\n2. 2×'+x+' + '+c+'\n3. = '+(2*x+c))}
-
-const a=R(40,99),b=R(11,39);return mk(a+' − '+b+' = ?',a-b,'1. 直式相減\n2. '+a+' − '+b+'\n3. = '+(a-b))}
-
-function shuffleQ(q){const o=q['選項'],c=o[q['答案']];for(let i=o.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=o[i];o[i]=o[j];o[j]=t}q['答案']=o.indexOf(c);return q}
-
-/* 打亂題目陣列順序（Fisher-Yates），不回傳新陣列 */
-function shuffleQOrder(arr){for(let i=arr.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=arr[i];arr[i]=arr[j];arr[j]=t}return arr}
-
-/* 題目去重：每位學生記錄出過的題目雜湊，確保每次題目都不一樣 */
-
-function qHash(s){let h=0;s=String(s||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return h.toString(36)}
-
-function qSeenHas(g,q){return !!g&&(g.qSeen||[]).includes(qHash(q&&q['題目']))}
-
-function qMarkSeen(g,q){if(!g||!q)return;g.qSeen=g.qSeen||[];g.qSeenTxt=g.qSeenTxt||[];const h=qHash(q['題目']);
-
-if(!g.qSeen.includes(h)){g.qSeen.push(h);if(g.qSeen.length>800)g.qSeen=g.qSeen.slice(-800);
-
-g.qSeenTxt.push(String(q['題目']).slice(0,42));if(g.qSeenTxt.length>8)g.qSeenTxt=g.qSeenTxt.slice(-8)}}
-
-function fallbackQ(subj,unit,tier){
-
-if(subj==='數學')return procMathQ(tier); /* 數學一律用隨機出題器，不再固定同一題 */
-
-const T={
-
-'數學':tier==='困難'?{'題目':'若 a + b = 5，ab = 6，則 a² + b² = ?','選項':['13','11','25','19'],'答案':0,'解析':'1. (a+b)² = a² + 2ab + b²\n2. 25 = a² + b² + 12\n3. a² + b² = 13'}:{'題目':'若 x = 3，則 2x + 1 = ?','選項':['5','7','6','9'],'答案':1,'解析':'1. 代入 x = 3\n2. 2×3 + 1 = 7\n3. 代入法'},
-
-'英文':{'題目':'Choose the correct sentence.','選項':['She go to school.','She goes to school.','She going to school.','She gone to school.'],'答案':1,'解析':'1. 第三人稱單數現在簡單式\n2. 動詞加 es\n3. goes 正確'},
-
-'國文':{'題目':'「床前明月光」的作者是誰？','選項':['杜甫','李白','白居易','王維'],'答案':1,'解析':'1. 出自《靜夜思》\n2. 作者為詩仙李白\n3. 唐詩代表作'},
-
-'自然':{'題目':'下列何者為光合作用必需的條件？','選項':['光照與葉綠素','高溫與高壓','氧氣與糖分','土壤與風'],'答案':0,'解析':'1. 光合作用需要光與葉綠素\n2. 產生醣類與氧氣\n3. 場所為葉綠體'},
-
-'社會':{'題目':'臺灣在荷西時期，哪國曾占領臺南？','選項':['西班牙','荷蘭','葡萄牙','英國'],'答案':1,'解析':'1. 1624 年荷蘭占領臺南\n2. 西班牙占領北部\n3. 1662 年鄭成功驅逐荷蘭'}
-
-};
-
-return T[subj]||{'題目':'【'+subj+'・'+unit+'】下列敘述何者正確？','選項':['選項 A（正確答案）','選項 B','選項 C','選項 D'],'答案':0,'解析':'1. 本題為該單元觀念題\n2. A 為正確敘述\n3. 其餘為常見迷思觀念'};
-
-}
-
-/* ════════ 遊戲資料結構 ════════ */
-
+/* ════════════════════════════════════════════
+   題庫（BANK 資料、bankQ、procMathQ、shuffleQ、qHash、qSeenHas、fallbackQ）（已移至 public/js/bank.js，懶載入）
+   ════════════════════════════════════════════ */
 function newGame(){return{
 
 lv:1,xp:0,needXp:CFG.needXp(1),
@@ -2231,11 +2103,11 @@ set(LS.users,[
 
 ]); /* 發布版：固定管理員（密碼雜湊儲存、不存明文）；教師由管理員建立、學生由教師註冊/匯入 */
 
-set(LS.ann,[{id:1,title:'📢 歡迎來到全領域冒險者養成系統 v1.0！',content:'九大強化版上線：修煉場精靈嚮導、PK 無限競技塔、領土每科100關、好友/群組聊天傳照片、隱私保護、全服商店、好友交易40%保障⋯⋯開始冒險吧！',author:'系統',time:now}]);
+set(LS.ann,[{id:1,title:'📢 歡迎來到全領域冒險者養成系統 v2.0！',content:'九大強化版上線：修煉場精靈嚮導、PK 無限競技塔、領土每科100關、好友/群組聊天傳照片、隱私保護、全服商店、好友交易40%保障⋯⋯開始冒險吧！',author:'系統',time:now}]);
 
 set(LS.codes,[{code:'ADVENTURE',note:'新生禮包',rewards:{gold:50,crystal:30,extraPk:1},maxUses:50,usedBy:[],time:now}]);
 
-set(LS.chat,[{user:'系統',role:'system',text:'🎉 v1.0 九大強化版上線啦！',time:now}]);
+set(LS.chat,[{user:'系統',role:'system',text:'🎉 v2.0 九大強化版上線啦！',time:now}]);
 
 set(LS.fr,[]);set(LS.gr,[]);set(LS.hw,[]);set(LS.sub,[]);set(LS.pm,{});set(LS.trades,[]);set(LS.market,[]);set(LS.duels,[]);
 if(!get(LS.classes,null)){set(LS.classes,{ids:['701','702','703'],names:{'701':'七年一班','702':'七年二班','703':'七年三班'}});}
@@ -3207,6 +3079,8 @@ $('#view').innerHTML=back()+socialTabs('story')+'<h3 class="vt">📸 限時動�
 
 '<label class="btn ghost mini" style="display:inline-flex;align-items:center;cursor:pointer">🎞 加影片<input type="file" accept="video/*" style="display:none" onchange="onStoryVideo(this)"></label>'+
 
+'<span style="font-size:11px;color:var(--mut);flex-basis:100%">📸 上傳照片/影片即代表你同意以 CC0 公眾領域授權釋出（所有人皆可自由使用）</span>'+
+
 '<label style="font-size:11.5px;color:var(--mut);display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="stMute" style="width:auto">🔇靜音</label>'+
 
 '<span id="stImgTip" style="font-size:12px;color:var(--teal)">'+(CUR.storyImg?'✅ 已選照片':CUR.storyVid?'✅ 已選影片':'')+'</span>'+
@@ -3828,515 +3702,28 @@ openModal('<h3 class="mt">🔥 限次觀看內容 <span style="font-size:11px;co
 
 ════════════════════════════════════════════════ */
 
-const Quiz={phase:'IDLE',mode:'normal',subj:'',sem:'',unit:'',diff:50,pub:'康軒版',useAI:true,q:null,sel:null,terrName:null,retrySubj:null,retryIdx:null,t0:0};
-
-function qReset(){Quiz.phase='IDLE';Quiz.sel=null;Quiz.q=null}
-
-function vSubj(){
-
-qReset();Quiz.phase='SELECT_MODE';
-
-const _g=me().g,_e=effOf(_g);const _cp=Math.round(((1+(_e.all_exp_bonus||0)+(_e.exp_bonus||0))-1)*100);
-
-$('#view').innerHTML=back()+'<h3 class="vt">⚔️ 選擇科目 <span class="vsub">修煉場｜答題戰鬥</span></h3>'+
-
-'<div class="panel2" style="margin-bottom:12px;font-size:12.5px;border-left:4px solid var(--gold);color:var(--mut)">💪 目前收藏與升星全經驗加成：<b style="color:var(--gold2)">+'+_cp+'%</b>（另有科目/難度/連擊加成，結算時顯示完整明細）｜5★覺醒滿配技能效果最高 <b style="color:var(--gold2)">+275%（總倍率 3.75）</b>｜等級上限 <b style="color:var(--gold2)">Lv.300</b></div>'+
-
-'<div class="subjGrid">'+
-
-Object.keys(SUBJ).map(s=>'<button class="subjB" style="background:'+SUBJ[s].c+'" onclick="vUnitList(\''+s+'\')">'+SUBJ[s].i+'<br>'+s+'</button>').join('')+'</div>';
-
+/* ════════════════════════════════════════════
+   修練場答題流程（Quiz 狀態、qReset、vSubj、vQuestion、結算、掉落、稱號）（已移至 public/js/quiz.js，懶載入）
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   模組懶載入（由 tools/build/split.py 產生，勿手動改）
+   進入對應功能時才載入 js/ 模組，只跑需要的檔案資料
+   ════════════════════════════════════════════════════════════ */
+const JSLOAD={};
+async function needJs(list){
+  if(typeof list==='string')list=[list];
+  const out=await Promise.all(list.map(src=>new Promise(res=>{
+    if(JSLOAD[src])return res(true);
+    const t=document.createElement('script');
+    t.src=src;t.onload=()=>{JSLOAD[src]=1;res(true)};t.onerror=()=>res(false);
+    document.head.appendChild(t);
+  })));
+  return out.every(Boolean);
 }
-
-/* 第一步：選學期→單元（點單元直接進設定，解決卡住問題）*/
-
-function vUnitList(subj){
-
-Quiz.subj=subj;const S=SUBJ[subj];
-
-$('#view').innerHTML=back('vSubj()')+'<h3 class="vt">'+S.i+' '+subj+'｜選擇學期與單元 <span class="vsub">點選單元即進入出發設定</span></h3>'+
-
-'<div class="panel2">'+Object.keys(S.u).map(sem=>'<div class="semT">📚 '+sem+'</div>'+
-
-S.u[sem].map(un=>'<button class="unitRow" onclick="vReady(\''+sem+'\',\''+un+'\')">➜ '+un+'</button>').join('')).join('')+'</div>';
-
+async function vSubj(){
+  if(!await needJs(['js/bank.js', 'js/quiz.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vSubj();
 }
-
-/* 第二步：出發設定（難度/版本/AI）＋ 超大開始按鈕 */
-
-function vReady(sem,unit){
-
-Quiz.sem=sem;Quiz.unit=unit;const g=me().g,md=maxDiff(g);
-
-$('#view').innerHTML=back('vUnitList(\''+Quiz.subj+'\')')+
-
-'<h3 class="vt">'+SUBJ[Quiz.subj].i+' '+Quiz.subj+'｜'+sem+'｜'+unit+' <span class="vsub">出發設定</span></h3>'+
-
-'<div class="panel2"><b style="color:var(--teal)">📖 版本</b><div style="display:flex;gap:14px;margin:8px 0">'+
-
-['康軒版','翰林版','南一版'].map((p,i)=>'<label style="font-size:13px;cursor:pointer"><input type="radio" name="pub" value="'+p+'" '+(i===0?'checked':'')+' style="width:auto"> '+p+'</label>').join('')+'</div>'+
-
-'<b style="color:var(--teal)">🎯 難度（1~'+md+'）</b>'+
-
-'<div style="display:flex;gap:12px;align-items:center;margin:8px 0"><input type="range" id="diffS" min="1" max="'+md+'" value="'+Math.min(50,md)+'" oninput="diffChg()" style="flex:1">'+
-
-'<b id="diffL" style="color:var(--gold2);min-width:130px"></b></div>'+
-
-'<div id="diffD" style="font-size:12px;color:var(--mut)"></div><div id="diffR" style="font-size:12px;color:var(--green);margin-top:4px"></div>'+
-
-'<button class="btn big" style="font-size:18px;padding:16px;margin-top:12px" onclick="startQuiz()">⚔️ 開始答題</button></div>';
-
-diffChg();
-
-}
-
-function diffChg(){
-
-const v=+$('#diffS').value,r=CFG.dRew(v);
-
-$('#diffL').textContent='Lv.'+v+' '+CFG.dDesc(v).split('-')[0];
-
-$('#diffD').textContent=CFG.dDesc(v);
-
-$('#diffR').textContent='獎勵：+'+r.exp+' XP  +'+r.crystal+'💠  +'+r.gold+'🪙';
-
-}
-
-async function startQuiz(){
-
-if(!Quiz.unit){toast('⚠️ 請先選擇單元','bad');return}
-
-const pubEl=document.querySelector('input[name=pub]:checked');if(pubEl)Quiz.pub=pubEl.value;
-
-const diffEl=$('#diffS');if(diffEl){Quiz.diff=+diffEl.value;
-
-if(sysCfg().diffMode==='隨機')Quiz.diff=clamp(Quiz.diff+((Math.random()*21)|0)-10,1,100);} /* 難度模式由管理員全域設定 */
-
-const aiEl=$('#useAI');Quiz.useAI=true; /* 修煉場必定使用 AI API 出題 */
-
-Quiz.phase='LOADING';showLoading();
-
-setTimeout(async()=>{
-
-let aiQ=null;try{aiQ=await aiGenerateQuiz(Quiz.subj,Quiz.unit,Quiz.diff)}catch(e){}
-
-if(!aiQ){ /* 不默默退回題庫：顯示錯誤，由使用者選擇重試或明確改用題庫 */
-
-Quiz.phase='IDLE';
-
-$('#view').innerHTML=back()+'<h3 class="vt">⚠️ 出題失敗</h3>'+
-
-'<div class="panel2" style="border-left:4px solid var(--red);margin-bottom:14px;line-height:1.9;font-size:13.5px">❌ 出題服務暫時無法使用，請稍後重試。<br>若持續發生，請聯絡管理員檢查系統設定。</div>'+
-
-'<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn big" onclick="startQuiz()">🔄 重試</button>'+
-
-'<button class="btn ghost big" onclick="startQuizBank()">📚 改用本地題庫（僅本題）</button></div>';
-
-return;
-
-}
-
-Quiz.q=aiQ;
-Quiz.q.id=newQid();
-
-Quiz.sel=null;Quiz.t0=Date.now();
-
-Quiz.phase='ANSWERING';vQuestion();
-
-},400);
-
-}
-
-function startQuizBank(){ /* 使用者明確選擇才改用本地題庫 */
-
-Quiz.phase='LOADING';showLoading();
-
-setTimeout(()=>{Quiz.q=bankQ(Quiz.subj,Quiz.unit,Quiz.diff);Quiz.q.id=newQid();Quiz.sel=null;Quiz.t0=Date.now();Quiz.phase='ANSWERING';vQuestion()},300);
-
-}
-
-function showLoading(){
-
-$('#view').innerHTML='<div style="text-align:center;padding:60px 0"><div style="font-size:60px;animation:spP 1s infinite">🤖</div>'+
-
-'<p style="font-family:var(--serif);font-weight:900;color:var(--gold2);font-size:17px;margin:12px 0">AI 正在出題中...</p>'+
-
-'<p style="display:inline-block;margin-top:10px;background:rgba(0,0,0,.25);border:1px dashed #6b4a1f;color:#ffb26b;padding:8px 12px;border-radius:5px;font-size:12.5px">'+pick(TIPS)+'</p></div>';
-
-}
-
-function vQuestion(){
-
-const q=Quiz.q,L=['A','B','C','D'],g=me().g;
-
-if(q&&Quiz._seenQid!==q.id){const _u=me();qMarkSeen(_u.g,q);saveU(_u);Quiz._seenQid=q.id} /* 登記已出題目，避免重複 */
-
-$('#view').innerHTML=
-
-'<div class="qStatus"><span class="chip">Lv.'+g.lv+'</span><span class="chip">🔥 '+g.combo+' 連擊</span>'+
-
-'<span class="chip">'+SUBJ[Quiz.subj].i+' '+Quiz.subj+'</span><span class="chip">難度 '+Quiz.diff+'/100</span>'+
-
-(Quiz.mode==='terr'?'<span class="chip" style="color:#c9a6ff">🗺️ 領土戰</span>':'')+
-
-(Quiz.mode==='retry'?'<span class="chip" style="color:#ffb4ab">❌ 錯題重練</span>':'')+
-
-'<button class="btn ghost mini" style="margin-left:auto" onclick="qReset();vHome()">✕</button></div>'+
-
-'<div class="panel2 qCard"><span class="qTag">題目｜'+esc(Quiz.sem||'')+'・'+esc(Quiz.unit)+'</span>'+
-
-'<div class="qStem">'+esc(q['題目'])+'</div></div>'+
-
-q['選項'].map((o,i)=>'<button class="optBtn" id="opt'+i+'" onclick="selectOpt('+i+')">('+L[i]+') '+esc(o)+'</button>').join('')+
-
-'<button class="btn big" id="submitBtn" onclick="submitAns()" style="margin-top:8px">📤 提交答案</button>'+
-
-(Quiz.subj==='數學'?'<div class="panel2" style="margin-top:10px"><span class="qTag">🧮 計算機</span><textarea id="calc" class="calc" rows="3" placeholder="在此打草稿..."></textarea></div>':'');
-
-updSubmit();
-
-}
-
-function selectOpt(i){
-
-if(Quiz.phase!=='ANSWERING')return;
-
-Quiz.sel=i;
-
-document.querySelectorAll('.optBtn').forEach((b,idx)=>b.classList.toggle('sel',idx===i));
-
-updSubmit();
-
-}
-
-function updSubmit(){const b=$('#submitBtn');if(b)b.classList.toggle('dis',Quiz.sel===null)}
-
-function submitAns(){
-
-if(Quiz.phase!=='ANSWERING'||Quiz.sel===null)return;
-
-Quiz.phase='SUBMITTED';
-
-const q=Quiz.q,ok=Quiz.sel===q['答案'];
-
-document.querySelectorAll('.optBtn').forEach(b=>b.classList.add('lock'));
-
-document.getElementById('opt'+q['答案']).classList.add('ok');
-
-if(!ok)document.getElementById('opt'+Quiz.sel).classList.add('no');
-
-const el=((Date.now()-Quiz.t0)/1000).toFixed(1);
-
-const R=settle(ok,el);
-
-Quiz.phase='SETTLING';
-
-setTimeout(()=>{Quiz.phase='RESULT';vResult(ok,el,R)},500);
-
-}
-
-function settle(ok,el){
-
-const u=me(),g=u.g,R={exp:0,cr:0,au:0,drop:null,extra:''};
-
-logAns(g,ok,el); /* 記錄作答過程與秒數（供師/管端檢視）*/
-
-if(Quiz.mode==='terr'){
-
-recordAns(g,ok,Quiz.diff,Quiz.subj);
-
-if(ok){addCombo(g);R.exp=grantExp(g,Quiz.diff,false,Quiz.subj);const rw=grantRew(g,Quiz.diff,g.combo);R.cr=rw.crystal;R.au=rw.gold;R.dm=rw.diamond;R.drop=rollDrop(g,Quiz.diff)}
-
-else resetCombo(g);
-
-const tr=captureTerr(g,Quiz.terrName,ok);
-
-if(ok)updMission(g,'territory',1);
-
-R.extra=tr.ok?'<div class="rwRow"><span class="rwChip">🚩 '+tr.msg+'</span><span class="rwChip">💎+'+tr.rw.d+'</span><span class="rwChip">🪙+'+tr.rw.au+'</span><span class="rwChip">💠+'+tr.rw.crystal+'</span><span class="rwChip">✨+'+tr.rw.starlight+'</span><span class="rwChip">⛏️+'+tr.rw.ironOre+'</span><span class="rwChip">🔩+'+tr.rw.enhStone+'</span><span class="rwChip">🧪+'+tr.rw.labMat+'</span>'+(tr.rw.honor?'<span class="rwChip">🏅+'+tr.rw.honor+'</span>':'')+'</div>'
-
-:'<div class="rwRow"><span class="rwChip" style="border-color:#8f272b;color:#ffb4ab">⚔️ '+tr.msg+'</span></div>';
-
-}else if(Quiz.mode==='retry'){
-
-const w=g.wrong[Quiz.retrySubj][Quiz.retryIdx];w.done=ok;
-
-recordAns(g,ok,50,Quiz.retrySubj);
-
-if(ok){addCombo(g);g.stats.retry=(g.stats.retry||0)+1;R.exp=grantExp(g,50,true,Quiz.retrySubj);updMission(g,'retry',1);R.extra='<div class="rwRow"><span class="rwChip">✏️ 錯題重練成功！經驗 ×1.5</span></div>'}
-
-else resetCombo(g);
-
-}else{
-
-recordAns(g,ok,Quiz.diff,Quiz.subj);
-
-if(ok){addCombo(g);R.exp=grantExp(g,Quiz.diff,false,Quiz.subj);const rw=grantRew(g,Quiz.diff,g.combo);R.cr=rw.crystal;R.au=rw.gold;R.dm=rw.diamond;R.drop=rollDrop(g,Quiz.diff)}
-
-else{resetCombo(g);const e=effOf(g);if(e.wrong_next_drop)g._nextDrop=true;addWrong(g,Quiz.subj,Quiz.q,Quiz.sel)}
-
-}
-
-checkTitlesAch(g);saveU(u);hud();
-
-return R;
-
-}
-
-function vResult(ok,el,R){
-
-const q=Quiz.q,L=['A','B','C','D'],g=me().g;
-
-const eq=g.equip.character?CHARS[g.equip.character]:null;
-
-const quote=eq?'<div class="quote">'+eq.icon+'：'+(ok?pick(['做得好！繼續保持！','太棒了！這題難不倒你！','漂亮！就是這個節奏！']):pick(['沒關係，失敗為成功之母！','別灰心，下次一定可以！','加油，你可以的！']))+'</div>':'';
-
-const chips=['⏱ '+el+'s','🔥 '+g.combo+' 連擊'];
-
-if(R.exp)chips.unshift('✨ +'+R.exp+' XP');
-
-if(R.cr)chips.push('💠 +'+R.cr);if(R.au)chips.push('🪙 +'+R.au);if(R.dm)chips.push('💎 +'+R.dm);
-
-if(R.drop)chips.push(R.drop.t);
-
-const isTerr=Quiz.mode==='terr',isRetry=Quiz.mode==='retry';
-
-$('#view').innerHTML=
-
-'<div class="resBig" style="color:'+(ok?'var(--green)':'#ff7b72')+'">'+(ok?pick(['🎉','✨','🌟','💯','🔥'])+' 答對了！':pick(['😢','💦','🥲','😅'])+' 答錯...')+'</div>'+quote+R.extra+
-
-'<div class="rwRow">'+chips.map(c=>'<span class="rwChip">'+c+'</span>').join('')+'</div>'+
-
-(R.exp&&window._expCalc?'<div class="panel2" style="margin-bottom:10px;border-left:4px solid var(--gold);font-size:13.5px;color:var(--gold2)">📊 修煉數值明細：【基礎數值 '+window._expCalc.base+'】+【收藏與升星加成 +'+window._expCalc.pct+'%】=【最終修煉數值 '+window._expCalc.xp+' XP】</div>':'')+
-
-'<div class="panel2"><b style="color:var(--green)">✅ 正確答案：('+L[q['答案']]+') '+esc(q['選項'][q['答案']])+'</b>'+
-
-(!ok?'<div style="color:#ff7b72;font-size:13px;margin-top:5px">❌ 你的選擇：('+L[Quiz.sel]+') '+esc(q['選項'][Quiz.sel])+'</div>':'')+'</div>'+
-
-'<div class="expl"><b style="color:var(--teal)">💡 解析</b><br>'+esc(q['解析'])+'</div>'+
-
-'<div style="display:flex;gap:10px">'+
-
-(isTerr?'<button class="btn big" onclick="qReset();vTerr()">🗺️ 返回領土</button>'
-
-:isRetry?'<button class="btn big" onclick="qReset();vWrong()">❌ 返回錯題</button>'
-
-:'<button class="btn big" onclick="startQuiz()">➡️ 下一題</button>')+
-
-'<button class="btn ghost big" onclick="qReset();vHome()">🏠 回主選單</button></div>';
-
-}
-
-/* ════════ 引擎：經驗/獎勵/連擊/掉落 ════════ */
-
-function grantExp(g,diff,retry,subj){
-
-if(!rewardOn(g))return 0;
-
-let base=CFG.dRew(diff).exp;if(retry)base=Math.floor(base*1.5);
-
-let m=CFG.lvMult(Math.min(g.lv,CFG.MAX_LV));
-
-if(isEarly())m*=1.05;
-
-/* 收藏與升星加成倍率（單獨計算，供明細顯示；5★覺醒��配最�� +275% = 總倍率 3.75）*/
-
-let cm=1;
-
-const e=effOf(g);cm*=(1+(e.all_exp_bonus||0)+(e.exp_bonus||0));
-
-cm*=(1+0.10*(g.rebirth||0)); /* 🔁 傳承轉生��每次轉生永久全經驗+10% */
-
-const sk={'數學':'math_exp_bonus','英文':'english_exp_bonus','國文':'chinese_exp_bonus','自然':'science_exp_bonus','社會':'social_exp_bonus'}[subj];
-
-if(sk)cm*=(1+(e[sk]||0));
-
-cm*=diff>=50?(1+(e.exp_hard_bonus||0)):(1+(e.exp_easy_bonus||0));
-
-if(g.combo>=10&&e.combo10_exp_mult)cm*=e.combo10_exp_mult;
-
-const baseV=Math.floor(base*m);
-
-const xp=Math.floor(base*m*cm);
-
-window._expCalc={base:baseV,pct:Math.round((cm-1)*100),xp:xp}; /* 供結算畫面顯示公式明細 */
-
-g.xp+=xp;g.quizPts+=Math.floor(xp/5);updMission(g,'exp',xp);
-
-while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv);toast('🌟 等級提升！Lv.'+g.lv+' 【'+titleOf(g.lv)+'】');showLevelUpFX(g.lv)}
-
-return xp;
-
-}
-
-function grantRew(g,diff,combo){
-
-if(!rewardOn(g))return{crystal:0,gold:0,diamond:0};
-
-const e=effOf(g);
-
-let cr=Math.floor(CFG.dRew(diff).crystal*(1+(e.crystal_bonus||0)));
-
-let au=CFG.dRew(diff).gold+(e.gold_per_correct||0);
-
-au=Math.floor(au*(1+(e.gold_bonus||0)));
-
-if(combo===5)cr+=5;if(combo===10)cr+=15;
-
-if(diff>=50&&e.hard_crystal_bonus)cr+=e.hard_crystal_bonus;
-
-let dm=Math.floor(cr*0.25);g.crystal+=cr;g.gold+=au;g.diamond=(Number(g.diamond)||0)+dm;return{crystal:cr,gold:au,diamond:dm};
-
-}
-
-function addCombo(g){g.combo++;if(g.combo>g.stats.maxCombo)g.stats.maxCombo=g.combo;updMission(g,'combo',g.combo)}
-
-function resetCombo(g){
-
-const e=effOf(g);
-
-if((e.combo_protect||0)>0&&Math.random()<e.combo_protect)return false;
-
-g.combo=0;return true;
-
-}
-
-function comboBonus(g){const e=effOf(g);let b=0;for(const t in CFG.COMBO)if(g.combo>=t)b=CFG.COMBO[t];
-
-if(e.combo_bonus_double)b*=2;if(e.combo_multiplier)b*=e.combo_multiplier;return b+(e.combo_extra||0)}
-
-function rollQuality(g){const e=effOf(g);let r=Math.random(),q;
-
-q=r<.35?'普通':r<.65?'優秀':r<.85?'精良':r<.96?'史詩':'傳說';
-
-if((e.quality_up||0)>0&&Math.random()<e.quality_up){const i=CFG.QUAL.indexOf(q);if(i<4)q=CFG.QUAL[i+1]}
-
-return q;
-
-}
-
-function rollDrop(g,diff){
-
-if(!rewardOn(g))return null;
-
-if(g._nextDrop){g._nextDrop=false;return genDrop(g)}
-
-const rate=CFG.dropRate(diff)+comboBonus(g)+(isEarly()?.03:0)+(effOf(g).drop_bonus||0)+0.05*(g.rebirth||0); /* 🔁 轉生每次掉落+5% */
-
-return Math.random()<rate?genDrop(g):null;
-
-}
-
-function genDrop(g){
-
-const r=Math.random();
-
-if(r<.18){const c=2+((Math.random()*7)|0);g.enhStone+=c;return{t:'🔩 強化石 ×'+c}}
-
-if(r<.26){const c=1+((Math.random()*3)|0);g.ironOre+=c;return{t:'⛏️ 鐵礦 ×'+c}}
-
-if(r<.36){g.protect++;return{t:'🛡️ 保護卷軸 ×1'}}
-
-if(r<.48){const c=10+((Math.random()*31)|0);g.crystal+=c;return{t:'💠 水晶 ×'+c}}
-
-if(r<.60){const c=20+((Math.random()*61)|0);g.gold+=c;return{t:'🪙 金幣 ×'+c}}
-
-if(r<.70){const c=1+((Math.random()*5)|0);g.starlight+=c;return{t:'✨ 星光碎片 ×'+c}}
-
-if(r<.78){const c=2+((Math.random()*5)|0);g.labMat+=c;return{t:'🧪 實驗素材 ×'+c}}
-
-const q=rollQuality(g),slot=pick(['頭盔','胸甲','護腕','鞋子','項鍊','戒指']);
-
-g.weapons.push({n:q+slot,q,lv:0,slot});
-
-return{t:'🛡️ '+q+slot+'（新裝備）'};
-
-}
-
-/* 📝 作答過程紀錄：供師/管端檢視（題目、選項、對錯、作答秒數，最多保留 60 筆）*/
-
-function logAns(g,ok,el){
-
-if(!Quiz||!Quiz.q)return;
-
-const modeName={terr:'領土征服',retry:'錯題重練',pk:'競技場',weekend:'周末決鬥'}[Quiz.mode]||'修煉場';
-
-const opts=Quiz.q['選項']||[];
-
-g.answerLog=g.answerLog||[];
-
-g.answerLog.push({sub:Quiz.subj||Quiz.retrySubj||'',unit:Quiz.unit||'',stem:String(Quiz.q['題目']||'').slice(0,120),
-
-sel:opts[Quiz.sel]!=null?String(opts[Quiz.sel]).slice(0,40):'',ans:opts[Quiz.q['答案']]!=null?String(opts[Quiz.q['答案']]).slice(0,40):'',
-
-calc:(()=>{const c=document.getElementById('calc');return !!(c&&String(c.value||'').trim())})(), /* 🧮 是否使用計算機草稿 */
-
-calcText:(()=>{const c=document.getElementById('calc');return c?String(c.value||'').trim().slice(0,500):''})(), /* 🧮 計算機草稿內容（供老師看過程） */
-
-ok:!!ok,sec:+el,mode:modeName,t:Date.now()});
-
-if(g.answerLog.length>80)g.answerLog=g.answerLog.slice(-80);
-
-}
-
-function recordAns(g,ok,diff,subj){
-
-g.stats.total++;updMission(g,'answer',ok?1:0);updMission(g,'answerTotal',1);
-
-if(diff>=50)updMission(g,'hard',ok?1:0);
-
-if(ok){g.stats.correct++;if(diff>=50)g.stats.hardCorrect=(g.stats.hardCorrect||0)+1;
-
-if(subj)g.stats.subj[subj]=(g.stats.subj[subj]||0)+1;
-
-if(guildOf(g)){g.guildCoin=(g.guildCoin||0)+1} /* 在公會時每答對一題 +1 公會幣 */
-
-}
-
-}
-
-function addWrong(g,subj,q,sel){
-
-g.wrong[subj]=g.wrong[subj]||[];
-
-g.wrong[subj].push({q:{'題目':q['題目'],'選項':q['選項'],'答案':q['答案'],'解析':q['解析']},sel,t:fmt(Date.now()),done:false});
-
-if(g.wrong[subj].length>50)g.wrong[subj]=g.wrong[subj].slice(-50);
-
-}
-
-function checkTitlesAch(g){
-
-for(const t of TITLES)if(t.chk(g)&&!g.titles.includes(t.id)){g.titles.push(t.id);toast('🎖 解鎖稱號：'+t.n)}
-
-for(const a of ACH){
-
-const p=a.prog(g);const claimed=g.ach[a.id]||0;
-
-a.stages.forEach((s,i)=>{if(p>=s.g&&i===claimed){
-
-g.ach[a.id]=i+1;
-
-if(s.rw.gold)g.gold+=s.rw.gold;if(s.rw.crystal)g.crystal+=s.rw.crystal;if(s.rw.diamond)g.diamond+=s.rw.diamond;
-
-if(s.rw.starlight)g.starlight+=s.rw.starlight;if(s.rw.ironOre)g.ironOre+=s.rw.ironOre;
-
-if(s.rw.enhStone)g.enhStone+=s.rw.enhStone;if(s.rw.labMat)g.labMat+=s.rw.labMat;if(s.rw.honor)g.honor+=s.rw.honor;
-
-toast('🏅 成就達成：'+a.n+'（階段'+(i+1)+'）');
-
-}});
-
-}
-
-const pw=power(g);
-
-for(const m of CFG.MILE)if(pw>=m&&!g.stats.milestones.includes(m)){g.stats.milestones.push(m);g.diamond+=3;g.crystal+=50;toast('⚡ 戰力里程碑 '+m+'！+3💎 +50💠')}
-
-}
-
-/* ════════ #7 收藏四分頁＋升星/強化分流說明 ════════ */
-
 function vColl(){
 
 const g=me().g,tab=CUR.collTab,filter=CUR.collFilter,sort=CUR.collSort;
@@ -4628,7 +4015,8 @@ const avg=log.length?log.reduce((a,b)=>a+(b.sec||6),0)/log.length:7.5;
 
 let t=0;for(let i=0;i<5;i++)t+=Math.max(2,avg*rnd(.7,1.3));return +t.toFixed(1)}
 
-function vSpeedMatch(){
+async function vSpeedMatch(){
+  await needJs("js/bank.js");
 
 if(!isWeekend())return toast('⚡ 周末決鬥僅週六、週日開放','bad');
 
@@ -5216,7 +4604,8 @@ return TERR_MAP[subj].t.filter(t=>g.territory.owned[subj+'|'+t.n]).length;
 
 }
 
-function vTerr(){
+async function vTerr(){
+  await needJs(['js/bank.js','js/quiz.js']);
 
 const u=me(),g=u.g;
 
@@ -7419,7 +6808,8 @@ return '<div class="panel2" style="margin-bottom:8px"><div style="font-size:14px
 
 /* ════════ 錯題/統計/設定/世界頻道/公告 ════════ */
 
-function vWrong(){
+async function vWrong(){
+  await needJs(['js/bank.js','js/quiz.js']);
 
 qReset();const g=me().g;
 
@@ -7546,7 +6936,7 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><label class="btn ghost mini" style="display:inline-flex;align-items:center;cursor:pointer">📷 上傳照片當頭像<input type="file" accept="image/*" style="display:none" onchange="onAvatarFile(this)"></label>'+
 
-'<button class="btn ghost mini" onclick="setAvatar(\'\')">🧹 恢復預設</button></div></div>'+
+'<button class="btn ghost mini" onclick="setAvatar(\'\')">🧹 恢復預設</button><span style="font-size:11px;color:var(--mut);flex-basis:100%">📸 上傳照片即代表你同意以 CC0 公眾領域授權釋出（所有人皆可自由使用）</span></div></div>'+
 
 /* 背景 */
 
@@ -7556,7 +6946,7 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><label class="btn ghost mini" style="display:inline-flex;align-items:center;cursor:pointer">🖼 用照片當背景<input type="file" accept="image/*" style="display:none" onchange="onBgFile(this)"></label>'+
 
-(pf.bg&&pf.bg.indexOf('data:')===0?'<span style="font-size:12px;color:var(--teal);align-self:center">✅ 目前使用照片背景</span>':'')+'</div></div>'+
+(pf.bg&&pf.bg.indexOf('data:')===0?'<span style="font-size:12px;color:var(--teal);align-self:center">✅ 目前使用照片背景</span>':'')+'<span style="font-size:11px;color:var(--mut);flex-basis:100%">📸 照片素材請使用 CC0 公眾領域授權內容（如 Pixabay／Unsplash／Wikimedia Commons）</span></div></div>'+
 
 /* 音樂 */
 
@@ -10080,7 +9470,8 @@ _bu.appendChild(sp);setTimeout(()=>sp.remove(),1400)}}
 })();
 
 // === AI 出題功能 (Teacher) ===
-function vAiQuiz(){
+async function vAiQuiz(){
+  await needJs("js/bank.js");
 const grades=['7上','7下','8上','8下','9上','9下'];
 const subjects=Object.keys(SUBJ);
 const firstSubj=subjects[0];
@@ -10664,7 +10055,7 @@ function loadDollEvents(){
 loadDollEvents();
 
 /* ═══════════════════════════════════════════════════════════════════
-   ★ 裝備・副本戰鬥・重新滾動統計值系統（v1.0★ 九大強化版）
+   ★ 裝備・副本戰鬥・重新滾動統計值系統（v2.0★ 九大強化版）
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── 稀有度系統 ── */
@@ -11070,287 +10461,13 @@ function dunLog(html){ /* 前置加入日誌，最多保留 60 筆，避免快�
   while(log.children.length>60)log.removeChild(log.lastChild);
 }
 
-function vDungeon(){
-  const u=me(),g=u.g;
-  const terrOwned=Object.keys(g.territory?.owned||{}).length;
-  const pkBest=g.arena?.best||1;
-  let html=back()+'<h3 class="vt">🏰 副本戰鬥 <span class="vsub">2D 俯視角即時戰鬥・裝備僅此獲取</span></h3>';
-  html+='<div class="panel2" style="margin-bottom:10px;font-size:12.5px;color:var(--mut);line-height:1.8;border-left:4px solid var(--gold)">📜 副本規則：每副本有固定波次，擊敗最後BOSS獲得裝備寶箱<br>個人掉落制｜Z以上全服公告<br>難度：普通(R~A)・困難(S~SS,領土50關)・地獄(SSS~Z,領土100關/PK塔100層)・神話(ZZ~ZZZ,PK塔300層)・∞神域(極低概率,PK塔500層+五科各50關)</div>';
-  html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px">';
-  Object.keys(DUNGEON_DUNGEONS).forEach(k=>{
-    const cfg=DUNGEON_DUNGEONS[k];const waves=DUNGEON_WAVES[k];const loot=DUNGEON_LOOT[k];
-    const canEnter=k==='normal'||(k==='hard'&&terrOwned>=50)||(k==='hell'&&terrOwned>=100&&pkBest>=100)||(k==='myth'&&pkBest>=300)||(k==='inf'&&pkBest>=500);
-    const unlock=k==='normal'?'初始開放':k==='hard'?'領土50關':k==='hell'?'領土100關 + PK塔100層':k==='myth'?'PK塔300層':'PK塔500層+五科各50關';
-    html+='<div class="panel2" style="'+(canEnter?'':'opacity:.5;cursor:not-allowed')+';border-left:4px solid var(--gold)">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--serif);color:var(--gold2)">'+cfg.name+'</b>';
-    if(canEnter)html+='<button class="btn mini" onclick="enterDungeon(\''+k+'\')">進入</button>';
-    else html+='<span style="font-size:11px;color:var(--mut)">🔒 '+unlock+'</span>';
-    html+='</div><div style="font-size:12px;color:var(--mut);margin-top:6px">'+
-      '波次 '+waves+' 關｜掉落 '+loot+' 件｜稀有度 '+cfg.rarityPool.join(' ~ ')+'</div></div>';
-  });
-  html+='</div>';
-  if(CUR_DUNGEON&&CUR_DUNGEON.type){html+=renderDungeonBattle()}
-  $('#view').innerHTML=html;
-}
-function renderDungeonBattle(){
-  const d=CUR_DUNGEON;if(!d||d.phase==='done')return'';
-  let html='';
-  html+='<div class="panel" style="margin-top:14px;padding:12px"><h4 style="font-family:var(--serif);color:var(--gold2);margin-bottom:8px">⚔️ 副本進行中：'+DUNGEON_DUNGEONS[d.type]?.name+'</h4>';
-  /* 地圖 + 戰鬥 */
-  html+='<div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start">';
-  /* 地圖區 */
-  html+='<div><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--txt)">🗺️ 地圖</div>';
-  html+='<div class="dungeonCanvasWrap"><canvas id="dungeonCanvas" width="640" height="400"></canvas>';
-  html+='<div class="touchControls" id="touchCtrl"><div class="touchDpad">'+
-    '<div class="empty"></div><div class="touchCtrl" ontouchstart="dunKey(true,\'w\')" ontouchend="dunKey(false,\'w\')">⬆️</div><div class="empty"></div>'+
-    '<div class="touchCtrl" ontouchstart="dunKey(true,\'a\')" ontouchend="dunKey(false,\'a\')">⬅️</div>'+
-    '<div class="touchCtrl" onclick="dunAction(\'attack\')" style="background:rgba(239,83,80,.3)">⚔️</div>'+
-    '<div class="touchCtrl" ontouchstart="dunKey(true,\'d\')" ontouchend="dunKey(false,\'d\')">➡️</div>'+
-    '<div class="empty"></div><div class="touchCtrl" ontouchstart="dunKey(true,\'s\')" ontouchend="dunKey(false,\'s\')">⬇️</div><div class="empty"></div>'+
-  '</div><div style="display:flex;gap:8px;justify-content:center;margin-top:8px">'+
-  '<button class="touchCtrl" onclick="dunAction(\'skill1\')" style="background:rgba(100,181,246,.3)">1️⃣</button>'+
-  '<button class="touchCtrl" onclick="dunAction(\'skill2\')" style="background:rgba(149,117,205,.3)">2️⃣</button>'+
-  '<button class="touchCtrl" onclick="dunAction(\'skill3\')" style="background:rgba(224,64,251,.3)">3️⃣</button>'+
-  '<button class="touchCtrl" onclick="dunAction(\'dodge\')" style="background:rgba(255,152,0,.3)">💨</button>'+
-  '</div></div></div>';
-  /* 資訊區 */
-  html+='<div>';
-  html+='<div class="dungeonHUD">';
-  html+='<div class="dungeonWave">波次 '+(d.currentWave||1)+'/'+(d.map?.length||0)+'</div>';
-  html+='<div class="dungeonHPBar"><div class="bar" style="height:12px"><i id="dunPlayerHp" style="width:100%;background:linear-gradient(90deg,#4caf50,#8ee06a)"></i></div>';
-  html+='<div style="font-size:11px;color:var(--mut)">❤️ <span id="dunHpTxt">100/100</span></div></div>';
-  html+='</div>';
-  html+='<div class="dungeonEnemyHP" style="margin-bottom:8px"><div class="bar" style="height:12px"><i id="dunEnemyHp" style="width:0%;background:linear-gradient(90deg,#e5484d,#ff8a80)"></i></div>';
-  html+='<div style="font-size:11px;color:var(--mut)">👹 敵人 HP: <span id="dunEnemyHpTxt">-</span></div></div>';
-  html+='<div style="font-size:12px;color:var(--mut);margin-bottom:6px">👾 小怪列表：</div>';
-  html+='<div class="dungeonMobList" id="dunMobList"></div>';
-  html+='<div style="font-size:12px;color:var(--mut);margin:6px 0 3px">📜 戰鬥日誌：</div>';
-  html+='<div class="dungeonLog" id="dunLog"></div>';
-  html+='<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+
-    '<button class="btn mini" onclick="dunAction(\'attack\')">⚔️ 普攻</button>'+
-    '<button class="btn ghost mini" onclick="dunAction(\'skill1\')">🔥 技能1</button>'+
-    '<button class="btn ghost mini" onclick="dunAction(\'skill2\')">💫 技能2</button>'+
-    '<button class="btn ghost mini" onclick="dunAction(\'dodge\')">💨 閃避</button>'+
-    '<button class="btn ghost mini" onclick="dunCancel()">✕ 撤退</button>'+
-    '</div></div></div></div></div>';
-  return html;
-}
-function enterDungeon(type){
-  const u=me();if(!u||!u.g)return toast('⚠️ 請先登入','bad');
-  if(CUR_DUNGEON&&CUR_DUNGEON.phase==='playing')return toast('⚠️ 副本進行中，先撤退或等結束','bad');
-  const cfg=DUNGEON_DUNGEONS[type];if(!cfg)return;
-  if(_dunWaveTimer){clearTimeout(_dunWaveTimer);_dunWaveTimer=null}
-  CUR_DUNGEON={type,map:genDungeonMap(type),currentWave:0,phase:'playing',players:1,loot:[],_loopToken:0};
+/* ════════════════════════════════════════════
+   副本戰鬥（vDungeon）（已移至 public/js/dungeon.js，懶載入）
+   ════════════════════════════════════════════ */
+async function vDungeon(){
+  if(!await needJs(['js/dungeon.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDungeon();
-  startDungeonWave();
 }
-function startDungeonWave(){
-  if(!CUR_DUNGEON||CUR_DUNGEON.phase!=='playing')return;
-  const w=CUR_DUNGEON.currentWave;
-  if(w>=CUR_DUNGEON.map.length){dungeonComplete();return}
-  CUR_DUNGEON._loopToken=++_dunLoopToken; /* 舊 rAF 鏈在下一個 frame 自動停止 */
-  const wave=CUR_DUNGEON.map[w];CUR_DUNGEON.currentWave=w+1;
-  const enemyCount=wave.type==='boss'?1:2+Math.floor(Math.random()*2);
-  DUNGEON_ENEMIES=[];
-  for(let i=0;i<enemyCount;i++){
-    let ex=100+Math.random()*440,ey=50+Math.random()*300;
-    while(Math.hypot(ex-320,ey-300)<90){ex=100+Math.random()*440;ey=50+Math.random()*300} /* 別貼著玩家出生 */
-    DUNGEON_ENEMIES.push({
-      id:i,x:ex,y:ey,
-      hp:wave.type==='boss'?200+w*20:30+w*5,maxHp:wave.type==='boss'?200+w*20:30+w*5,
-      pw:wave.type==='boss'?30+w*5:5+w*2,
-      type:wave.type,name:wave.type==='boss'?'BOSS':'小怪',
-      alive:true,emoji:wave.type==='boss'?'👹':'👾',
-      atkCd:0
-    });
-  }
-  /* 重置玩家 */
-  const u=me();const g=u.g;
-  DUNGEON_PLAYER={x:320,y:300,hp:100,maxHp:100,pw:power(g)*0.05+10,cd:0,dodging:false,dodgeCd:0,skills:{1:0,2:0}};
-  dunLog('<div class="info">📢 波次 '+(w+1)+': '+wave.name+' 出現！</div>');
-  initDungeonCanvas();
-  dunLoop();
-  updateDunUI();
-}
-function initDungeonCanvas(){
-  const c=document.getElementById('dungeonCanvas');if(!c)return;
-  DUNGEON_CANVAS=c;DUNGEON_CTX=c.getContext('2d');
-  /* 鍵盤事件 */
-  if(!window._dunKeyHandler){
-    window._dunKeyHandler=function(e){
-      if(!CUR_DUNGEON||CUR_DUNGEON.phase!=='playing')return;
-      if(e.key==='w'||e.key==='W'||e.key==='ArrowUp')DUNGEON_PLAYER.y=Math.max(20,DUNGEON_PLAYER.y-6);
-      if(e.key==='s'||e.key==='S'||e.key==='ArrowDown')DUNGEON_PLAYER.y=Math.min(380,DUNGEON_PLAYER.y+6);
-      if(e.key==='a'||e.key==='A'||e.key==='ArrowLeft')DUNGEON_PLAYER.x=Math.max(20,DUNGEON_PLAYER.x-6);
-      if(e.key==='d'||e.key==='D'||e.key==='ArrowRight')DUNGEON_PLAYER.x=Math.min(620,DUNGEON_PLAYER.x+6);
-      if(e.key==='j'||e.key==='J')dunAction('attack');
-      if(e.key==='1')dunAction('skill1');
-      if(e.key==='2')dunAction('skill2');
-      if(e.key===' ')dunAction('dodge');
-    };
-    window.addEventListener('keydown',window._dunKeyHandler);
-  }
-  dunDraw();
-}
-function dunKey(down,key){
-  if(!down)return;
-  if(key==='w'||key==='arrowup')DUNGEON_PLAYER.y=Math.max(20,DUNGEON_PLAYER.y-6);
-  if(key==='s'||key==='arrowdown')DUNGEON_PLAYER.y=Math.min(380,DUNGEON_PLAYER.y+6);
-  if(key==='a'||key==='arrowleft')DUNGEON_PLAYER.x=Math.max(20,DUNGEON_PLAYER.x-6);
-  if(key==='d'||key==='arrowright')DUNGEON_PLAYER.x=Math.min(620,DUNGEON_PLAYER.x+6);
-}
-function dunAction(action){
-  if(!CUR_DUNGEON||CUR_DUNGEON.phase!=='playing')return;
-  const p=DUNGEON_PLAYER;if(!p)return;
-  if(action==='attack'){
-    /* 攻擊最接近的敵人 */
-    let nearest=null,minDist=9999;
-    DUNGEON_ENEMIES.forEach(e=>{if(!e.alive)return;const dx=p.x-e.x,dy=p.y-e.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<minDist){minDist=dist;nearest=e}});
-    if(nearest&&minDist<80){
-      const dmg=Math.round(p.pw*(0.8+Math.random()*0.4));
-      nearest.hp-=dmg;
-      dunLog('<div class="dmg">⚔️ 你對 '+nearest.name+' 造成 '+dmg+' 點傷害！（剩餘 '+Math.max(0,nearest.hp)+' HP）</div>');
-      if(nearest.hp<=0){nearest.alive=false;dunLog('<div class="info">💀 '+nearest.name+' 被擊敗！</div>')}
-    }else dunLog('<div class="info">📭 太遠了，接近敵人再攻擊！</div>');
-  }else if(action==='skill1'){
-    if(p.skills[1]>0)return;p.skills[1]=60;
-    DUNGEON_ENEMIES.forEach(e=>{if(!e.alive)return;const dmg=Math.round(p.pw*1.5*(0.8+Math.random()*0.4));e.hp-=dmg;
-      if(e.hp<=0){e.alive=false;dunLog('<div class="crit">🔥 技能1 擊敗了 '+e.name+'！</div>')}
-      else dunLog('<div class="dmg">🔥 技能1 對 '+e.name+' 造成 '+dmg+' 點傷害！</div>');
-    });
-  }else if(action==='skill2'){
-    if(p.skills[2]>0)return;p.skills[2]=90;
-    const heal=Math.round(p.maxHp*0.3);p.hp=Math.min(p.maxHp,p.hp+heal);
-    dunLog('<div class="heal">💫 技能2 恢復 '+heal+' HP！</div>');
-  }else if(action==='dodge'){
-    if(p.dodgeCd>0)return;p.dodgeCd=120;p.dodging=true;
-    setTimeout(()=>{if(DUNGEON_PLAYER)DUNGEON_PLAYER.dodging=false},500);
-    dunLog('<div class="info">💨 閃避中！（5秒內不受傷害）</div>');
-  }
-  updateDunUI();dunDraw();
-}
-function dunLoop(){
-  if(!CUR_DUNGEON||CUR_DUNGEON.phase!=='playing'||_dunLoopToken!==CUR_DUNGEON._loopToken)return;
-  const p=DUNGEON_PLAYER;if(!p)return;
-  /* 更新冷卻 */
-  if(p.cd>0)p.cd--;if(p.dodgeCd>0)p.dodgeCd--;if(p.skills[1]>0)p.skills[1]--;if(p.skills[2]>0)p.skills[2]--;
-  /* 敵人AI */
-  DUNGEON_ENEMIES.forEach(e=>{
-    if(!e.alive)return;
-    const dx=p.x-e.x,dy=p.y-e.y;const dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist>40){e.x+=dx/dist*1.5;e.y+=dy/dist*1.5;e.x=Math.max(20,Math.min(620,e.x));e.y=Math.max(20,Math.min(380,e.y))}
-    if(dist<50&&e.atkCd<=0&&!p.dodging){
-      const dmg=Math.round(e.pw*(0.7+Math.random()*0.6));
-      p.hp-=dmg;e.atkCd=60;
-      dunLog('<div class="dmg">💥 '+e.name+' 對你造成 '+dmg+' 點傷害！（HP: '+p.hp+'/'+p.maxHp+'）</div>');
-      if(p.hp<=0){dungeonFail();return}
-    }
-    if(e.atkCd>0)e.atkCd--;
-  });
-  /* 檢查波次是否清除 */
-  const alive=DUNGEON_ENEMIES.filter(e=>e.alive);
-  if(!alive.length){
-    dunLog('<div class="info">✨ 波次 '+CUR_DUNGEON.currentWave+' 清除！</div>');
-    if(_dunWaveTimer)clearTimeout(_dunWaveTimer);
-    _dunWaveTimer=setTimeout(()=>startDungeonWave(),1500);
-    return;
-  }
-  dunDraw();updateDunUI();
-  DUNGEON_ANIM=requestAnimationFrame(dunLoop);
-}
-function dunDraw(){
-  const c=DUNGEON_CANVAS;if(!c)return;const ctx=DUNGEON_CTX;if(!ctx)return;
-  ctx.fillStyle='#0a0e1a';ctx.fillRect(0,0,640,400);
-  /* 網格 */
-  ctx.strokeStyle='rgba(44,61,99,.3)';ctx.lineWidth=1;
-  for(let x=0;x<640;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,400);ctx.stroke()}
-  for(let y=0;y<400;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(640,y);ctx.stroke()}
-  /* 玩家 */
-  const p=DUNGEON_PLAYER;if(p){
-    ctx.fillStyle=p.dodging?'rgba(255,217,122,.5)':'rgba(56,217,192,.8)';
-    ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🧑',p.x,p.y+5);
-  }
-  /* 敵人 */
-  DUNGEON_ENEMIES.forEach(e=>{
-    if(!e.alive)return;
-    ctx.fillStyle='#ef5350';ctx.beginPath();ctx.arc(e.x,e.y,14,0,Math.PI*2);ctx.fill();
-    ctx.font='16px serif';ctx.textAlign='center';
-    ctx.fillText(e.type==='boss'?'👹':'👾',e.x,e.y+5);
-    /* HP bar */
-    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(e.x-14,e.y-22,28,4);
-    ctx.fillStyle='#ef5350';ctx.fillRect(e.x-14,e.y-22,28*(e.hp/e.maxHp),4);
-  });
-  /* 紅圈預警（BOSS技能） */
-  DUNGEON_ENEMIES.forEach(e=>{
-    if(!e.alive||e.type!=='boss')return;
-    if(e.atkCd>40){ctx.strokeStyle='rgba(239,83,80,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p?p.x:320,p?p.y:300,60,0,Math.PI*2);ctx.stroke()}
-  });
-}
-function updateDunUI(){
-  const p=DUNGEON_PLAYER;if(!p)return;
-  const hpBar=document.getElementById('dunPlayerHp');const hpTxt=document.getElementById('dunHpTxt');
-  const enemyHpBar=document.getElementById('dunEnemyHp');const enemyHpTxt=document.getElementById('dunEnemyHpTxt');
-  const mobList=document.getElementById('dunMobList');
-  if(hpBar)hpBar.style.width=(p.hp/p.maxHp*100)+'%';
-  if(hpTxt)hpTxt.textContent=Math.max(0,p.hp)+'/'+p.maxHp;
-  const alive=DUNGEON_ENEMIES.filter(e=>e.alive);
-  if(alive.length){
-    const boss=alive.find(e=>e.type==='boss');
-    if(boss&&enemyHpBar){enemyHpBar.style.width=(boss.hp/boss.maxHp*100)+'%'}
-    if(enemyHpTxt)enemyHpTxt.textContent=alive.map(e=>e.name+(e.type==='boss'?'(BOSS)':'')).join(', ')+' ('+alive.length+'隻)';
-  }else{if(enemyHpBar)enemyHpBar.style.width='0%';if(enemyHpTxt)enemyHpTxt.textContent='-'}
-  if(mobList)mobList.innerHTML=DUNGEON_ENEMIES.map(e=>
-    '<span class="dungeonMob '+(e.alive?(e.type==='boss'?'boss':'alive'):'dead')+'">'+e.emoji+' '+(e.type==='boss'?'BOSS':'小怪')+'</span>'
-  ).join('');
-}
-function dungeonComplete(){
-  if(!CUR_DUNGEON)return;CUR_DUNGEON.phase='done';
-  if(_dunWaveTimer){clearTimeout(_dunWaveTimer);_dunWaveTimer=null}
-  if(DUNGEON_ANIM)cancelAnimationFrame(DUNGEON_ANIM);
-  dunLog('<div class="info" style="font-size:16px">🎉 副本通關！</div>');
-  /* 計算掉落 */
-  const type=CUR_DUNGEON.type;const cfg=DUNGEON_DUNGEONS[type];const count=DUNGEON_LOOT[type];
-  const extra=count+Math.floor(CUR_DUNGEON.players*0.1*count); /* 人數加成 */
-  const looted=[];
-  for(let i=0;i<Math.min(extra,10);i++){
-    const slot=pick(EQ_SLOT);const eq=genEquipment(slot,cfg.tier);
-    eqAdd(eq);looted.push(eq);
-  }
-  /* Z以上全服公告 */
-  const zOrAbove=looted.some(e=>{const ord={R:0,E:1,A:2,S:3,SS:4,SSS:5,Z:6,ZZ:7,ZZZ:8,'∞':9};return(ord[e.rarity]||0)>=6});
-  if(zOrAbove){
-    const chat=get(LS.chat,[]);
-    chat.push({user:'系統',role:'system',text:'📢 全服公告：'+me().name+' 在【'+cfg.name+'】獲得 Z 以上裝備！',time:Date.now()});
-    set(LS.chat,chat);
-  }
-  /* 顯示掉落 */
-  const lootHtml=looted.map(eq=>'<div class="equipCard '+EQ_RAR_BORDER(eq.rarity)+'" style="margin:4px 0"><div class="equipName equip'+eq.rarity+'">'+eq.name+'</div><div class="equipSub">'+eq.slot+'｜'+eq.rarity+'｜主屬性: '+eq.mainAttr+': '+eq.mainValue+'</div></div>').join('');
-  openModal('<h3 class="mt">🎉 副本通關！</h3>'+
-    '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2)">🏆 '+cfg.name+' 第 '+CUR_DUNGEON.currentWave+' 波全部清除！</b></div>'+
-    '<div style="margin-bottom:12px"><b style="color:var(--teal)">🎁 獲得裝備（'+looted.length+'件）：</b><div style="margin-top:8px">'+lootHtml+'</div></div>'+
-    '<div class="mBtns"><button class="btn" onclick="closeModal();vDungeon()">返回副本</button></div>');
-  CUR_DUNGEON=null;saveU(me());hud();
-}
-function dungeonFail(){
-  if(!CUR_DUNGEON)return;CUR_DUNGEON.phase='failed';
-  if(_dunWaveTimer){clearTimeout(_dunWaveTimer);_dunWaveTimer=null}
-  if(DUNGEON_ANIM)cancelAnimationFrame(DUNGEON_ANIM);
-  dunLog('<div class="dmg" style="font-size:16px">💀 你被擊敗了...</div>');
-  setTimeout(()=>{
-    openModal('<h3 class="mt">💀 副本失敗</h3><p class="msub">你已被擊敗，返回副本選擇界面。</p>'+
-      '<div class="mBtns"><button class="btn" onclick="closeModal();vDungeon()">返回</button></div>');
-    CUR_DUNGEON=null;
-  },2000);
-}
-function dunCancel(){
-  if(!CUR_DUNGEON)return;if(_dunWaveTimer){clearTimeout(_dunWaveTimer);_dunWaveTimer=null}
-  if(DUNGEON_ANIM)cancelAnimationFrame(DUNGEON_ANIM);
-  CUR_DUNGEON=null;toast('已撤退');vDungeon();
-}
-
-/* ── 重新滾動統計值面板 ── */
 function vReroll(){
   const d=rerollGet();const gems=d.gems||0;
   let html=back()+'<h3 class="vt">✦ 重新滾動統計值 <span class="vsub">每人僅一個角色｜寶石滾動七大神級屬性</span></h3>';
@@ -11868,156 +10985,12 @@ function sendGiftBox(buffIndex){
 }
 
 /* ── 5. 管理員專屬面板與設定 ── */
-function vAdminPanel(){
-  if (!window.IS_ADMIN) return toast('⚠️ 僅管理員可進入', 'bad');
-  const sys = get('ADV9_SYS_SETTINGS', { max_level: 300, free_point_single_limit: 300, festival_mode: false });
-
-  let html = back() + '<h3 class="vt">👑 管理員系統控制台 <span class="vsub">參數設定・貨幣發放・備份還原</span></h3>';
-
-  html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">⚙️ 系統參數設定</b>';
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">';
-  html += '<div><label style="font-size:12px;color:var(--mut)">角色最高等級上限：</label><input id="admMaxLvlInput" type="number" value="' + (sys.max_level||300) + '"></div>';
-  html += '<div><label style="font-size:12px;color:var(--mut)">自由屬性點單項上限：</label><input id="admSingleCapInput" type="number" value="' + (sys.free_point_single_limit||300) + '"></div>';
-  html += '</div>';
-  html += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
-  html += '<button class="btn mini" onclick="saveAdminSysSettings()">💾 儲存系統參數</button>';
-  html += '<label style="font-size:12px;color:var(--gold2);margin-left:12px"><input type="checkbox" id="admFestivalCheck" ' + (sys.festival_mode?'checked':'') + ' onchange="toggleFestivalMode(this.checked)"> 🎉 開啟節日雙倍歡樂模式</label>';
-  html += '</div></div>';
-
-  html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">👑 管理員直接贈送 ∞ 神階</b>';
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">';
-  html += '<select id="admGrantUser">';
-  get(LS.users,[]).forEach(u => { html += '<option value="' + u.id + '">' + esc(u.name) + ' (' + u.username + ')</option>'; });
-  html += '</select>';
-  html += '<select id="admGrantAttr">';
-  REROLL_ATTRS.forEach(a => { html += '<option value="' + a.id + '">' + a.icon + ' ' + a.name + '</option>'; });
-  html += '</select>';
-  html += '<button class="btn mini" onclick="adminGrantInfinity()">👑 贈送 ∞</button>';
-  html += '</div>';
-  html += '<input id="admGrantReason" placeholder="請輸入發放原因 (備查)..." style="margin-top:6px">';
-  html += '</div>';
-
-  html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">🎁 生成與管理禮包碼</b>';
-  html += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">';
-  html += '<input id="admCodeInput" placeholder="禮包碼 (如: WELCOME2026)">';
-  html += '<input id="admCodeCoins" type="number" placeholder="星辰幣" style="width:100px">';
-  html += '<input id="admCodeGems" type="number" placeholder="寶石" style="width:100px">';
-  html += '<button class="btn mini" onclick="adminCreateCode()">➕ 生成禮包碼</button>';
-  html += '</div></div>';
-
-  html += '<div class="panel2"><b style="color:var(--gold2);font-size:15px">💾 資料匯入/匯出與備份還原</b>';
-  html += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">';
-  html += '<button class="btn mini ghost" onclick="adminExportUserJSON()">📥 匯出個人 JSON</button>';
-  html += '<label class="btn mini ghost">📤 匯入個人 JSON<input type="file" accept=".json" style="display:none" onchange="adminImportUserJSON(this)"></label>';
-  html += '<button class="btn mini teal" onclick="adminSystemBackup()">📦 全系統備份下載</button>';
-  html += '<label class="btn mini danger">⚠️ 全系統還原<input type="file" accept=".json" style="display:none" onchange="adminSystemRestore(this)"></label>';
-  html += '</div></div>';
-
-  $('#view').innerHTML = html;
-}
-
-function saveAdminSysSettings(){
-  const maxLvl = Math.max(300, +$('#admMaxLvlInput').value || 300); /* 最低 300，不可調低 */
-  const singleCap = +$('#admSingleCapInput').value || 300;
-  const sys = get('ADV9_SYS_SETTINGS', {});
-  sys.max_level = maxLvl;
-  sys.free_point_single_limit = singleCap;
-  set('ADV9_SYS_SETTINGS', sys);
-  window.ADMIN_MAX_LEVEL = maxLvl;
-  toast('✅ 系統參數已成功儲存！');
-}
-
-function toggleFestivalMode(on){
-  const sys = get('ADV9_SYS_SETTINGS', {});
-  sys.festival_mode = on;
-  set('ADV9_SYS_SETTINGS', sys);
-  toast(on ? '🎉 全校節日雙倍歡樂時間已開啟！' : '節日模式已關閉');
-}
-
-function adminGrantInfinity(){
-  const uid = $('#admGrantUser').value;
-  const attrId = $('#admGrantAttr').value;
-  const reason = $('#admGrantReason').value.trim();
-  if (!reason) return toast('⚠️ 請輸入發放原因', 'bad');
-
-  const d = rerollGet();
-  d.attr[attrId] = '∞';
-  rerollSet(d);
-
-  const logs = get('ADV9_ADMIN_OP_LOGS', []);
-  logs.push({
-    time: Date.now(),
-    op: 'GRANT_INFINITY',
-    target: uid,
-    attr: attrId,
-    reason: reason,
-    operator: me().username
-  });
-  set('ADV9_ADMIN_OP_LOGS', logs);
-  toast('👑 已成功贈送 ∞ 並寫入管理員日誌！');
-}
-
-function adminCreateCode(){
-  const code = $('#admCodeInput').value.trim().toUpperCase();
-  const coins = +$('#admCodeCoins').value || 0;
-  const gems = +$('#admCodeGems').value || 0;
-  if (!code) return toast('⚠️ 請輸入禮包碼', 'bad');
-
-  const sys = get('ADV9_SYS_SETTINGS', { promo_codes: {} });
-  sys.promo_codes = sys.promo_codes || {};
-  sys.promo_codes[code] = { star_coins: coins, gems: gems, used: [] };
-  set('ADV9_SYS_SETTINGS', sys);
-  toast('🎁 禮包碼 [' + code + '] 生成成功！');
-}
-
-function adminExportUserJSON(){
-  const u = me();
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(u, null, 2));
-  const dlAnchor = document.createElement('a');
-  dlAnchor.setAttribute("href", dataStr);
-  dlAnchor.setAttribute("download", u.role + "_" + u.username + ".json");
-  document.body.appendChild(dlAnchor);
-  dlAnchor.click();
-  dlAnchor.remove();
-}
-
-function adminImportUserJSON(input){
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try {
-      const j = JSON.parse(e.target.result);
-      if (j && j.username) {
-        saveU(j);
-        toast('✅ 使用者資料匯入成功！');
-      }
-    } catch(err) { toast('⚠️ 無效的 JSON 檔案', 'bad'); }
-  };
-  reader.readAsText(file);
-}
-
-function adminSystemBackup(){
-  window.location.href = '/rest/v1/system_backup';
-}
-
-function adminSystemRestore(input){
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try {
-      const j = JSON.parse(e.target.result);
-      fetch('/rest/v1/system_restore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-adv9-token': WTOKEN },
-        body: JSON.stringify(j)
-      }).then(r => r.json()).then(res => {
-        if (res.ok) toast('✅ 全系統還原成功！');
-      });
-    } catch(err) { toast('⚠️ 還原失敗', 'bad'); }
-  };
-  reader.readAsText(file);
+/* ════════════════════════════════════════════
+   管理員面板（vAdminPanel 與管理/備份功能）（已移至 public/js/admin.js，懶載入）
+   ════════════════════════════════════════════ */
+async function vAdminPanel(){
+  if(!await needJs(['js/admin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vAdminPanel();
 }
 
 /* ══════════════════════════════════════════════════════════════

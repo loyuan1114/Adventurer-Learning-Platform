@@ -37,6 +37,16 @@
 
 ---
 
+## 📸 照片授權政策（CC0）
+
+本專案**所有照片一律採 CC0 公眾領域授權**（Public Domain Dedication，[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.zh-hant)）——任何人皆可自由複製、修改、散布、商用，無需署名、無需詢問。
+
+- 玩家／老師上傳的頭像、背景、動態照片，**上傳即代表同意以 CC0 授權釋出**（遊戲介面已明示）
+- 內建背景請選用 CC0 素材來源（如 [Pixabay](https://pixabay.com/)、[Unsplash](https://unsplash.com/)、[Wikimedia Commons](https://commons.wikimedia.org/) 的 CC0 素材）
+- 詳見 `THIRD_PARTY_NOTICES.md`
+
+---
+
 ## 📜 開源授權
 
 本專案以 **MIT License** 開源（見 `LICENSE`）。歡迎自由使用、修改、複製、商用，只需保留版權宣告。
@@ -49,6 +59,37 @@
   docker compose up -d --build
   ```
 - 不會程式也沒關係：上面的安裝方法二～五用現成 `adv9_public.tgz` 就能跑，兩種方式結果一樣
+
+### 🧩 前端多檔案架構（懶載入，只跑需要的檔案）
+
+遊戲前端不是一個超大檔案——已拆分為「外殼 + 功能模組」：
+
+```
+public/index.html        應用程式外殼（登入、主介面、核心系統）
+public/js/bank.js        題庫模組（進修練場／競速／複習／AI出題才載入）
+public/js/quiz.js        修練場答題流程（進修練場／領土戰／錯題複習才載入）
+public/js/dungeon.js     副本戰鬥（進副本才載入）
+public/js/admin.js       管理員面板（進管理員控制台才載入）
+```
+
+進入某個功能時才由 `needJs()` 動態載入對應模組——例如只進修練場，就只下載 `bank.js`＋`quiz.js`（約 28KB），其餘模組完全不載，**學校舊電腦／低網速也能順暢開局**。拆分的行數對照與規則由 `tools/build/split.py` 自動處理，改完 `index.html` 執行：
+
+```bash
+python3 tools/build/split.py    # 重新切分（需要 Python 3）
+node --check public/js/*.js     # 驗證語法（需要 Node.js）
+```
+
+### 🛠️ 多語言開發工具鏈
+
+本專案依各語言特性分工：
+
+| 語言 | 角色 |
+|---|---|
+| **JavaScript (Node.js)** | 伺服器（`server.js`，零 npm 套件）與遊戲前端 |
+| **Python 3** | 建置工具（`tools/build/split.py` 模組切分）、文件題目文字擷取（`docx_extract.py`）、跨平台控制工具（`tools/adv9ctl/adv9ctl.py`） |
+| **Shell** | 一鍵安裝與部署腳本（Docker 安裝、VPS 部署） |
+
+各工具都已驗證可在 Python 3.7+／Node 18+ 環境執行，無需額外套件。
 
 ---
 

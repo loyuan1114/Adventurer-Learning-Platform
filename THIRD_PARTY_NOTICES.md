@@ -23,6 +23,7 @@
 | DeepSeek | `api.deepseek.com` | DeepSeek 官方 API |
 | 阿里雲通義千問（Qwen） | `dashscope.aliyuncs.com` | 阿里雲百煉平台 API |
 | Moonshot Kimi | `api.moonshot.cn` | Moonshot 官方 API |
+| **Ollama（本地，免金鑰）** | `http://127.0.0.1:11434`（或自訂位址） | 完全本機執行，**資料不出伺服器**；模型為第三方於 Ollama 模型庫發佈（詳見 README「模型出處與版權聲明」） |
 
 > ⚠️ AI 回覆內容由各模型供應商生成，版權與內容責任歸屬各供應商；本平台僅作為呼叫端轉介。
 
@@ -36,11 +37,18 @@
 | **pypdf**（選用，需另行 `pip install`） | PDF 文字擷取 | BSD-3-Clause |
 | **get.docker.com 安裝腳本**（選用，僅 Ubuntu/Debian 一鍵安裝時用到） | 自動安裝 Docker | Apache-2.0（Docker 官方腳本） |
 
-## 四、內建素材
+## 四、內建素材與照片授權政策
 
 - 遊戲內 emoji、符號均為 Unicode 標準字元（Unicode License），免授權
 - 題庫、文字內容由平台管理者自行建立，與本專案無關
 - 系統未內建任何第三方圖片、音樂、影片檔案（media/ 資料夾為使用者上傳內容）
+
+### 📸 照片（CC0 公眾領域政策）
+
+- **本專案所有照片一律採 CC0 公眾領域授權（Public Domain Dedication，CC0 1.0）**：任何人皆可自由複製、修改、散布、商用，無需署名、無需詢問。
+- 玩家／老師上傳的頭像、背景、動態照片，**上傳即代表同意以 CC0 授權釋出**（介面上已有明示）。
+- 內建背景請選用 CC0 來源（如 Pixabay、Unsplash、Wikimedia Commons 的 CC0 素材）。
+- CC0 全文：<https://creativecommons.org/publicdomain/zero/1.0/legalcode.zh-hant>
 
 ---
 
