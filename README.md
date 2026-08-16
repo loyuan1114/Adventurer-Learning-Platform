@@ -199,6 +199,37 @@ curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/qwen2.5-v
 >
 > Ollama 呼叫走自架伺服器代理（`/rest/v1/ai/ollama`），模型與題目**不會上傳到任何第三方**。
 
+### 📜 模型出處與版權聲明（請務必閱讀）
+
+本專案**沒有製作、訓練或修改任何 AI 模型**。上述兩顆模型是第三方在 **Ollama 官方模型庫**發佈的現成模型，由 Ollama 平台帳號 **`huihui_ai`** 提供，與本專案無關：
+
+| 模型 | Ollama 模型庫頁面 | 來源 |
+|---|---|---|
+| `huihui_ai/qwen2.5-vl-abliterated:7b` | https://ollama.com/huihui_ai/qwen2.5-vl-abliterated | Qwen2.5-VL（阿里雲通義千問）的開源微調版，由 huihui_ai 打包發佈於 Ollama |
+| `huihui_ai/deepseek-r1-abliterated:7b` | https://ollama.com/huihui_ai/deepseek-r1-abliterated | DeepSeek-R1-Distill-Qwen-7B 的開源微調版，由 huihui_ai 打包發佈於 Ollama |
+
+使用這些模型時請注意：
+
+- **授權條款以 Ollama 模型頁面與各模型原始權重頁為準**（兩顆皆為開放權重模型），部署前請自行確認符合你的使用情境。
+- 本專案只是透過 Ollama 的標準 API（`/api/chat`）呼叫模型，**不含任何模型權重、不改寫模型**；因此模型本身的版權責任不屬於本專案。
+- 若因商標／名稱衍生問題，可隨時改用其他 Ollama 模型（例如官方 `qwen2.5`、`deepseek-r1` 等），做法完全一樣：`ollama pull <模型名>` 後在「API 金鑰管理」選該模型即可。
+
+### 🔍 本專案 AI／工具呼叫全揭露
+
+所有用到 AI 或第三方服務的功能如下，資料去向一目瞭然：
+
+| 功能 | 呼叫的服務 | 資料流向 |
+|---|---|---|
+| 🤖 自動出題 | 你設定的供應商（OpenAI / DeepSeek / Gemini / Qwen / Kimi / **Ollama 本地**） | 題目要求 → 供應商 → 回傳題目 |
+| 📊 作業弱點分析（AI 評估） | 同上（預設 Ollama 本地） | 每題錯誤人數統計 → 供應商 → 回傳教學建議（**不含學生個資**，只有統計數字） |
+| 💬 AI 評語／畢業祝福 | 同上 | 學生姓名、成績摘要 → 供應商 |
+| 📝 會考日期查詢 | 你設定的供應商 | 查詢日期要求 → 供應商 |
+| 🔤 字型 | Google Fonts（Noto Sans/Serif TC） | 瀏覽器載入字型檔 |
+| 🖼 縮圖 | Bing（tse2.mm.bing.net） | 顯示搜尋縮圖 |
+| 📎 Google Drive 教材 | Google Drive（老師自己貼的連結） | 瀏覽器載入 |
+
+> 完整清單見 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。任何雲端供應商都會收到你**自己設定**的 API 金鑰請求；**只有 Ollama 本地模式**是資料完全不離開伺服器的。若對隱私最嚴格，全部 AI 功能改用 Ollama 本地模型即可。
+
 ---
 
 ## 📁 資料與備份
@@ -256,6 +287,24 @@ Set-Location adv9; docker compose down; Set-Location ..; Remove-Item -Recurse -F
 | macOS | `brew uninstall --cask docker`（或把 Docker Desktop 拖進垃圾桶） |
 | Windows | `winget uninstall Docker.DockerDesktop`（或 設定 → 應用程式 → Docker Desktop → 解除安裝） |
 | Codespaces | 不用卸載 Docker——直接在 GitHub 倉庫頁 **Code → Codespaces → 你的 Codespaces → … → Delete** 整台刪掉 |
+
+---
+
+## 🖥️ 遠端管理工具（adv9ctl）
+
+想用自己的電腦（Windows / macOS / Linux）遠端管理伺服器？倉庫裡的 [`tools/adv9ctl/`](tools/adv9ctl/) 附贈跨平台控制工具 `adv9ctl`：
+
+- 開／關公開網址（cloudflared）、查網址、看狀態、重啟後端、重新佈署，全部一行指令
+- 只用系統內建 `ssh/scp`，**不用裝任何套件**；Windows 可直接用打包好的 `adv9ctl.exe`（雙擊）
+- 支援 systemd 與 Docker 兩種安裝方式，設定寫在 `adv9ctl.ini`
+
+```bash
+adv9ctl.exe up          # 開公開網址
+adv9ctl.exe status      # 看狀態
+adv9ctl.exe restart     # 重啟
+```
+
+詳細說明見 [`tools/adv9ctl/README-adv9ctl.md`](tools/adv9ctl/README-adv9ctl.md)。
 
 ---
 
