@@ -779,7 +779,7 @@ display: none !important;
 
 <li><b>🏟️</b><span><strong>PK 無限競技塔</strong>關卡無限遞增・排名・里程碑獎勵</span></li>
 
-<li><b>🗺️</b><span><strong>領土 500 關</strong>每科 100 關・好友聊天傳照片・群組同樂</span></li>
+<li><b>🗺️</b><span><strong>領土 2500 關</strong>每科 500 關・好友聊天傳照片・群組同樂</span></li>
 
 <li><b>🛡️</b><span><strong>隱私保護</strong>老師看不到學生私聊・全服商店・好友交易 40% 保障</span></li>
 
@@ -1375,6 +1375,9 @@ EGGS:{'星空密碼':{t:'starAll',d:'全部角色 +1 星！'},'水晶祕寶':{t:
 
 };
 
+/* 實際升級上限：管理員可在控制台設定（下限 300，調高無上限）*/
+function effMaxLv(){const m=window.getMaxLevel?window.getMaxLevel():CFG.MAX_LV;return Math.max(300,m)}
+
 /* ===== AI API 整合層：多供應商優先順序 OpenAI → DeepSeek → Gemini（禁用 2.0 Flash Lite）→ Qwen → Kimi ===== */
 const GEMINI_MODELS=['gemini-3.5-flash-lite','gemini-3.6-flash'];
 const AI_PROVIDERS={
@@ -1382,12 +1385,18 @@ openai:{n:'OpenAI GPT',type:'oa',url:'https://api.openai.com/v1/chat/completions
 deepseek:{n:'DeepSeek',type:'oa',url:'https://api.deepseek.com/chat/completions',defModel:'deepseek-v4',models:['deepseek-v4','deepseek-chat','deepseek-reasoner']},
 gemini:{n:'Google Gemini',type:'gm',defModel:'gemini-3.5-flash-lite',models:['gemini-3.5-flash-lite','gemini-3.6-flash'],banned:['gemini-2.0-flash-lite']},
 qwen:{n:'Qwen 通義千問',type:'oa',url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',defModel:'qwen3.8',models:['qwen3.8','qwen-plus','qwen-turbo']},
-kimi:{n:'Moonshot Kimi',type:'oa',url:'https://api.moonshot.cn/v1/chat/completions',defModel:'kimi-3k',models:['kimi-3k','moonshot-v1-8k','moonshot-v1-32k']}};
-const AI_PRIORITY=['openai','deepseek','gemini','qwen','kimi'];
+kimi:{n:'Moonshot Kimi',type:'oa',url:'https://api.moonshot.cn/v1/chat/completions',defModel:'kimi-3k',models:['kimi-3k','moonshot-v1-8k','moonshot-v1-32k']},
+ollama:{n:'Ollama 本地',type:'ol',url:'/rest/v1/ai/ollama',defModel:'qwen2.5:0.6b',models:['qwen2.5:0.6b','qwen2.5:1.7b','qwen2.5:3b','qwen2.5:7b','qwen2.5:14b','qwen3:0.6b','qwen3:4b','deepseek-r1:1.7b','deepseek-r1:7b','llama3.2:1b','llama3.2:3b','phi3.5:3.8b'],keyHint:'Ollama 金鑰欄位請填主機位址（預設 http://127.0.0.1:11434）'}};
+const AI_PRIORITY=['openai','deepseek','gemini','qwen','kimi','ollama'];
 function apiModelOpts(p){return (AI_PROVIDERS[p].models||[AI_PROVIDERS[p].defModel]).map(m=>'<option value="'+m+'">'+m+(m===AI_PROVIDERS[p].defModel?'（預設）':'')+'</option>').join('')}
 async function callOneAI(k,prompt,sys){
 const pv=AI_PROVIDERS[k.provider||'gemini'];let model=k.model||pv.defModel;
 if(pv.banned&&pv.banned.includes(model))model=pv.defModel; /* 禁用模型自動改用預設 */
+if(pv.type==='ol'){ /* 本地 Ollama：經自架伺服器代理，金鑰欄位 = 主機位址 */
+const res=await fetch(pv.url,{method:'POST',headers:{'Content-Type':'application/json',...((typeof WTOKEN!=='undefined'&&WTOKEN)?{'x-adv9-token':WTOKEN}:{})},body:JSON.stringify({model,host:k.key||'http://127.0.0.1:11434',messages:[{role:'system',content:sys||'你是一個專業的出題助手。'},{role:'user',content:prompt}],temperature:0.7})});
+if(!res.ok)throw new Error('HTTP '+res.status);
+const j=await res.json();if(!j.message||!j.message.content)throw new Error('No content');
+return j.message.content}
 if(pv.type==='gm'){
 const url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+k.key;
 const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sys||'你是一個專業的出題助手。'}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})});
@@ -1453,7 +1462,9 @@ const SUBJ={
 
 '藝文':{c:'#b2ff59',i:'🎨',u:{'7上':['素描','水彩','直笛','合唱','版畫'],'7下':['水墨','書法','節奏樂器','戲劇','陶藝'],'8上':['透視圖法','色彩學','樂理','舞蹈','攝影'],'8下':['設計','工藝','音樂欣賞','劇場','動畫'],'9上':['藝術賞析','創作','合奏','編舞','多媒體'],'9下':['畢業製作','藝術評論','展演','總複習']}},
 
-'科技':{c:'#18ffff',i:'💻',u:{'7上':['工程與結構','Scratch 程式','演算法','3D 建模','木工'],'7下':['Python 基礎','網頁 HTML/CSS','機電整合','雷射切割','感測器'],'8上':['Python 進階','數據分析','App 開發','Arduino','AI 體驗'],'8下':['App Inventor','物聯網','機器人','能源科技','創客'],'9上':['專題製作','程式競賽','資料庫','網路安全','科技倫理'],'9下':['AI 應用','未來科技','總複習','作品發表']}}
+'科技':{c:'#18ffff',i:'💻',u:{'7上':['工程與結構','Scratch 程式','演算法','3D 建模','木工'],'7下':['Python 基礎','網頁 HTML/CSS','機電整合','雷射切割','感測器'],'8上':['Python 進階','數據分析','App 開發','Arduino','AI 體驗'],'8下':['App Inventor','物聯網','機器人','能源科技','創客'],'9上':['專題製作','程式競賽','資料庫','網路安全','科技倫理'],'9下':['AI 應用','未來科技','總複習','作品發表']}},
+
+'輔導':{c:'#ffd54f',i:'🧭',u:{'7上':['自我認識','情緒覺察','人際溝通','適應新環境'],'7下':['壓力管理','時間規劃','衝突處理','生涯探索'],'8上':['自我肯定','網路安全','性別尊重','學習策略'],'8下':['家庭溝通','挫折調適','團體合作','職業認識'],'9上':['生涯抉擇','升學壓力','自我實現','人際關係'],'9下':['未來規劃','生涯輔導','心理健康','總複習']}}
 
 };
 
@@ -2964,6 +2975,8 @@ $('#view').innerHTML=
 
 featCatsHtml();
 
+if(u.role==='student')setTimeout(tutorGuide,700); /* 首登新手引導（只顯示一次）*/
+
 }
 
 function back(t){return '<button class="btn ghost mini back" onclick="'+(t||'vHome()')+'">← 返回</button>'}
@@ -3640,7 +3653,7 @@ function doGuildPvp(oppId){
   const won=Math.random()<winChance;
   if(won){
     g.gold+=200;g.xp+=50;
-    while(g.xp>=g.needXp&&g.lv<CFG.MAX_LV){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}
+    while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}
     saveU(u);hud();
     toast('🏆 公會 PVP 勝利！對手：'+esc(opp.name)+'｜🪙+200 ✨+50 XP','success');
   }else{
@@ -4150,7 +4163,7 @@ window._expCalc={base:baseV,pct:Math.round((cm-1)*100),xp:xp}; /* 供結算畫�
 
 g.xp+=xp;g.quizPts+=Math.floor(xp/5);updMission(g,'exp',xp);
 
-while(g.xp>=g.needXp&&g.lv<CFG.MAX_LV){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv);toast('🌟 等級提升！Lv.'+g.lv+' 【'+titleOf(g.lv)+'】');showLevelUpFX(g.lv)}
+while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv);toast('🌟 等級提升！Lv.'+g.lv+' 【'+titleOf(g.lv)+'】');showLevelUpFX(g.lv)}
 
 return xp;
 
@@ -4739,7 +4752,8 @@ $('#view').innerHTML=back()+'<h3 class="vt">🏟️ PK 無限競技塔 <span cla
 
 '<button class="btn ghost mini" onclick="showFloorPicker()">🕰️ 歷史關卡重打</button>'+
 
-'<button class="btn teal mini" onclick="vPkRank()">🏆 競技塔排名</button>'+(isWeekend()?'<button class="btn mini" style="background:linear-gradient(180deg,#ffd97a,#ff8a3d);border-color:#a4531c;color:#3a2703" onclick="vSpeedMatch()">⚡ 周末決鬥（比誰先答對）</button>':'<button class="btn ghost mini dis">⚡ 周末決鬥（限週六日）</button>')+'</div>'+
+'<button class="btn teal mini" onclick="vPkRank()">🏆 競技塔排名</button>'+
+'<button class="btn teal mini" onclick="vClassPK()">🏫 班級總題數PK</button>'+(isWeekend()?'<button class="btn mini" style="background:linear-gradient(180deg,#ffd97a,#ff8a3d);border-color:#a4531c;color:#3a2703" onclick="vSpeedMatch()">⚡ 周末決鬥（比誰先答對）</button>':'<button class="btn ghost mini dis">⚡ 周末決鬥（限週六日）</button>')+'</div>'+
 
 (()=>{const r=arenaRankOf(u.id);const got=g.arenaClaim===today();const RW={1:'🏅20+💎5+🪙150',2:'🏅12+💎3+🪙100',3:'🏅8+💎2+🪙60'};
 
@@ -4906,7 +4920,7 @@ async function startPkBatch(count){
   }
   g.arena.floor=floor;
   g.crystal+=totalCr;g.gold+=totalAu;g.xp+=totalXp;g.honor+=totalHon;g.diamond+=totalDia;
-  while(g.xp>=g.needXp&&g.lv<CFG.MAX_LV){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}
+  while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}
   checkTitlesAch(g);saveU(u);hud();
   openModal('<h3 class="mt">⚔️ 批量挑戰結果</h3>'+
     '<div style="text-align:center;font-size:40px;margin:10px 0">'+(wins>losses?'🏆':'😢')+'</div>'+
@@ -5028,7 +5042,7 @@ if((g.arena.floor-1)%5===0){dia+=3;msg='｜🏆 里程碑 第'+(g.arena.floor-1)
 
 g.crystal+=cr;g.gold+=au;g.xp+=xp;g.honor+=hon;g.diamond+=dia;
 
-((()=>{const _ol=g.lv;while(g.xp>=g.needXp&&g.lv<CFG.MAX_LV){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}if(g.lv>_ol)showLevelUpFX(g.lv)})())
+((()=>{const _ol=g.lv;while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}if(g.lv>_ol)showLevelUpFX(g.lv)})())
 
 }else{g.pk.lose++;g.pk.streak=0}
 
@@ -5111,6 +5125,31 @@ openModal('<h3 class="mt">🏆 競技塔排名（歷史最佳層數）</h3>'+
 
 }
 
+/* 🏫 班級總題數 PK：全班累計作答總題數對抗 */
+function vClassPK(){
+  const users=get(LS.users,[]).filter(x=>x.role==='student'&&x.classId);
+  const classes=get(LS.classes,{ids:[],names:{}});
+  const byCls={};
+  users.forEach(u=>{
+    const t=(u.g&&u.g.stats&&u.g.stats.total)||0;
+    if(!byCls[u.classId])byCls[u.classId]={n:0,total:0,top:[]};
+    byCls[u.classId].n++;
+    byCls[u.classId].total+=t;
+    byCls[u.classId].top.push({name:u.name,t});
+  });
+  const rows=Object.keys(byCls).map(cid=>({cid:cid,row:byCls[cid]})).sort((a,b)=>b.row.total-a.row.total);
+  const best=rows.length?rows[0].row.total:1;
+  const medals=['🥇','🥈','🥉'];
+  $('#view').innerHTML=back()+'<h3 class="vt">🏫 班級總題數 PK <span class="vsub">全班累計作答總題數對抗賽</span></h3>'+
+  '<div class="panel2" style="margin-bottom:10px;font-size:12.5px;color:var(--mut);border-left:4px solid var(--teal)">每個班級以「全班累計作答總題數」互相比拚，每天全班一起答題，班級排名就會往上衝！</div>'+
+  (rows.length?rows.map((r,i)=>{const pct=Math.max(4,Math.round(r.row.total/best*100));
+    return '<div class="panel2" style="margin-bottom:8px;display:flex;align-items:center;gap:10px"><span style="font-size:22px">'+(medals[i]||(i+1))+'</span>'+
+    '<div style="flex:1;min-width:0"><b style="font-size:14px;color:var(--gold2)">'+(classes.names[r.cid]||r.cid)+' 班</b>'+
+    '<div style="font-size:11.5px;color:var(--mut)">'+r.row.n+' 人｜共 '+r.row.total.toLocaleString()+' 題</div>'+
+    '<div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:5px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div></div></div>'+
+    '<div style="font-size:11px;color:var(--mut);text-align:right;line-height:1.7">🏅 '+r.row.top.slice(0,3).map(t=>esc(t.name)+' '+t.t.toLocaleString()+'題').join('<br>')+'</div></div>'}).join(''):'<p class="empty">尚無班級資料</p>');
+}
+
 function spectate(){const a=arenaOpp(1+((Math.random()*10)|0)),b=arenaOpp(1+((Math.random()*10)|0));
 
 const w=a.pw*rnd(.85,1.15)>b.pw*rnd(.85,1.15)?a:b;
@@ -5141,7 +5180,7 @@ function canPk(g){const d=today();if(g.pk.date!==d){g.pk.date=d;g.pk.today=0;g.p
 
 /* ════════════════════════════════════════════════
 
-#3【修復＋擴充】領土征服：每科 100 關（共500關）、可點擊進入
+#3【修復＋擴充】領土征服：每科 500 關（共2500關）、可點擊進入
 
 ════════════════════════════════════════════════ */
 
@@ -5157,7 +5196,7 @@ for(const s in icons){
 
 const t=[];
 
-for(let i=1;i<=100;i++){
+for(let i=1;i<=500;i++){
 
 const boss=i%10===0;
 
@@ -5185,7 +5224,7 @@ const total=Object.keys(g.territory.owned).length;
 
 const tg=terrTarget(g);
 
-$('#view').innerHTML=back()+'<h3 class="vt">🗺️ 領土征服戰 <span class="vsub">已占 '+total+'/500｜每科 100 關｜越後面關卡物資越多・無上限</span></h3>'+
+$('#view').innerHTML=back()+'<h3 class="vt">🗺️ 領土征服戰 <span class="vsub">已占 '+total+'/2500｜每科 500 關｜越後面關卡物資越多・無上限</span></h3>'+
 
 '<div class="terrInfo"><span>📈 <b>越打越多</b>：每一關獎勵隨關卡成長，全物資（💎🪙💠✨⛏️🔩🧪🏅）一次入袋</span><span>⭐ <b>領土升級</b>：點已占領地可升級至 Lv.5（提升掉落與掟蓕收益）｜👑 頭目關 3 倍｜🎯 今日目標加倍</span></div>'+
 
@@ -5635,7 +5674,7 @@ g[it.c]-=price;
 
 if(it.ty==='mat')g[it.k]+=it.a;else if(it.ty==='cur')g[it.k]+=it.a;
 
-else if(it.ty==='exp'){g.xp+=it.a;(()=>{const _ol=g.lv;while(g.xp>=g.needXp&&g.lv<CFG.MAX_LV){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}if(g.lv>_ol)showLevelUpFX(g.lv)})()}
+else if(it.ty==='exp'){g.xp+=it.a;(()=>{const _ol=g.lv;while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}if(g.lv>_ol)showLevelUpFX(g.lv)})()}
 
 else if(it.ty==='title'){if(!g.titles.includes('shop'))g.titles.push('shop');toast('🎖 獲得稱號「商店常客」')}
 
@@ -7249,6 +7288,32 @@ return '<div class="panel2" style="margin-bottom:10px"><b style="font-family:var
 
 }
 
+/* ── 作業防作弊：每學生專屬變體（題序/選項/數字皆不同）＋浮水印＋離窗警示 ── */
+function hwSeed(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function hwRng(seed){let s=seed>>>0;return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hwShuffle(arr,rng){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function hwVariant(h,u){ /* 以「學生+作業」為種子，產生固定變體：題序、選項排列、整數選項平移 */
+  const rng=hwRng(hwSeed((u.username||u.id||'')+'|'+h.id));
+  const order=hwShuffle(h.questions.map((q,i)=>i),rng);
+  const opts={},shift={};
+  h.questions.forEach(q=>{
+    const n=(q['選項']||[]).length;
+    opts[q.id]=hwShuffle([...Array(n).keys()],rng);
+    const nums=(q['選項']||[]).map(o=>/^-?\d+$/.test(String(o).trim())?parseInt(String(o).trim(),10):null);
+    if(nums.length&&nums.every(x=>x!==null)){const off=Math.floor(rng()*21)-10;if(off!==0)shift[q.id]=off;}
+  });
+  return{order,opts,shift};
+}
+function hwShowNum(o,sh){return sh?(parseInt(String(o).trim(),10)+sh):o}
+let hwBlurCount=0;
+function hwGuardOn(){window._hwCtx=(e)=>e.preventDefault();document.addEventListener('contextmenu',window._hwCtx,true);window._hwCopy=(e)=>e.preventDefault();document.addEventListener('copy',window._hwCopy,true);document.addEventListener('selectstart',window._hwCopy,true);
+  window._hwBlur=()=>{hwBlurCount++;if(hwBlurCount===1)toast('⚠️ 離開視窗已記錄（第 '+hwBlurCount+' 次）','bad');if(hwBlurCount>=3)toast('⚠️ 已離窗 '+hwBlurCount+' 次，老師將看到紀錄！','bad')};
+  window.addEventListener('blur',window._hwBlur);document.addEventListener('visibilitychange',window._hwBlur);
+  const u=me();let wm=document.getElementById('hwWatermark');if(!wm){wm=document.createElement('div');wm.id='hwWatermark';wm.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:1;display:flex;align-items:center;justify-content:center;transform:rotate(-22deg);font-size:26px;font-weight:900;color:rgba(120,140,200,.10);letter-spacing:6px;user-select:none';document.body.appendChild(wm);}
+  wm.textContent='🔒 '+((u&&(u.name||u.username))||'')+'｜'+new Date().toLocaleString('zh-TW')+'｜禁止截圖分享';
+}
+function hwGuardOff(){if(window._hwCtx){document.removeEventListener('contextmenu',window._hwCtx,true);window._hwCtx=null}if(window._hwCopy){document.removeEventListener('copy',window._hwCopy,true);document.removeEventListener('selectstart',window._hwCopy,true);window._hwCopy=null}if(window._hwBlur){window.removeEventListener('blur',window._hwBlur);document.removeEventListener('visibilitychange',window._hwBlur);window._hwBlur=null}const wm=document.getElementById('hwWatermark');if(wm)wm.remove();}
+
 function hwDo(id){
 
 const h=get(LS.hw,[]).find(x=>x.id===id);if(!h)return;
@@ -7257,7 +7322,11 @@ const h=get(LS.hw,[]).find(x=>x.id===id);if(!h)return;
 
 h.questions.forEach(q=>{if(!q.id)q.id=newQid()});
 
-CUR.hw={id,ans:{},cur:0};
+CUR.hw={id,ans:{},ansV:{},cur:0};
+hwBlurCount=0;
+const u=me();
+CUR.hw.variant=hwVariant(h,u); /* 🛡 每學生專屬變體 */
+hwGuardOn(); /* 🛡 浮水印＋禁止複製/右鍵＋離窗紀錄 */
 
 renderHwQ(h);
 
@@ -7265,19 +7334,22 @@ renderHwQ(h);
 
 function renderHwQ(h){
 
-const st=CUR.hw;const q=h.questions[st.cur];const L=['A','B','C','D'];
+const st=CUR.hw;const qid=h.questions[st.variant.order[st.cur]].id;const q=h.questions.find(x=>x.id===qid);const L=['A','B','C','D'];
+const vp=st.variant.opts[qid]||[];const sh=st.variant.shift[qid]||0;
 
 $('#view').innerHTML=
 
-(h.pdf?'<div class="pdfWrap"><div><b style="color:var(--teal);font-size:13px">📎 PDF 教材預覽</b>'+
+  (h.pdf?'<div class="pdfWrap"><div><b style="color:var(--teal);font-size:13px">📎 PDF 教材預覽</b>'+
 
-'<iframe src="'+h.pdf.dataUrl+'" title="PDF 教材"></iframe></div><div>':'')+
+  '<iframe src="'+h.pdf.dataUrl+'" title="PDF 教材"></iframe></div><div>':'')+
 
 '<h3 class="vt">✏️ '+esc(h.title)+' <span class="vsub">第 '+(st.cur+1)+'/'+h.questions.length+' 題</span></h3>'+
 
+'<div class="panel2" style="margin-bottom:10px;font-size:12px;color:var(--mut);border-left:4px solid var(--teal)">🔒 此作業已為你產生<b>專屬變體</b>（題序、選項、數字皆與他人不同）· 離窗 '+(hwBlurCount||0)+' 次</div>'+
+
 '<div class="panel2 qCard"><div class="qStem">'+esc(q['題目'])+'</div></div>'+
 
-q['選項'].map((o,i)=>'<button class="optBtn '+(st.ans[q.id]===i?'sel':'')+'" onclick="hwPick('+i+')">('+L[i]+') '+esc(o)+'</button>').join('')+
+vp.map((origIdx,d)=>'<button class="optBtn '+(st.ansV[qid]===d?'sel':'')+'" onclick="hwPick('+d+')">('+L[d]+') '+esc(String(hwShowNum(q['選項'][origIdx],sh)))+'</button>').join('')+
 
 '<div style="display:flex;gap:10px;margin-top:10px">'+
 
@@ -7291,7 +7363,7 @@ q['選項'].map((o,i)=>'<button class="optBtn '+(st.ans[q.id]===i?'sel':'')+'" o
 
 }
 
-function hwPick(i){const h=get(LS.hw,[]).find(x=>x.id===CUR.hw.id);const q=h.questions[CUR.hw.cur];CUR.hw.ans[q.id]=i;renderHwQ(h)}
+function hwPick(i){const h=get(LS.hw,[]).find(x=>x.id===CUR.hw.id);const st=CUR.hw;const qid=h.questions[st.variant.order[st.cur]].id;const origIdx=(st.variant.opts[qid]||[])[i];st.ans[qid]=origIdx;st.ansV[qid]=i;renderHwQ(h)}
 
 function hwPrev(){const h=get(LS.hw,[]).find(x=>x.id===CUR.hw.id);CUR.hw.cur--;renderHwQ(h)}
 
@@ -7299,13 +7371,13 @@ function hwNext(){const h=get(LS.hw,[]).find(x=>x.id===CUR.hw.id);CUR.hw.cur++;r
 
 function hwSubmit(){
 
-const u=me();const st=CUR.hw;
+const u=me();const st=CUR.hw;hwGuardOff();
 
 const subs=get(LS.sub,[]);
 
 if(subs.some(s=>s.hwId===st.id&&s.studentId===u.id))return toast('⚠️ 已提交過','bad');
 
-subs.push({id:'s'+Date.now(),hwId:st.id,studentId:u.id,answers:st.ans,submittedAt:Date.now()});
+subs.push({id:'s'+Date.now(),hwId:st.id,studentId:u.id,answers:st.ans,answersV:st.ansV,variant:st.variant,blurCount:hwBlurCount,submittedAt:Date.now()});
 
 /* 📝 作業作答也記入學習紀錄（供老師依【作業】模式篩選）*/
 
@@ -7335,11 +7407,11 @@ $('#view').innerHTML=back('vHomework()')+'<h3 class="vt">📝 '+esc(h.title)+' �
 
 '<p style="font-size:13.5px;margin-top:6px;color:var(--gold2)">💬 老師評語：'+esc(my.feedback||'（無評語）')+'</p></div>'+
 
-h.questions.map(q=>{const sel=my.answers[q.id];const ok=sel===q['答案'];
+h.questions.map(q=>{const sel=my.answers[q.id];const ok=sel===q['答案'];const myV=my.answersV&&my.answersV[q.id]!=null?my.answersV[q.id]:sel;const sh=my.variant&&my.variant.shift?my.variant.shift[q.id]:0;const showTxt=my.answersV&&my.answersV[q.id]!=null?String(hwShowNum(q['選項'][sel],sh)):String(q['選項'][sel]);
 
 return '<div class="panel2" style="margin-bottom:8px"><div style="font-size:14px">'+(ok?'✅':'❌')+' '+esc(q['題目'])+'</div>'+
 
-'<div style="font-size:12.5px;margin-top:4px;color:'+(ok?'var(--green)':'#ff8a80')+'">你的答案：('+L[sel]+') '+esc(q['選項'][sel])+'</div>'+
+'<div style="font-size:12.5px;margin-top:4px;color:'+(ok?'var(--green)':'#ff8a80')+'">你的答案：('+L[myV]+') '+esc(showTxt)+'</div>'+
 
 (!ok?'<div style="font-size:12.5px;color:var(--green)">正確答案：('+L[q['答案']]+') '+esc(q['選項'][q['答案']])+'</div>':'')+'</div>'}).join('');
 
@@ -7421,6 +7493,43 @@ return '<div class="abRow"><span style="width:70px;font-size:12.5px;color:'+SUBJ
 
 const st=(l,v)=>'<div class="panel2 statIt"><span>'+l+'</span><b>'+v+'</b></div>';
 
+/* ── 背景音樂播放器（教師把 mp3/ogg 放 media/music/，學生可選曲）── */
+let MUSIC={list:[],idx:-1,audio:null};
+function saveMusicPref(){try{localStorage.setItem('ADV9_MUSIC',JSON.stringify({idx:MUSIC.idx}))}catch(e){}}
+function musicInit(){if(MUSIC.audio)return;const a=new Audio();a.loop=true;a.volume=.5;MUSIC.audio=a;try{const j=JSON.parse(localStorage.getItem('ADV9_MUSIC')||'{}');if(typeof j.idx==='number')MUSIC.idx=j.idx}catch(e){}}
+function loadMusicList(cb){if(!WTOKEN){if(cb)cb();return}fetch(SUPA_URL+'/rest/v1/media/music',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.ok?r.json():[]).then(l=>{MUSIC.list=l||[];if(cb)cb()}).catch(()=>{if(cb)cb()})}
+function playMusic(){if(!MUSIC.audio||!MUSIC.list.length)return;const f=MUSIC.list[MUSIC.idx];if(!f)return;MUSIC.audio.src=SUPA_URL+'/storage/v1/object/public/media/music/'+encodeURIComponent(f);MUSIC.audio.play().catch(()=>{});saveMusicPref()}
+function musicPlay(){musicInit();if(MUSIC.list.length===0){loadMusicList(()=>{if(MUSIC.list.length){if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx])}else toast('⚠️ media/music/ 尚無音樂檔，請老師上傳後再試','bad')});return}if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx])}
+function musicStop(){if(MUSIC.audio){MUSIC.audio.pause();MUSIC.audio.currentTime=0}MUSIC.idx=-1;saveMusicPref();toast('⏹ 音樂已停止')}
+function musicNext(){if(!MUSIC.list.length){loadMusicList(musicNext);return}MUSIC.idx=(MUSIC.idx+1)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx])}
+function musicPrev(){if(!MUSIC.list.length){loadMusicList(musicPrev);return}MUSIC.idx=(MUSIC.idx-1+MUSIC.list.length)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx])}
+function musicSetVolume(v){if(MUSIC.audio)MUSIC.audio.volume=Math.max(0,Math.min(1,v))}
+function musicPick(v){musicInit();MUSIC.idx=parseInt(v,10);if(MUSIC.idx>=0)playMusic();else musicStop()}
+
+/* ── 新手引導（首登教學，只顯示一次）── */
+function tutorGuide(){
+  try{if(localStorage.getItem('ADV9_TUTOR'))return;localStorage.setItem('ADV9_TUTOR','1')}catch(e){return}
+  const steps=[
+    {i:'🧑‍🎓',t:'完成每日任務',d:'登入後每天可完成答題、簽到、PK 等任務，獲得金幣、水晶與經驗值；等級越高解鎖越多玩法！'},
+    {i:'🗺️',t:'征服領土',d:'每個科目有 500 關領土關卡，越後面獎勵越多，還可獲得獨特稱號與裝備。'},
+    {i:'✏️',t:'按時交作業',d:'老師發布的作業請在截止前完成；作答畫面有專屬防作弊變體，離窗次數會被記錄。'},
+    {i:'💎',t:'收集與強化',d:'抽卡收集角色夥伴、鍛造裝備並強化（上限＝玩家等級×100），變強挑戰更高難度！'}
+  ];
+  let idx=0;
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center';
+  const render=()=>{const s=steps[idx];box.innerHTML='<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px 26px;max-width:340px;text-align:center;animation:pop .3s">'+
+    '<div style="font-size:44px">'+s.i+'</div><div style="font-size:17px;font-weight:900;font-family:var(--serif);color:var(--gold2);margin:8px 0">'+s.t+'</div>'+
+    '<div style="font-size:12.5px;color:var(--mut);line-height:1.8">'+s.d+'</div>'+
+    '<div style="display:flex;gap:8px;justify-content:center;margin-top:16px">'+
+    (idx>0?'<button class="btn ghost mini" onclick="window._tg('+(idx-1)+')">⬅ 上一步</button>':'')+
+    (idx<steps.length-1?'<button class="btn teal" onclick="window._tg('+(idx+1)+')">下一步 ➡</button>':'<button class="btn big" onclick="window._tg(-1)">🎮 開始冒險！</button>')+
+    '</div><div style="font-size:11px;color:var(--mut);margin-top:10px">第 '+(idx+1)+'/'+steps.length+' 步</div></div>'};
+  window._tg=(n)=>{if(n<0){box.remove();delete window._tg;return}idx=n;render()};
+  box.onclick=(e)=>{if(e.target===box)box.remove()};
+  render();document.body.appendChild(box);
+}
+
 function vSet(){
 
 const u=me(),g=u.g;const c=sysCfg();const pf=u.prof||{};
@@ -7449,6 +7558,24 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 (pf.bg&&pf.bg.indexOf('data:')===0?'<span style="font-size:12px;color:var(--teal);align-self:center">✅ 目前使用照片背景</span>':'')+'</div></div>'+
 
+/* 音樂 */
+
+'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🎵 背景音樂</b> <span style="font-size:11.5px;color:var(--mut)">教師可將 mp3/ogg 上傳到 media/music/ 資料夾</span>'+
+
+'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">'+
+
+'<select id="musicSel" style="flex:1;min-width:160px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)" onchange="musicPick(this.value)"><option value="-1">（關閉音樂）</option></select>'+
+
+'<button class="btn mini" onclick="musicPlay()">▶ 播放</button>'+
+
+'<button class="btn ghost mini" onclick="musicPrev()">⏮</button>'+
+
+'<button class="btn ghost mini" onclick="musicNext()">⏭</button>'+
+
+'<button class="btn ghost mini" onclick="musicStop()">⏹ 停止</button></div>'+
+
+'<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--mut)">音量</span><input type="range" min="0" max="100" value="50" oninput="musicSetVolume(this.value/100)" style="flex:1"></div></div>'+
+
 /* 好友申請隱私 */
 
 '<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🔒 好友申請</b> <span style="font-size:11.5px;color:var(--mut)">控制誰可以向你發送好友申請</span>'+
@@ -7467,6 +7594,13 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
  '<button class="btn ghost mini" onclick="openChangePw()">🔒 修改密碼</button>'+
 
 '<button class="btn ghost mini" onclick="resetStats()">📊 重置統計</button></div>';
+
+musicInit();
+const ms=document.getElementById('musicSel');
+loadMusicList(list=>{
+  ms.innerHTML='<option value="-1">（關閉音樂）</option>'+list.map((f,i)=>'<option value="'+i+'"'+(i===MUSIC.idx?' selected':'')+'>'+esc(f)+'</option>').join('');
+  if(MUSIC.idx>=0)ms.value=String(MUSIC.idx);
+});
 
 }
 
@@ -7849,14 +7983,15 @@ const hs=subs.filter(s=>s.hwId===h.id);
 
 return '<div class="panel2" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1;font-family:var(--serif);color:var(--gold2)">'+esc(h.title)+' <span style="font-size:11px;color:var(--mut)">'+hwTargetLabel(h)+'｜截止 '+fmt(h.deadline)+'</span></b>'+
 
-'<button class="btn danger mini" onclick="delHw(\''+h.id+'\')">🗑 刪除作業</button></div>'+
+'<button class="btn danger mini" onclick="delHw(\''+h.id+'\')">🗑 刪除作業</button>'+
+'<button class="btn teal mini" onclick="hwWeakness(\''+h.id+'\')">📊 弱點分析</button></div>'+
 
 '<div style="font-size:12px;color:var(--mut);margin:4px 0">提交：'+hs.length+' 人｜題目 '+h.questions.length+' 題</div>'+
 
 (hs.length?hs.map(s=>{const stu=us.find(x=>x.id===s.studentId);
 
 return '<div style="display:flex;gap:8px;align-items:center;padding:5px 0;border-top:1px solid var(--line)"><b style="flex:1;font-size:13px">'+(stu?esc(stu.name):'未知')+'</b>'+
-
+((s.blurCount||0)>=3?'<span style="font-size:11px;color:#ff8a80" title="作答期間離窗 '+(s.blurCount||0)+' 次">⚠️離窗'+(s.blurCount||0)+'</span>':'')+
 (s.score!=null?'<b style="color:var(--green);font-size:13px">'+s.score+' 分</b>':'<button class="btn mini" onclick="hwGrade(\''+s.id+'\')">✏️ 批改</button>')+'</div>'}).join(''):'<p style="font-size:12px;color:var(--mut)">尚無人提交</p>')+
 
 '</div>'}).join('')
@@ -7889,6 +8024,8 @@ let auto=0;h.questions.forEach(q=>{if(s.answers[q.id]===q['答案'])auto+=Math.r
 
 openModal('<h3 class="mt">✏️ 批改作業</h3>'+
 
+((s.blurCount||0)>=1?'<div style="font-size:12px;color:#ff8a80;margin-bottom:8px">⚠️ 作答期間離窗 '+(s.blurCount||0)+' 次</div>':'')+
+
 '<div style="font-size:13px;line-height:1.9">'+h.questions.map((q,i)=>{const sel=s.answers[q.id];const ok=sel===q['答案'];
 
 return '<div style="margin-bottom:6px">'+(ok?'✅':'❌')+' '+esc(q['題目'])+'<br><span style="color:'+(ok?'var(--green)':'#ff8a80')+';font-size:12px">學生答案：('+L[sel]+') '+esc(q['選項'][sel])+'</span></div>'}).join('')+'</div>'+
@@ -7909,6 +8046,42 @@ s.score=clamp(+$('#grScore').value||0,0,999);s.feedback=$('#grFb').value;s.grade
 
 set(LS.sub,subs);closeModal();toast('✅ 批改已儲存');tHwList();
 
+}
+
+/* 📊 弱點分析：每題錯誤人數統計 + AI 快速評估 */
+function hwWeakness(id){
+  const h=get(LS.hw,[]).find(x=>x.id===id);if(!h)return;
+  const subs=get(LS.sub,[]).filter(s=>s.hwId===id);
+  const us=get(LS.users,[]);
+  const stats=h.questions.map(q=>{
+    const wrong=subs.filter(s=>s.answers[q.id]==null||s.answers[q.id]!==q['答案']);
+    return{q,wrong};
+  }).sort((a,b)=>b.wrong.length-a.wrong.length);
+  openModal('<h3 class="mt">📊 弱點分析：'+esc(h.title)+'</h3>'+
+    '<div style="font-size:12px;color:var(--mut);margin-bottom:8px">已提交 '+subs.length+' 人 · 每題錯誤人數（由高到低）</div>'+
+    '<div style="max-height:44vh;overflow-y:auto">'+
+    stats.map(s=>'<div style="padding:6px;border-bottom:1px solid var(--line)"><div style="font-size:12.5px">'+(s.wrong.length?'❌':'✅')+' '+esc(String(s.q['題目']||'').slice(0,60))+'…</div>'+
+      '<div style="font-size:11.5px;color:'+(s.wrong.length?'#ff8a80':'var(--green)')+'">錯 '+s.wrong.length+'/'+subs.length+' 人'+(s.wrong.length?' · '+s.wrong.slice(0,3).map(w=>{const st=us.find(x=>x.id===w.studentId);return st?esc(st.name):'?'}).join('、')+(s.wrong.length>3?' 等':'')+'':'')+'</div></div>').join('')+
+    '</div>'+
+    '<div style="margin-top:10px"><button class="btn teal" onclick="hwAiEval(\''+id+'\')">🤖 AI 快速評估</button><button class="btn ghost" onclick="closeModal()">關閉</button></div>'+
+    '<div id="hwAiOut" style="margin-top:10px;font-size:12.5px;line-height:1.7;white-space:pre-wrap;max-height:26vh;overflow-y:auto"></div>');
+}
+async function hwAiEval(id){
+  const out=document.getElementById('hwAiOut');if(!out)return;
+  out.textContent='🤖 AI 分析中...';
+  try{
+    const h=get(LS.hw,[]).find(x=>x.id===id);
+    const subs=get(LS.sub,[]).filter(s=>s.hwId===id);
+    if(!subs.length){out.textContent='尚無人提交，無法分析';return}
+    const wrongByQ=h.questions.map(q=>({
+      題目:String(q['題目']||'').slice(0,80),
+      錯誤人數:subs.filter(s=>s.answers[q.id]==null||s.answers[q.id]!==q['答案']).length,
+      解析:(q['解析']||'').slice(0,80)
+    })).sort((a,b)=>b.錯誤人數-a.錯誤人數).slice(0,8);
+    const prompt='以下是一份國中班級作業的每題錯誤人數統計（共 '+subs.length+' 人提交）：\n'+JSON.stringify(wrongByQ,null,2)+'\n請用繁體中文簡潔分析：1) 全班最弱的 1-2 個概念 2) 可能原因 3) 給老師 2-3 條具體教學建議。';
+    const txt=await callAI(prompt,'你是一位有 15 年經驗的國中教師與試題分析專家。');
+    out.textContent=txt;
+  }catch(e){out.textContent='⚠️ '+e.message}
 }
 
 let CROSS_CLASS=null;
@@ -9236,7 +9409,7 @@ set(LS.ann,as);toast('📢 公告已發布');vPostAdmin()}
 
 function delAnn(id){if(!confirm('刪除此公告？'))return;set(LS.ann,get(LS.ann,[]).filter(a=>a.id!==id));vPostAdmin()}
 
-function vApiKeys(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});const keys=data.keys||[];let html='<h3 class="vt">🔑 API 金鑰管理</h3><p class="vsub">多供應商 AI 金鑰，用於 AI 出題功能</p>';html+='<div class="panel2" style="margin-bottom:12px;font-size:12.5px;border-left:4px solid var(--teal);color:var(--mut)">📡 <b style="color:var(--teal)">備援切換優先順序：</b>1️⃣ OpenAI GPT（主力）→ 2️⃣ DeepSeek → 3️⃣ Google Gemini（🚫 禁用 2.0 Flash Lite）→ 4️⃣ Qwen 通義千問 → 5️⃣ Moonshot Kimi</div>';html+='<div style="margin-bottom:10px"><button class="btn teal mini" onclick="testAllApiKeys()">🔍 全部測試</button></div>';html+='<div class="panel2" style="margin-bottom:14px;padding:14px">';html+='<label class="mlab">API 金鑰</label>';html+='<input id="newApiKey" type="text" placeholder="貼上 API 金鑰..." style="width:100%;margin-bottom:8px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">';html+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';html+='<label class="mlab" style="margin:0">供應商</label>';html+='<select id="newApiProvider" style="padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)" onchange="$(\'#newApiModel\').innerHTML=apiModelOpts(this.value)">'+AI_PRIORITY.map((p,i)=>'<option value="'+p+'">'+(i+1)+'. '+AI_PROVIDERS[p].n+'</option>').join('')+'</select>';html+='<label class="mlab" style="margin:0">模型</label>';html+='<select id="newApiModel" style="width:200px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+apiModelOpts('openai')+'</select>';html+='<button class="btn teal" onclick="addApiKey()">➕ 新增金鑰</button>';html+='</div><div style="font-size:11px;color:var(--mut);margin-top:6px">已自動配置各供應商可選模型（GPT-4、DeepSeek-V4、Gemini 3.5 Flash Lite、Qwen3.8、Kimi-3K…）；Gemini 禁用 gemini-2.0-flash-lite</div></div>';html+='<div class="panel2" style="margin-bottom:14px;padding:14px">';html+='<b style="font-size:13px;color:var(--teal)">📄 TXT 批次匯入（每行一組金鑰，換行即換 key）</b>';html+='<textarea id="apiKeyTxt" rows="5" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);padding:8px;font-size:12px;margin-top:8px" placeholder="每行貼上一組 API 金鑰…&#10;AIza...（自動辨識為 Gemini）&#10;sk-...（套用下方供應商與模型）"></textarea>';html+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">';html+='<label class="mlab" style="margin:0">供應商</label>';html+='<select id="txtApiProvider" style="padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)" onchange="$(\'#txtApiModel\').innerHTML=apiModelOpts(this.value)">'+AI_PRIORITY.map((p,i)=>'<option value="'+p+'">'+(i+1)+'. '+AI_PROVIDERS[p].n+'</option>').join('')+'</select>';html+='<label class="mlab" style="margin:0">模型</label>';html+='<select id="txtApiModel" style="width:200px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+apiModelOpts('openai')+'</select>';html+='<button class="btn teal" onclick="importApiKeysTxt()">📥 匯入</button>';html+='</div><div style="font-size:11px;color:var(--mut);margin-top:6px">以 AIza 開頭的金鑰自動歸為 Gemini；其餘套用所選供應商與模型。重複金鑰自動略過。</div></div>';html+='<div style="display:flex;flex-direction:column;gap:8px">';if(keys.length===0){html+='<p class="empty" style="text-align:center;padding:20px">尚無 API 金鑰</p>'}else{const sorted=keys.map((k,i)=>({k,i})).sort((a,b)=>AI_PRIORITY.indexOf(a.k.provider||'gemini')-AI_PRIORITY.indexOf(b.k.provider||'gemini'));sorted.forEach(({k,i})=>{const pv=AI_PROVIDERS[k.provider||'gemini'];const masked=k.key.substring(0,6)+'••••••••'+k.key.substring(k.key.length-4);const lastUsed=k.lastUsed?new Date(k.lastUsed).toLocaleString('zh-TW'):'從未使用';html+='<div class="panel2" style="padding:12px;display:flex;align-items:center;gap:12px">';html+='<span class="chip" style="background:rgba(56,217,192,0.12);color:var(--teal);font-size:11px;white-space:nowrap">'+(AI_PRIORITY.indexOf(k.provider||'gemini')+1)+'. '+pv.n+'</span>';html+='<div style="flex:1;min-width:0">';html+='<div style="font-size:13px;font-family:monospace;word-break:break-all">'+masked+'</div>';html+='<div style="font-size:11px;color:var(--mut);margin-top:4px">'+(k.model||pv.defModel)+' ｜ 使用 '+(k.useCount||0)+' 次 ｜ '+lastUsed+'</div>';html+='</div>';html+='<button class="btn mini teal" onclick="testApiKey('+i+')">🔍 測試</button>';html+='<button class="btn mini danger" onclick="removeApiKey('+i+')">刪除</button>';html+='</div>'})}html+='</div>';html+='<div style="margin-top:14px;font-size:12px;color:var(--mut);text-align:center">共 '+keys.length+' 把金鑰 ｜ 呼叫時依優先順序自動備援切換</div>';$('#view').innerHTML=html}
+function vApiKeys(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});const keys=data.keys||[];let html='<h3 class="vt">🔑 API 金鑰管理</h3><p class="vsub">多供應商 AI 金鑰，用於 AI 出題功能</p>';html+='<div class="panel2" style="margin-bottom:12px;font-size:12.5px;border-left:4px solid var(--teal);color:var(--mut)">📡 <b style="color:var(--teal)">備援切換優先順序：</b>1️⃣ OpenAI GPT（主力）→ 2️⃣ DeepSeek → 3️⃣ Google Gemini（🚫 禁用 2.0 Flash Lite）→ 4️⃣ Qwen 通義千問 → 5️⃣ Moonshot Kimi 6️⃣ Ollama 本地</div>';html+='<div style="margin-bottom:10px"><button class="btn teal mini" onclick="testAllApiKeys()">🔍 全部測試</button></div>';html+='<div class="panel2" style="margin-bottom:14px;padding:14px">';html+='<label class="mlab">API 金鑰</label>';html+='<input id="newApiKey" type="text" placeholder="貼上 API 金鑰..." style="width:100%;margin-bottom:8px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">';html+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';html+='<label class="mlab" style="margin:0">供應商</label>';html+='<select id="newApiProvider" style="padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)" onchange="$(\'#newApiModel\').innerHTML=apiModelOpts(this.value)">'+AI_PRIORITY.map((p,i)=>'<option value="'+p+'">'+(i+1)+'. '+AI_PROVIDERS[p].n+'</option>').join('')+'</select>';html+='<label class="mlab" style="margin:0">模型</label>';html+='<select id="newApiModel" style="width:200px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+apiModelOpts('openai')+'</select>';html+='<button class="btn teal" onclick="addApiKey()">➕ 新增金鑰</button>';html+='</div><div style="font-size:11px;color:var(--mut);margin-top:6px">已自動配置各供應商可選模型（GPT-4、DeepSeek-V4、Gemini 3.5 Flash Lite、Qwen3.8、Kimi-3K、Ollama 本地…）；Gemini 禁用 gemini-2.0-flash-lite；Ollama 的「金鑰」欄位請填 Ollama 主機位址（預設 http://127.0.0.1:11434），完全不需要 API 金鑰</div></div>';html+='<div class="panel2" style="margin-bottom:14px;padding:14px">';html+='<b style="font-size:13px;color:var(--teal)">📄 TXT 批次匯入（每行一組金鑰，換行即換 key）</b>';html+='<textarea id="apiKeyTxt" rows="5" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);padding:8px;font-size:12px;margin-top:8px" placeholder="每行貼上一組 API 金鑰…&#10;AIza...（自動辨識為 Gemini）&#10;sk-...（套用下方供應商與模型）"></textarea>';html+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">';html+='<label class="mlab" style="margin:0">供應商</label>';html+='<select id="txtApiProvider" style="padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)" onchange="$(\'#txtApiModel\').innerHTML=apiModelOpts(this.value)">'+AI_PRIORITY.map((p,i)=>'<option value="'+p+'">'+(i+1)+'. '+AI_PROVIDERS[p].n+'</option>').join('')+'</select>';html+='<label class="mlab" style="margin:0">模型</label>';html+='<select id="txtApiModel" style="width:200px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+apiModelOpts('openai')+'</select>';html+='<button class="btn teal" onclick="importApiKeysTxt()">📥 匯入</button>';html+='</div><div style="font-size:11px;color:var(--mut);margin-top:6px">以 AIza 開頭的金鑰自動歸為 Gemini；其餘套用所選供應商與模型。重複金鑰自動略過。</div></div>';html+='<div style="display:flex;flex-direction:column;gap:8px">';if(keys.length===0){html+='<p class="empty" style="text-align:center;padding:20px">尚無 API 金鑰</p>'}else{const sorted=keys.map((k,i)=>({k,i})).sort((a,b)=>AI_PRIORITY.indexOf(a.k.provider||'gemini')-AI_PRIORITY.indexOf(b.k.provider||'gemini'));sorted.forEach(({k,i})=>{const pv=AI_PROVIDERS[k.provider||'gemini'];const masked=k.key.substring(0,6)+'••••••••'+k.key.substring(k.key.length-4);const lastUsed=k.lastUsed?new Date(k.lastUsed).toLocaleString('zh-TW'):'從未使用';html+='<div class="panel2" style="padding:12px;display:flex;align-items:center;gap:12px">';html+='<span class="chip" style="background:rgba(56,217,192,0.12);color:var(--teal);font-size:11px;white-space:nowrap">'+(AI_PRIORITY.indexOf(k.provider||'gemini')+1)+'. '+pv.n+'</span>';html+='<div style="flex:1;min-width:0">';html+='<div style="font-size:13px;font-family:monospace;word-break:break-all">'+masked+'</div>';html+='<div style="font-size:11px;color:var(--mut);margin-top:4px">'+(k.model||pv.defModel)+' ｜ 使用 '+(k.useCount||0)+' 次 ｜ '+lastUsed+'</div>';html+='</div>';html+='<button class="btn mini teal" onclick="testApiKey('+i+')">🔍 測試</button>';html+='<button class="btn mini danger" onclick="removeApiKey('+i+')">刪除</button>';html+='</div>'})}html+='</div>';html+='<div style="margin-top:14px;font-size:12px;color:var(--mut);text-align:center">共 '+keys.length+' 把金鑰 ｜ 呼叫時依優先順序自動備援切換</div>';$('#view').innerHTML=html}
 function addApiKey(){const input=$('#newApiKey');const key=(input.value||'').trim();if(!key){toast('請輸入 API 金鑰','bad');return}const provider=$('#newApiProvider').value;let model=($('#newApiModel').value||'').trim()||AI_PROVIDERS[provider].defModel;const pv=AI_PROVIDERS[provider];if(pv.banned&&pv.banned.includes(model)){model=pv.defModel;toast('🚫 該模型已禁用，改用 '+model)}const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(data.keys.some(k=>k.key===key)){toast('此金鑰已存在','bad');return}data.keys.push({key:key,provider:provider,model:model,addedAt:new Date().toISOString(),useCount:0,lastUsed:null});set(LS.apiKeys,data);toast('✅ 金鑰已新增（'+pv.n+'）');vApiKeys()}
 function importApiKeysTxt(){
 const raw=($('#apiKeyTxt').value||'').trim();if(!raw)return toast('請先貼上金鑰（每行一組）','bad');
@@ -9536,7 +9709,7 @@ const GAME_LIST=[
 function gameKey(fn){if(window._gKey)window.removeEventListener('keydown',window._gKey);window._gKey=fn;if(fn)window.addEventListener('keydown',fn)}
 function gameStop(){gameKey(null);if(window._gTimer){clearInterval(window._gTimer);window._gTimer=null}}
 function gameBack(){gameStop();vGames()}
-function gameReward(name,score,gold,xp){const u=me(),g=u.g;gold=Math.max(0,Math.min(300,gold|0));xp=Math.max(0,Math.min(300,xp|0));g.gold+=gold;if(xp>0){g.xp+=xp;while(g.xp>=g.needXp&&g.lv<CFG.MAX_LV){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}}saveU(u);hud();toast('🎮 '+name+' 結算：得分 '+score+'｜🪙+'+gold+' ✨+'+xp+' XP');duelRecord(name,score)}
+function gameReward(name,score,gold,xp){const u=me(),g=u.g;gold=Math.max(0,Math.min(300,gold|0));xp=Math.max(0,Math.min(300,xp|0));g.gold+=gold;if(xp>0){g.xp+=xp;while(g.xp>=g.needXp&&g.lv<effMaxLv()){g.xp-=g.needXp;g.lv++;g.needXp=CFG.needXp(g.lv)}}saveU(u);hud();toast('🎮 '+name+' 結算：得分 '+score+'｜🪙+'+gold+' ✨+'+xp+' XP');duelRecord(name,score)}
 /* ════════ ⚔️ 好友遊戲 PK（雙人對戰）════════ */
 const DUEL_GAMES=[{n:'2048',f:'g2048',i:'🔢'},{n:'貪吃蛇',f:'gSnake',i:'🐍'},{n:'記憶翻牌',f:'gMemory',i:'🃏'},{n:'俄羅斯方塊',f:'gTetris',i:'🧱'}];
 function duelChallenge(fid){
@@ -9570,7 +9743,7 @@ setTimeout(()=>toast('📨 PK 成績 '+score+' 分已登記，等待 '+d.bName+'
 if(d.b===u.id&&d.bScore==null){d.bScore=score;d.status='done';
 const us=get(LS.users,[]);const A=us.find(x=>x.id===d.a),B=us.find(x=>x.id===d.b);
 const win=d.aScore===d.bScore?null:(d.aScore>d.bScore?A:B);const lose=win?(win===A?B:A):null;
-if(win&&win.g){win.g.gold+=100;win.g.xp+=50;while(win.g.xp>=win.g.needXp&&win.g.lv<CFG.MAX_LV){win.g.xp-=win.g.needXp;win.g.lv++;win.g.needXp=CFG.needXp(win.g.lv)}}
+if(win&&win.g){win.g.gold+=100;win.g.xp+=50;while(win.g.xp>=win.g.needXp&&win.g.lv<effMaxLv()){win.g.xp-=win.g.needXp;win.g.lv++;win.g.needXp=CFG.needXp(win.g.lv)}}
 if(lose&&lose.g)lose.g.gold+=20;
 if(!win){if(A&&A.g)A.g.gold+=50;if(B&&B.g)B.g.gold+=50}
 d.winner=win?win.id:null;set(LS.users,us);set(LS.duels,ds);hud();
@@ -10580,8 +10753,12 @@ function genFixedEquip(slot,rarity){
   return{id:'eq'+Date.now()+Math.random().toString(36).slice(2,6),name:itemName,rarity,slot,level:0,maxLevel:rarity==='∞'?150:100,mainAttr,mainValue:mainVal,subStats:subs};
 }
 function eqUpgradeCost(lv,rarity){return rarity==='∞'?Math.max(1,Math.ceil(lv/10)):Math.ceil((lv+1)/5)}
+function eqCap(eq){ /* 卡片等級上限 = 玩家當前等級 ×100（Lv.1→100、Lv.2→200…）；原稀有度上限為下限 */
+  const u=me();const plv=(u&&u.g&&u.g.lv)||1;
+  return Math.max(eq.maxLevel||100,plv*100);
+}
 function eqUpgrade(eq,cost){
-  if(eq.level>=eq.maxLevel)return false;
+  if(eq.level>=eqCap(eq))return false;
   const costNeed=eqUpgradeCost(eq.level,eq.rarity);
   if(cost<costNeed)return false;
   eq.level+=1;eq.mainValue=parseFloat((eq.mainValue*1.02).toFixed(2));
@@ -10828,14 +11005,14 @@ function eqCardHtml(eq,d){
     '<div class="equipName equip'+rc+'">'+eq.name+'</div>'+
     '<div class="equipSub">'+eq.slot+'｜'+rc+'級｜'+mainStr+'</div>'+
     '<div class="equipSubs">'+subHtml+'</div>'+
-    '<div class="equipLv">⚒️ +'+(eq.level||0)+' / '+eq.maxLevel+'</div>'+
+    '<div class="equipLv">⚒️ +'+(eq.level||0)+' / '+eqCap(eq)+'</div>'+
     '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'+
     (isEquipped?'<button class="btn mini" disabled>✅ 已裝備</button>'+
       '<button class="btn ghost mini danger" onclick="eqDrop(\''+eq.slot+'\')">卸下</button>'+
       '<button class="btn mini danger" onclick="eqDelete(\''+eq.id+'\')">🗑️</button>':
       '<button class="btn mini" onclick="eqEquipNow(\''+eq.id+'\',\''+eq.slot+'\')">裝備</button>'+
       '<button class="btn ghost mini" onclick="eqDelete(\''+eq.id+'\')">🗑️</button>')+
-    (eq.level<(eq.maxLevel||100)?'<button class="btn teal mini" onclick="eqUpgradeNow(\''+eq.id+'\')">⚒️強化(🔩'+eqUpgradeCost(eq.level,eq.rarity)+')</button>':'')+
+    (eq.level<eqCap(eq)?'<button class="btn teal mini" onclick="eqUpgradeNow(\''+eq.id+'\')">⚒️強化(🔩'+eqUpgradeCost(eq.level,eq.rarity)+')</button>':'')+
     '</div></div>';
 }
 function eqEquipNow(id,slot){const d=eqGet();const eq=d.owned.find(x=>x.id===id);if(!eq)return;
@@ -10854,7 +11031,7 @@ function eqPickSlot(slot){
       return '<div class="equipCard '+(EQ_RAR_BORDER?EQ_RAR_BORDER(eq.rarity):'')+'" style="animation:pop .3s">'+
         '<div class="equipName equip'+eq.rarity+'">'+esc(eq.name)+'</div>'+
         '<div class="equipSub">'+eq.slot+'｜'+eq.rarity+'級｜'+eq.mainAttr+': '+eq.mainValue+'</div>'+
-        '<div class="equipLv">⚒️ +'+(eq.level||0)+' / '+eq.maxLevel+'</div>'+
+        '<div class="equipLv">⚒️ +'+(eq.level||0)+' / '+eqCap(eq)+'</div>'+
         (isEq?'<button class="btn mini" style="margin-top:8px" disabled>✅ 已裝備</button>':
         '<button class="btn mini" style="margin-top:8px" onclick="eqEquipNow(\''+eq.id+'\',\''+slot+'\');closeModal()">裝備</button>')+
       '</div>';
@@ -10869,14 +11046,14 @@ function eqShowDetail(id){const d=eqGet();const eq=d.owned.find(x=>x.id===id);if
     '<div class="equipName equip'+eq.rarity+'">'+eq.name+'</div>'+
     '<div class="equipSub">'+eq.slot+'｜'+eq.rarity+'級｜主屬性: '+eq.mainAttr+' '+eq.mainValue+'</div>'+
     '<div style="margin-top:8px">'+subHtml+'</div>'+
-    '<div class="equipLv">⚒️ 強化 +'+(eq.level||0)+' / '+eq.maxLevel+'</div>'+
+    '<div class="equipLv">⚒️ 強化 +'+(eq.level||0)+' / '+eqCap(eq)+'</div>'+
     '</div><div class="mBtns"><button class="btn" onclick="eqEquipNow(\''+eq.id+'\',\''+eq.slot+'\');closeModal()">裝備</button><button class="btn ghost" onclick="closeModal()">關閉</button></div>');
 }
 function eqUpgradeNow(id){
   const d=eqGet();const eq=d.owned.find(x=>x.id===id);if(!eq)return;
   const cost=eqUpgradeCost(eq.level,eq.rarity);
   if((d.enhStone||0)<cost)return toast('🔩 強化石不足（需 '+cost+'）','bad');
-  if(eq.level>=(eq.maxLevel||100))return toast('⚠️ 已達最高等級','bad');
+  if(eq.level>=eqCap(eq))return toast('⚠️ 已達最高等級（等於玩家等級 ×100）','bad');
   d.enhStone-=cost;eqUpgrade(eq,cost);eqSet(d);saveU(me());hud();
   toast('⚒️ '+eq.name+' 強化至 +'+eq.level+'！');vEquip();
 }
@@ -11740,7 +11917,7 @@ function vAdminPanel(){
 }
 
 function saveAdminSysSettings(){
-  const maxLvl = +$('#admMaxLvlInput').value || 300;
+  const maxLvl = Math.max(300, +$('#admMaxLvlInput').value || 300); /* 最低 300，不可調低 */
   const singleCap = +$('#admSingleCapInput').value || 300;
   const sys = get('ADV9_SYS_SETTINGS', {});
   sys.max_level = maxLvl;

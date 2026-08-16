@@ -212,9 +212,10 @@ function sanitize(u){var c={};for(var k in u)if(k!=='password'&&k!=='pwHash'&&k!
 function usersArray(){return Object.keys(ACC).map(function(k){return sanitize(ACC[k])})}
 /* 登入失敗次數限制（防暴力破解）：5 次失敗鎖 5 分鐘 */
 var loginFails={};
-function loginLocked(un){var f=loginFails[un||''];return !!(f&&f.until&&Date.now()<f.until)}
-function loginFail(un){var f=loginFails[un||'']||{n:0,until:0};f.n++;if(f.n>=5)f.until=Date.now()+5*60*1000;loginFails[un||'']=f}
-function loginOk(un){loginFails[un||'']={n:0,until:0}}
+function loginKey(un,ip){return String(un||'')+'|'+String(ip||'')}
+function loginLocked(un,ip){var f=loginFails[loginKey(un,ip)];return !!(f&&f.until&&Date.now()<f.until)}
+function loginFail(un,ip){var k=loginKey(un,ip),f=loginFails[k]||{n:0,until:0};f.n++;if(f.n>=5)f.until=Date.now()+5*60*1000;loginFails[k]=f}
+function loginOk(un,ip){loginFails[loginKey(un,ip)]={n:0,until:0}}
 
 /* ADV9_USERS 智能合併：依寫入者身分授權 */
 function mergeUsers(incoming,w){
@@ -253,7 +254,17 @@ function mergeUsers(incoming,w){
   /* 不因前端清單暫時不完整而刪除教師/學生帳號；帳號只能由明確刪除流程移除。 */
 }
 var MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.webp':'image/webp','.mp4':'video/mp4','.webm':'video/webm','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8','.ico':'image/x-icon'};
-function cors(res,req){var origin=req&&req.headers&&req.headers.origin;var allow=process.env.ADV9_ALLOWED_ORIGIN||origin||'*';res.setHeader('Access-Control-Allow-Origin',allow);res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');}
+function cors(res,req){var origin=req&&req.headers&&req.headers.origin;var allow=process.env.ADV9_ALLOWED_ORIGIN||origin||'*';res.setHeader('Access-Control-Allow-Origin',allow);res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');}
+/* 輸入清洗：所有寫入 KV 的資料都過此函式——字串截斷、陣列/物件深度與數量設上限，防超長輸入塞爆記憶體 */
+function sanitizeInput(v,depth){
+  if(depth>6)return undefined;
+  if(typeof v==='string'){return v.length>100000?v.slice(0,100000):v;}
+  if(typeof v==='number'){return isFinite(v)?v:0;}
+  if(v===null||v===undefined||typeof v==='boolean')return v;
+  if(Array.isArray(v)){if(v.length>2000)return undefined;var a=[];for(var i=0;i<v.length;i++){var s=sanitizeInput(v[i],depth+1);if(s!==undefined)a.push(s)}return a;}
+  if(typeof v==='object'){var keys=Object.keys(v);if(keys.length>2000)return undefined;var o={};for(var j=0;j<keys.length;j++){var s2=sanitizeInput(v[keys[j]],depth+1);if(s2!==undefined)o[keys[j]]=s2}return o;}
+  return undefined;
+}
 function readBody(req,cb){var ch=[],len=0,max=60*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy()}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
 var BUILD='v'+Date.now().toString(36); /* 每次部署/重啟皆異，前端 poll 偵測到版本變化即自動重新整理 */
 var server=http.createServer(function(req,res){
@@ -346,6 +357,7 @@ var server=http.createServer(function(req,res){
       try{var arr=JSON.parse(b.toString('utf8'));var list=Array.isArray(arr)?arr:[arr];var pushRows=[];
       list.forEach(function(row){
         if(!row||row.k==null)return;
+        row.v=sanitizeInput(row.v,0);
         if(row.k===USERS_KEY){mergeUsers(row.v,w);pushRows.push({k:USERS_KEY,v:usersArray()})}
         else if(GLOBAL_KEYS.has(row.k)){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
         else {KV[w.username+':'+row.k]=row.v}
@@ -482,6 +494,40 @@ var server=http.createServer(function(req,res){
     });
   }
 
+  /* 本地 Ollama 代理：前端 → 本伺服器 → http://127.0.0.1:11434（不走第三方、不留金鑰；任何登入者可呼叫，模型/主機可由管理員在 ADV9_APIKEYS 設定）*/
+  if(req.method==='POST'&&p==='/rest/v1/ai/ollama'){
+    var ow=checkToken(tok); if(!ow){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入');}
+    return readBody(req,function(b){
+      if(!b||b.length>2*1024*1024){res.writeHead(413);return res.end('too large');}
+      var j;try{j=JSON.parse(b.toString('utf8'))}catch(e){res.writeHead(400);return res.end('bad json');}
+      var model=String(j.model||'qwen2.5:0.6b').slice(0,128);
+      var host=String(j.host||'http://127.0.0.1:11434').slice(0,256);
+      if(!/^https?:\/\//.test(host)){res.writeHead(400);return res.end('bad host');}
+      var payload=JSON.stringify({model:model,messages:Array.isArray(j.messages)?j.messages:[],stream:false,temperature:typeof j.temperature==='number'?j.temperature:0.7});
+      var ureq=http.request(host+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(payload)},timeout:120000},function(ures){
+        var ch=[];ures.on('data',function(c){ch.push(c);if(ch.length>2*1024*1024){try{ures.destroy()}catch(e){}}});ures.on('end',function(){
+          res.writeHead(ures.statusCode||500,{'Content-Type':'application/json; charset=utf-8'});
+          res.end(Buffer.concat(ch));
+        });
+      });
+      ureq.on('error',function(){res.writeHead(502,{'Content-Type':'text/plain; charset=utf-8'});res.end('無法連線本地 Ollama（'+host+'）— 請確認已安裝並啟動 ollama serve')});
+      ureq.on('timeout',function(){try{ureq.destroy()}catch(e){}res.writeHead(504);res.end('ollama timeout')});
+      ureq.write(payload);ureq.end();
+    });
+  }
+  /* 背景音樂清單：回傳 media/music/ 下的音檔檔名（供前端播放器選曲）*/
+  if(req.method==='GET'&&p==='/rest/v1/media/music'){
+    var mw=checkToken(tok); if(!mw){res.writeHead(401);return res.end('need login')}
+    fs.readdir(MEDIA+'/music',function(e,files){
+      if(e){res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});return res.end('[]');}
+      var okExt={'.mp3':1,'.ogg':1,'.wav':1,'.flac':1,'.m4a':1,'.opus':1};
+      var list=(files||[]).filter(function(f){return okExt[path.extname(f).toLowerCase()]}).sort();
+      res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});
+      res.end(JSON.stringify(list));
+    });
+    return;
+  }
+
   /* Word/文字題目解析：只在 VPS 端解析，不把題目上傳到第三方 */
   if(req.method==='POST'&&p==='/rest/v1/docx_questions'){
     var w=checkToken(tok); if(!w || (w.role!=='teacher'&&w.role!=='admin')){res.writeHead(403);return res.end('forbidden');}
@@ -502,8 +548,9 @@ var ext='.docx';
   /* 登入：伺服器端驗證，回傳帳號＋token（不回傳密碼）*/
   if(req.method==='POST'&&p==='/rest/v1/rpc/login_user'){
     return readBody(req,async function(b){
-      var un,pw;try{var j=JSON.parse(b.toString('utf8'));un=j.p_username;pw=j.p_password}catch(e){}
-      if(loginLocked(un)){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('嘗試次數過多，請 5 分鐘後再試')}
+      var un,pw;try{var j=JSON.parse(b.toString('utf8'));un=String(j.p_username||'').slice(0,64);pw=String(j.p_password||'').slice(0,128)}catch(e){}
+      var ip=req.socket&&req.socket.remoteAddress;
+      if(loginLocked(un,ip)){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('嘗試次數過多，請 5 分鐘後再試')}
       var ex=ACC[un]; var ok=false;
       if(ex){
         if(ex.master){ /* 主管理員：固定 SHA-256 雜湊（雜湊值寫死在 MASTER.hash，密碼由伺服器設定）*/
@@ -515,8 +562,8 @@ var ext='.docx';
           if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.password='';saveACC();}
         }
       }
-      if(!ok){loginFail(un);res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('帳號或密碼錯誤')}
-      loginOk(un);
+      if(!ok){loginFail(un,ip);res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('帳號或密碼錯誤')}
+      loginOk(un,ip);
       var t=newToken(un,ex.role);
       var out={id:ex.id||ex.username,username:ex.username,name:ex.name,role:ex.role,class_id:ex.classId||null,managedClassIds:Array.isArray(ex.managedClassIds)?ex.managedClassIds:[],isSchoolAdmin:!!ex.isSchoolAdmin,prof:ex.prof||null,created_at:ex.createdAt||null,game_data:ex.g||null,token:t};
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(out));

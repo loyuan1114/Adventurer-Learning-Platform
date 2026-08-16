@@ -150,9 +150,38 @@ mkdir adv9 -Force | Out-Null; tar xzf adv9_public.tgz -C adv9; Set-Location adv9
 | 預設帳號 | `adv9boss`，密碼 `admin123` |
 | 改密碼 | 登入後到「帳號」頁修改 |
 | 改管理員密碼（進階） | 管理員密碼寫在 `server.js` 開頭的 `MASTER` 設定裡：`hash` = sha256(`adv9boss|新密碼|ADV9|v1|9f3a7`)，改完重啟容器 |
-| AI 金鑰 | 登入後 → 管理員 → **API 金鑰管理** → 貼上你的金鑰（Gemini / DeepSeek / Qwen / Kimi 皆可） |
+| AI 金鑰 | 登入後 → 管理員 → **API 金鑰管理** → 貼上你的金鑰（Gemini / DeepSeek / Qwen / Kimi / 本地 Ollama 皆可） |
 
 > 🔒 本公開版**不含任何 AI 金鑰或學生資料**。金鑰貼上後只存在**你自己的** `data/kv.json`，不會外洩；別人部署是全新空環境。
+
+---
+
+## 🤖 本地 AI（Ollama，免金鑰）
+
+不想用雲端 AI 金鑰？可安裝 **Ollama**，讓遊戲在本機跑 AI（出題、批改、弱點分析全可走本地模型，資料完全不離開你的伺服器）。
+
+**① 安裝 Ollama**（Linux）：
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+macOS / Windows 直接裝 [Ollama.app](https://ollama.com/download) 即可。
+
+**② 下載模型**（二選一或都裝，每顆約 4~6GB）：
+
+```bash
+ollama pull huihui_ai/qwen2.5-vl-abliterated:7b    # 出題/分析全能
+ollama pull huihui_ai/deepseek-r1-abliterated:7b   # 推理強、數學好
+```
+
+**③ 啟動 Ollama 服務**：`ollama serve`（裝成服務的會自動啟動）。
+
+> ⚠️ 7B 模型約需 **6~8GB 記憶體**。RAM 不到 4GB 的機器請改拉 `qwen2.5:1.7b` 或 `qwen2.5:0.6b`；只有 2GB 的小 VPS 建議繼續用雲端 AI。
+
+**④ 讓遊戲使用本地模型**：登入 → 管理員 → **API 金鑰管理** → 新增 → 供應商選 **Ollama 本地** → 選你下載的模型 → 「金鑰」欄位填 `http://127.0.0.1:11434`（本機安裝可不填）→ 儲存。AI 功能會依優先順序自動呼叫。
+
+> Ollama 呼叫走自架伺服器代理（`/rest/v1/ai/ollama`），模型與題目**不會上傳到任何第三方**。
 
 ---
 
