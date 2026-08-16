@@ -1,7 +1,7 @@
-/* ════════════════════════════════════════════════════
-   管理員面板（vAdminPanel 與管理/備份功能）
-   由 tools/build/split.py 從 public/index.html 抽出（懶載入模組）
-   ════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAdminPanel, adminSystemBackup
+   ════════════════════════════════════════════ */
 function vAdminPanel(){
   if (!window.IS_ADMIN) return toast('⚠️ 僅管理員可進入', 'bad');
   const sys = get('ADV9_SYS_SETTINGS', { max_level: 300, free_point_single_limit: 300, festival_mode: false });
@@ -50,106 +50,6 @@ function vAdminPanel(){
   $('#view').innerHTML = html;
 }
 
-function saveAdminSysSettings(){
-  const maxLvl = Math.max(300, +$('#admMaxLvlInput').value || 300); /* 最低 300，不可調低 */
-  const singleCap = +$('#admSingleCapInput').value || 300;
-  const sys = get('ADV9_SYS_SETTINGS', {});
-  sys.max_level = maxLvl;
-  sys.free_point_single_limit = singleCap;
-  set('ADV9_SYS_SETTINGS', sys);
-  window.ADMIN_MAX_LEVEL = maxLvl;
-  toast('✅ 系統參數已成功儲存！');
-}
-
-function toggleFestivalMode(on){
-  const sys = get('ADV9_SYS_SETTINGS', {});
-  sys.festival_mode = on;
-  set('ADV9_SYS_SETTINGS', sys);
-  toast(on ? '🎉 全校節日雙倍歡樂時間已開啟！' : '節日模式已關閉');
-}
-
-function adminGrantInfinity(){
-  const uid = $('#admGrantUser').value;
-  const attrId = $('#admGrantAttr').value;
-  const reason = $('#admGrantReason').value.trim();
-  if (!reason) return toast('⚠️ 請輸入發放原因', 'bad');
-
-  const d = rerollGet();
-  d.attr[attrId] = '∞';
-  rerollSet(d);
-
-  const logs = get('ADV9_ADMIN_OP_LOGS', []);
-  logs.push({
-    time: Date.now(),
-    op: 'GRANT_INFINITY',
-    target: uid,
-    attr: attrId,
-    reason: reason,
-    operator: me().username
-  });
-  set('ADV9_ADMIN_OP_LOGS', logs);
-  toast('👑 已成功贈送 ∞ 並寫入管理員日誌！');
-}
-
-function adminCreateCode(){
-  const code = $('#admCodeInput').value.trim().toUpperCase();
-  const coins = +$('#admCodeCoins').value || 0;
-  const gems = +$('#admCodeGems').value || 0;
-  if (!code) return toast('⚠️ 請輸入禮包碼', 'bad');
-
-  const sys = get('ADV9_SYS_SETTINGS', { promo_codes: {} });
-  sys.promo_codes = sys.promo_codes || {};
-  sys.promo_codes[code] = { star_coins: coins, gems: gems, used: [] };
-  set('ADV9_SYS_SETTINGS', sys);
-  toast('🎁 禮包碼 [' + code + '] 生成成功！');
-}
-
-function adminExportUserJSON(){
-  const u = me();
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(u, null, 2));
-  const dlAnchor = document.createElement('a');
-  dlAnchor.setAttribute("href", dataStr);
-  dlAnchor.setAttribute("download", u.role + "_" + u.username + ".json");
-  document.body.appendChild(dlAnchor);
-  dlAnchor.click();
-  dlAnchor.remove();
-}
-
-function adminImportUserJSON(input){
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try {
-      const j = JSON.parse(e.target.result);
-      if (j && j.username) {
-        saveU(j);
-        toast('✅ 使用者資料匯入成功！');
-      }
-    } catch(err) { toast('⚠️ 無效的 JSON 檔案', 'bad'); }
-  };
-  reader.readAsText(file);
-}
-
 function adminSystemBackup(){
   window.location.href = '/rest/v1/system_backup';
-}
-
-function adminSystemRestore(input){
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try {
-      const j = JSON.parse(e.target.result);
-      fetch('/rest/v1/system_restore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-adv9-token': WTOKEN },
-        body: JSON.stringify(j)
-      }).then(r => r.json()).then(res => {
-        if (res.ok) toast('✅ 全系統還原成功！');
-      });
-    } catch(err) { toast('⚠️ 還原失敗', 'bad'); }
-  };
-  reader.readAsText(file);
 }

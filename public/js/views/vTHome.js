@@ -1,0 +1,5 @@
+/* ════════════════════════════════════════════
+   vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTHome
+   ════════════════════════════════════════════ */
+function vTHome(){const u=me();if(!u)return;const classes=get(LS.classes,{ids:[],names:{}});const users=get(LS.users,[]);const hw=get(LS.hw,[]);const mClasses=u.managedClassIds||[];const cards=mClasses.map(cid=>{const stuCount=users.filter(x=>x.role==='student'&&x.classId===cid).length;const hwCount=hw.filter(h=>h.classId===cid||(hwGrades(h.classId)&&hwGrades(h.classId).indexOf(String(cid||'')[0])>-1)).length;const cname=classes.names[cid]||cid;return '<div class="panel2" style="cursor:pointer;transition:.2s" onclick="tGo(\'hw\')"><b style="font-size:16px;color:var(--gold)">'+cname+'</b><div style="font-size:12px;color:var(--mut);margin-top:6px">👥 '+stuCount+' 名學生 ｜ 📚 '+hwCount+' 份作業</div></div>'}).join('');$('#view').innerHTML='<h3 class="vt">🏫 我的班級</h3><span class="vsub">Classroom</span><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:15px">'+(cards||'<p class="empty">尚未管理任何班級，請到「🏫 班級管理」新增</p>')+'</div>'}

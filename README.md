@@ -60,24 +60,30 @@
   ```
 - 不會程式也沒關係：上面的安裝方法二～五用現成 `adv9_public.tgz` 就能跑，兩種方式結果一樣
 
-### 🧩 前端多檔案架構（懶載入，只跑需要的檔案）
+### 🧩 前端多檔案架構（全畫面懶載入，只跑需要的檔案）
 
-遊戲前端不是一個超大檔案——已拆分為「外殼 + 功能模組」：
+遊戲前端不是一個超大檔案——已拆分為「外殼 + 每畫面一個模組」：
 
 ```
-public/index.html        應用程式外殼（登入、主介面、核心系統）
-public/js/bank.js        題庫模組（進修練場／競速／複習／AI出題才載入）
-public/js/quiz.js        修練場答題流程（進修練場／領土戰／錯題複習才載入）
-public/js/dungeon.js     副本戰鬥（進副本才載入）
-public/js/admin.js       管理員面板（進管理員控制台才載入）
+public/index.html          應用程式外殼（登入、主介面、核心系統）
+public/js/shared.js        共用模組（被多個畫面共用，任一畫面用到才載入）
+public/js/views/vHome.js   主頁
+public/js/views/vCodes.js  兌換碼（沒點進去就完全不載入！）
+public/js/views/vSubj.js   修練場
+public/js/views/vDungeon.js 副本戰鬥
+public/js/views/vPK.js     競技場 PK
+public/js/views/vAdminPanel.js  管理員控制台
+public/js/views/…          共 68 個畫面，一畫面一檔
 ```
 
-進入某個功能時才由 `needJs()` 動態載入對應模組——例如只進修練場，就只下載 `bank.js`＋`quiz.js`（約 28KB），其餘模組完全不載，**學校舊電腦／低網速也能順暢開局**。拆分的行數對照與規則由 `tools/build/split.py` 自動處理，改完 `index.html` 執行：
+**用哪個畫面，才載哪個畫面的程式碼**：進入畫面時由包裝函式 `needJs()` 動態載入對應模組（含該畫面依賴的共用模組）——例如只看主頁、不去兌換碼，`vCodes.js` 就**完全不載入**；API 請求也只在畫面開啟後才發送，**學校舊電腦／低網速也能順暢開局**。每個畫面約 10～300 行，拆分的行數對照與規則由 `tools/build/splitall.py` 自動處理，改完 `index.html` 執行：
 
 ```bash
-python3 tools/build/split.py    # 重新切分（需要 Python 3）
-node --check public/js/*.js     # 驗證語法（需要 Node.js）
+python3 tools/build/splitall.py    # 重新切分（需要 Python 3 + Node.js）
+node --check public/js/*.js        # 驗證語法（需要 Node.js）
 ```
+
+每個模組載入失敗會跳出提示並可重新整理重試，不會影響外殼運作。
 
 ### 🛠️ 多語言開發工具鏈
 
@@ -86,7 +92,7 @@ node --check public/js/*.js     # 驗證語法（需要 Node.js）
 | 語言 | 角色 |
 |---|---|
 | **JavaScript (Node.js)** | 伺服器（`server.js`，零 npm 套件）與遊戲前端 |
-| **Python 3** | 建置工具（`tools/build/split.py` 模組切分）、文件題目文字擷取（`docx_extract.py`）、跨平台控制工具（`tools/adv9ctl/adv9ctl.py`） |
+| **Python 3** | 建置工具（`tools/build/splitall.py` 全畫面切分、`merge.py` 合回單檔）、文件題目文字擷取（`docx_extract.py`）、跨平台控制工具（`tools/adv9ctl/adv9ctl.py`） |
 | **Shell** | 一鍵安裝與部署腳本（Docker 安裝、VPS 部署） |
 
 各工具都已驗證可在 Python 3.7+／Node 18+ 環境執行，無需額外套件。
