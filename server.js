@@ -7,7 +7,7 @@
    - 娃娃 API 依「擁有者 / admin」授權，杜絕越權讀寫他人資料
    - 登入失敗次數限制，防暴力破解
    - 靜態檔用 path.resolve + 前綴檢查，防路徑穿越 */
-const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),child_process=require('child_process');
+const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),child_process=require('child_process'),cluster=require('cluster'),os=require('os');
 const ROOT=__dirname;
 const PUB=path.join(ROOT,'public'),MEDIA=path.join(ROOT,'media'),DATA=path.join(ROOT,'data'),USERSDIR=path.join(DATA,'users');
 const KVFILE=path.join(DATA,'kv.json'),ACCFILE=path.join(DATA,'accounts.json'),TOKFILE=path.join(DATA,'tokens.json');
@@ -20,7 +20,7 @@ const PORT=process.env.PORT||8080;
 const USERS_KEY='ADV9_USERS';
 /* 資料隔離：下列 key 為全服共享（社交/系統/市集/聊天/排名/好友/公告等），原樣保留；
    其餘 key 視為個人資料，寫入時自動加 username: 前綴，避免所有學生共用同一份。 */
-const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT']);
+const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT','ADV9_MUSIC_LINKS','ADV9_MUSIC_REQS','ADV9_PIXELS','ADV9_SUDOKU','ADV9_CLASSWAR','ADV9_VIDEOS']);
 const MASTER={user:'adv9boss',salt:'ADV9|v1|9f3a7',hash:'c25eba85d26bc97f09b85878ff6b4a6322acd3c740485bf09a4930b7f49e5c42',name:'總管理員'};
 /* 伺服器專用 pepper：可用環境變數 ADV9_PEPPER 覆寫（建議部署時設定為隨機長字串）*/
 const SERVER_PEPPER=process.env.ADV9_PEPPER||'adv9-server-pepper-v1';
@@ -91,6 +91,29 @@ function saveSHOP(){try{fs.writeFileSync(SHOPFILE, JSON.stringify(SHOP, null, 2)
 function saveEVENTS(){try{fs.writeFileSync(EVENTFILE, JSON.stringify(EVENTS, null, 2))}catch(e){console.error('saveEVENTS', e)}}
 function saveACC(){Object.keys(ACC).forEach(function(un){saveUserFile(un)})}
 
+/* ── 叢集（多 CPU）：master 持權威狀態、worker 跑 HTTP ──
+   worker 的儲存函式改為透過 IPC 送給 master 合併/落檔，master 再廣播最新狀態給所有 worker，
+   確保 2 顆 CPU 都能同時服務請求、狀態仍單一權威（無狀態 HMAC token 跨 worker 皆可驗證）*/
+var ipcSend=function(m){try{if(process.send)process.send(m)}catch(e){}};
+var IS_WORKER=cluster.isWorker;
+if(IS_WORKER){
+  saveKV=function(){ipcSend({__adv9:1,t:'kv',d:KV})};
+  saveTOK=function(){};
+  saveDOLL=function(){ipcSend({__adv9:1,t:'doll',d:DOLL})};
+  saveSHOP=function(){ipcSend({__adv9:1,t:'shop',d:SHOP})};
+  saveEVENTS=function(){ipcSend({__adv9:1,t:'events',d:EVENTS})};
+  saveSYSSET=function(){ipcSend({__adv9:1,t:'sysset',d:SYSSET})};
+  saveIndex=function(){ipcSend({__adv9:1,t:'index'})};
+  saveUserFile=function(username){if(!username)return;ipcSend({__adv9:1,t:'acc',un:username,d:ACC[username]||null})};
+  deleteUserFile=function(username){if(!username)return;ipcSend({__adv9:1,t:'acc-del',un:username})};
+  saveOnline=function(){var now=Date.now();if(now-_onlineSaveT<15000)return;_onlineSaveT=now;ipcSend({__adv9:1,t:'online',d:ONLINE})};
+  reconcileIndex=function(){};
+  /* 登入時向 master 補查帳號（建帳/改密碼後立即登入的競態：master 權威狀態）*/
+  var _accFetchWaiters={};
+  process.on('message',function(im){if(im&&im.__adv9===1&&im.t==='acc-fetch-resp'&&_accFetchWaiters[im.un]){var fn=_accFetchWaiters[im.un];delete _accFetchWaiters[im.un];fn(im.d)}});
+  function askMasterAcc(un){return new Promise(function(resolve){var t=setTimeout(function(){delete _accFetchWaiters[un];resolve(null)},800);_accFetchWaiters[un]=function(d){clearTimeout(t);resolve(d)};ipcSend({__adv9:1,t:'acc-fetch',un:un})})}
+}
+
 /* 個別帳號檔案儲存機制 (data/users/<username>.json) */
 var userSaveTimers={};
 function saveUserFile(username){
@@ -120,7 +143,7 @@ function deleteUserFile(username){
 
 /* ── 全帳號主檔（備援）：列出所有人，帳號檔遺失/被刪時自動復原 ── */
 function indexOfACC(){
-  return Object.keys(ACC).map(function(un){
+  return Object.keys(ACC).filter(function(un){return !(ACC[un]&&ACC[un].hidden)}).map(function(un){
     var u=ACC[un]||{};
     return {id:u.id||un,username:un,name:u.name||un,role:u.role||'student',classId:u.classId||null,managedClassIds:u.managedClassIds||[],isSchoolAdmin:!!u.isSchoolAdmin,pwHash:u.pwHash||'',salt:u.salt||'',master:!!u.master,createdAt:u.createdAt||new Date().toISOString()};
   });
@@ -141,7 +164,7 @@ function reconcileIndex(){ /* 從主檔復原遺失帳號（含檔名清單）�
     if(!Array.isArray(idx))return;
     var restored=[];
     idx.forEach(function(ir){
-      if(!ir||!ir.username||ACC[ir.username])return;
+      if(!ir||!ir.username||ACC[ir.username]||ir.hidden)return;
       ACC[ir.username]={id:ir.id||ir.username,username:ir.username,name:ir.name||ir.username,role:ir.role||'student',classId:ir.classId||null,managedClassIds:ir.managedClassIds||[],isSchoolAdmin:!!ir.isSchoolAdmin,pwHash:ir.pwHash||'',salt:ir.salt||'',master:!!ir.master,password:'',g:null,createdAt:ir.createdAt||new Date().toISOString()};
       saveUserFile(ir.username);
       restored.push(ir.username);
@@ -204,12 +227,20 @@ try{var _ol=loadJSON(ONLINEFILE,{});if(_ol&&typeof _ol==='object')ONLINE=_ol}cat
 var _onlineSaveT=0;
 function saveOnline(){try{var now=Date.now();if(now-_onlineSaveT<15000)return;_onlineSaveT=now;var tmp=ONLINEFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(ONLINE));fs.renameSync(tmp,ONLINEFILE)}catch(e){}}
 
-/* token */
-function newToken(un,role){var t=crypto.randomBytes(24).toString('hex');TOK[t]={username:un,role:role,exp:Date.now()+30*864e5};saveTOK();return t}
-function checkToken(t){if(!t)return null;var e=TOK[t];if(!e)return null;if(e.exp&&e.exp<Date.now()){delete TOK[t];saveTOK();return null}return e}
+/* token：無狀態 HMAC（任何 worker 皆可驗證，不需共享 token 表）*/
+function tokenSig(p){return crypto.createHmac('sha256',SERVER_PEPPER).update(p).digest('base64')}
+function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,exp:Date.now()+30*864e5})).toString('base64');return p+'.'+tokenSig(p)}
+function checkToken(t){
+  if(!t)return null;
+  var i=t.lastIndexOf('.');if(i<1)return null;
+  var p=t.slice(0,i),s=t.slice(i+1);
+  if(s.length!==44)return null;
+  if(!crypto.timingSafeEqual(Buffer.from(s),Buffer.from(tokenSig(p))))return null;
+  try{var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(e.exp&&e.exp<Date.now())return null;return{username:e.u,role:e.r,exp:e.exp}}catch(x){return null}
+}
 /* 抹除憑證欄位，避免任何 GET 回應外洩密碼/雜湊/鹽 */
 function sanitize(u){var c={};for(var k in u)if(k!=='password'&&k!=='pwHash'&&k!=='salt')c[k]=u[k];return c}
-function usersArray(){return Object.keys(ACC).map(function(k){return sanitize(ACC[k])})}
+function usersArray(){return Object.keys(ACC).filter(function(k){return !(ACC[k]&&ACC[k].hidden)}).map(function(k){return sanitize(ACC[k])})}
 /* 登入失敗次數限制（防暴力破解）：5 次失敗鎖 5 分鐘 */
 var loginFails={};
 function loginKey(un,ip){return String(un||'')+'|'+String(ip||'')}
@@ -289,7 +320,8 @@ var server=http.createServer(function(req,res){
       if(!un||!ACC[un]){res.writeHead(404);return res.end('account not found')}
       if(ACC[un].master){res.writeHead(403);return res.end('cannot delete master admin')}
       deleteUserFile(un); delete ACC[un];
-      Object.keys(KV).forEach(function(k){if(k.indexOf(un+':')===0)delete KV[k]});
+      var delKeys=[];Object.keys(KV).forEach(function(k){if(k.indexOf(un+':')===0){delete KV[k];delKeys.push(k)}});
+      if(delKeys.length)ipcSend({__adv9:1,t:'kv-del',keys:delKeys});
       saveKV(); saveIndex(); /* 立即更新主檔（同步寫入，防刪除後崩潰遺失） */
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
     }catch(e){res.writeHead(400);res.end('bad delete')}})
@@ -306,12 +338,82 @@ var server=http.createServer(function(req,res){
     return readBody(req,function(b){try{
       var j={};try{j=JSON.parse(b.toString('utf8')||'{}')}catch(e){}
       var now=Date.now();
+      var prev=ONLINE[hw.username]&&ONLINE[hw.username].t;
       ONLINE[hw.username]={t:now,hide:!!j.hide};
+      if(prev&&now-prev>5000&&now-prev<120000){var delta=Math.round((now-prev)/1000);ipcSend({__adv9:1,t:'hb',un:hw.username,delta:delta});}
       Object.keys(ONLINE).forEach(function(k){if(now-ONLINE[k].t>90000)delete ONLINE[k]});
       saveOnline();
       var list=Object.keys(ONLINE).filter(function(k){return !ONLINE[k].hide&&now-ONLINE[k].t<=45000}).sort();
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,online:list}));
     }catch(e){res.writeHead(400);res.end('bad heartbeat')}})
+  }
+  /* 🏆 班級戰：全班總答題數 + 在線分鐘（v4.0）*/
+  if(req.method==='GET'&&p==='/rest/v1/class_war'){
+    var cw2=checkToken(tok); if(!cw2){res.writeHead(401);return res.end('need login')}
+    var cwData=((KV['ADV9_CLASSWAR']||{}).online)||{};
+    var byClass={};
+    Object.keys(ACC).forEach(function(un){
+      var u=ACC[un];if(!u||u.role!=='student')return;
+      var cid=u.classId||'未分班';
+      var b=byClass[cid]||(byClass[cid]={classId:cid,total:0,minutes:0,users:0});
+      b.users++;
+      if(u.g&&u.g.stats)b.total+=(u.g.stats.total||0);
+      b.minutes+=Math.round((cwData[un]||0)/60);
+    });
+    var cwRows=Object.keys(byClass).map(function(k){return byClass[k]}).sort(function(a,b){return (b.total-a.total)||(b.minutes-a.minutes)});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,rows:cwRows}));
+  }
+  /* 🧩 數獨 9x9：py 出題（sudoku_gen.py）、同場競速 + 個人最佳（v4.0）*/
+  function sudokuRun(){
+    return new Promise(function(resolve){
+      try{
+        child_process.execFile('python3',[path.join(ROOT,'sudoku_gen.py')],{timeout:10000},function(e,so){
+          if(e){resolve(null);return}
+          var g=null;try{g=JSON.parse(so)}catch(x){}
+          if(!g||!g.board||!g.answer||g.board.length!==81||g.answer.length!==81)resolve(null);else resolve(g);
+        });
+      }catch(e){resolve(null)}
+    });
+  }
+  function sudokuGet(){return KV['ADV9_SUDOKU']||(KV['ADV9_SUDOKU']={current:null,best:{}})}
+  if(req.method==='GET'&&p==='/rest/v1/sudoku/new'){
+    var sw=checkToken(tok); if(!sw){res.writeHead(401);return res.end('need login')}
+    var sk=sudokuGet(),now=Date.now(),cur=sk.current;
+    var force=(new URL(req.url,'http://x')).searchParams.get('force')==='1'&&sw.role==='admin';
+    if(!cur||force||(cur.ts&&now-cur.ts>4*3600*1000)){ /* 題目每 4 小時輪換；管理員可 ?force=1 立即換新 */
+      sudokuRun().then(function(g){
+        if(!g){res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'題目生成失敗'}))}
+        sk.current={id:Date.now().toString(36),board:g.board,answer:g.answer,ts:now,done:{}};
+        saveKV();
+        res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,id:sk.current.id,board:sk.current.board,ts:sk.current.ts}));
+      });
+      return;
+    }
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,id:cur.id,board:cur.board,ts:cur.ts}));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/sudoku/submit'){
+    return readBody(req,function(b){try{
+      var sw2=checkToken(tok); if(!sw2){res.writeHead(401);return res.end('need login')}
+      var j={};try{j=JSON.parse(b.toString('utf8')||'{}')}catch(e){}
+      var sk2=sudokuGet(),cur2=sk2.current;
+      if(!cur2||cur2.id!==j.id){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'題目已輪換，請重新載入'}))}
+      var grid=String(j.grid||'').replace(/[^0-9]/g,'');
+      if(grid.length!==81){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'答案格式錯誤'}))}
+      if(grid!==cur2.answer){res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'答案不正確，再試試！'}))}
+      var sec=Math.max(1,Math.min(86400,parseInt(j.sec,10)||0));
+      if(!cur2.done[sw2.username]||sec<cur2.done[sw2.username])cur2.done[sw2.username]=sec;
+      if(!sk2.best[sw2.username]||sec<sk2.best[sw2.username])sk2.best[sw2.username]=sec;
+      saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,sec:sec}));
+    }catch(e){res.writeHead(400);res.end('bad submit')}})
+  }
+  if(req.method==='GET'&&p==='/rest/v1/sudoku/rank'){
+    var sw3=checkToken(tok); if(!sw3){res.writeHead(401);return res.end('need login')}
+    var sk3=sudokuGet();
+    var done=[];if(sk3.current&&sk3.current.done)Object.keys(sk3.current.done).forEach(function(un){done.push({username:un,sec:sk3.current.done[un]})});
+    done.sort(function(a,b){return a.sec-b.sec});
+    var best=Object.keys(sk3.best||{}).map(function(un){return {username:un,sec:sk3.best[un]}}).sort(function(a,b){return a.sec-b.sec});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,currentId:sk3.current?sk3.current.id:null,done:done,best:best}));
   }
   if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/admin/users/sync'){
     var aw=checkToken(tok); if(!aw || (aw.role!=='admin'&&aw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}
@@ -479,7 +581,7 @@ var server=http.createServer(function(req,res){
       try{
         var j=JSON.parse(b.toString('utf8'));
         if(j.system_settings){ SYSSET=j.system_settings; saveSYSSET(); }
-        if(j.kv){ KV=j.kv; }
+        if(j.kv){ KV=j.kv; saveKV(); }
         if(Array.isArray(j.users)){
           j.users.forEach(u=>{
             if(u&&u.username){
@@ -551,16 +653,29 @@ var ext='.docx';
       var un,pw;try{var j=JSON.parse(b.toString('utf8'));un=String(j.p_username||'').slice(0,64);pw=String(j.p_password||'').slice(0,128)}catch(e){}
       var ip=req.socket&&req.socket.remoteAddress;
       if(loginLocked(un,ip)){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('嘗試次數過多，請 5 分鐘後再試')}
-      var ex=ACC[un]; var ok=false;
-      if(ex){
-        if(ex.master){ /* 主管理員：固定 SHA-256 雜湊（雜湊值寫死在 MASTER.hash，密碼由伺服器設定）*/
-          ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===ex.pwHash;
-        } else if(ex.pwHash){ /* 已雜湊：scrypt 驗證 */
-          ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
-        } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為雜湊 */
-          ok=String(ex.password)===(pw==null?'':pw);
-          if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.password='';saveACC();}
+      var ex=ACC[un],ok=false,reFetched=false;
+      while(true){
+        ok=false;
+        if(ex){
+          if(ex.master){ /* 主管理員：固定 SHA-256 雜湊（雜湊值寫死在 MASTER.hash，密碼由伺服器設定）*/
+            ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===ex.pwHash;
+          } else if(ex.pwHash){ /* 已雜湊：scrypt 驗證 */
+            ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
+          } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為雜湊 */
+            ok=String(ex.password)===(pw==null?'':pw);
+            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.password='';saveACC();}
+          }
         }
+        if(ok)break;
+        if(!reFetched&&IS_WORKER){ /* 本 worker 無此帳號/密碼已變更：向 master 補查（權威狀態；create 的 acc 訊息可能稍晚才到 master，故重試數次）*/
+          reFetched=true;var fresh=null;
+          for(var fi=0;fi<5&&!fresh;fi++){
+            fresh=await askMasterAcc(un);
+            if(!fresh&&fi<4)await new Promise(function(r){setTimeout(r,250)});
+          }
+          if(fresh){ACC[un]=fresh;ex=fresh;continue}
+        }
+        break;
       }
       if(!ok){loginFail(un,ip);res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('帳號或密碼錯誤')}
       loginOk(un,ip);
@@ -603,7 +718,13 @@ var ext='.docx';
           if(isGlobal){
             if(dk==='shop_dolls')SHOP=j; else if(dk==='events')EVENTS=j; else {var obj={};j.forEach(function(r){if(r.owner)obj[r.owner]=r.dolls});DOLL=obj;}
             saveDOLL();saveSHOP();saveEVENTS();
-          } else { DOLL[dk]=j; saveDOLL(); }
+          } else {
+            if(Array.isArray(j)){ /* 一人一個娃娃：擁有者名下超過 1 個即拒絕（v4.0）*/
+              var mine=j.filter(function(x){return x&&x.owner===w.username});
+              if(mine.length>1){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'每個人只能擁有一個娃娃'}));}
+            }
+            DOLL[dk]=j; saveDOLL();
+          }
           res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(j));
         }catch(e){res.writeHead(400);res.end('bad json')}
       });
@@ -708,7 +829,80 @@ function arenaMailTick(){
     }
   }catch(e){}
 }
-setInterval(arenaMailTick, 60000);
-arenaMailTick(); /* 啟動時若恰為 09:00 附近也補算一次 */
-
-server.listen(PORT,'0.0.0.0',function(){console.log('ADV9 backend v3 (secure) on :'+PORT)});
+/* ── 叢集啟動：master 持狀態 + IPC 合併/廣播；worker 監聽 HTTP ── */
+if(cluster.isMaster){
+  var _broadcast=function(m){Object.keys(cluster.workers).forEach(function(id){try{var w=cluster.workers[id];if(w&&w.isConnected())w.send(m)}catch(e){}})};
+  var _lastOnlineBc=0;
+  cluster.on('message',function(w,m){
+    if(!m||m.__adv9!==1)return;
+    try{
+      if(m.t==='kv'){Object.keys(m.d).forEach(function(k){KV[k]=m.d[k]});saveKV();_broadcast({__adv9:1,t:'kv',d:m.d});}
+      else if(m.t==='kv-del'){(m.keys||[]).forEach(function(k){delete KV[k]});saveKV();_broadcast({__adv9:1,t:'kv-del',keys:m.keys});}
+      else if(m.t==='acc'){if(m.d)ACC[m.un]=m.d;saveUserFile(m.un);_broadcast({__adv9:1,t:'acc',un:m.un,d:ACC[m.un]||null});}
+      else if(m.t==='acc-del'){deleteUserFile(m.un);delete ACC[m.un];saveIndex();_broadcast({__adv9:1,t:'acc-del',un:m.un});}
+      else if(m.t==='index'){saveIndex();}
+      else if(m.t==='online'){Object.keys(m.d||{}).forEach(function(k){ONLINE[k]=m.d[k]});saveOnline();if(Date.now()-_lastOnlineBc>10000){_lastOnlineBc=Date.now();_broadcast({__adv9:1,t:'online',d:ONLINE});}}
+      else if(m.t==='hb'){CW.online[m.un]=(CW.online[m.un]||0)+(m.delta||0);CW.dirty=true;}
+      else if(m.t==='doll'){DOLL=m.d;saveDOLL();_broadcast({__adv9:1,t:'doll',d:DOLL});}
+      else if(m.t==='shop'){SHOP=m.d;saveSHOP();_broadcast({__adv9:1,t:'shop',d:SHOP});}
+      else if(m.t==='events'){EVENTS=m.d;saveEVENTS();_broadcast({__adv9:1,t:'events',d:EVENTS});}
+      else if(m.t==='sysset'){SYSSET=m.d;saveSYSSET();_broadcast({__adv9:1,t:'sysset',d:SYSSET});}
+      else if(m.t==='acc-fetch'){try{cluster.workers[w.id]&&cluster.workers[w.id].send({__adv9:1,t:'acc-fetch-resp',un:m.un,d:ACC[m.un]||null})}catch(e){}}
+    }catch(e){console.error('[cluster] master handler',e&&e.message)}
+  });
+  var _exitTimes=[];
+  cluster.on('exit',function(w,code,sig){
+    console.log('[cluster] worker '+w.id+' died ('+code+'/'+sig+')');
+    var now=Date.now();
+    _exitTimes=_exitTimes.filter(function(t){return now-t<60000});
+    _exitTimes.push(now);
+    if(_exitTimes.length>8){console.error('[cluster] 頻繁崩潰，停止重啟');process.exit(1);}
+    if(!process.exitRequested)forkWorker();
+  });
+  process.on('SIGTERM',function(){process.exitRequested=1;for(var id in cluster.workers){try{cluster.workers[id].kill()}catch(e){}}setTimeout(function(){process.exit(0)},1500)});
+  process.on('SIGINT',function(){process.exitRequested=1;for(var id in cluster.workers){try{cluster.workers[id].kill()}catch(e){}}setTimeout(function(){process.exit(0)},1500)});
+  function forkWorker(){var w=cluster.fork();w.send({__adv9:1,t:'boot',build:BUILD,kv:KV,acc:ACC,online:ONLINE,doll:DOLL,shop:SHOP,events:EVENTS,sysset:SYSSET});return w}
+  /* 每 30 秒從主檔復原帳號（master 權威；復原出新帳號才廣播）*/
+  var _accSet=new Set(Object.keys(ACC));
+  setInterval(function(){
+    reconcileIndex();
+    Object.keys(ACC).forEach(function(un){if(!_accSet.has(un)){_accSet.add(un);_broadcast({__adv9:1,t:'acc',un:un,d:ACC[un]});}});
+  },30000);
+  setInterval(arenaMailTick,60000);
+  arenaMailTick(); /* 啟動時若恰為 09:00 附近也補算一次 */
+  /* 班級戰在線時間：master 權威累計，每 60 秒落 KV 並廣播（v4.0）*/
+  var CW={online:{},dirty:false};
+  try{var _cwt=KV['ADV9_CLASSWAR'];if(_cwt&&_cwt.online)CW=_cwt;}catch(e){}
+  setInterval(function(){
+    if(CW.dirty){
+      CW.dirty=false;
+      KV['ADV9_CLASSWAR']=CW;
+      saveKV();
+      _broadcast({__adv9:1,t:'kv',d:{'ADV9_CLASSWAR':CW}});
+    }
+  },60000);
+  var N=Math.min(Math.max(os.cpus().length||1,1),4);
+  for(var i=0;i<N;i++)forkWorker();
+  console.log('[cluster] master 啟動，fork '+N+' 個 worker（node '+process.version+'）');
+}else{
+  /* worker：等待 master 的 boot 快照 → 開始監聽；之後以廣播同步狀態 */
+  var booted=false;
+  process.on('message',function(m){
+    if(!m||m.__adv9!==1)return;
+    if(m.t==='boot'){
+      BUILD=m.build;KV=m.kv||{};ACC=m.acc||{};ONLINE=m.online||{};DOLL=m.doll||{};SHOP=m.shop||[];EVENTS=m.events||[];SYSSET=m.sysset||SYSSET;
+      if(!booted){booted=true;server.listen(PORT,'0.0.0.0',function(){console.log('[cluster] worker #'+process.pid+' on :'+PORT)})}
+    }
+    else if(m.t==='kv'){Object.keys(m.d||{}).forEach(function(k){KV[k]=m.d[k]})}
+    else if(m.t==='kv-del'){(m.keys||[]).forEach(function(k){delete KV[k]})}
+    else if(m.t==='acc'){if(m.d)ACC[m.un]=m.d;else delete ACC[m.un]}
+    else if(m.t==='acc-del'){delete ACC[m.un]}
+    else if(m.t==='online'){Object.keys(m.d||{}).forEach(function(k){ONLINE[k]=m.d[k]})}
+    else if(m.t==='doll'){DOLL=m.d}
+    else if(m.t==='shop'){SHOP=m.d}
+    else if(m.t==='events'){EVENTS=m.d}
+    else if(m.t==='sysset'){SYSSET=m.d}
+  });
+  process.on('disconnect',function(){console.error('[cluster] master 斷線，worker 退出');process.exit(1)});
+  setTimeout(function(){if(!booted){console.error('[cluster] 未收到 master boot，退出');process.exit(1)}},5000);
+}
