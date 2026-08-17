@@ -32,6 +32,24 @@ $('#view').innerHTML='<h3 class="vt">⚙️ 遊戲設定 <span class="vsub">PK �
 
 '<div style="font-size:12px;color:var(--mut);margin:6px 0;line-height:1.8">將所有學生的遊戲進度（等級/貨幣/收藏/裝備…）重置為新帳號狀態，帳號與班級保留；學生/老師端無此功能</div>'+
 
-'<button class="btn danger mini" onclick="adminResetAllG()">⚠️ 重置全部學生遊戲數據</button></div>';
+'<button class="btn danger mini" onclick="adminResetAllG()">⚠️ 重置全部學生遊戲數據</button></div>'+
+
+'<div class="panel2" style="max-width:520px;margin-top:14px;border-left:4px solid var(--teal)"><b style="color:var(--gold2)">▶️ YouTube 音樂管理</b> <span style="font-size:11.5px;color:var(--mut)">放 YT 連結，學生在「⚙️ 設定」音樂面板即可點開播放</span>'+
+
+'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><input id="mytTitle" placeholder="標題（可留空）" style="flex:1;min-width:120px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+
+
+'<input id="mytUrl" placeholder="https://www.youtube.com/watch?v=..." style="flex:2;min-width:200px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+
+
+'<button class="btn mini" onclick="musicAddYt(document.getElementById(\'mytTitle\').value.trim(),document.getElementById(\'mytUrl\').value.trim())">＋ 加入</button></div>'+
+
+'<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">'+(get(LS.musicLinks,[]).map((l,i)=>'<div style="display:flex;align-items:center;gap:6px;font-size:12.5px"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">▶️ '+(l.title||l.url)+'</span><button class="btn ghost mini" onclick="musicDelYt('+i+')">🗑</button></div>').join('')||'<span style="font-size:12px;color:var(--mut)">（尚無 YouTube 音樂）</span>')+'</div></div>'+
+
+'<div class="panel2" style="max-width:520px;margin-top:14px;border-left:4px solid var(--pink2)"><b style="color:var(--gold2)">📩 學生推薦歌曲</b> <span style="font-size:11.5px;color:var(--mut)">學生在設定頁送出 YT 推薦後會出現在這</span>'+
+
+'<div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">'+(get(LS.musicReqs,[]).map((r,i)=>'<div class="panel2" style="margin:0;padding:8px;font-size:12.5px"><div><b>'+esc(r.name||r.user)+'</b> 推薦：<span style="color:var(--teal)">'+(r.title||'(無標題)')+'</span></div>'+
+
+'<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mut)">'+esc(r.url)+'</div>'+
+
+'<div style="display:flex;gap:6px;margin-top:6px"><button class="btn mini" onclick="musicApproveReq('+i+')">✅ 採納</button><button class="btn ghost mini" onclick="musicDenyReq('+i+')">✖ 略過</button></div></div>').join('')||'<span style="font-size:12px;color:var(--mut)">（暫無推薦）</span>')+'</div></div>';
 
 }

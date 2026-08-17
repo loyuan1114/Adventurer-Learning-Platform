@@ -80,9 +80,11 @@ const test = (name, fn) => {
 };
 
 try {
+  // script #1 = 共用層（loader+shared：CHARS/POOLS 等，主外殼頂層會引用），
   // script #2 = 雲端層（config），script #3 = 主外殼；匯出器附加在 script #3 尾部，
   // 讓測試能讀到該腳本詞法作用域的 const（LANG_DATA/LANG_REGIONS/LQ）
   const main = scripts[2] + '\n;this.LANG_DATA=LANG_DATA;this.LANG_REGIONS=LANG_REGIONS;this.LQ=LQ;';
+  vm.runInContext(scripts[0], sandbox, { timeout: 10000 });
   vm.runInContext(scripts[1], sandbox, { timeout: 10000 });
   vm.runInContext(main, sandbox, { timeout: 10000 });
   console.log('✓ 主腳本執行無 SyntaxError');
@@ -222,7 +224,7 @@ test('vLangStudy() 渲染語言網格', () => {
   sandbox.esc = x => String(x);
   s.vLangStudy();
   const html = els['#view'] && els['#view'].innerHTML;
-  if (!html || !html.includes('語言自學')) throw new Error('未渲染 #view');
+  if (!html || !html.includes('語言包')) throw new Error('未渲染 #view');
   if (!html.includes('日語')) throw new Error('渲染內容缺語言按鈕');
 });
 

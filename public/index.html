@@ -761,7 +761,7 @@ display: none !important;
 
 <div id="bgfx"></div><div id="fxlayer"></div>
 
-<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">⚔️</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">正在載入...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">✨</i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">🌟</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">⭐</i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">💫</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">✨</i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">🌠</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">⚔️</div><h2 class="ldTitle">全領域冒險者養成系統</h2><p class="ldVer">v3.0　語言自學・AI 出題・1.3x 獎勵！</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
+<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">⚔️</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">正在載入...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">✨</i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">🌟</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">⭐</i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">💫</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">✨</i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">🌠</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">⚔️</div><h2 class="ldTitle">全領域冒險者養成系統</h2><p class="ldVer">v4.0　語言包・像素畫板・數獨排位・班級戰！</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
 
 <div id="login" style="display:grid">
 
@@ -771,7 +771,7 @@ display: none !important;
 
 <h1 class="logoT">全領域冒險者<br>養成系統</h1>
 
-<div class="verRow"><span class="verChip">v3.0</span><span class="verChip star">★ 九大強化版</span></div>
+<div class="verRow"><span class="verChip">v4.0</span><span class="verChip star">★ 全領域大更新</span></div>
 
 <ul class="featL">
 
@@ -818,14 +818,6 @@ display: none !important;
 <div id="toasts"></div>
 
 <script>
-/* ════════ 🔒 內容保護：鎖 F12、檢視原始碼、右鍵，並嚇阻截圖（把 LOCK_ON 設為 false 可關閉）════════ */
-/* ════════════════════════════════════════════════════════════
-   模組懶載入（由 tools/build/splitall.py 產生，勿手動改）
-   每個畫面一個 js/views/ 模組：用到才載入，沒用到的完全不載
-/* ════════════════════════════════════════════
-   共用模組（splitall.py 自動拆分）：被多個畫面共用，任一畫面用到才載入
-   含 41 個單位：onlHtml, esc, fmt, pick, today, CFG, effMaxLv, SUBJ, CHARS, POOLS, EXPS, newGame…
-   ════════════════════════════════════════════ */
 /* ════════════════════════════════════════════════════════════
    模組懶載入（由 tools/build/splitall.py 產生，勿手動改）
    每個畫面一個 js/views/ 模組：用到才載入，沒用到的完全不載
@@ -965,7 +957,7 @@ const SUBJ={
 
 '自然':{c:'#69f0ae',i:'🔬',u:{'7上':['細胞與顯微鏡','光合作用','呼吸作用','酵素','生物分類'],'7下':['物質與變化','水溶液','空氣與燃燒','天氣','岩石與礦物'],'8上':['力與運動','壓力','浮力','溫度與熱','電與磁'],'8下':['光與聲音','電磁感應','化學反應速率','電池','有機物'],'9上':['地球與宇宙','板塊運動','天氣系統','能源'],'9下':['生態系','演化','遺傳','總複習']}},
 
-'社會':{c:'#ffab40',i:'🌏',u:{'7上':['臺灣史前文化','荷西統治','臺灣位置','臺灣地形','個人與成長'],'7下':['明清時期','日治時期','臺灣氣候','人口與聚落','家庭與生活'],'8上':['中國上古史','秦漢時期','中國地形','中國氣候','學校生活'],'8下':['宋元明清','民國建立','世界地理','公民社會'],'9上':['世界史','世界區域地理','國家與憲法','政府運作'],'9下':['當代世界','全球化','國際組織','總複習']}},
+'社會':{c:'#ffab40',i:'🌏',u:{'7上':[['臺灣史前文化','歷史'],['荷西統治','歷史'],['臺灣位置','地理'],['臺灣地形','地理'],['個人與成長','公民']],'7下':[['明清時期','歷史'],['日治時期','歷史'],['臺灣氣候','地理'],['人口與聚落','地理'],['家庭與生活','公民']],'8上':[['中國上古史','歷史'],['秦漢時期','歷史'],['中國地形','地理'],['中國氣候','地理'],['學校生活','公民']],'8下':[['宋元明清','歷史'],['民國建立','歷史'],['世界地理','地理'],['公民社會','公民']],'9上':[['世界史','歷史'],['世界區域地理','地理'],['國家與憲法','公民'],['政府運作','公民']],'9下':[['當代世界','歷史'],['全球化','地理'],['國際組織','公民'],['總複習','全科']]}},
 
 '綜合活動':{c:'#ff6e40',i:'🧩',u:{'7上':['自我探索','人際關係','學習方法','生涯規劃'],'7下':['情緒管理','消費行為','休閒生活','環境教育'],'8上':['性別平等','法律常識','志願服務','防災教育'],'8下':['職業試探','理財教育','媒體素養','國際理解'],'9上':['升學輔導','壓力調適','生命教育','公民參與'],'9下':['畢業準備','生涯決策','社會適應','總複習']}},
 
@@ -1081,7 +1073,6 @@ const CHARS={
 
 };
 
-const POOLS={character:CHARS,pet:PETS,anime:ANIME,teammate:TEAMMATES};
 
 const EXPS=[
 
@@ -1156,7 +1147,6 @@ doll:{list:[],shopBought:[]}, /* 娃娃系統：list=擁有娃娃，shopBought=�
 
 }}
 
-function maxDiff(g){let m=30;for(const k in CFG.UNLOCK)if(g.lv>=CFG.UNLOCK[k])m=+k+14;return Math.min(100,m)}
 
 function itemValue(w){return Math.max(10, Math.floor(((CFG.QBASE[w.q]||5)+(w.lv||0)*8)*6));}
 
@@ -1761,7 +1751,7 @@ const DEFAULTS={adm:{u:"admin01",p:"A@2026",name:"公會會長"}}; /* 發布版�
 
 const $=s=>document.querySelector(s);
 
-const LS={users:'ADV9_USERS',ann:'ADV9_ANN',codes:'ADV9_CODES',chat:'ADV9_CHAT',ses:'ADV9_SES',hw:'ADV9_HOMEWORK',sub:'ADV9_SUBMISSIONS',fr:'ADV9_FRIENDS',gr:'ADV9_GROUPS',pm:'ADV9_PM',trades:'ADV9_TRADES',gshop:'ADV9_GSHOP',apiKeys:'ADV9_APIKEYS',classes:'ADV9_CLASSES',market:'ADV9_MARKET',settings:'ADV9_SETTINGS',acad:'ADV9_ACADYR',duels:'ADV9_DUELS',stories:'ADV9_STORIES',guilds:'ADV9_GUILDS',books:'ADV9_BOOKS',notif:'ADV9_NOTIF',local:'ADV9_LOCAL',dolls:'ADV9_DOLLS',shopDolls:'ADV9_SHOP_DOLLS',events:'ADV9_DOLL_EVENTS'};
+const LS={users:'ADV9_USERS',ann:'ADV9_ANN',codes:'ADV9_CODES',chat:'ADV9_CHAT',ses:'ADV9_SES',hw:'ADV9_HOMEWORK',sub:'ADV9_SUBMISSIONS',fr:'ADV9_FRIENDS',gr:'ADV9_GROUPS',pm:'ADV9_PM',trades:'ADV9_TRADES',gshop:'ADV9_GSHOP',apiKeys:'ADV9_APIKEYS',classes:'ADV9_CLASSES',market:'ADV9_MARKET',settings:'ADV9_SETTINGS',acad:'ADV9_ACADYR',duels:'ADV9_DUELS',stories:'ADV9_STORIES',guilds:'ADV9_GUILDS',books:'ADV9_BOOKS',notif:'ADV9_NOTIF',local:'ADV9_LOCAL',dolls:'ADV9_DOLLS',shopDolls:'ADV9_SHOP_DOLLS',events:'ADV9_DOLL_EVENTS',musicLinks:'ADV9_MUSIC_LINKS',musicReqs:'ADV9_MUSIC_REQS',pixels:'ADV9_PIXELS'};
 
 const get=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
 
@@ -2064,6 +2054,7 @@ const TEAMMATES={
 '傳說導師小賢':{r:'UR',icon:'🧙‍♂️',sk:[['名師指導','全經驗+28%',{all_exp_bonus:.28}],['題海戰術','答題積分+25%',{quiz_pts_bonus:.25}],['超凡入聖','保底-10抽、品質+50%',{pity_reduce:10,quality_up:.50}]]}
 
 };
+const POOLS={character:CHARS,pet:PETS,anime:ANIME,teammate:TEAMMATES};
 
 
 /* 自動上網檢索相關圖片（Bing 圖片縮圖服務，免金鑰）；載入失敗自動退回 emoji */
@@ -2312,6 +2303,19 @@ return p;
 /* #9 物品價值估算（交易 40% 下限的基準）*/
 
 
+/* ════════ 語言包（v4.0）：211 種語言 × 8 大區（含客家五腔・閩南四腔・北越語），代碼唯一，可直接搜尋 ════════ */
+const LANG_DATA={
+'非洲':[['af','阿非利卡語'], ['am','阿姆哈拉語'], ['ha','豪薩語'], ['ig','伊博語'], ['zu','祖魯語'], ['xh','科薩語'], ['rw','盧安達語'], ['sw','史瓦希里語'], ['lin','林格拉語'], ['lug','盧幹達語'], ['mg','馬拉加斯語'], ['nya','齊切瓦語'], ['nde','恩德貝萊語'], ['nso','北索托語'], ['sn','修納語'], ['so','索馬利語'], ['st','索托語'], ['tn','塞茨瓦納語'], ['son','桑海語'], ['ti','提格利尼亞語'], ['tso','聰加語'], ['aeb','突尼西亞語'], ['ve','溫達語'], ['wo','沃洛夫語'], ['yo','約魯巴語'], ['ber','柏柏爾語'], ['ff','富拉語'], ['din','丁卡語'], ['kro','克魯語'], ['ss','斯瓦蒂語'], ['ki','吉庫尤語'], ['luo','盧歐語'], ['aka','加納語'], ['ee','埃維語'], ['bm','班巴拉語'], ['man','曼丁哥語'], ['sg','桑戈語'], ['kau','卡努里語']],
+'亞洲(西亞/南亞/中亞)':[['bn','孟加拉語'], ['hi','印地語'], ['ur','烏爾都語'], ['fa','波斯語'], ['prs','達里語'], ['ps','普什圖語'], ['si','僧伽羅語'], ['ta','坦米爾語'], ['te','泰盧固語'], ['mr','馬拉地語'], ['gu','古吉拉特語'], ['kn','卡納達語'], ['ml','馬拉雅拉姆語'], ['or','奧里亞語'], ['pa','旁遮普語'], ['ne','尼泊爾語'], ['dv','迪維希語'], ['sd','信德語'], ['as','阿薩姆語'], ['sa','梵語'], ['ku','庫德語'], ['bal','俾路支語'], ['tg','塔吉克語'], ['tk','土庫曼語'], ['kk','哈薩克語'], ['ky','吉爾吉斯語'], ['uz','烏茲別克語'], ['ug','維吾爾語'], ['tt','韃靼語'], ['bak','巴什基爾語'], ['che','車臣語'], ['sah','雅庫特語'], ['mn','蒙古語'], ['hy','亞美尼亞語'], ['ka','喬治亞語'], ['abk','阿布哈茲語']],
+'東亞':[['zh-CN','中文簡體'], ['zh-TW','中文繁體'], ['yue','粵語'], ['ja','日語'], ['ko','韓語'], ['nan','閩南語（臺灣）'], ['nan-FJ','閩南語（福建）'], ['nan-CS','潮州話'], ['nan-HN','海南話'], ['hak','客家話（四縣腔）'], ['hak-HL','客家話（海陸腔）'], ['hak-DP','客家話（大埔腔）'], ['hak-RP','客家話（饒平腔）'], ['hak-ZA','客家話（詔安腔）'], ['bo','藏語'], ['mnc','滿語'], ['ryu','琉球語']],
+'東南亞':[['vi','越南語（南方）'], ['vi-N','北越語（北方口音）'], ['th','泰語'], ['lo','寮語'], ['my','緬甸語'], ['km','高棉語'], ['id','印尼語'], ['ms','馬來語'], ['fil','菲律賓語'], ['jv','爪哇語'], ['su','巽他語'], ['ban','巴厘語'], ['min','米南佳保語'], ['ace','亞齊語'], ['bug','布吉語'], ['day','達雅語'], ['iba','伊班語'], ['dtp','卡達山語'], ['duz','杜順語'], ['mdh','馬京達瑙語'], ['cbk','查瓦卡諾語'], ['bik','比科爾語'], ['pam','邦板牙語'], ['ilo','伊洛卡諾語'], ['pag','班詩蘭語'], ['ceb','宿霧語'], ['hil','希利蓋農語'], ['war','瓦瑞瓦瑞語'], ['sur','蘇里高語'], ['mrw','馬拉瑙語'], ['bku','巴瑤語']],
+'歐洲':[['en','英語'], ['fr','法語'], ['de','德語'], ['es','西班牙語'], ['pt','葡萄牙語'], ['it','義大利語'], ['nl','荷蘭語'], ['pl','波蘭語'], ['ru','俄語'], ['uk','烏克蘭語'], ['be','白俄羅斯語'], ['bg','保加利亞語'], ['cs','捷克語'], ['sk','斯洛伐克語'], ['hu','匈牙利語'], ['ro','羅馬尼亞語'], ['el','希臘語'], ['sq','阿爾巴尼亞語'], ['sr','塞爾維亞語'], ['hr','克羅埃西亞語'], ['bs','波士尼亞語'], ['cnr','蒙特內哥羅語'], ['sl','斯洛維尼亞語'], ['sv','瑞典語'], ['da','丹麥語'], ['no','挪威語'], ['fi','芬蘭語'], ['et','愛沙尼亞語'], ['lv','拉脫維亞語'], ['lt','立陶宛語'], ['is','冰島語'], ['fo','法羅語'], ['mt','馬爾他語'], ['ga','愛爾蘭語'], ['gd','蘇格蘭蓋爾語'], ['cy','威爾斯語'], ['eu','巴斯克語'], ['ca','加泰隆尼亞語'], ['gl','加利西亞語'], ['oc','奧克語'], ['br','布列塔尼語'], ['co','科西嘉語'], ['sc','薩丁尼亞語'], ['fur','弗留利語'], ['rm','羅曼什語'], ['la','拉丁語'], ['cu','教會斯拉夫語']],
+'美洲':[['nv','納瓦荷語'], ['iu','因紐特語'], ['cr','克里語'], ['oj','奧吉布瓦語'], ['dak','達科他語'], ['chr','切羅基語'], ['bla','黑腳語'], ['nah','納瓦特爾語'], ['quc','基切語'], ['yua','瑪雅語'], ['qu','克丘亞語'], ['ay','艾馬拉語'], ['gn','瓜拉尼語'], ['arn','馬普切語'], ['srn','蘇里南語'], ['ht','海地克里奧爾語'], ['jam','牙買加克里奧爾語'], ['pt-BR','巴西葡萄牙語']],
+'大洋洲':[['mi','毛利語'], ['fj','斐濟語'], ['sm','薩摩亞語'], ['to','東加語'], ['ty','大溪地語'], ['haw','夏威夷語'], ['tkl','托克勞語'], ['na','諾魯語'], ['pau','帛琉語'], ['ch','查莫羅語'], ['mh','馬紹爾語'], ['pi','皮欽語'], ['ho','希里莫圖語'], ['bi','比斯拉馬語'], ['gil','吉里巴斯語'], ['tvl','吐瓦魯語']],
+'人工/特殊':[['eo','世界語'], ['tlh','克林貢語'], ['sjn','精靈語'], ['navi','納美語'], ['tok','道本語'], ['jbo','邏輯語'], ['ia','國際語'], ['ie','西方語']],
+};
+const LANG_REGIONS=Object.keys(LANG_DATA);
+const LANG_TOTAL=LANG_REGIONS.reduce((n,r)=>n+LANG_DATA[r].length,0); /* v4.0：語言總數動態計算 */
 /* ════════ 帳號 / session ════════ */
 
 function seed(){
@@ -2326,11 +2330,11 @@ set(LS.users,[
 
 ]); /* 發布版：固定管理員（密碼雜湊儲存、不存明文）；教師由管理員建立、學生由教師註冊/匯入 */
 
-set(LS.ann,[{id:2,title:'🌍 v3.0 語言自學上線！',content:'203 種語言任你挑：在「🌍 語言自學」選一個想學的語言，AI 會自動出單字配對題；答對可得 1.3 倍經驗／金幣／水晶，每個語言的答題數都會個別記錄在「📊 統計報表」。也可以在「⚙️ 設定」把最常學的語言設為偏好，自學畫面會優先顯示。',time:now},{id:1,title:'📢 歡迎來到全領域冒險者養成系統 v3.0！',content:'九大強化版上線：修煉場精靈嚮導、PK 無限競技塔、領土每科100關、好友/群組聊天傳照片、隱私保護、全服商店、好友交易40%保障⋯⋯開始冒險吧！',author:'系統',time:now}]);
+set(LS.ann,[{id:3,title:'🌍 v4.0 語言包・數獨・像素畫板上線！',content:'「語言自學」改名「語言包」：211 種語言含客家話五腔、閩南語四腔、北越語；AI 出題失敗自動重試＋本地題庫備援。新增像素畫板（16~256 可存可分享）、數獨 9×9 排位（同場競速＋個人最佳）、班級戰（全班答題數＋在線時間）、介面顏色主題、管理員 YT 音樂連結。',time:now},{id:2,title:'📚 v4.0 社會科＝歷史＋地理＋公民',content:'「社會」科目單元已標示子科目（歷史／地理／公民），學習目標更清楚！',time:now},{id:1,title:'📢 歡迎來到全領域冒險者養成系統 v4.0！',content:'全領域大更新：語言包、像素畫板、數獨排位、班級戰、顏色主題、YT 音樂、地理＋公民⋯⋯開始冒險吧！',author:'系統',time:now}]);
 
 set(LS.codes,[{code:'ADVENTURE',note:'新生禮包',rewards:{gold:50,crystal:30,extraPk:1},maxUses:50,usedBy:[],time:now}]);
 
-set(LS.chat,[{user:'系統',role:'system',text:'🌍 v3.0 語言自學上線！203 種語言、AI 出題、獎勵 1.3 倍！',time:now}]);
+set(LS.chat,[{user:'系統',role:'system',text:'🌍 v4.0 語言包上線！'+LANG_TOTAL+' 種語言、AI 出題、獎勵 1.3 倍；新增像素畫板・數獨・班級戰！',time:now}]);
 
 set(LS.fr,[]);set(LS.gr,[]);set(LS.hw,[]);set(LS.sub,[]);set(LS.pm,{});set(LS.trades,[]);set(LS.market,[]);set(LS.duels,[]);
 if(!get(LS.classes,null)){set(LS.classes,{ids:['701','702','703'],names:{'701':'七年一班','702':'七年二班','703':'七年三班'}});}
@@ -2912,11 +2916,17 @@ let FEATS=[
 ['📚','班級作業','PDF 邊看邊答','#26a69a','vHomework()'],
 
 ['🎟','密碼禮包','自動辨識','#e040fb','vCodes()'],
-['🌍','語言自學','203 種語言・AI 出題・1.3x 獎勵','#29b6f6','vLangStudy()'],
+['🌍','語言包',LANG_TOTAL+' 種語言・AI 出題・1.3x 獎勵','#29b6f6','vLangStudy()'],
 
 ['📊','統計報表','週報・弱項','#69f0ae','vStats()'],
 
 ['🌟','娃娃物語','風火水土・四屬性養成','#7ff0dd','vDoll()'],
+
+['🎨','像素畫板','16~256 畫布・公開畫廊','#ffab40','vPixel()'],
+
+['🧩','數獨排位','9×9 競速・py 出題','#ffca28','vSudoku()'],
+
+['⚔️','班級戰','全班答題數＋在線時間','#ff7043','vClassWar()'],
 
 ['💬','世界頻道','公開聊天','#38d9c0','vChatV()'],
 
@@ -2926,36 +2936,45 @@ let FEATS=[
 
 
 ];
-/* ════════ 語言自學（v3.0）：203 種語言 × 8 大區，代碼唯一，可直接搜尋 ════════ */
-const LANG_DATA={
-'非洲':[['af','阿非利卡語'], ['am','阿姆哈拉語'], ['ha','豪薩語'], ['ig','伊博語'], ['zu','祖魯語'], ['xh','科薩語'], ['rw','盧安達語'], ['sw','史瓦希里語'], ['lin','林格拉語'], ['lug','盧幹達語'], ['mg','馬拉加斯語'], ['nya','齊切瓦語'], ['nde','恩德貝萊語'], ['nso','北索托語'], ['sn','修納語'], ['so','索馬利語'], ['st','索托語'], ['tn','塞茨瓦納語'], ['son','桑海語'], ['ti','提格利尼亞語'], ['tso','聰加語'], ['aeb','突尼西亞語'], ['ve','溫達語'], ['wo','沃洛夫語'], ['yo','約魯巴語'], ['ber','柏柏爾語'], ['ff','富拉語'], ['din','丁卡語'], ['kro','克魯語'], ['ss','斯瓦蒂語'], ['ki','吉庫尤語'], ['luo','盧歐語'], ['aka','加納語'], ['ee','埃維語'], ['bm','班巴拉語'], ['man','曼丁哥語'], ['sg','桑戈語'], ['kau','卡努里語']],
-'亞洲(西亞/南亞/中亞)':[['bn','孟加拉語'], ['hi','印地語'], ['ur','烏爾都語'], ['fa','波斯語'], ['prs','達里語'], ['ps','普什圖語'], ['si','僧伽羅語'], ['ta','坦米爾語'], ['te','泰盧固語'], ['mr','馬拉地語'], ['gu','古吉拉特語'], ['kn','卡納達語'], ['ml','馬拉雅拉姆語'], ['or','奧里亞語'], ['pa','旁遮普語'], ['ne','尼泊爾語'], ['dv','迪維希語'], ['sd','信德語'], ['as','阿薩姆語'], ['sa','梵語'], ['ku','庫德語'], ['bal','俾路支語'], ['tg','塔吉克語'], ['tk','土庫曼語'], ['kk','哈薩克語'], ['ky','吉爾吉斯語'], ['uz','烏茲別克語'], ['ug','維吾爾語'], ['tt','韃靼語'], ['bak','巴什基爾語'], ['che','車臣語'], ['sah','雅庫特語'], ['mn','蒙古語'], ['hy','亞美尼亞語'], ['ka','喬治亞語'], ['abk','阿布哈茲語']],
-'東亞':[['zh-CN','中文簡體'], ['zh-TW','中文繁體'], ['yue','粵語'], ['ja','日語'], ['ko','韓語'], ['nan','閩南語'], ['hak','客家話'], ['bo','藏語'], ['mnc','滿語'], ['ryu','琉球語']],
-'東南亞':[['vi','越南語'], ['th','泰語'], ['lo','寮語'], ['my','緬甸語'], ['km','高棉語'], ['id','印尼語'], ['ms','馬來語'], ['fil','菲律賓語'], ['jv','爪哇語'], ['su','巽他語'], ['ban','巴厘語'], ['min','米南佳保語'], ['ace','亞齊語'], ['bug','布吉語'], ['day','達雅語'], ['iba','伊班語'], ['dtp','卡達山語'], ['duz','杜順語'], ['mdh','馬京達瑙語'], ['cbk','查瓦卡諾語'], ['bik','比科爾語'], ['pam','邦板牙語'], ['ilo','伊洛卡諾語'], ['pag','班詩蘭語'], ['ceb','宿霧語'], ['hil','希利蓋農語'], ['war','瓦瑞瓦瑞語'], ['sur','蘇里高語'], ['mrw','馬拉瑙語'], ['bku','巴瑤語']],
-'歐洲':[['en','英語'], ['fr','法語'], ['de','德語'], ['es','西班牙語'], ['pt','葡萄牙語'], ['it','義大利語'], ['nl','荷蘭語'], ['pl','波蘭語'], ['ru','俄語'], ['uk','烏克蘭語'], ['be','白俄羅斯語'], ['bg','保加利亞語'], ['cs','捷克語'], ['sk','斯洛伐克語'], ['hu','匈牙利語'], ['ro','羅馬尼亞語'], ['el','希臘語'], ['sq','阿爾巴尼亞語'], ['sr','塞爾維亞語'], ['hr','克羅埃西亞語'], ['bs','波士尼亞語'], ['cnr','蒙特內哥羅語'], ['sl','斯洛維尼亞語'], ['sv','瑞典語'], ['da','丹麥語'], ['no','挪威語'], ['fi','芬蘭語'], ['et','愛沙尼亞語'], ['lv','拉脫維亞語'], ['lt','立陶宛語'], ['is','冰島語'], ['fo','法羅語'], ['mt','馬爾他語'], ['ga','愛爾蘭語'], ['gd','蘇格蘭蓋爾語'], ['cy','威爾斯語'], ['eu','巴斯克語'], ['ca','加泰隆尼亞語'], ['gl','加利西亞語'], ['oc','奧克語'], ['br','布列塔尼語'], ['co','科西嘉語'], ['sc','薩丁尼亞語'], ['fur','弗留利語'], ['rm','羅曼什語'], ['la','拉丁語'], ['cu','教會斯拉夫語']],
-'美洲':[['nv','納瓦荷語'], ['iu','因紐特語'], ['cr','克里語'], ['oj','奧吉布瓦語'], ['dak','達科他語'], ['chr','切羅基語'], ['bla','黑腳語'], ['nah','納瓦特爾語'], ['quc','基切語'], ['yua','瑪雅語'], ['qu','克丘亞語'], ['ay','艾馬拉語'], ['gn','瓜拉尼語'], ['arn','馬普切語'], ['srn','蘇里南語'], ['ht','海地克里奧爾語'], ['jam','牙買加克里奧爾語'], ['pt-BR','巴西葡萄牙語']],
-'大洋洲':[['mi','毛利語'], ['fj','斐濟語'], ['sm','薩摩亞語'], ['to','東加語'], ['ty','大溪地語'], ['haw','夏威夷語'], ['tkl','托克勞語'], ['na','諾魯語'], ['pau','帛琉語'], ['ch','查莫羅語'], ['mh','馬紹爾語'], ['pi','皮欽語'], ['ho','希里莫圖語'], ['bi','比斯拉馬語'], ['gil','吉里巴斯語'], ['tvl','吐瓦魯語']],
-'人工/特殊':[['eo','世界語'], ['tlh','克林貢語'], ['sjn','精靈語'], ['navi','納美語'], ['tok','道本語'], ['jbo','邏輯語'], ['ia','國際語'], ['ie','西方語']],
-};
-const LANG_REGIONS=Object.keys(LANG_DATA);
 function langName(code){for(const r in LANG_DATA){const f=LANG_DATA[r].find(x=>x[0]===code);if(f)return f[1]}return code||''}
 function langFind(txt){const t=(txt||'').trim().toLowerCase();const out=[];for(const r in LANG_DATA)for(const x of LANG_DATA[r]){if(!t||x[0].toLowerCase().includes(t)||x[1].includes(t))out.push([r,x[0],x[1]])}return out}
 function langPref(){const u=me();return (u&&u.prof&&u.prof.langPref)||''}
-function setLangPref(code){const u=me();if(!u)return;u.prof=u.prof||{};u.prof.langPref=code;saveU(u);toast('🌍 已設定語言偏好：'+langName(code));hud();if(typeof vSet==='function')vSet()}
-function langG(g){g.stats.lang=g.stats.lang||{};return g.stats.lang}
+function setLangPref(code){const u=me();if(!u)return;u.prof=u.prof||{};u.prof.langPref=code;saveU(u);toast('🌍 已設定語言偏好：'+(code?(langName(code)||code):'（已清除）'));hud();const v=$('#view');if(v&&v.textContent&&v.textContent.indexOf('⚙️ 設定')>-1){if(typeof vSet==='function')vSet()}else if(typeof langFilter==='function')langFilter(langFilter.cur||'')}
+function langG(g){g=g||{};g.stats=g.stats||{};g.stats.lang=g.stats.lang||{};return g.stats.lang}
 /* ════════ 語言自學畫面（v3.0）：選語言 → AI 出題 → 1.3x 獎勵，每語言個別統計 ════════ */
 let LQ={code:'',name:'',q:null,phase:'IDLE',sel:-1,t0:0,diff:45};
+/* ════════════════════════════════════════════
+   vLangStudy 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLangStudy
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLangStudy 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLangStudy
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLangStudy 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLangStudy
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLangStudy 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLangStudy
+   ════════════════════════════════════════════ */
 async function vLangStudy(){
   if(!await needJs(['js/views/vLangStudy.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLangStudy();
 }
+
+
+
+
 langFilter.cur='';
 function langFilter(cat){
   langFilter.cur=cat;
   document.querySelectorAll('[id^=lgf_]').forEach(b=>{b.style.borderColor=(b.id==='lgf_'+(cat||'全部'))?'var(--gold)':'';b.style.color=(b.id==='lgf_'+(cat||'全部'))?'var(--gold2)':''});
   const t=$('#langSearch')?$('#langSearch').value.trim():'';
   const rows=t?langFind(t):(cat?LANG_DATA[cat].map(x=>[cat,x[0],x[1]]):LANG_REGIONS.flatMap(r=>LANG_DATA[r].map(x=>[r,x[0],x[1]])));
-  const g=me().g,pref=langPref(),langs=langG(g);
+  const g=me().g||{},pref=langPref(),langs=langG(g);
+  if(pref)rows.sort((a,b)=>(pref===b[1])-(pref===a[1]));
   const el=$('#langGrid');if(!el)return;
   el.innerHTML=rows.map(x=>{
     const [r,code,name]=x,st=langs[code];
@@ -2970,6 +2989,7 @@ function langFilter(cat){
   }).join('')||'<div class="panel2" style="text-align:center;color:var(--mut)">找不到符合的語言，試試別的字。</div>';
 }
 function langStart(code){
+  const lu=me();if(lu&&!lu.g){lu.g=newGame();saveU(lu)} /* v4.0：老師/管理員也有遊戲統計 */
   LQ.code=code;LQ.name=langName(code);LQ.phase='LOADING';
   $('#view').innerHTML=back('vLangStudy()')+'<h3 class="vt">🌍 '+esc(LQ.name)+' <span class="vsub">AI 出題・1.3x 獎勵</span></h3>'+
   '<div style="text-align:center;padding:50px 0"><div style="font-size:52px;animation:spP 1s infinite">🌏</div><p style="color:var(--gold2);font-weight:900;font-family:var(--serif)">AI 正在出 '+esc(LQ.name)+' 的題目…</p></div>';
@@ -3022,28 +3042,90 @@ function langSettle(g,ok){
   saveU(g);
   return R;
 }
+/* 本地單字庫 fallback（v4.0）：AI 出題失敗/卡住時的備援題庫（常見語言）*/
+const LANG_FALLBACK={
+'zh-CN':[['你好','你好'],['谢谢','谢谢'],['再见','再见'],['早上好','早上好'],['水','水'],['朋友','朋友'],['学校','学校'],['学习','学习']],
+'zh-TW':[['你好','你好'],['謝謝','謝謝'],['再見','再見'],['早安','早安'],['水','水'],['朋友','朋友'],['學校','學校'],['學習','學習']],
+'yue':[['你好','你好'],['多謝','多謝'],['再見','再見'],['早晨','早晨'],['水','水'],['朋友','朋友'],['返學','返學'],['好食','好食']],
+'ja':[['你好','こんにちは'],['謝謝','ありがとう'],['再見','さようなら'],['早安','おはよう'],['水','みず'],['朋友','ともだち'],['學校','がっこう'],['學習','べんきょう']],
+'ko':[['你好','안녕하세요'],['謝謝','감사합니다'],['再見','안녕히 가세요'],['早安','좋은 아침'],['水','물'],['朋友','친구'],['學校','학교'],['學習','공부']],
+'en':[['你好','Hello'],['謝謝','Thank you'],['再見','Goodbye'],['早安','Good morning'],['水','Water'],['朋友','Friend'],['學校','School'],['學習','Study']],
+'fr':[['你好','Bonjour'],['謝謝','Merci'],['再見','Au revoir'],['早安','Bonjour'],['水','Eau'],['朋友','Ami'],['學校','École'],['學習','Apprendre']],
+'de':[['你好','Hallo'],['謝謝','Danke'],['再見','Auf Wiedersehen'],['早安','Guten Morgen'],['水','Wasser'],['朋友','Freund'],['學校','Schule'],['學習','Lernen']],
+'es':[['你好','Hola'],['謝謝','Gracias'],['再見','Adiós'],['早安','Buenos días'],['水','Agua'],['朋友','Amigo'],['學校','Escuela'],['學習','Aprender']],
+'pt':[['你好','Olá'],['謝謝','Obrigado'],['再見','Adeus'],['早安','Bom dia'],['水','Água'],['朋友','Amigo'],['學校','Escola'],['學習','Aprender']],
+'it':[['你好','Ciao'],['謝謝','Grazie'],['再見','Arrivederci'],['早安','Buongiorno'],['水','Acqua'],['朋友','Amico'],['學校','Scuola'],['學習','Imparare']],
+'nl':[['你好','Hallo'],['謝謝','Dank je'],['再見','Tot ziens'],['早安','Goedemorgen'],['水','Water'],['朋友','Vriend'],['學校','School'],['學習','Leren']],
+'pl':[['你好','Cześć'],['謝謝','Dziękuję'],['再見','Do widzenia'],['早安','Dzień dobry'],['水','Woda'],['朋友','Przyjaciel'],['學校','Szkoła'],['學習','Uczyć się']],
+'ru':[['你好','Привет'],['謝謝','Спасибо'],['再見','До свидания'],['早安','Доброе утро'],['水','Вода'],['朋友','Друг'],['學校','Школа'],['學習','Учить']],
+'uk':[['你好','Привіт'],['謝謝','Дякую'],['再見','До побачення'],['早安','Доброго ранку'],['水','Вода'],['朋友','Друг'],['學校','Школа'],['學習','Вчитися']],
+'th':[['你好','สวัสดี'],['謝謝','ขอบคุณ'],['再見','ลาก่อน'],['早安','อรุณสวัสดิ์'],['水','น้ำ'],['朋友','เพื่อน'],['學校','โรงเรียน'],['學習','เรียน']],
+'vi':[['你好','Xin chào'],['謝謝','Cảm ơn'],['再見','Tạm biệt'],['早安','Chào buổi sáng'],['水','Nước'],['朋友','Bạn'],['學校','Trường học'],['學習','Học']],
+'vi-N':[['你好','Xin chào'],['謝謝','Cảm ơn'],['再見','Tạm biệt'],['早安','Chào buổi sáng'],['水','Nước'],['朋友','Bạn'],['學校','Trường học'],['學習','Học tập']],
+'id':[['你好','Halo'],['謝謝','Terima kasih'],['再見','Selamat tinggal'],['早安','Selamat pagi'],['水','Air'],['朋友','Teman'],['學校','Sekolah'],['學習','Belajar']],
+'ms':[['你好','Halo'],['謝謝','Terima kasih'],['再見','Selamat tinggal'],['早安','Selamat pagi'],['水','Air'],['朋友','Kawan'],['學校','Sekolah'],['學習','Belajar']],
+'fil':[['你好','Kumusta'],['謝謝','Salamat'],['再見','Paalam'],['早安','Magandang umaga'],['水','Tubig'],['朋友','Kaibigan'],['學校','Paaralan'],['學習','Mag-aral']],
+'jv':[['你好','Halo'],['謝謝','Matur nuwun'],['再見','Pamit'],['早安','Sugeng enjang'],['水','Banyu'],['朋友','Kanca'],['學校','Sekolah'],['學習','Sinau']],
+'ceb':[['你好','Kumusta'],['謝謝','Salamat'],['再見','Paalam'],['早安','Maayong buntag'],['水','Tubig'],['朋友','Higala'],['學校','Eskwelahan'],['學習','Tun-an']],
+'hi':[['你好','नमस्ते'],['謝謝','धन्यवाद'],['再見','अलविदा'],['早安','सुप्रभात'],['水','पानी'],['朋友','दोस्त'],['學校','विद्यालय'],['學習','सीखना']],
+'bn':[['你好','নমস্কার'],['謝謝','ধন্যবাদ'],['再見','বিদায়'],['早安','শুভ সকাল'],['水','পানি'],['朋友','বন্ধু'],['學校','স্কুল'],['學習','শেখা']],
+'ta':[['你好','வணக்கம்'],['謝謝','நன்றி'],['再見','பிரியாவிடை'],['早安','காலை வணக்கம்'],['水','தண்ணீர்'],['朋友','நண்பன்'],['學校','பள்ளி'],['學習','கற்றல்']],
+'te':[['你好','నమస్కారం'],['謝謝','ధన్యవాదాలు'],['再見','వీడ్కోలు'],['早安','శుభోదయం'],['水','నీరు'],['朋友','స్నేహితుడు'],['學校','పాఠశాల'],['學習','నేర్చుకోవడం']],
+'ur':[['你好','سلام'],['謝謝','شکریہ'],['再見','خدا حافظ'],['早安','صبح بخیر'],['水','پانی'],['朋友','دوست'],['學校','اسکول'],['學習','سیکھنا']],
+'fa':[['你好','سلام'],['謝謝','ممنون'],['再見','خداحافظ'],['早安','صبح بخیر'],['水','آب'],['朋友','دوست'],['學校','مدرسه'],['學習','یادگیری']],
+'sw':[['你好','Habari'],['謝謝','Asante'],['再見','Kwaheri'],['早安','Habari za asubuhi'],['水','Maji'],['朋友','Rafiki'],['學校','Shule'],['學習','Kujifunza']],
+'eo':[['你好','Saluton'],['謝謝','Dankon'],['再見','Ĝis revido'],['早安','Bonan matenon'],['水','Akvo'],['朋友','Amiko'],['學校','Lernejo'],['學習','Lerni']],
+};
 async function langAskAI(name,code,diffLabel){
-  const prompt='生成 1 道語言學習選擇題：\n學習語言：'+name+'（代碼 '+code+'）\n難度：'+diffLabel+'\n題型：單字／片語 中⇄外配對（題目用繁體中文發問，外文部分用該語言正確的文字）\n要求：\n1. 恰好 4 個選項、只有 1 個正確\n2. 外文拼寫必須正確，含該語言的文字系統\n3. 純文字，禁止圖片、照片、「如圖」、聽力題\n4. 題目與選項避免與常見教材模板完全相同\n5. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]';
-  const raw=await callGemini(prompt,'你是專業的語言教學專家，精通各國語言與人工語言（含克林貢語、精靈語、納美語等）。嚴格按照 JSON 格式回應，不要包含任何額外文字或 markdown。');
-  const m=raw.match(/\[[\s\S]*?\]/);if(!m)return null;
-  let arr;
-  try{arr=JSON.parse(m[0])}catch(e){return null}
-  if(!Array.isArray(arr)||!arr[0]||typeof arr[0]['題目']!=='string'||!Array.isArray(arr[0]['選項'])||arr[0]['選項'].length<2)return null;
-  const q=arr[0];
-  q['選項']=q['選項'].slice(0,4);
-  if(typeof q['答案']!=='number'||q['答案']<0||q['答案']>=q['選項'].length)q['答案']=0;
-  if(typeof q['解析']!=='string')q['解析']='';
-  return q;
+  function parse(raw){
+    const m=raw.match(/\[[\s\S]*?\]/);if(!m)return null;
+    let arr;
+    try{arr=JSON.parse(m[0])}catch(e){return null}
+    if(!Array.isArray(arr)||!arr[0]||typeof arr[0]['題目']!=='string'||!Array.isArray(arr[0]['選項'])||arr[0]['選項'].length<2)return null;
+    const q=arr[0];
+    q['選項']=q['選項'].slice(0,4);
+    if(typeof q['答案']!=='number'||q['答案']<0||q['答案']>=q['選項'].length)q['答案']=0;
+    if(typeof q['解析']!=='string')q['解析']='';
+    return q;
+  }
+  function timed(p,ms){ /* 出題防卡住（v4.0）：45 秒無回應即放棄，改用備援 */
+    return new Promise((resolve,reject)=>{
+      const t=setTimeout(()=>reject(new Error('timeout')),ms);
+      p.then(v=>{clearTimeout(t);resolve(v)},e=>{clearTimeout(t);reject(e)});
+    });
+  }
+  const sys='你是專業的語言教學專家，精通各國語言與人工語言（含克林貢語、精靈語、納美語等）。嚴格按照 JSON 格式回應，不要包含任何額外文字或 markdown。';
+  const sys2='你是語言教學專家。嚴格按照 JSON 格式回應。';
+  try{
+    const prompt='生成 1 道語言學習選擇題：\n學習語言：'+name+'（代碼 '+code+'）\n難度：'+diffLabel+'\n題型：單字／片語 中⇄外配對（題目用繁體中文發問，外文部分用該語言正確的文字）\n要求：\n1. 恰好 4 個選項、只有 1 個正確\n2. 外文拼寫必須正確，含該語言的文字系統\n3. 純文字，禁止圖片、照片、「如圖」、聽力題\n4. 題目與選項避免與常見教材模板完全相同\n5. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]';
+    const q=parse(await timed(callGemini(prompt,sys),45000));
+    if(q)return q;
+  }catch(e){}
+  try{ /* 第二輪：簡化 prompt（允許羅馬拼音，小語種成功率大增）*/
+    const prompt2='出 1 道語言選擇題（語言：'+name+'，代碼 '+code+'，難度 '+diffLabel+'）：一個中文詞對應四個該語言寫法／拼音，只有一個正確。該語言若無文字或難寫，可用羅馬拼音標示。恰好 4 選項。隨機碼 '+Math.random().toString(36).slice(2,9)+'。\n\nJSON：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]';
+    const q2=parse(await timed(callGemini(prompt2,sys2),45000));
+    if(q2)return q2;
+  }catch(e){}
+  const fb=LANG_FALLBACK[code]; /* 本地單字庫備援（AI 全失敗/卡住時）*/
+  if(fb&&fb.length){
+    const idx=Math.floor(Math.random()*fb.length);
+    const pair=fb[idx];
+    const others=fb.filter((p,i)=>i!==idx&&p[1]!==pair[1]);
+    const picks=[pair].concat(others.sort(()=>Math.random()-0.5).slice(0,3)).sort(()=>Math.random()-0.5);
+    return {'題目':'「'+pair[0]+'」用 '+name+'（'+code+'）怎麼說？','選項':picks.map(p=>p[1]),'答案':picks.indexOf(pair),'解析':pair[1]+' 是「'+pair[0]+'」的意思。'};
+  }
+  return null;
 }
 
 
 /* 🗂 功能分類（排版）：把 32+ 個功能分區顯示，不再全部平鋪 */
 const FEAT_CATS=[
-  ['📚 學習精進',['vSubj','vLearn','vHomework','vVideos','vLab','vWrong','vStats','vLangStudy']],
+  ['🌍 語言包',['vSubj','vLearn','vHomework','vVideos','vLab','vWrong','vStats','vLangStudy']],
   ['⚔️ 戰鬥冒險',['vPK','vTerr','vDungeon','vInfinityExchange']],
   ['🎁 養成經營',['vGacha','vColl','vForge','vBag','vDoll','vEquip','vFreePoints','vBuffStore']],
   ['💬 社群互動',['vSocial','vChatV','vGuild','vAnn']],
-  ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes']],
+  ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vSudoku','vClassWar']],
+  ['🎨 創作分享',['vPixel']],
   ['⚙️ 系統',['vSet','vAdminPanel']]
 ];
 function featCatsHtml(){
@@ -3267,10 +3349,34 @@ function promoteNameOnce(name){if(!name)return name;if(name.includes('八年'))r
 
 function isGrade9(u){return !u.graduated&&/^9/.test(String(u.classId||''))}
 
+/* ════════════════════════════════════════════
+   vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHome, tutorGuide
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHome, tutorGuide
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHome, tutorGuide
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHome, tutorGuide
+   ════════════════════════════════════════════ */
 async function vHome(){
   if(!await needJs(['js/views/vHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vHome();
 }
+
+
+
+
+
+
+
+
 
 function addMail(g,title,body,rw){g.mail=g.mail||[];g.mail.push({id:'m'+Date.now()+Math.floor(Math.random()*1e4),title,body,rw:rw||null,t:Date.now(),claimed:false});if(g.mail.length>50)g.mail=g.mail.slice(-50)}
 
@@ -3370,10 +3476,34 @@ const VIDEO_HUB='videos.html'; /* 影片專區（自架部署改用 ASCII 檔名
    含 2 個單位：VIDEO_SUBJ, vVideos
    ════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════
+   vVideos 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：VIDEO_SUBJ, vVideos
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vVideos 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：VIDEO_SUBJ, vVideos
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vVideos 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：VIDEO_SUBJ, vVideos
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vVideos 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：VIDEO_SUBJ, vVideos
+   ════════════════════════════════════════════ */
+
 async function vVideos(){
   if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vVideos();
 }
+
+
+
+
 
 
 /* ════════════════════════════════════════════
@@ -3382,10 +3512,30 @@ async function vVideos(){
    ════════════════════════════════════════════ */
 function showRewardFX(rewards){const icons={gold:'💰',crystal:'💎',diamond:'💠',starlight:'✨',honor:'🏅',quizPts:'📝',enhStone:'⚒️',ironOre:'⛏️',labMat:'🧪'};let delay=0;Object.entries(rewards).forEach(([k,v])=>{if(v&&v>0&&icons[k]){setTimeout(()=>{const el=document.createElement('span');el.style.cssText='position:fixed;font-size:24px;pointer-events:none;z-index:200;left:'+(30+Math.random()*40)+'vw;top:10vh;animation:rewardDrop .8s ease-out forwards';el.textContent=icons[k]+' +'+v;document.body.appendChild(el);setTimeout(()=>el.remove(),1200)},delay);delay+=150}})}
 
+/* ════════════════════════════════════════════
+   vVideoSub 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vVideoSub
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vVideoSub 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vVideoSub
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vVideoSub 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vVideoSub
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vVideoSub 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vVideoSub
+   ════════════════════════════════════════════ */
 async function vVideoSub(){
   if(!await needJs(['js/views/vVideoSub.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vVideoSub();
 }
+
+
+
+
 
 function grantRw(g,rw){if(rw.gold)g.gold+=rw.gold;if(rw.crystal)g.crystal+=rw.crystal;if(rw.diamond)g.diamond+=rw.diamond;
 
@@ -3508,10 +3658,30 @@ function checkArenaDailyMail(){
    vMail 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vMail
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMail 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMail
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMail 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMail
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMail 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMail
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMail 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMail
+   ════════════════════════════════════════════ */
 async function vMail(){
   if(!await needJs(['js/views/vMail.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMail();
 }
+
+
+
+
 
 
 function claimMail(id){
@@ -3528,10 +3698,30 @@ m.claimed=true;grantRw(g,m.rw);saveU(u);hud();toast('🎁 獎勵已領取！');v
    vNotifs 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vNotifs
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vNotifs 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vNotifs
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vNotifs 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vNotifs
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vNotifs 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vNotifs
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vNotifs 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vNotifs
+   ════════════════════════════════════════════ */
 async function vNotifs(){
   if(!await needJs(['js/views/vNotifs.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vNotifs();
 }
+
+
+
+
 
 
 /* ❤️ 動態點讚：再點一次取消；對方會收到通知 */
@@ -3554,10 +3744,30 @@ set(LS.stories,st);vStory();
    vStory 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vStory
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStory 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStory
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStory 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStory
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStory 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStory
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStory 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStory
+   ════════════════════════════════════════════ */
 async function vStory(){
   if(!await needJs(['js/views/vStory.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vStory();
 }
+
+
+
+
 
 
 function onStoryPhoto(inp){ /* ☁️ 優先上雲端（原圖、附進度條）；雲端未就緒時退回壓縮內嵌 */
@@ -3707,10 +3917,30 @@ toast('🎁 '+s.name+' 開啟：'+matTxt+(gotChar?'｜🧑 '+gotChar:''));vGuild
    vLearn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vLearn
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLearn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLearn
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLearn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLearn
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLearn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLearn
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLearn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLearn
+   ════════════════════════════════════════════ */
 async function vLearn(){
   if(!await needJs(['js/views/vLearn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLearn();
 }
+
+
+
+
 
 
 function openLearnUrl(id){
@@ -3741,10 +3971,30 @@ document.body.appendChild(ov);
    ════════════════════════════════════════════ */
 const GUILD_NEED=lv=>lv*1000; /* 升級所需捐獻金幣＝等級×1000 */
 
+/* ════════════════════════════════════════════
+   vGuild 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuild
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuild 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuild
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuild 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuild
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuild 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuild
+   ════════════════════════════════════════════ */
 async function vGuild(){
   if(!await needJs(['js/views/vGuild.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGuild();
 }
+
+
+
+
 
 
 function guildCreate(){
@@ -3940,6 +4190,7 @@ function setFrNick(fid){const u=myProf();const cur=u.prof.nick[fid]||'';const nk
 
 
 function applyMyBg(){const u=me();const bg=u&&u.prof&&u.prof.bg;
+applyMyTheme();
 
 if(!bg){document.body.style.background='';return}
 
@@ -3950,6 +4201,26 @@ else if(BG_PRESETS[bg]&&BG_PRESETS[bg][1]){document.body.style.background=BG_PRE
 else document.body.style.background='';}
 
 function setBg(id){const u=myProf();u.prof.bg=id==='bg1'?'':id;saveU(u);applyMyBg();toast('🎨 背景已更換');vSet()}
+
+/* 🎨 介面顏色主題（v4.0）：覆寫 CSS 變數，每人都可選自己喜歡的配色 */
+const COLOR_PRESETS={
+'gold':['🌙 默認金黑',''],
+'blue':['🌊 深海藍','--bg:#0b1a2c;--panel:#10233a;--panel2:#0e2035;--line:#1f4266;--gold:#4fc3f7;--gold2:#81d4fa;--goldD:#27618a;--txt:#e8f4fd;--mut:#7fa8c4;--teal:#26c6da'],
+'purple':['🍇 暗夜紫','--bg:#170f2b;--panel:#1f1640;--panel2:#1c1338;--line:#3a2c6b;--gold:#b39ddb;--gold2:#d1c4e9;--goldD:#5e4a8f;--txt:#efe9fa;--mut:#a394c8;--teal:#7e57c2'],
+'green':['🌿 翡翠綠','--bg:#0d2317;--panel:#123322;--panel2:#102d1e;--line:#225a3c;--gold:#81c784;--gold2:#a5d6a7;--goldD:#3d7a4e;--txt:#e8f5ec;--mut:#82b594;--teal:#26a69a'],
+'red':['🍁 楓紅','--bg:#291014;--panel:#3a1820;--panel2:#33151c;--line:#6b2f3a;--gold:#ff8a80;--gold2:#ffab91;--goldD:#8f3a44;--txt:#fdeeef;--mut:#c48b93;--teal:#ef5350'],
+'pink':['🌸 夜櫻粉','--bg:#26101f;--panel:#381c30;--panel2:#31182a;--line:#6b3a5a;--gold:#f48fb1;--gold2:#f8bbd0;--goldD:#8f4a6e;--txt:#fdeef5;--mut:#c08fa9;--teal:#ec407a'],
+'cyan':['❄️ 墨青','--bg:#06252b;--panel:#0a3640;--panel2:#08303a;--line:#14566b;--gold:#4dd0e1;--gold2:#80deea;--goldD:#1f7f96;--txt:#e6f8fb;--mut:#7fb4c0;--teal:#00bcd4'],
+'oled':['⚫ 純黑 OLED','--bg:#000000;--panel:#0d0d0d;--panel2:#0a0a0a;--line:#262626;--gold:#f2c14e;--gold2:#ffd97a;--goldD:#5c4a20;--txt:#e5e5e5;--mut:#8a8a8a;--teal:#38d9c0']
+};
+function applyMyTheme(){
+  const vars=['--bg','--panel','--panel2','--line','--gold','--gold2','--goldD','--txt','--mut','--teal'];
+  vars.forEach(v=>document.documentElement.style.removeProperty(v));
+  const u=me(),t=u&&u.prof&&u.prof.uiTheme;
+  if(!t||!COLOR_PRESETS[t]||!COLOR_PRESETS[t][1])return;
+  COLOR_PRESETS[t][1].split(';').forEach(kv=>{const i=kv.indexOf(':');if(i>0)document.documentElement.style.setProperty(kv.slice(0,i),kv.slice(i+1))});
+}
+function setTheme(id){const u=myProf();u.prof.uiTheme=id==='gold'?'':id;saveU(u);applyMyTheme();toast('🌈 介面主題已更換');vSet()}
 
 function onBgFile(inp){const f=inp.files[0];if(!f)return;compressImgFile(f,1000,.55,d=>{const u=myProf();u.prof.bg=d;saveU(u);applyMyBg();toast('🖼 已使用照片當背景');vSet()})}
 
@@ -4068,10 +4339,30 @@ openModal('<h3 class="mt">🔥 限次觀看內容 <span style="font-size:11px;co
    vSubj 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vSubj
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSubj 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSubj
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSubj 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSubj
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSubj 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSubj
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSubj 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSubj
+   ════════════════════════════════════════════ */
 async function vSubj(){
   if(!await needJs(['js/views/vSubj.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSubj();
 }
+
+
+
+
 
 
 /* 第一步：選學期→單元（點單元直接進設定，解決卡住問題）*/
@@ -4080,10 +4371,30 @@ async function vSubj(){
    vUnitList 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vUnitList
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUnitList 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUnitList
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUnitList 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUnitList
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUnitList 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUnitList
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUnitList 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUnitList
+   ════════════════════════════════════════════ */
+
 async function vUnitList(){
   if(!await needJs(['js/views/vUnitList.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vUnitList();
 }
+
+
+
 
 
 /* 第二步：出發設定（難度/版本/AI）＋ 超大開始按鈕 */
@@ -4113,10 +4424,33 @@ return t}
 
 function parseAiQuestions(text,subject){let cleaned=text.trim();cleaned=cleaned.replace(/```json\s*/gi,'').replace(/```\s*/g,'');cleaned=deTex(cleaned);/* 先轉換 LaTeX，避免 \\times 等被 JSON 轉義成亂碼 */const arrMatch=cleaned.match(/\[[\s\S]*\]/);if(!arrMatch)throw new Error('無法解析 AI 回應，請重試');let questions;try{questions=JSON.parse(arrMatch[0])}catch{throw new Error('JSON 解析失敗，請重試')}if(!Array.isArray(questions))throw new Error('回應格式錯誤');const badWords=['圖','照片','圖片','圖像','如圖','下圖','附圖','看圖'];const listenWords=['聽力','聽','錄音','播放','audio','listening','請聽'];questions=questions.filter(q=>{if(!q['題目']||!q['選項']||!Array.isArray(q['選項'])||q['選項'].length!==4)return false;if(typeof q['答案']!=='number'||q['答案']<0||q['答案']>3)return false;const all=q['題目']+' '+q['選項'].join(' ');for(const w of badWords){if(all.includes(w))return false}for(const w of listenWords){if(all.toLowerCase().includes(w.toLowerCase()))return false}/* 所有科目一律過濾照片與聽力題 */return true});questions.forEach(q=>{q['題目']=deTex(q['題目']);q['選項']=q['選項'].map(deTex);if(q['解析'])q['解析']=deTex(q['解析'])});/* 解析後再清一次殘留符號 */return questions}
 
+/* ════════════════════════════════════════════
+   vReady 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vReady
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vReady 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：maxDiff, vReady
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vReady 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：maxDiff, vReady
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vReady 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：maxDiff, vReady
+   ════════════════════════════════════════════ */
+
 async function vReady(){
   if(!await needJs(['js/views/vReady.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vReady();
 }
+
+
+
+
 
 function aiRecentPromptBlock(recent){return recent&&recent.length?('8. 下列是最近已出過的題目，絕對禁止與其完全相同、僅改數字或僅換人名：\n'+recent.map((r,i)=>(i+1)+'. '+r).join('\n')+'\n9. 請刻意使用與上述範例完全不同的數字組合、情境與題型（若題目型態一直相同，請換一種問法）\n10. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'，每題必須是全新題目\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]'):('8. 必須是全新題目，不可與常見模板完全相同或僅改數字\n9. 本次出題隨機碼：'+Math.random().toString(36).slice(2,9)+'，請從不同角度、數字、情境出題\n\nJSON 格式：[{"題目":"...","選項":["A","B","C","D"],"答案":0,"解析":"..."}]')}
 
@@ -4203,10 +4537,34 @@ $('#view').innerHTML='<div style="text-align:center;padding:60px 0"><div style="
 function showLevelUpFX(newLv){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);animation:fadeIn .3s';overlay.innerHTML='<div style="text-align:center;animation:levelUp 1s ease-out"><div style="font-size:48px">🎉</div><div style="font-size:28px;color:var(--gold);font-family:var(--serif);margin:8px 0">LEVEL UP!</div><div style="font-size:20px;color:var(--txt)">Lv.'+newLv+'</div></div>';overlay.onclick=()=>overlay.remove();document.body.appendChild(overlay);for(let i=0;i<12;i++){const p=document.createElement('span');p.style.cssText='position:fixed;font-size:'+(14+Math.random()*10)+'px;pointer-events:none;z-index:201;left:'+(Math.random()*100)+'vw;top:-20px;animation:rewardDrop '+(1+Math.random()*1.5)+'s ease-in forwards;animation-delay:'+(Math.random()*0.5)+'s';p.textContent=['⭐','✨','🌟','💫','🎊'][Math.floor(Math.random()*5)];document.body.appendChild(p);setTimeout(()=>p.remove(),3000)}setTimeout(()=>overlay.remove(),3000)}
 
 
+/* ════════════════════════════════════════════
+   vQuestion 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：qMarkSeen, vQuestion
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vQuestion 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：qMarkSeen, vQuestion
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vQuestion 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：qMarkSeen, vQuestion
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vQuestion 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：qMarkSeen, vQuestion
+   ════════════════════════════════════════════ */
+
 async function vQuestion(){
   if(!await needJs(['js/views/vQuestion.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vQuestion();
 }
+
+
+
+
 
 function weekKey(){const d=new Date();const on=new Date(d.getFullYear(),0,1);const wn=Math.ceil((((d-on)/86400000)+on.getDay()+1)/7);return d.getFullYear()+'-W'+wn}
 
@@ -4313,10 +4671,30 @@ return R;
    vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vResult
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResult
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResult
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResult
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResult
+   ════════════════════════════════════════════ */
 async function vResult(){
   if(!await needJs(['js/views/vResult.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vResult();
 }
+
+
+
+
 
 
 /* ════════ 引擎：經驗/獎勵/連擊/掉落 ════════ */
@@ -4510,10 +4888,30 @@ const collLvOf=(g,n)=>((g.collLv||{})[n])||1;
 
 const collLvCost=lv=>({au:120+lv*80,cr:25+lv*15});
 
+/* ════════════════════════════════════════════
+   vColl 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vColl
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vColl 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vColl
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vColl 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vColl
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vColl 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vColl
+   ════════════════════════════════════════════ */
 async function vColl(){
   if(!await needJs(['js/views/vColl.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vColl();
 }
+
+
+
+
 
 
 function equip(cat,n){const u=me();u.g.equip[cat]=n;saveU(u);hud();toast('✅ 已裝備 '+n);vColl()}
@@ -4585,10 +4983,30 @@ return '<b style="color:var(--gold2)">🃏 卡池等級 Lv.'+lv+' / 100</b> <spa
 
 '<div style="font-size:12px;color:var(--mut)">'+(lv>=100?'🎉 已滿級！UR 機率 10%':'升級進度 '+xp+'/'+need+' 抽')+'｜目前機率：N '+pct(rt.N)+'｜R '+pct(rt.R)+'｜SR '+pct(rt.SR)+'｜SSR '+pct(rt.SSR)+'｜UR '+pct(rt.UR)+'</div>'}
 
+/* ════════════════════════════════════════════
+   vGacha 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGacha
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGacha 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGacha
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGacha 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGacha
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGacha 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGacha
+   ════════════════════════════════════════════ */
 async function vGacha(){
   if(!await needJs(['js/views/vGacha.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGacha();
 }
+
+
+
+
 
 
 function doPull(g,pool,randomValue){
@@ -4706,10 +5124,38 @@ const rnd=(a,b)=>a+Math.random()*(b-a);
 
 
 
+/* ════════════════════════════════════════════
+   vSpeedMatch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：isWeekend, speedOppTime, vSpeedMatch
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vSpeedMatch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：isWeekend, speedOppTime, vSpeedMatch
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vSpeedMatch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：isWeekend, speedOppTime, vSpeedMatch
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vSpeedMatch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：isWeekend, speedOppTime, vSpeedMatch
+   ════════════════════════════════════════════ */
+
+
 async function vSpeedMatch(){
   if(!await needJs(['js/views/vSpeedMatch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSpeedMatch();
 }
+
+
+
+
 
 let Q_SPD=null;
 
@@ -4799,10 +5245,30 @@ return{n:names[tier]+'・第'+floor+'層',i:icons[tier],lv:Math.min(99,floor*2),
 
 function arenaDiff(floor){return Math.min(100,5+floor);} /* 難度隨層數提升 */
 
+/* ════════════════════════════════════════════
+   vPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPK
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPK
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPK
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPK
+   ════════════════════════════════════════════ */
 async function vPK(){
   if(!await needJs(['js/views/vSpeedMatch.js', 'js/views/vPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vPK();
 }
+
+
+
+
 
 function animPk(id,cls){const el=document.getElementById(id);if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
 
@@ -5134,13 +5600,49 @@ toast('🎁 競技塔第 '+r+' 名獎勵已領取！');vPK();
    vPkRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vPkRank
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPkRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPkRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPkRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPkRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPkRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPkRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPkRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPkRank
+   ════════════════════════════════════════════ */
 async function vPkRank(){
   if(!await needJs(['js/views/vPkRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vPkRank();
 }
 
 
+
+
+
+
 /* 🏫 班級總題數 PK：全班累計作答總題數對抗 */
+/* ════════════════════════════════════════════
+   vClassPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClassPK
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClassPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClassPK
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClassPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClassPK
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClassPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClassPK
+   ════════════════════════════════════════════ */
 /* ════════════════════════════════════════════
    vClassPK 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vClassPK
@@ -5149,6 +5651,10 @@ async function vClassPK(){
   if(!await needJs(['js/views/vClassPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vClassPK();
 }
+
+
+
+
 
 
 function spectate(){const a=arenaOpp(1+((Math.random()*10)|0)),b=arenaOpp(1+((Math.random()*10)|0));
@@ -5221,10 +5727,30 @@ return TERR_MAP[subj].t.filter(t=>g.territory.owned[subj+'|'+t.n]).length;
    vTerr 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vTerr
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTerr 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTerr
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTerr 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTerr
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTerr 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTerr
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTerr 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTerr
+   ════════════════════════════════════════════ */
 async function vTerr(){
   if(!await needJs(['js/views/vTerr.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vTerr();
 }
+
+
+
+
 
 
 function terrTarget(g){
@@ -5255,7 +5781,7 @@ const t=TERR_MAP[subj].t[idx];
 
 qReset();Quiz.mode='terr';Quiz.terrName=subj+'|'+t.n;Quiz.subj=subj;Quiz.diff=t.d;
 
-const sems=Object.keys(SUBJ[subj].u);Quiz.sem=pick(sems);Quiz.unit=pick(SUBJ[subj].u[Quiz.sem]);
+const sems=Object.keys(SUBJ[subj].u);Quiz.sem=pick(sems);const _pu=pick(SUBJ[subj].u[Quiz.sem]);Quiz.unit=Array.isArray(_pu)?_pu[0]:_pu;
 
 Quiz.phase='LOADING';showLoading();
 
@@ -5427,10 +5953,30 @@ if(!list.every(m=>m.status==='CLAIMED'))g._allDone=false;
    vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vMiss, rwText
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMiss
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMiss
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMiss
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMiss 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMiss
+   ════════════════════════════════════════════ */
 async function vMiss(){
   if(!await needJs(['js/views/vMiss.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMiss();
 }
+
+
+
+
 
 function rwText(rw){const p=[];if(rw.gold)p.push('🪙'+rw.gold);if(rw.crystal)p.push('💠'+rw.crystal);if(rw.diamond)p.push('💎'+rw.diamond);if(rw.starlight)p.push('✨'+rw.starlight);if(rw.ironOre)p.push('⛏️'+rw.ironOre);if(rw.enhStone)p.push('🔩'+rw.enhStone);if(rw.labMat)p.push('🧪'+rw.labMat);if(rw.honor)p.push('🏅'+rw.honor);if(rw.quizPts)p.push('📖'+rw.quizPts);return p.join(' ')||'—'}
 
@@ -5509,10 +6055,30 @@ const SHOP_POOL=[
 
 ];
 
+/* ════════════════════════════════════════════
+   vShopV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vShopV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vShopV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vShopV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vShopV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vShopV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vShopV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vShopV
+   ════════════════════════════════════════════ */
 async function vShopV(){
   if(!await needJs(['js/views/vShopV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vShopV();
 }
+
+
+
+
 
 
 function refreshShop(){
@@ -5621,10 +6187,34 @@ const GSHOP_ITEMS=[
 
 ];
 
+/* ════════════════════════════════════════════
+   vGShop 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：gshopTabs, vGShop
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vGShop 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：gshopTabs, vGShop
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vGShop 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：gshopTabs, vGShop
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vGShop 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：gshopTabs, vGShop
+   ════════════════════════════════════════════ */
+
 async function vGShop(){
   if(!await needJs(['js/views/vMarket.js', 'js/views/vGShop.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGShop();
 }
+
+
+
+
 
 
 function buyG(id){
@@ -5659,10 +6249,30 @@ saveU(u);hud();toast('✅ 搶購成功！'+it.n+'（剩餘 '+(gs.stock[id])+' �
    vMarket 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vMarket
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMarket 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMarket
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMarket 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMarket
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMarket 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMarket
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMarket 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMarket
+   ════════════════════════════════════════════ */
 async function vMarket(){
   if(!await needJs(['js/views/vGShop.js', 'js/views/vMarket.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMarket();
 }
+
+
+
+
 
 
 function marketListItem(ri){
@@ -5749,10 +6359,30 @@ saveU(u);toast('↩️ 已下架「'+it.w.n+'」，物品已退回背包');vMark
    vForge 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vForge
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vForge 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vForge
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vForge 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vForge
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vForge 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vForge
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vForge 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vForge
+   ════════════════════════════════════════════ */
 async function vForge(){
   if(!await needJs(['js/views/vForge.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vForge();
 }
+
+
+
+
 
 
 function doForge(id){
@@ -5809,10 +6439,30 @@ vForge();
    vBag 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vBag
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBag 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBag
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBag 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBag
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBag 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBag
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBag 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBag
+   ════════════════════════════════════════════ */
 async function vBag(){
   if(!await needJs(['js/views/vBag.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vBag();
 }
+
+
+
+
 
 
 function renderBagList(){
@@ -5937,10 +6587,30 @@ return arr.map((e,i)=>({...e,rank:i+1}));
    vRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vRank
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRank 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRank
+   ════════════════════════════════════════════ */
 async function vRank(){
   if(!await needJs(['js/views/vRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vRank();
 }
+
+
+
+
 
 
 const RANK_RW={1:{diamond:20,gold:1000,crystal:300,starlight:10,honor:10},2:{diamond:12,gold:600,crystal:180,starlight:6,honor:6},3:{diamond:8,gold:400,crystal:120,starlight:4,honor:4}}; /* 加碼版排名獎勵 */
@@ -5987,10 +6657,30 @@ $('#lbBox').innerHTML=lb(g,b).map(e=>'<div class="panel2 rankIt'+(e.rank===1?' t
    vTitleV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vTitleV
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTitleV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTitleV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTitleV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTitleV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTitleV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTitleV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTitleV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTitleV
+   ════════════════════════════════════════════ */
 async function vTitleV(){
   if(!await needJs(['js/views/vTitleV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vTitleV();
 }
+
+
+
+
 
 
 function setTitle(id){const u=me();u.g.equippedTitle=id;saveU(u);toast('👑 已配戴稱號');vTitleV()}
@@ -6013,10 +6703,30 @@ saveU(u);hud();toast('🏅 成就「'+a.n+'」階段'+(claimed+1)+' 已領取！
    vExch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vExch
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vExch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vExch
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vExch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vExch
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vExch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vExch
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vExch 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vExch
+   ════════════════════════════════════════════ */
 async function vExch(){
   if(!await needJs(['js/views/vExch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vExch();
 }
+
+
+
+
 
 
 function exch(i){
@@ -6045,10 +6755,30 @@ saveU(u);hud();toast('✅ 兌換成功');vExch();
    vLab 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vLab
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLab 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLab
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLab 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLab
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLab 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLab
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vLab 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vLab
+   ════════════════════════════════════════════ */
 async function vLab(){
   if(!await needJs(['js/views/vLab.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLab();
 }
+
+
+
+
 
 
 function doExp(i){
@@ -6155,10 +6885,30 @@ out.innerHTML=html;
    vCodes 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vCodes
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodes 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vCodes
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodes 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vCodes
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodes 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vCodes
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodes 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vCodes
+   ════════════════════════════════════════════ */
 async function vCodes(){
   if(!await needJs(['js/views/vCodes.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vCodes();
 }
+
+
+
+
 
 
 function redeemAny(){
@@ -6232,10 +6982,30 @@ function socialTabs(active){const g=me()&&me().g;const um=g?unreadMail(g):0;retu
    vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vSocial
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSocial
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSocial
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSocial
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vSocial
+   ════════════════════════════════════════════ */
 async function vSocial(){
   if(!await needJs(['js/views/vFriends.js', 'js/views/vGroup.js', 'js/views/vMail.js', 'js/views/vStory.js', 'js/views/vSocial.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSocial();
 }
+
+
+
+
 
 
 /* ════════════════════════════════════════════
@@ -6244,10 +7014,30 @@ async function vSocial(){
    ════════════════════════════════════════════ */
 const yesterday=(d)=>{const dt=new Date(d);dt.setDate(dt.getDate()-1);return dt.toDateString();};
 
+/* ════════════════════════════════════════════
+   vFriends 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFriends
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFriends 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFriends
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFriends 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFriends
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFriends 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFriends
+   ════════════════════════════════════════════ */
 async function vFriends(){
   if(!await needJs(['js/views/vFriends.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vFriends();
 }
+
+
+
+
 
 
 function tradeRow(t,isIn){
@@ -6690,10 +7480,30 @@ toast('已撤回交易');vFriends();
    vGroup 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vGroup
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGroup 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGroup
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGroup 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGroup
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGroup 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGroup
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGroup 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGroup
+   ════════════════════════════════════════════ */
 async function vGroup(){
   if(!await needJs(['js/views/vGroup.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGroup();
 }
+
+
+
+
 
 
 function sendGroupMsg(gid){
@@ -6886,10 +7696,34 @@ toast('💥 群組��'+gr.name+'」已解散');vGroup();
    vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 6 個單位：vHomework, hwSeed, hwShuffle, hwShowNum, hwGuardOff, hwForStudent
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHomework, hwForStudent
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHomework, hwForStudent
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHomework, hwForStudent
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vHomework 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vHomework, hwForStudent
+   ════════════════════════════════════════════ */
 async function vHomework(){
   if(!await needJs(['js/views/vHomework.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vHomework();
 }
+
+
+
+
+
+
+
+
 
 function hwSeed(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 
@@ -7032,10 +7866,30 @@ return '<div class="panel2" style="margin-bottom:8px"><div style="font-size:14px
    vWrong 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vWrong
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vWrong 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vWrong
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vWrong 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vWrong
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vWrong 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vWrong
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vWrong 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vWrong
+   ════════════════════════════════════════════ */
 async function vWrong(){
   if(!await needJs(['js/views/vWrong.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vWrong();
 }
+
+
+
+
 
 
 function retryQ(s,i){
@@ -7054,39 +7908,77 @@ vQuestion();
    vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vStats
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vStats
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vStats, langStatsHtml
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vStats, langStatsHtml
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vStats, langStatsHtml
+   ════════════════════════════════════════════ */
 async function vStats(){
   if(!await needJs(['js/views/vStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vStats();
 }
 
-function langStatsHtml(g){
-  const langs=(g.stats&&g.stats.lang)||{};
-  const codes=Object.keys(langs);
-  const langT=Object.values(langs).reduce((a,b)=>a+(b.t||0),0);
-  const langC=Object.values(langs).reduce((a,b)=>a+(b.c||0),0);
-  let h='答題：<b style="color:var(--teal)">'+langT+'</b> 題｜答對：'+langC+' 題｜正確率：'+(langT?(Math.round(langC/langT*100)):0)+'%<br>';
-  if(!codes.length)h+='<span style="color:var(--mut)">還沒開始語言自學，去「🌍 語言自學」挑一個語言吧！</span>';
-  else{
-    codes.sort((a,b)=>(langs[b].t||0)-(langs[a].t||0));
-    h+=codes.slice(0,12).map(c=>{
-      const s=langs[c],t=s.t||0,cq=s.c||0;
-      return '<div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span style="width:110px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(langName(c))+'</span><div class="bar" style="flex:1"><i style="width:'+Math.min(100,Math.round(t/Math.max(1,langT)*100))+'%;background:var(--teal)"></i></div><b style="font-size:12px;width:110px;text-align:right;color:'+(t?'var(--teal)':'var(--mut)')+'">'+t+' 題・'+cq+' 對</b></div>';
-    }).join('');
-    if(codes.length>12)h+='<div style="font-size:11.5px;color:var(--mut);margin-top:4px">…共 '+codes.length+' 種語言</div>';
-  }
-  return h;
-}
+
+
+
+
+
+
+
 
 
 
 /* ── 背景音樂播放器（教師把 mp3/ogg 放 media/music/，學生可選曲）── */
-function loadMusicList(cb){if(!WTOKEN){if(cb)cb();return}fetch(SUPA_URL+'/rest/v1/media/music',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.ok?r.json():[]).then(l=>{MUSIC.list=l||[];if(cb)cb()}).catch(()=>{if(cb)cb()})}
+function loadMusicList(cb){if(!WTOKEN){if(cb)cb([]);return}fetch(SUPA_URL+'/rest/v1/media/music',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.ok?r.json():[]).then(l=>{MUSIC.list=l||[];if(cb)cb(l||[])}).catch(()=>{MUSIC.list=[];if(cb)cb([])})}
 function playMusic(){if(!MUSIC.audio||!MUSIC.list.length)return;const f=MUSIC.list[MUSIC.idx];if(!f)return;MUSIC.audio.src=SUPA_URL+'/storage/v1/object/public/media/music/'+encodeURIComponent(f);MUSIC.audio.play().catch(()=>{});saveMusicPref()}
 function musicPlay(){musicInit();if(MUSIC.list.length===0){loadMusicList(()=>{if(MUSIC.list.length){if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx])}else toast('⚠️ media/music/ 尚無音樂檔，請老師上傳後再試','bad')});return}if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx])}
 function musicStop(){if(MUSIC.audio){MUSIC.audio.pause();MUSIC.audio.currentTime=0}MUSIC.idx=-1;saveMusicPref();toast('⏹ 音樂已停止')}
 function musicNext(){if(!MUSIC.list.length){loadMusicList(musicNext);return}MUSIC.idx=(MUSIC.idx+1)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx])}
 function musicPrev(){if(!MUSIC.list.length){loadMusicList(musicPrev);return}MUSIC.idx=(MUSIC.idx-1+MUSIC.list.length)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx])}
 function musicPick(v){musicInit();MUSIC.idx=parseInt(v,10);if(MUSIC.idx>=0)playMusic();else musicStop()}
+
+/* ▶️ YouTube 音樂（v4.0）：管理員放 YT 連結、學生可推薦歌曲 */
+function ytIdOf(url){const m=String(url||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:null}
+function openYtPlayer(url){
+  const id=ytIdOf(url);if(!id)return toast('無法辨識 YouTube 網址','bad');
+  openModal('<div style="text-align:center"><b style="color:var(--gold2)">▶️ YouTube 音樂</b>'+
+  '<div style="margin-top:10px;aspect-ratio:16/9;width:100%"><iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" style="width:100%;height:100%;border:0;border-radius:8px" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>'+
+  '<button class="btn ghost mini" style="margin-top:10px" onclick="closeModal()">關閉</button></div>');
+}
+function musicAddYt(title,url){
+  const links=get(LS.musicLinks,[]);if(!Array.isArray(links))return toast('音樂清單資料異常','bad');
+  links.unshift({title:String(title||'').slice(0,60),url:String(url||'').slice(0,300),ts:Date.now()});
+  set(LS.musicLinks,links);
+  toast('▶️ 已加入 YouTube 音樂：'+(title||url));
+}
+function musicDelYt(i){
+  const links=get(LS.musicLinks,[]);if(!Array.isArray(links)||!links[i])return;
+  links.splice(i,1);set(LS.musicLinks,links);
+  toast('🗑 已移除');if(typeof vGameSet==='function'&&vGameSet.cur===true)vGameSet();
+}
+function musicApproveReq(i){
+  const reqs=get(LS.musicReqs,[]);const r=reqs&&reqs[i];
+  if(!r)return;
+  musicAddYt(r.title,r.url);
+  reqs.splice(i,1);set(LS.musicReqs,reqs);
+  toast('✅ 已採納推薦並加入音樂清單');if(typeof vGameSet==='function'&&vGameSet.cur===true)vGameSet();
+}
+function musicDenyReq(i){
+  const reqs=get(LS.musicReqs,[]);if(!reqs||!reqs[i])return;
+  reqs.splice(i,1);set(LS.musicReqs,reqs);
+  toast('已略過推薦');if(typeof vGameSet==='function'&&vGameSet.cur===true)vGameSet();
+}
 
 /* ── 新手引導（首登教學，只顯示一次）── */
 
@@ -7104,10 +7996,62 @@ function saveMusicPref(){try{localStorage.setItem('ADV9_MUSIC',JSON.stringify({i
 function musicInit(){if(MUSIC.audio)return;const a=new Audio();a.loop=true;a.volume=.5;MUSIC.audio=a;try{const j=JSON.parse(localStorage.getItem('ADV9_MUSIC')||'{}');if(typeof j.idx==='number')MUSIC.idx=j.idx}catch(e){}}
 
 
+/* ════════════════════════════════════════════
+   vSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：AVATAR_EMOJIS, musicSetVolume, vSet
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：AVATAR_EMOJIS, musicSetVolume, vSet
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：AVATAR_EMOJIS, musicSetVolume, vSet
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 6 個單位：AVATAR_EMOJIS, musicSetVolume, vSet, renderMusicYt, openMusicReq, sendMusicReq
+   ════════════════════════════════════════════ */
+
+
 async function vSet(){
   if(!await needJs(['js/views/vSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vSet();
 }
+
+function renderMusicYt(){
+  const box=document.getElementById('musicYtBox');if(!box)return;
+  const links=get(LS.musicLinks,[]);MUSIC.yt=Array.isArray(links)?links:[];
+  box.style.display=links.length?'block':'none';
+  const el=document.getElementById('musicYtList');if(!el)return;
+  el.innerHTML=links.map(l=>'<button class="btn ghost mini" style="text-align:left" onclick="openYtPlayer(\''+encodeURIComponent(l.url)+'\')">▶️ '+esc(l.title||l.url)+'</button>').join('');
+}
+
+function openMusicReq(){
+  openModal('<div class="createForm"><div class="fg"><label>歌曲名稱</label><input id="mrTitle" placeholder="例如：輕快學習音樂"></div>'+
+  '<div class="fg"><label>YouTube 網址</label><input id="mrUrl" placeholder="https://www.youtube.com/watch?v=..."></div>'+
+  '<button class="btn btn-primary big" style="margin-top:12px" onclick="sendMusicReq()">📩 送出推薦</button></div>');
+}
+
+function sendMusicReq(){
+  const title=(document.getElementById('mrTitle')||{}).value.trim();
+  const url=(document.getElementById('mrUrl')||{}).value.trim();
+  if(!url||url.indexOf('youtube.com')<0&&url.indexOf('youtu.be')<0&&url.indexOf('music.youtube.com')<0)return toast('請輸入有效的 YouTube 網址','bad');
+  const u=me();
+  const reqs=get(LS.musicReqs,[]);
+  reqs.unshift({user:u.username,name:u.name,title,url,ts:Date.now()});
+  set(LS.musicReqs,reqs);
+  closeModal();toast('📩 已送出推薦，管理員審核後就會出現在音樂清單！');
+}
+
+
+
 
 function setLangGrid(t){
   const rows=langFind(t||'');
@@ -7195,10 +8139,30 @@ return '<div class="chatMsg '+(mine?'mine':'')+(isSys?' system':c.role||'')+'">'
    vChatV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vChatV
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vChatV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vChatV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vChatV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vChatV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vChatV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vChatV
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vChatV 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vChatV
+   ════════════════════════════════════════════ */
 async function vChatV(){
   if(!await needJs(['js/views/vChatV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vChatV();
 }
+
+
+
+
 
 
 function sendChat(){const u=me();const t=$('#chatIn').value.trim();if(!t)return;
@@ -7213,10 +8177,30 @@ set(LS.chat,ch);$('#chatIn').value='';vChatV()}
    vAnn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vAnn
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAnn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAnn
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAnn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAnn
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAnn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAnn
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAnn 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAnn
+   ════════════════════════════════════════════ */
 async function vAnn(){
   if(!await needJs(['js/views/vAnn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAnn();
 }
+
+
+
+
 
 
 /* ════════ 老師工作台（#5 隱私：只看世界頻道）════════ */
@@ -7224,6 +8208,7 @@ async function vAnn(){
 let T_TAB='home';
 
 function renderTeacher(u){
+applyMyTheme();
 
 T_TAB='home';
 
@@ -7241,7 +8226,7 @@ $('#app').innerHTML=
 
 '<aside><div class="panel2" style="display:flex;flex-direction:column;gap:6px">'+
 
-[['home','🏫 我的班級'],['cls','🏫 班級管理'],['hw','📚 班級作業'],['pub','📝 發布作業'],['cross','🔀 跨班檢視'],['reg','📝 學生註冊'],['tfr','👥 教師好友'],['roster','👥 學生名冊'],['audit','🕵️ AI 學情稽核'],['monitor','🔍 聊天監控'],['aiq','🤖 AI 出題']].map(t=>
+[['home','🏫 我的班級'],['cls','🏫 班級管理'],['hw','📚 班級作業'],['pub','📝 發布作業'],['cross','🔀 跨班檢視'],['reg','📝 學生註冊'],['tfr','👥 教師好友'],['roster','👥 學生名冊'],['audit','🕵️ AI 學情稽核'],['monitor','🔍 聊天監控'],['aiq','🤖 AI 出題'],['lang','🌍 語言包'],['classwar','⚔️ 班級戰']].map(t=>
 
 '<button class="btn '+(T_TAB===t[0]?'':'ghost')+' mini" id="tt_'+t[0]+'" onclick="tGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+
 
@@ -7255,11 +8240,11 @@ function tGo(tab){
 
 T_TAB=tab;
 
-['home','cls','hw','pub','cross','reg','tfr','roster','audit','monitor','aiq'].forEach(t=>{const el=document.getElementById('tt_'+t);if(el)el.className='btn '+(t===tab?'':'ghost')+' mini'});
+['home','cls','hw','pub','cross','reg','tfr','roster','audit','monitor','aiq','lang','classwar'].forEach(t=>{const el=document.getElementById('tt_'+t);if(el)el.className='btn '+(t===tab?'':'ghost')+' mini'});
 
 if(tab==='home')vTHome();else if(tab==='cls')vClasses();else if(tab==='hw')tHwList();else if(tab==='pub')tPub();else if(tab==='cross')tCross();
 
-else if(tab==='tfr')tFriends();else if(tab==='roster')vRoster();else if(tab==='reg')vRegStu();else if(tab==='audit')vAiAudit();else if(tab==='aiq')vAiQuiz();else vMonitor();
+else if(tab==='tfr')tFriends();else if(tab==='roster')vRoster();else if(tab==='reg')vRegStu();else if(tab==='audit')vAiAudit();else if(tab==='aiq')vAiQuiz();else if(tab==='lang')vLangStudy();else if(tab==='classwar')vClassWar();else vMonitor();
 
 }
 
@@ -7645,10 +8630,30 @@ toast('📤 已分享作業模板給 '+(fr?fr.name:'好友')+'！');
    vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vRoster
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRoster
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRoster
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRoster
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRoster
+   ════════════════════════════════════════════ */
 async function vRoster(){
   if(!await needJs(['js/views/vRoster.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vRoster();
 }
+
+
+
+
 
 
 /* 🔍 學生詳情：師/管端檢視作答過程與作答時間 */
@@ -7720,10 +8725,38 @@ const mb=$('#mbody');if(mb)mb.style.maxWidth='900px'; /* 加寬面板以容納 1
    ════════════════════════════════════════════ */
 
 
+/* ════════════════════════════════════════════
+   vAiAudit 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：auditMetrics, auditFlags, vAiAudit
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vAiAudit 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：auditMetrics, auditFlags, vAiAudit
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vAiAudit 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：auditMetrics, auditFlags, vAiAudit
+   ════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════
+   vAiAudit 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：auditMetrics, auditFlags, vAiAudit
+   ════════════════════════════════════════════ */
+
+
 async function vAiAudit(){
   if(!await needJs(['js/views/vAiAudit.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAiAudit();
 }
+
+
+
+
 
 
 function auditAI(){
@@ -7750,10 +8783,30 @@ callGemini(prompt,'你是客觀的學習數據分析師，只提供參考研判�
    vMonitor 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vMonitor
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMonitor 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMonitor
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMonitor 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMonitor
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMonitor 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMonitor
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vMonitor 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vMonitor
+   ════════════════════════════════════════════ */
 async function vMonitor(){
   if(!await needJs(['js/views/vMonitor.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vMonitor();
 }
+
+
+
+
 
 
 function clearChat(){if(!confirm('清空所有聊天紀錄？'))return;set(LS.chat,[]);vMonitor();toast('🗑 已清空')}
@@ -7761,6 +8814,7 @@ function clearChat(){if(!confirm('清空所有聊天紀錄？'))return;set(LS.ch
 /* ════════ 管理員後台 ════════ */
 
 function renderAdmin(u){
+applyMyTheme();
 
 CUR.role='admin';
 
@@ -7774,7 +8828,7 @@ $('#app').innerHTML=
 
 '<div class="wrap"><nav style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+
 
-[['users','👥 用戶管理'],['grant','🎁 資源發放'],['dolls','🎀 娃娃管理'],['guilds','🛡️ 公會管理'],['content','📸 動態管理'],['books','📚 課本網址'],['codes','🎁 禮包碼生成器'],['post','📢 發布公告'],['monitor','🔍 聊天監控'],['stats','📊 系統統計'],['api','🔑 API 金鑰'],['classes','🏫 班級管理'],['game','⚙️ 遊戲設定'],['student_view','🎮 學生遊戲面板'],['reset','🔄 重置系統']].map(t=>'<button class="btn ghost mini" onclick="aGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</nav>'+
+[['users','👥 用戶管理'],['grant','🎁 資源發放'],['dolls','🎀 娃娃管理'],['guilds','🛡️ 公會管理'],['content','📸 動態管理'],['books','📚 課本網址'],['codes','🎁 禮包碼生成器'],['post','📢 發布公告'],['monitor','🔍 聊天監控'],['stats','📊 系統統計'],['api','🔑 API 金鑰'],['classes','🏫 班級管理'],['game','⚙️ 遊戲設定'],['lang','🌍 語言包'],['student_view','🎮 學生遊戲面板'],['reset','🔄 重置系統']].map(t=>'<button class="btn ghost mini" onclick="aGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</nav>'+
 
 '<main id="view" class="panel view"></main></div>';
 
@@ -7786,7 +8840,7 @@ function aGo(tab){
 
 if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
 
-else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='classes')vClasses();else if(tab==='game')vGameSet();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
+else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='classes')vClasses();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
 
 }
 
@@ -7796,10 +8850,30 @@ else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==
    vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 3 個單位：vGrantAdmin, eqSubCount, eqSubValue
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGrantAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGrantAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGrantAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGrantAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGrantAdmin
+   ════════════════════════════════════════════ */
 async function vGrantAdmin(){
   if(!await needJs(['js/views/vGrantAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGrantAdmin();
 }
+
+
+
+
 
 function eqSubCount(rarity){
   if(rarity==='R'||rarity==='E')return 1;if(rarity==='A'||rarity==='S')return 2;
@@ -7865,10 +8939,30 @@ function adminGrantEquip(){
    ════════════════════════════════════════════ */
 let _dAdminCat='角色',_dAdminEditId=null,_dAdminEditIdx=-1;
 
+/* ════════════════════════════════════════════
+   vDollAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDollAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDollAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDollAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDollAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDollAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDollAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDollAdmin
+   ════════════════════════════════════════════ */
 async function vDollAdmin(){
   if(!await needJs(['js/views/vDollAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDollAdmin();
 }
+
+
+
+
 
 const DOLL_IMPRINTS=['自由之息','烈焰痕跡','靜水流深','大地的懷抱','風之足跡','火之光環','水之淚滴','土之印章','雲中漫步','燼中重生','潮汐記憶','山巒低語','飛翔夢境','永恆火焰','深海之心','磐石之誓'];
 
@@ -8292,10 +9386,30 @@ function _dSetForUser(uid,d){
    vGuildsAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vGuildsAdmin
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuildsAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuildsAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuildsAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuildsAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuildsAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuildsAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGuildsAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGuildsAdmin
+   ════════════════════════════════════════════ */
 async function vGuildsAdmin(){
   if(!await needJs(['js/views/vGuildsAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGuildsAdmin();
 }
+
+
+
+
 
 
 function adminSetGuildLv(id){
@@ -8326,10 +9440,30 @@ set(LS.guilds,guilds.filter(x=>x.id!==id));toast('💥 已解散公會「'+gd.na
    vContentAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vContentAdmin
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vContentAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vContentAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vContentAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vContentAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vContentAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vContentAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vContentAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vContentAdmin
+   ════════════════════════════════════════════ */
 async function vContentAdmin(){
   if(!await needJs(['js/views/vContentAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vContentAdmin();
 }
+
+
+
+
 
 
 function adminDelStory(id){
@@ -8356,10 +9490,30 @@ set(LS.stories,[]);toast('🧹 已清空所有動態');vContentAdmin();
    vBooksAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vBooksAdmin
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBooksAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBooksAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBooksAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBooksAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBooksAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBooksAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBooksAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBooksAdmin
+   ════════════════════════════════════════════ */
 async function vBooksAdmin(){
   if(!await needJs(['js/views/vBooksAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vBooksAdmin();
 }
+
+
+
+
 
 
 function adminAddBook(){
@@ -8424,10 +9578,30 @@ const MISSION_POOL=[
 
 ];
 
+/* ════════════════════════════════════════════
+   vGameSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGameSet
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGameSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGameSet
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGameSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGameSet
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGameSet 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGameSet
+   ════════════════════════════════════════════ */
 async function vGameSet(){
   if(!await needJs(['js/views/vGameSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGameSet();
 }
+
+
+
+
 
 
 function saveGameSet(){
@@ -8467,10 +9641,30 @@ set(LS.users,us);toast('🔄 已重置 '+n+' 名學生的遊戲數據');
    vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vUsers
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUsers
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUsers
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUsers
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vUsers
+   ════════════════════════════════════════════ */
 async function vUsers(){
   if(!await needJs(['js/views/vUsers.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vUsers();
 }
+
+
+
+
 
 function nuRoleChange(sel){const w=$('#nuClsWrap');if(w)w.style.display=sel.value==='student'?'':'none'}
 /* 帳號主檔（伺服器 users_index.json）：列出所有帳號（有誰誰誰），並顯示主檔與本機差異 */
@@ -8543,10 +9737,34 @@ uRenderRows();
    vCodesAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vCodesAdmin, codeRwText
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodesAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vCodesAdmin, codeRwText
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodesAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vCodesAdmin, codeRwText
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodesAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vCodesAdmin, codeRwText
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vCodesAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vCodesAdmin, codeRwText
+   ════════════════════════════════════════════ */
 async function vCodesAdmin(){
   if(!await needJs(['js/views/vCodesAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vCodesAdmin();
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -8595,10 +9813,30 @@ function delCode(c){if(!confirm('刪除此禮包碼？'))return;set(LS.codes,get
    vPostAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vPostAdmin
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPostAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPostAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPostAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPostAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPostAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPostAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPostAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vPostAdmin
+   ════════════════════════════════════════════ */
 async function vPostAdmin(){
   if(!await needJs(['js/views/vPostAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vPostAdmin();
 }
+
+
+
+
 
 
 function postAnn(){const u=me();const t=$('#annT').value.trim(),c=$('#annC').value.trim();
@@ -8618,10 +9856,34 @@ function delAnn(id){if(!confirm('刪除此公告？'))return;set(LS.ann,get(LS.a
 const AI_PRIORITY=['openai','deepseek','gemini','qwen','kimi','ollama'];
 
 
+/* ════════════════════════════════════════════
+   vApiKeys 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：apiModelOpts, vApiKeys
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vApiKeys 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：apiModelOpts, vApiKeys
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vApiKeys 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：apiModelOpts, vApiKeys
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vApiKeys 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：apiModelOpts, vApiKeys
+   ════════════════════════════════════════════ */
+
 async function vApiKeys(){
   if(!await needJs(['js/views/vApiKeys.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vApiKeys();
 }
+
+
+
+
 
 function addApiKey(){const input=$('#newApiKey');const key=(input.value||'').trim();if(!key){toast('請輸入 API 金鑰','bad');return}const provider=$('#newApiProvider').value;let model=($('#newApiModel').value||'').trim()||AI_PROVIDERS[provider].defModel;const pv=AI_PROVIDERS[provider];if(pv.banned&&pv.banned.includes(model)){model=pv.defModel;toast('🚫 該模型已禁用，改用 '+model)}const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(data.keys.some(k=>k.key===key)){toast('此金鑰已存在','bad');return}data.keys.push({key:key,provider:provider,model:model,addedAt:new Date().toISOString(),useCount:0,lastUsed:null});set(LS.apiKeys,data);toast('✅ 金鑰已新增（'+pv.n+'）');vApiKeys()}
 function importApiKeysTxt(){
@@ -8648,14 +9910,50 @@ async function testAllApiKeys(){const data=get(LS.apiKeys,{keys:[],currentIndex:
    vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vClasses
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClasses
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClasses
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClasses
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vClasses
+   ════════════════════════════════════════════ */
 async function vClasses(){
   if(!await needJs(['js/views/vClasses.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vClasses();
 }
 
+
+
+
+
 function addClass(){const id=$('#newClassId').value.trim();const name=$('#newClassName').value.trim();if(!id||!name)return toast('請填寫班級代號和名稱','bad');const classes=get(LS.classes,{ids:[],names:{}});if(classes.ids.includes(id))return toast('此班級代號已存在','bad');classes.ids.push(id);classes.names[id]=name;set(LS.classes,classes);const u=me();if(u&&u.role==='teacher'){u.managedClassIds=u.managedClassIds||[];if(!u.managedClassIds.includes(id))u.managedClassIds.push(id);saveU(u)}toast('✅ 班級 '+name+' 已新增');if(me().role==='teacher')tGo('cls');else vClasses()}
 function removeClass(id){if(!confirm('確定刪除此班級？'))return;const classes=get(LS.classes,{ids:[],names:{}});classes.ids=classes.ids.filter(x=>x!==id);delete classes.names[id];set(LS.classes,classes);const us=get(LS.users,[]);us.forEach(x=>{if(x.managedClassIds)x.managedClassIds=x.managedClassIds.filter(c=>c!==id)});set(LS.users,us);toast('🗑️ 班級已刪除');if(me().role==='teacher')tGo('cls');else vClasses()}
 function editClassName(id){const classes=get(LS.classes,{ids:[],names:{}});const newName=prompt('請輸入新的班級名稱：',classes.names[id]||id);if(!newName)return;classes.names[id]=newName;set(LS.classes,classes);toast('✅ 班級名稱已更新');if(me().role==='teacher')tGo('cls');else vClasses()}
+/* ════════════════════════════════════════════
+   vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTHome
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTHome
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTHome
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTHome
+   ════════════════════════════════════════════ */
 /* ════════════════════════════════════════════
    vTHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vTHome
@@ -8665,6 +9963,26 @@ async function vTHome(){
   vTHome();
 }
 
+
+
+
+
+/* ════════════════════════════════════════════
+   vRegStu 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRegStu
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRegStu 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRegStu
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRegStu 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRegStu
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vRegStu 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vRegStu
+   ════════════════════════════════════════════ */
 /* ════════════════════════════════════════════
    vRegStu 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vRegStu
@@ -8673,6 +9991,10 @@ async function vRegStu(){
   if(!await needJs(['js/views/vRegStu.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vRegStu();
 }
+
+
+
+
 
 function impStuFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{$('#impStuTxt').value=e.target.result;toast('📄 已讀入 '+f.name+'，請確認後點「批次匯入」')};rd.readAsText(f,'utf-8')}
 async function doImportStu(){
@@ -8796,6 +10118,22 @@ async function doRegStu() {
    vAStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vAStats, st2
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAStats, st2
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAStats, st2
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAStats, st2
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAStats, st2
+   ════════════════════════════════════════════ */
 async function vAStats(){
   if(!await needJs(['js/views/vAStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAStats();
@@ -8804,6 +10142,30 @@ async function vAStats(){
 
 
 
+
+
+
+
+
+
+
+
+/* ════════════════════════════════════════════
+   vResetAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResetAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResetAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResetAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResetAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResetAdmin
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vResetAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vResetAdmin
+   ════════════════════════════════════════════ */
 /* ════════════════════════════════════════════
    vResetAdmin 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vResetAdmin
@@ -8812,6 +10174,10 @@ async function vResetAdmin(){
   if(!await needJs(['js/views/vResetAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vResetAdmin();
 }
+
+
+
+
 
 
 function resetDefault(){if(!confirm('確定要重置為預設資料嗎？'))return;seed();localStorage.removeItem(LS.ses);toast('🔄 已重置');enter()}
@@ -8990,10 +10356,30 @@ function gameKey(fn){if(window._gKey)window.removeEventListener('keydown',window
 
 function gameStop(){gameKey(null);if(window._gTimer){clearInterval(window._gTimer);window._gTimer=null}}
 
+/* ════════════════════════════════════════════
+   vGames 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGames
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGames 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGames
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGames 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGames
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vGames 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vGames
+   ════════════════════════════════════════════ */
 async function vGames(){
   if(!await needJs(['js/views/vGames.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vGames();
 }
+
+
+
+
 
 /* --- 2048 --- */
 function g2048(){
@@ -9272,10 +10658,30 @@ _bu.appendChild(sp);setTimeout(()=>sp.remove(),1400)}}
    vAiQuiz 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vAiQuiz
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAiQuiz 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAiQuiz
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAiQuiz 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAiQuiz
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAiQuiz 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAiQuiz
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAiQuiz 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vAiQuiz
+   ════════════════════════════════════════════ */
 async function vAiQuiz(){
   if(!await needJs(['js/views/vAiQuiz.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAiQuiz();
 }
+
+
+
+
 
 
 function updateAiUnits(){
@@ -9283,7 +10689,7 @@ const grade=$('#aiGrade').value;
 const subject=$('#aiSubject').value;
 const unitSel=$('#aiUnit');
 const units=(SUBJ[subject]&&SUBJ[subject].u&&SUBJ[subject].u[grade])||[];
-unitSel.innerHTML=units.map(u=>'<option value="'+u+'">'+u+'</option>').join('');
+unitSel.innerHTML=units.map(u=>{const name=Array.isArray(u)?u[0]:u;return '<option value="'+name+'">'+name+'</option>'}).join('');
 }
 
 async function aiGenQuiz(){
@@ -9540,10 +10946,355 @@ function _dPetResp(doll){
   return (r[doll.element]||r['風'])[Math.floor(Math.random()*(r[doll.element]||r['風']).length)];
 }
 
+/* ════════════════════════════════════════════
+   vDoll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDoll
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDoll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDoll
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDoll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDoll
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDoll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDoll
+   ════════════════════════════════════════════ */
 async function vDoll(){
   if(!await needJs(['js/views/vDoll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDoll();
 }
+
+
+/* ════════════════════════════════════════════
+   vPixel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 11 個單位：vPixel, pxInit, pxRender, pxClick, pxFill, pxSave, pxMy, pxGallery, pxLike, pxDel, pxToggle
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vPixel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 11 個單位：vPixel, pxInit, pxRender, pxClick, pxFill, pxSave, pxMy, pxGallery, pxLike, pxDel, pxToggle
+   ════════════════════════════════════════════ */
+const PX_PRESETS=['#000000','#ffffff','#f44336','#ff9800','#ffeb3b','#4caf50','#00bcd4','#2196f3','#3f51b5','#9c27b0','#e91e63','#795548','#9e9e9e','#ffd97a','#7ed957','#38d9c0'];
+const PX_CHARS='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let PX={size:32,data:[],pal:PX_PRESETS.slice(),cur:1,lock:false,tool:'pen',title:'',uid:'',idx:-1};
+
+function pxArtOf(uid){const all=get(LS.pixels,{});return Array.isArray(all[uid])?all[uid]:[]}
+function pxSetArt(uid,arts){const all=get(LS.pixels,{});all[uid]=arts;set(LS.pixels,all)}
+
+async function vPixel(){
+  if(!await needJs(['js/views/vPixel.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vPixel();
+}
+
+function pxInit(size){
+  PX.size=size;PX.data=[];PX.pal=PX_PRESETS.slice();PX.cur=1;PX.tool='pen';PX.idx=-1;
+  const n=size*size;
+  for(let i=0;i<n;i++)PX.data.push(0);
+  pxEditor();
+}
+
+function pxEditor(){
+  $('#pxView').innerHTML=
+  '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'+
+  '<b style="color:var(--gold2)">尺寸</b>'+
+  [16,32,64,128,256].map(s=>'<button class="btn '+(PX.size===s?'':'ghost')+' mini" onclick="pxInit('+s+')">'+s+'×'+s+'</button>').join('')+
+  '<span style="margin-left:auto;font-size:11.5px;color:var(--mut)">'+PX.size+'×'+PX.size+'＝'+PX.size*PX.size+' 格</span></div>'+
+  '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+  '<div style="flex:1;min-width:240px"><div style="border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:520px;background:#0a0f1c;display:inline-block"><canvas id="pxCv" width="'+PX.size+'" height="'+PX.size+'" style="width:min('+(PX.size*3)+'px,100%);image-rendering:pixelated;cursor:crosshair" onmousedown="pxClick(event)" onmousemove="pxDrag(event)" onmouseup="PX.lock=false"></canvas></div></div>'+
+  '<div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:8px">'+
+  '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px">'+PX.pal.map((c,i)=>'<button title="'+(i===0?'透明':'色 '+i)+'" style="width:26px;height:26px;border-radius:6px;border:2px solid '+(PX.cur===i?'var(--gold)':'var(--line)')+';background:'+(c===''?'repeating-conic-gradient(#333 0 25%,#555 0 50%) 0 0/8px 8px':c)+'" onclick="PX.cur='+i+';pxEditor()"></button>').join('')+'</div>'+
+  '<label style="font-size:12px;color:var(--mut)">🎨 自訂色：<input type="color" value="#ff5722" style="width:36px;height:26px;vertical-align:middle" onchange="PX.pal.push(this.value);PX.cur=PX.pal.length-1;pxEditor()"></label>'+
+  '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+  '<button class="btn '+(PX.tool==='pen'?'':'ghost')+' mini" onclick="PX.tool=\'pen\';pxEditor()">✏️ 鉛筆</button>'+
+  '<button class="btn '+(PX.tool==='fill'?'':'ghost')+' mini" onclick="PX.tool=\'fill\';pxEditor()">🪣 填滿</button>'+
+  '<button class="btn ghost mini" onclick="PX.cur=0;PX.tool=\'pen\';pxEditor()">🧽 橡皮擦</button>'+
+  '<button class="btn ghost mini" onclick="for(let i=0;i<PX.data.length;i++)PX.data[i]=0;pxRender()">🧹 清空</button></div>'+
+  '<label style="font-size:12px;color:var(--mut)">📝 標題：<input id="pxTitle" value="'+esc(PX.title)+'" maxlength="30" style="width:100%;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)"></label>'+
+  '<button class="btn big" onclick="pxSave()">💾 儲存畫作</button>'+
+  (PX.idx>=0?'<button class="btn ghost mini" onclick="pxToggle()">🔁 切換公開/私人</button>':'')+
+  '</div></div>';
+  pxRender();
+}
+
+function pxRender(){
+  const cv=document.getElementById('pxCv');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const img=ctx.createImageData(PX.size,PX.size);
+  for(let i=0;i<PX.data.length;i++){
+    const c=PX.pal[PX.data[i]]||'';
+    const hex=c.indexOf('#')===0?c:'#000000';
+    const r=parseInt(hex.slice(1,3),16)||0,g=parseInt(hex.slice(3,5),16)||0,b=parseInt(hex.slice(5,7),16)||0;
+    img.data[i*4]=r;img.data[i*4+1]=g;img.data[i*4+2]=b;img.data[i*4+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+}
+
+function pxCellAt(e){
+  const cv=document.getElementById('pxCv');if(!cv)return -1;
+  const r=cv.getBoundingClientRect();
+  const x=Math.floor((e.clientX-r.left)/r.width*PX.size);
+  const y=Math.floor((e.clientY-r.top)/r.height*PX.size);
+  if(x<0||y<0||x>=PX.size||y>=PX.size)return -1;
+  return y*PX.size+x;
+}
+
+function pxClick(e){
+  const i=pxCellAt(e);if(i<0)return;
+  PX.lock=true;
+  if(PX.tool==='fill'){pxFill(i,PX.data[i],PX.cur)}
+  else PX.data[i]=PX.cur;
+  pxRender();
+}
+
+function pxDrag(e){
+  if(!PX.lock)return;
+  const i=pxCellAt(e);if(i<0)return;
+  PX.data[i]=PX.cur;pxRender();
+}
+
+function pxFill(i,target,repl){
+  if(target===repl||PX.data[i]!==target)return;
+  const s=PX.size,stack=[i];
+  while(stack.length){
+    const j=stack.pop();
+    if(PX.data[j]!==target)continue;
+    PX.data[j]=repl;
+    const x=j%s,y=Math.floor(j/s);
+    if(x>0)stack.push(j-1);if(x<s-1)stack.push(j+1);
+    if(y>0)stack.push(j-s);if(y<s-1)stack.push(j+s);
+  }
+}
+
+function pxSave(){
+  const u=me();if(!u||!u.id)return toast('請先登入','bad');
+  const title=((document.getElementById('pxTitle')||{}).value||'').trim()||'未命名畫作';
+  const arts=pxArtOf(u.id);
+  if(arts.length>=12)return toast('畫作數量已達上限（12 張），請先刪除舊作','bad');
+  let data='';
+  for(let i=0;i<PX.data.length;i++){
+    const v=PX.data[i]||0;
+    data+=PX_CHARS[v]||'0';
+  }
+  const art={id:Date.now().toString(36),title:title.slice(0,30),size:PX.size,pal:PX.pal.slice(0,62),data:data,open:PX.idx>=0?arts[PX.idx].open:true,likes:{},ts:Date.now(),uid:u.id};
+  if(PX.idx>=0){arts[PX.idx]=art}else{arts.unshift(art)}
+  pxSetArt(u.id,arts);
+  PX.idx=-1;
+  toast('💾 畫作已儲存'+(art.open?'並公開分享！':'（私人）'));
+  pxMy();
+}
+
+function pxMy(){
+  const u=me();if(!u)return;
+  const arts=pxArtOf(u.id);
+  $('#pxView').innerHTML=arts.length?'<div class="pxGrid">'+arts.map((a,i)=>pxCard(a,i,true)).join('')+'</div>':'<div class="panel2" style="text-align:center;padding:40px;color:var(--mut)">🖼 還沒有畫作，先去畫一張吧！</div>';
+}
+
+function pxGallery(){
+  const all=get(LS.pixels,{});
+  let out=[];
+  Object.keys(all).forEach(uid=>{(all[uid]||[]).forEach(a=>{if(a.open)out.push({uid:uid,a:a})})});
+  out.sort((x,y)=>y.a.ts-x.a.ts);
+  if(out.length>200)out=out.slice(0,200);
+  $('#pxView').innerHTML=out.length?'<div class="pxGrid">'+out.map(x=>pxCard(x.a,x.a.id,false)).join('')+'</div>':'<div class="panel2" style="text-align:center;padding:40px;color:var(--mut)">🌍 尚無公開畫作</div>';
+}
+
+function pxCard(a,idx,mine){
+  const u=me();
+  const likes=Object.keys(a.likes||{}).length;
+  const author=(get(LS.users,[]).find(x=>x.id===a.uid)||{}).name||a.uid;
+  return '<div class="panel2" style="margin:0;padding:10px">'+
+  '<canvas width="'+a.size+'" height="'+a.size+'" style="width:100%;image-rendering:pixelated;border-radius:6px" data-px="'+encodeURIComponent(JSON.stringify({pal:a.pal,data:a.data,size:a.size}))+'"></canvas>'+
+  '<div style="display:flex;align-items:center;gap:6px;margin-top:6px"><b style="font-size:12.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.title)+'</b><span style="font-size:10.5px;color:var(--mut)">'+a.size+'×'+a.size+'</span></div>'+
+  '<div style="font-size:11px;color:var(--mut)">👤 '+esc(author)+'</div>'+
+  '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">'+
+  '<button class="btn ghost mini" onclick="pxLike(\''+a.id+'\')">'+(u&&a.likes&&a.likes[u.id]?'❤️':'🤍')+' '+likes+'</button>'+
+  (mine?'<button class="btn ghost mini" onclick="PX.idx='+idx+';pxToggle()">'+(a.open?'🌍 公開':'🔒 私人')+'</button><button class="btn ghost mini" onclick="PX.idx='+idx+';pxDel()">🗑</button>':'')+
+  '</div></div>';
+}
+
+function pxPaintAll(){
+  document.querySelectorAll('canvas[data-px]').forEach(cv=>{
+    try{
+      const o=JSON.parse(decodeURIComponent(cv.getAttribute('data-px')));
+      const ctx=cv.getContext('2d');const img=ctx.createImageData(o.size,o.size);
+      for(let i=0;i<o.data.length;i++){
+        const ch=o.data[i]||'0';
+        const v=PX_CHARS.indexOf(ch);if(v<0)continue;
+        const c=o.pal[v]||'';const hex=c.indexOf('#')===0?c:'#000000';
+        img.data[i*4]=parseInt(hex.slice(1,3),16)||0;img.data[i*4+1]=parseInt(hex.slice(3,5),16)||0;img.data[i*4+2]=parseInt(hex.slice(5,7),16)||0;img.data[i*4+3]=255;
+      }
+      ctx.putImageData(img,0,0);
+    }catch(e){}
+  });
+}
+
+function pxLike(id){
+  const u=me();if(!u)return toast('請先登入','bad');
+  const all=get(LS.pixels,{});
+  Object.keys(all).forEach(uid=>{
+    (all[uid]||[]).forEach(a=>{
+      if(a.id===id){a.likes=a.likes||{};if(a.likes[u.id])delete a.likes[u.id];else a.likes[u.id]=1}
+    });
+  });
+  set(LS.pixels,all);
+  pxGallery();
+}
+
+function pxToggle(){
+  const u=me();if(!u)return;
+  const arts=pxArtOf(u.id);const a=arts&&arts[PX.idx];
+  if(!a)return;
+  a.open=!a.open;
+  pxSetArt(u.id,arts);
+  toast(a.open?'🌍 已公開分享':'🔒 已設為私人');
+  pxMy();
+}
+
+function pxDel(){
+  const u=me();if(!u)return;
+  const arts=pxArtOf(u.id);const a=arts&&arts[PX.idx];
+  if(!a)return;
+  arts.splice(PX.idx,1);
+  pxSetArt(u.id,arts);
+  PX.idx=-1;
+  toast('🗑 已刪除');pxMy();
+}
+
+/* ════════════════════════════════════════════
+   vSudoku 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 5 個單位：vSudoku, sdRender, sdTimer, sdSubmit, sdRank
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vSudoku 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 5 個單位：vSudoku, sdRender, sdTimer, sdSubmit, sdRank
+   ════════════════════════════════════════════ */
+let SD={id:'',board:'',lock:[],start:0,sec:0,timer:null};
+
+async function vSudoku(){
+  if(!await needJs(['js/views/vSudoku.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vSudoku();
+}
+
+function sdLoad(){
+  fetch(SUPA_URL+'/rest/v1/sudoku/new',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.json()).then(j=>{
+    if(!j||!j.ok){$('#sdBody').innerHTML='<div class="panel2" style="text-align:center;padding:30px;color:var(--red)">❌ 題目載入失敗</div>';return}
+    SD.id=j.id;SD.board=j.board;SD.start=Date.now();SD.sec=0;
+    SD.lock=[];
+    for(let i=0;i<81;i++)SD.lock.push(j.board[i]!=='.');
+    if(SD.timer)clearInterval(SD.timer);
+    SD.timer=setInterval(sdTimer,1000);
+    sdRender();
+    sdRank();
+  }).catch(()=>{$('#sdBody').innerHTML='<div class="panel2" style="text-align:center;padding:30px;color:var(--red)">❌ 網路錯誤，請重試</div>'});
+}
+
+function sdRender(){
+  $('#sdBody').innerHTML=
+  '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">'+
+  '<div class="panel2" style="flex:1;min-width:300px">'+
+  '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b style="color:var(--gold2)">⏱ <span id="sdTime">0:00</span></b>'+
+  '<button class="btn ghost mini" onclick="sdLoad()">🔄 重新載入</button></div>'+
+  '<div style="display:grid;grid-template-columns:repeat(9,1fr);gap:1px;background:var(--line);border:3px solid var(--line);border-radius:6px;width:min(420px,100%)">'+
+  Array.from({length:81},(_,i)=>{
+    const r=Math.floor(i/9),c=i%9;
+    const isLock=SD.lock[i];
+    return '<input data-sd="'+i+'" '+(isLock?'readonly':'')+' value="'+(SD.board[i]==='.'?'':SD.board[i])+'" maxlength="1" oninput="sdCell('+i+')" style="width:100%;aspect-ratio:1;text-align:center;font-size:16px;font-weight:'+(isLock?'900':'400')+';background:'+(isLock?'var(--panel2)':'var(--panel)')+';border:0;color:'+(isLock?'var(--gold2)':'var(--txt)')+';border-top:'+(r%3===0?'2px solid var(--gold)':'')+';border-left:'+(c%3===0?'2px solid var(--gold)':'')+'">';
+  }).join('')+'</div>'+
+  '<button class="btn big" style="margin-top:10px;width:100%" onclick="sdSubmit()">🏁 提交答案</button></div>'+
+  '<div id="sdRankBox" class="panel2" style="flex:1;min-width:280px"></div>'+
+  '</div>';
+  const el=document.querySelectorAll('input[data-sd]');
+  el.forEach(inp=>{const i=parseInt(inp.getAttribute('data-sd'),10);inp.addEventListener('keydown',e=>{if(e.key==='Backspace'||e.key==='Delete'){if(!SD.lock[i])inp.value=''}},true)});
+}
+
+function sdCell(i){
+  const inp=document.querySelector('input[data-sd="'+i+'"]');
+  if(SD.lock[i]){inp.value=SD.board[i];return}
+  inp.value=inp.value.replace(/[^1-9]/g,'');
+}
+
+function sdTimer(){
+  SD.sec=Math.floor((Date.now()-SD.start)/1000);
+  const el=document.getElementById('sdTime');if(el)el.textContent=Math.floor(SD.sec/60)+':'+String(SD.sec%60).padStart(2,'0');
+}
+
+function sdSubmit(){
+  const els=document.querySelectorAll('input[data-sd]');
+  let grid='';
+  for(let i=0;i<81;i++)grid+=(els[i]&&els[i].value)||'';
+  if(grid.replace(/[^1-9]/g,'').length!==81)return toast('還有空格沒填喔！','bad');
+  const sec=Math.floor((Date.now()-SD.start)/1000);
+  fetch(SUPA_URL+'/rest/v1/sudoku/submit',{method:'POST',headers:{'Content-Type':'application/json','x-adv9-token':WTOKEN},body:JSON.stringify({id:SD.id,grid:grid,sec:sec})}).then(r=>r.json()).then(j=>{
+    if(j&&j.ok){toast('🎉 完成！用時 '+Math.floor(j.sec/60)+'分'+j.sec%60+'秒','success');sdRank()}
+    else toast('❌ '+(j&&j.msg||'提交失敗'),'bad');
+  }).catch(()=>toast('❌ 網路錯誤','bad'));
+}
+
+function sdRank(){
+  const box=document.getElementById('sdRankBox');if(!box)return;
+  fetch(SUPA_URL+'/rest/v1/sudoku/rank',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.json()).then(j=>{
+    if(!j||!j.ok)return;
+    const done=j.done||[],best=j.best||[];
+    const nameOf=u=>{const f=(get(LS.users,[]).find(x=>x.username===u));return f?f.name||u:u};
+    const fmt=s=>Math.floor(s/60)+'分'+s%60+'秒';
+    box.innerHTML='<b style="color:var(--gold2)">🏆 本場競速</b>'+
+    '<div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">'+
+    (done.length?done.slice(0,10).map((d,i)=>'<div style="display:flex;gap:6px;font-size:12.5px;align-items:center"><span style="color:'+(i===0?'var(--gold2)':'var(--mut)')+'">'+(i+1)+'.</span><span style="flex:1">'+esc(nameOf(d.username))+'</span><b style="color:var(--teal)">'+fmt(d.sec)+'</b></div>').join(''):'<span style="font-size:12px;color:var(--mut)">還沒有人完成這張題目，快搶第一！</span>')+
+    '</div><div style="border-top:1px solid var(--line);margin:10px 0"></div>'+
+    '<b style="color:var(--gold2)">📈 個人最佳排行</b>'+
+    '<div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">'+
+    (best.length?best.slice(0,10).map((d,i)=>'<div style="display:flex;gap:6px;font-size:12.5px;align-items:center"><span style="color:'+(i===0?'var(--gold2)':'var(--mut)')+'">'+(i+1)+'.</span><span style="flex:1">'+esc(nameOf(d.username))+'</span><b style="color:var(--teal)">'+fmt(d.sec)+'</b></div>').join(''):'<span style="font-size:12px;color:var(--mut)">尚無紀錄</span>')+
+    '</div>';
+  }).catch(()=>{});
+}
+
+/* ════════════════════════════════════════════
+   vClassWar 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：vClassWar, cwLoad, cwRender
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vClassWar 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 3 個單位：vClassWar, cwLoad, cwRender
+   ════════════════════════════════════════════ */
+let CW_STATE={rows:[],ts:0};
+
+async function vClassWar(){
+  if(!await needJs(['js/views/vClassWar.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vClassWar();
+}
+
+function cwLoad(){
+  fetch(SUPA_URL+'/rest/v1/class_war',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.json()).then(j=>{
+    if(!j||!j.ok)return;
+    CW_STATE.rows=j.rows||[];
+    cwRender();
+  }).catch(()=>{});
+}
+
+function cwRender(){
+  const body=document.getElementById('cwBody');if(!body)return;
+  const rows=CW_STATE.rows;
+  const cls=get(LS.classes,{})||{};
+  const nameOf=cid=>((cls.names||{})[cid])||cid;
+  const totalQ=rows.reduce((n,r)=>n+r.total,0);
+  const totalMin=rows.reduce((n,r)=>n+r.minutes,0);
+  if(!rows.length){body.innerHTML='<div class="panel2" style="text-align:center;padding:40px;color:var(--mut)">還沒有班級數據</div>';return}
+  body.innerHTML=
+  '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
+  '<div class="panel2" style="flex:1;min-width:140px;text-align:center;margin:0"><div style="font-size:22px;font-weight:900;color:var(--gold2)">'+totalQ+'</div><div style="font-size:11.5px;color:var(--mut)">全服總答題數</div></div>'+
+  '<div class="panel2" style="flex:1;min-width:140px;text-align:center;margin:0"><div style="font-size:22px;font-weight:900;color:var(--teal)">'+Math.floor(totalMin/60)+'h'+totalMin%60+'m</div><div style="font-size:11.5px;color:var(--mut)">全服上線時間</div></div></div>'+
+  '<div class="panel2" style="margin:0">'+rows.map((r,i)=>
+  '<div style="display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:'+(i<rows.length-1?'1px solid var(--line)':'')+'">'+
+  '<span style="font-size:20px">'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1))+'</span>'+
+  '<div style="flex:1"><b style="font-size:14px">'+esc(nameOf(r.classId))+'</b><div style="font-size:11px;color:var(--mut)">'+r.users+' 人</div></div>'+
+  '<div style="text-align:right"><div style="font-weight:900;color:var(--gold2);font-size:14px">'+r.total+' 題</div><div style="font-size:11px;color:var(--teal)">⏱ '+Math.floor(r.minutes/60)+'h'+r.minutes%60+'m</div></div>'+
+  '</div>').join('')+'</div>';
+}
+
+
+
 
 function dollStatHtml(label,label2,val,color){
   return '<div class="statBar"><div class="statLbl"><span>'+label2+'</span><span>'+Math.round(val)+'</span></div><div class="statTrack"><div class="statFill w" style="width:'+Math.min(100,Math.max(0,val))+'%;background:'+color+'"></div></div></div>';
@@ -9761,11 +11512,12 @@ function createDoll(){
     const name=(document.getElementById('dNewName')||{}).value.trim();
     if(!name)return toast('請輸入娃娃名稱','bad');
     const u=me();if(!u||!u.id)return toast('請先登入再創造娃娃','bad');
+    const d=_dGet();d.owned=d.owned||[];
+    if(d.owned.filter(x=>x.owner===u.id).length>=1)return toast('🌟 每個人只能擁有一個娃娃！','bad'); /* v4.0 一人一個 */
     const element=((document.getElementById('dNewElement')||{}).value||'金');
     const mbti=((document.getElementById('dNewMbti')||{}).value||'INFJ').split(' ')[0];
     const rarity=((document.getElementById('dNewRarity')||{}).value||'R');
     const el=DOLL_ELT[element]||DOLL_ELT['金'];
-    const d=_dGet();d.owned=d.owned||[];
     const doll={id:_dGenId(),name,element,emoji:el.icon,rarity,bond:0,mood:50,trust:0,elementBoost:0,mbti,personality:_dPersonality({id:_dGenId(),element,mbti}),personalityVersion:0,personaName:_dPersonaName({element,mbti}),imprint:_dImprint(),owner:u.id,createdAt:new Date().toISOString(),lastInteract:new Date().toISOString(),interactCount:0,history:[]};
     d.owned.push(doll);_dSet(d);
     closeModal();toast('✨ 新娃娃「'+name+'」（'+element+'・'+mbti+'）創造成功！','success');vDoll();
@@ -9797,6 +11549,7 @@ function renderDollShop(){
 
 function buyDollFromShop(sid){
   const d=_dGet();const u=me(),g=u.g;
+  if(d.owned.filter(x=>x.owner===u.id).length>=1)return toast('🌟 每個人只能擁有一個娃娃！','bad'); /* v4.0 一人一個 */
   const s=d.shop&&d.shop.find(x=>x.id===sid);
   if(!s)return toast('娃娃不存在','bad');
   if(g.gold<s.price)return toast('🪙 金幣不足！（需要 '+s.price+'）','bad');
@@ -10039,10 +11792,30 @@ const EQ_SLOT_ICON=['🪖','👕','👖','👟','⚔️','💍','📿'];
 
 function eqUpgradeCost(lv,rarity){return rarity==='∞'?Math.max(1,Math.ceil(lv/10)):Math.ceil((lv+1)/5)}
 
+/* ════════════════════════════════════════════
+   vEquip 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vEquip
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vEquip 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vEquip
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vEquip 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vEquip
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vEquip 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vEquip
+   ════════════════════════════════════════════ */
 async function vEquip(){
   if(!await needJs(['js/views/vEquip.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vEquip();
 }
+
+
+
+
 
 function eqCardHtml(eq,d){
   const rc=eq.rarity;const borderCls='equipCard'+{R:'R',E:'E',A:'A',S:'S',SS:'SS',SSS:'SSS',Z:'Z',ZZ:'ZZ',ZZZ:'ZZZ','∞':'INF'}[rc]||'';
@@ -10166,10 +11939,30 @@ function dunLog(html){ /* 前置加入日誌，最多保留 60 筆，避免快�
   while(log.children.length>60)log.removeChild(log.lastChild);
 }
 
+/* ════════════════════════════════════════════
+   vDungeon 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDungeon
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDungeon 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDungeon
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDungeon 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDungeon
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vDungeon 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vDungeon
+   ════════════════════════════════════════════ */
 async function vDungeon(){
   if(!await needJs(['js/views/vDungeon.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vDungeon();
 }
+
+
+
+
 
 function initDungeonCanvas(){
   const c=document.getElementById('dungeonCanvas');if(!c)return;
@@ -10441,10 +12234,34 @@ function dunCancel(){
    含 2 個單位：EQ_BADGE_CSS, vReroll
    ════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════
+   vReroll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：EQ_BADGE_CSS, vReroll
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vReroll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：EQ_BADGE_CSS, vReroll
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vReroll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：EQ_BADGE_CSS, vReroll
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vReroll 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：EQ_BADGE_CSS, vReroll
+   ════════════════════════════════════════════ */
+
 async function vReroll(){
   if(!await needJs(['js/views/vReroll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vReroll();
 }
+
+
+
+
 
 function rerollOne(attrId){
   const r=rerollRollAttr(attrId);
@@ -10519,10 +12336,30 @@ function isFreePointsFullyAllocated(){
    vFreePoints 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vFreePoints
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFreePoints 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFreePoints
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFreePoints 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFreePoints
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFreePoints 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFreePoints
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vFreePoints 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vFreePoints
+   ════════════════════════════════════════════ */
 async function vFreePoints(){
   if(!await needJs(['js/views/vFreePoints.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vFreePoints();
 }
+
+
+
+
 
 
 function addFreePoint(key, delta){
@@ -10557,10 +12394,34 @@ function resetFreePoints(){
    含 2 個單位：getAdaptedLevelRequirement, vInfinityExchange
    ════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════
+   vInfinityExchange 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：getAdaptedLevelRequirement, vInfinityExchange
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vInfinityExchange 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：getAdaptedLevelRequirement, vInfinityExchange
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vInfinityExchange 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：getAdaptedLevelRequirement, vInfinityExchange
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   vInfinityExchange 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：getAdaptedLevelRequirement, vInfinityExchange
+   ════════════════════════════════════════════ */
+
 async function vInfinityExchange(){
   if(!await needJs(['js/views/vInfinityExchange.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vInfinityExchange();
 }
+
+
+
+
 
 
 function executeInfinityExchange(stageNum){
@@ -10615,10 +12476,30 @@ function activeBuff(t){const b=checkBuffActive();return (b&&(!t||b.type===t))?b:
    vBuffStore 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vBuffStore
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBuffStore 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBuffStore
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBuffStore 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBuffStore
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBuffStore 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBuffStore
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vBuffStore 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vBuffStore
+   ════════════════════════════════════════════ */
 async function vBuffStore(){
   if(!await needJs(['js/views/vBuffStore.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vBuffStore();
 }
+
+
+
+
 
 
 function buyBuff(idx, payMethod){
@@ -10725,10 +12606,34 @@ function sendGiftBox(buffIndex){
    vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vAdminPanel, adminSystemBackup
    ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAdminPanel, adminSystemBackup
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAdminPanel, adminSystemBackup
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAdminPanel, adminSystemBackup
+   ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 2 個單位：vAdminPanel, adminSystemBackup
+   ════════════════════════════════════════════ */
 async function vAdminPanel(){
   if(!await needJs(['js/views/vAdminPanel.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vAdminPanel();
 }
+
+
+
+
+
+
+
+
 
 
 

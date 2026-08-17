@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
    vStats 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 1 個單位：vStats
+   含 2 個單位：vStats, langStatsHtml
    ════════════════════════════════════════════ */
 function vStats(){
 
@@ -36,4 +36,22 @@ langStatsHtml(g)+'</div></div>'+
 
 '最強科目：'+(best==='—'?'—':(SUBJ[best]?SUBJ[best].i:'')+' '+best)+'</div></div>';
 
+}
+
+function langStatsHtml(g){
+  const langs=(g.stats&&g.stats.lang)||{};
+  const codes=Object.keys(langs);
+  const langT=Object.values(langs).reduce((a,b)=>a+(b.t||0),0);
+  const langC=Object.values(langs).reduce((a,b)=>a+(b.c||0),0);
+  let h='答題：<b style="color:var(--teal)">'+langT+'</b> 題｜答對：'+langC+' 題｜正確率：'+(langT?(Math.round(langC/langT*100)):0)+'%<br>';
+  if(!codes.length)h+='<span style="color:var(--mut)">還沒開始語言自學，去「🌍 語言自學」挑一個語言吧！</span>';
+  else{
+    codes.sort((a,b)=>(langs[b].t||0)-(langs[a].t||0));
+    h+=codes.slice(0,12).map(c=>{
+      const s=langs[c],t=s.t||0,cq=s.c||0;
+      return '<div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span style="width:110px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(langName(c))+'</span><div class="bar" style="flex:1"><i style="width:'+Math.min(100,Math.round(t/Math.max(1,langT)*100))+'%;background:var(--teal)"></i></div><b style="font-size:12px;width:110px;text-align:right;color:'+(t?'var(--teal)':'var(--mut)')+'">'+t+' 題・'+cq+' 對</b></div>';
+    }).join('');
+    if(codes.length>12)h+='<div style="font-size:11.5px;color:var(--mut);margin-top:4px">…共 '+codes.length+' 種語言</div>';
+  }
+  return h;
 }

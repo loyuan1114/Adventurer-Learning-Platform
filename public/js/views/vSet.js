@@ -34,9 +34,15 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 (pf.bg&&pf.bg.indexOf('data:')===0?'<span style="font-size:12px;color:var(--teal);align-self:center">✅ 目前使用照片背景</span>':'')+'<span style="font-size:11px;color:var(--mut);flex-basis:100%">📸 照片素材請使用 CC0 公眾領域授權內容（如 Pixabay／Unsplash／Wikimedia Commons）</span></div></div>'+
 
+/* 顏色主題（v4.0） */
+
+'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🌈 介面顏色</b> <span style="font-size:11.5px;color:var(--mut)">整個介面的配色都由你決定</span>'+
+
+'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+Object.keys(COLOR_PRESETS).map(k=>'<button class="btn ghost mini" style="'+(((!pf.uiTheme&&k==='gold')||pf.uiTheme===k)?'border-color:var(--gold);color:var(--gold2)':'')+'" onclick="setTheme(\''+k+'\')">'+COLOR_PRESETS[k][0]+'</button>').join('')+'</div></div>'+
+
 /* 音樂 */
 
-'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🎵 背景音樂</b> <span style="font-size:11.5px;color:var(--mut)">教師可將 mp3/ogg 上傳到 media/music/ 資料夾</span>'+
+'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🎵 背景音樂</b> <span style="font-size:11.5px;color:var(--mut)">教師可將 mp3/ogg 上傳到 media/music/ 資料夾，管理員也可放 YouTube 連結</span>'+
 
 '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">'+
 
@@ -50,7 +56,11 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<button class="btn ghost mini" onclick="musicStop()">⏹ 停止</button></div>'+
 
-'<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--mut)">音量</span><input type="range" min="0" max="100" value="50" oninput="musicSetVolume(this.value/100)" style="flex:1"></div></div>'+
+'<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--mut)">音量</span><input type="range" min="0" max="100" value="50" oninput="musicSetVolume(this.value/100)" style="flex:1"></div>'+
+
+'<div id="musicYtBox" style="margin-top:8px;display:none"><span style="font-size:11.5px;color:var(--teal)">▶️ 管理員提供的 YouTube 音樂：</span><div id="musicYtList" style="display:flex;flex-direction:column;gap:4px;margin-top:6px"></div></div>'+
+
+'<button class="btn ghost mini" style="margin-top:8px" onclick="openMusicReq()">📩 推薦歌曲給管理員（YouTube 連結）</button></div>'+
 
 /* 好友申請隱私 */
 
@@ -64,9 +74,9 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer"><input type="checkbox" id="hideOnline" style="width:auto"'+(pf.hideOnline?' checked':'')+' onchange="setHideOnline(this.checked)"> 🙈 隱藏我的上線狀態（好友看不到我的「● 線上」）</label></div>'+
 
-/* 語言偏好 */
+/* 語言包偏好 */
 
-'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🌍 語言偏好</b> <span style="font-size:11.5px;color:var(--mut)">選一個想學的語言，語言自學會優先顯示（203 種語言可搜尋）</span>'+
+'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🌍 語言包偏好</b> <span style="font-size:11.5px;color:var(--mut)">選一個想學的語言，語言包會優先顯示（'+LANG_TOTAL+' 種語言可搜尋）</span>'+
 
 '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+(langPref()?'<span style="font-size:12.5px;color:var(--teal)">⭐ 目前：'+esc(langName(langPref()))+'（'+langPref()+'）</span>':'<span style="font-size:12.5px;color:var(--mut)">尚未設定偏好</span>')+
 
@@ -86,9 +96,11 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 musicInit();
 const ms=document.getElementById('musicSel');
 loadMusicList(list=>{
-  ms.innerHTML='<option value="-1">（關閉音樂）</option>'+list.map((f,i)=>'<option value="'+i+'"'+(i===MUSIC.idx?' selected':'')+'>'+esc(f)+'</option>').join('');
+  ms.innerHTML='<option value="-1">（關閉音樂）</option>'+((list||[]).map((f,i)=>'<option value="'+i+'"'+(i===MUSIC.idx?' selected':'')+'>'+esc(f)+'</option>').join(''));
   if(MUSIC.idx>=0)ms.value=String(MUSIC.idx);
 });
+
+renderMusicYt();
 
 setLangGrid('');
 

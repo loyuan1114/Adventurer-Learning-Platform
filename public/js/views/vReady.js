@@ -1,7 +1,9 @@
 /* ════════════════════════════════════════════
    vReady 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 1 個單位：vReady
+   含 2 個單位：maxDiff, vReady
    ════════════════════════════════════════════ */
+function maxDiff(g){let m=30;for(const k in CFG.UNLOCK)if(g.lv>=CFG.UNLOCK[k])m=+k+14;return Math.min(100,m)}
+
 function vReady(sem,unit){
 
 Quiz.sem=sem;Quiz.unit=unit;const g=me().g,md=maxDiff(g);

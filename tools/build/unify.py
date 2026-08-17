@@ -47,10 +47,23 @@ while i < n:
             i += 4
             continue
     if not removed_loader and ln.strip() == "const JSLOAD={};":
-        # 移除 LOADER 註解頭（往上找，含「模組懶載入」字樣的行）
-        for k in range(1, 5):
-            if i - k >= 0 and out and ("模組懶載入" in out[-1] or out[-1].strip().startswith("/* ═") or out[-1].strip().startswith("═") or out[-1].strip().endswith("*/")):
+        # 移除 LOADER 註解頭：從最後一個「/* ═」註解開頭起整段移除
+        # （含先前 splitall 殘留的舊 LOADER/shared 註解；註解行可能夾雜非註解字樣）
+        pop_from = None
+        for k in range(1, 15):
+            if i - k < 0 or not out:
+                break
+            if out[-k].strip().startswith("/* ═"):
+                pop_from = k
+        if pop_from is not None:
+            for _ in range(pop_from):
                 out.pop()
+        else:
+            for k in range(1, 6):
+                if i - k >= 0 and out and ("模組懶載入" in out[-1] or out[-1].strip().endswith("*/")):
+                    out.pop()
+                else:
+                    break
         # 吃掉 needJs 函式（到 return out.every(Boolean); 再 +1 行收尾 }）
         j = i + 1
         while j < n and lines[j].strip() != "return out.every(Boolean);":
