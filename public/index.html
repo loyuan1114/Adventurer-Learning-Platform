@@ -2921,7 +2921,7 @@ let FEATS=[
 
 ['🎮','遊戲中心','5款經典小遊戲','#f06292','vGames()'],
 
-['🎬','影片專區','8大領域・看完有獎勵','#448aff','vVideos()'],
+['🎬','影片專區','8大領域・看完有獎勵','#448aff','openVideoHub()'],
 
 ['💬','社群中心','好友・群組・限時動態','#42a5f5','vSocial()'],
 
@@ -3608,6 +3608,16 @@ if(rw.starlight)g.starlight+=rw.starlight;if(rw.ironOre)g.ironOre+=rw.ironOre;if
 
 if(rw.labMat)g.labMat+=rw.labMat;if(rw.honor)g.honor+=rw.honor;if(rw.quizPts)g.quizPts+=rw.quizPts;showRewardFX(rw)}
 
+
+function openVideoHub(){
+var old=document.getElementById('vidOv');if(old)old.remove();
+var ov=document.createElement('div');ov.id='vidOv';ov.style.cssText='position:fixed;inset:0;z-index:300;background:rgba(5,9,18,.96);display:flex;flex-direction:column';
+ov.innerHTML='<div style="display:flex;gap:10px;align-items:center;padding:8px 14px;background:#0a101e;border-bottom:1px solid var(--goldD)"><b style="color:var(--gold2);font-family:var(--serif)">🎬 影片專區 — 八大領域目錄</b>'+
+'<a href="'+VIDEO_HUB+'" target="_blank" style="color:#7ff0dd;font-size:12.5px;margin-left:auto">在新分頁開啟 ↗</a>'+
+'<button class="btn danger mini" onclick="closeVideoOv()">✕ 關閉</button></div>'+
+'<iframe src="'+VIDEO_HUB+'" style="flex:1;border:0;width:100%;background:#0d1526"></iframe>';
+document.body.appendChild(ov);
+}
 
 function openVideoT(s,sem,t){
 
