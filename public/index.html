@@ -2991,6 +2991,7 @@ async function vLangStudy(){
   if(!await needJs(['js/views/vLangStudy.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLangStudy();
 }
+/* vLangStudy 已修復參數轉發 */
 
 
 
@@ -3178,6 +3179,7 @@ const FEAT_CATS=[
   ['💬 社群互動',['vSocial','vChatV','vGuild','vAnn']],
   ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vSudoku','vClassWar']],
   ['🎨 創作分享',['vPixel','vVideo']],
+  ['💻 虛擬終端',['vTerminal']],
   ['⚙️ 系統',['vSet','vAdminPanel']]
 ];
 function featCatsHtml(){
@@ -3558,6 +3560,11 @@ async function vVideos(){
   if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vVideos();
 }
+/* 直接播放影片（不經過 vVideoSub，直接顯示影片列表）*/
+async function vVideosDirect(){
+  if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vVideos();
+}
 
 
 
@@ -3586,9 +3593,9 @@ function showRewardFX(rewards){const icons={gold:'💰',crystal:'💎',diamond:'
    vVideoSub 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vVideoSub
    ════════════════════════════════════════════ */
-async function vVideoSub(){
+async function vVideoSub(subj){
   if(!await needJs(['js/views/vVideoSub.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vVideoSub();
+  vVideoSub(subj);
 }
 
 
@@ -12850,8 +12857,18 @@ FEATS.push(
   ['💪','自由加點','5大方向加成・點數分配','#26a69a','vFreePoints()'],
   ['♾️','∞ 神階換取','七階段考驗・神級學科換取','#7e57c2','vInfinityExchange()'],
   ['🧪','雙倍增益與商店','星辰幣・4種雙倍・7種時長','#ffa726','vBuffStore()'],
+  ['💻','虛擬終端','AI 驅動・模擬真實指令列','#00e676','vTerminal()'],
   ['👑','管理員系統控制台','等級上限・單項上限・備份還原・禮包碼','#e53935','vAdminPanel()', true]
 );
+
+/* ════════════════════════════════════════════
+   vTerminal 虛擬終端機（splitall.py 自動拆分，懶載入：進入此畫面才載入）
+   含 1 個單位：vTerminal
+   ════════════════════════════════════════════ */
+async function vTerminal(){
+  if(!await needJs(['js/views/vTerminal.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  vTerminal();
+}
 
 
 </script>
