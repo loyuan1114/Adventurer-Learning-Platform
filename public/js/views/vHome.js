@@ -38,22 +38,23 @@ function homeLangSwitch(){
   var allLangs=[];
   for(var r in LANG_DATA){LANG_DATA[r].forEach(function(x){allLangs.push([r,x[0],x[1]])})}
   allLangs.sort(function(a,b){return a[2].localeCompare(b[2],'zh')});
-  var cov=cur?langCoverage(cur):null;
-  var h='<div style="margin-bottom:8px"><input id="hlSearch" placeholder="🔍 '+t('搜尋語言')+'" oninput="homeLangFilter(this.value)" style="width:100%;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);font-size:13px"></div>';
-  h+='<div style="font-size:11px;color:var(--mut);margin-bottom:6px">'+t('共')+' <b style="color:var(--gold2)">'+allLangs.length+'</b> '+t('種語言')+' '+t('可選')+(cur?'｜'+t('目前')+'：<b style="color:var(--teal)">'+(langName(cur)||cur)+'</b>'+(cov?' ('+cov.translated+'/'+cov.total+' '+t('已翻譯')+')':''):'')+'</div>';
+  var cache=getI18nCache();
+  var cachedCount=cur&&cache[cur]?Object.keys(cache[cur]).length:0;
+  var h='<div style="margin-bottom:8px"><input id="hlSearch" placeholder="🔍 搜尋語言..." oninput="homeLangFilter(this.value)" style="width:100%;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);font-size:13px"></div>';
+  h+='<div style="font-size:11px;color:var(--mut);margin-bottom:6px">共 <b style="color:var(--gold2)">'+allLangs.length+'</b> 種語言可選'+(cur?'｜目前：<b style="color:var(--teal)">'+(langName(cur)||cur)+'</b>'+(cachedCount?' ('+cachedCount+' 筆已翻譯)':''):'')+'</div>';
   h+='<div id="hlGrid" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px">';
   allLangs.forEach(function(x,i){
     var isActive=cur===x[0];
-    var c=langCoverage(x[0]);
-    h+='<button onclick="setLangPref(\''+x[0]+'\');homeLangSwitch()" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:'+(isActive?'rgba(255,215,0,.1)':'transparent')+';border:1px '+(isActive?'solid var(--gold)':'solid transparent')+';border-radius:6px;cursor:pointer;text-align:left;color:'+(isActive?'var(--gold2)':'var(--txt)')+';font-size:12px;width:100%;font-family:inherit" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\''+(isActive?'rgba(255,215,0,.1)':'transparent')+'\'">'+
+    var cc=cache[x[0]]?Object.keys(cache[x[0]]).length:0;
+    h+='<button onclick="setLangPref(\''+x[0]+'\');closeModal()" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:'+(isActive?'rgba(255,215,0,.1)':'transparent')+';border:1px '+(isActive?'solid var(--gold)':'solid transparent')+';border-radius:6px;cursor:pointer;text-align:left;color:'+(isActive?'var(--gold2)':'var(--txt)')+';font-size:12px;width:100%;font-family:inherit" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\''+(isActive?'rgba(255,215,0,.1)':'transparent')+'\'">'+
     '<span style="color:var(--mut);min-width:28px;text-align:right;font-size:11px">'+(i+1)+'</span>'+
     '<span style="flex:1"><b>'+x[2]+'</b> <span style="color:var(--mut);font-size:10px">'+x[0]+'</span></span>'+
-    (c.translated>0?'<span style="font-size:9px;color:var(--teal);background:rgba(0,230,118,.1);padding:1px 5px;border-radius:8px">'+c.pct+'%</span>':'')+
+    (cc>0?'<span style="font-size:9px;color:var(--teal);background:rgba(0,230,118,.1);padding:1px 5px;border-radius:8px">'+cc+' 已翻</span>':'')+
     (isActive?'<span style="font-size:10px;color:var(--gold2)">✓</span>':'')+
     '</button>';
   });
   h+='</div>';
-  showModal(t('切換語言')+'（'+allLangs.length+' '+t('種語言')+'）',h);
+  showModal('🌍 切換語言（'+allLangs.length+' 種）',h);
 }
 function homeLangFilter(q){
   q=(q||'').trim().toLowerCase();
