@@ -3276,7 +3276,7 @@ const FEAT_CATS=[
 function featCatsHtml(){
   let h='';
   FEAT_CATS.forEach(c=>{
-    const items=FEATS.filter(f=>!(f[5]&&!IS_ADMIN())).filter(f=>c[1].includes(String(f[4]).replace('()','')));
+    const items=FEATS.filter(f=>!(f[5]&&!(typeof IS_ADMIN==='function'&&IS_ADMIN()))).filter(f=>c[1].includes(String(f[4]).replace('()','')));
     if(!items.length)return;
     h+='<div class="featCat">'+c[0]+'</div><div class="featGrid">'+items.map((f,i)=>'<div class="feat" style="--fc:'+f[3]+';animation:pop .38s both;animation-delay:'+(i*0.04).toFixed(2)+'s" onclick="'+f[4]+'"><span class="fIco">'+f[0]+'</span><b>'+f[1]+'</b><i>'+f[2]+'</i></div>').join('')+'</div>';
   });
@@ -11820,7 +11820,7 @@ function rerollRollAllBatch(selectedIds){
   rerollSet(d);return{ok:true,results};
 }
 function rerollGrantInfinity(attrId){
-  const d=rerollGet();if(!IS_ADMIN())return{ok:false,msg:'⚠️ 僅管理員可使用'};
+  const d=rerollGet();if(!(typeof IS_ADMIN==='function'&&IS_ADMIN()))return{ok:false,msg:'⚠️ 僅管理員可使用'};
   d.attr[attrId]='∞';rerollSet(d);return{ok:true};
 }
 function rerollGemsForRolls(n){
