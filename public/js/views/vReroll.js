@@ -20,7 +20,7 @@ function vReroll(){
     html+='<span class="rerollBonus">'+multStr+'</span>';
     html+='<div class="rerollBtns">';
     html+='<button class="btn mini" onclick="rerollOne(\''+a.id+'\')">🔄 單滾(💎1000)</button>';
-    if(window.IS_ADMIN){html+='<button class="btn mini" style="background:linear-gradient(180deg,#ffd97a,#e0a63a)" onclick="rerollGrant(\''+a.id+'\')">👑 授予∞</button>'}
+    if(IS_ADMIN()){html+='<button class="btn mini" style="background:linear-gradient(180deg,#ffd97a,#e0a63a)" onclick="rerollGrant(\''+a.id+'\')">👑 授予∞</button>'}
     html+='</div></div>';
   });
   html+='<div class="panel2" style="margin-top:12px">';

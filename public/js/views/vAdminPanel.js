@@ -3,7 +3,7 @@
    含 2 個單位：vAdminPanel, adminSystemBackup
    ════════════════════════════════════════════ */
 function vAdminPanel(){
-  if (!window.IS_ADMIN) return toast('⚠️ 僅管理員可進入', 'bad');
+  if (!IS_ADMIN()) return toast('⚠️ 僅管理員可進入', 'bad');
   const sys = get('ADV9_SYS_SETTINGS', { max_level: 300, free_point_single_limit: 300, festival_mode: false });
 
   let html = back() + '<h3 class="vt">👑 管理員系統控制台 <span class="vsub">參數設定・貨幣發放・備份還原</span></h3>';

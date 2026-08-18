@@ -60,7 +60,7 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<div id="musicYtBox" style="margin-top:8px;display:none"><span style="font-size:11.5px;color:var(--teal)">▶️ 管理員提供的 YouTube 音樂：</span><div id="musicYtList" style="display:flex;flex-direction:column;gap:4px;margin-top:6px"></div></div>'+
 
-'<button class="btn ghost mini" style="margin-top:8px" onclick="openMusicReq()">📩 推薦歌曲給管理員（YouTube 連結）</button>'+(window.IS_ADMIN?'<div style="margin-top:10px;padding:10px;background:var(--panel);border:1px dashed var(--line);border-radius:8px"><b style="font-size:12px;color:var(--teal)">👑 管理員上傳音樂</b><div style="display:flex;gap:8px;align-items:center;margin-top:6px"><input id="mp3UploadInput" type="file" accept=".mp3,.ogg,.wav,.flac,.m4a,.opus" style="font-size:12px"><button class="btn mini teal" onclick="adminUploadMp3()">📤 上傳到伺服器</button></div><div style="font-size:11px;color:var(--mut);margin-top:4px">檔案會上傳到 media/music/，所有學生可聽。支援 mp3/ogg/wav/flac，最大 20MB。</div></div>':'')+'</div>'+
+'<button class="btn ghost mini" style="margin-top:8px" onclick="openMusicReq()">📩 推薦歌曲給管理員（YouTube 連結）</button>'+(window.IS_ADMIN()?'<div style="margin-top:10px;padding:10px;background:var(--panel);border:1px dashed var(--line);border-radius:8px"><b style="font-size:12px;color:var(--teal)">👑 管理員上傳音樂</b><div style="display:flex;gap:8px;align-items:center;margin-top:6px"><input id="mp3UploadInput" type="file" accept=".mp3,.ogg,.wav,.flac,.m4a,.opus" style="font-size:12px"><button class="btn mini teal" onclick="adminUploadMp3()">📤 上傳到伺服器</button></div><div style="font-size:11px;color:var(--mut);margin-top:4px">檔案會上傳到 media/music/，所有學生可聽。支援 mp3/ogg/wav/flac，最大 20MB。</div></div>':'')+'</div>'+
 
 /* 好友申請隱私 */
 

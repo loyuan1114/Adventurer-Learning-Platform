@@ -1884,8 +1884,6 @@ async function callAIV2(prompt,sys,opts){
   }
   return callAI(prompt,sys);
 }
-/* ═══ 蘇格拉底模板系統 ═══ */
-function getSocraticTemplates(){try{var c=get('ADV9_SOCRATIC_TEMPLATES',null);if(c&&typeof c==='object')return c;}catch(e){}return{hint:'你是一位蘇格拉底式導師。學生正在回答以下問題：\n\n【題目】{question}\n【學生答案】{student_answer}\n【正確答案】{correct_answer}\n\n規則：\n1. 絕對不可直接說出正確答案\n2. 只能用反問、提示、方向引導\n3. 幫助學生發現自己的錯誤\n4. 每次只給一個小提示\n5. 用友善鼓勵的語氣',findError:'你是「找碴模式」的 AI 出題者。請根據以下題目和詳解，故意在詳解中植入 1 個邏輯錯誤或計算錯誤。\n\n【題目】{question}\n【選項】{options}\n【正確答案】{answer}\n【原始詳解】{explanation}\n\n輸出格式：{"wrong_explanation":"植入錯誤後的詳解","error_location":"步驟編號(1-based)","error_type":"計算錯誤/邏輯錯誤/符號錯誤/單位錯誤","error_description":"簡短說明"}',codeDebug:'你是一位程式除錯導師。學生的程式碼有問題，但你不能直接給出修正後的完整程式碼。\n\n【語言】{language}\n【學生程式碼】{student_code}\n【執行結果】{result}\n\n規則：不可直接給出完整修正程式碼，只能指出問題所在，用反問引導。',explanation:'你是解題說明助手。請根據以下題目生成詳細的解題步驟。'}}
 
 /* 將 AI 回應中的 LaTeX 語法轉換為一般可讀數學符號（含 JSON 轉義後的殘留物，如 \t+imes） */
 
@@ -3027,8 +3025,6 @@ let FEATS=[
 
 ['🔍','AI 找碴','找出詳解中的錯誤','#ff5722','vFindError()'],
 
-['🤖','AI 提示','蘇格拉底式引導','#00bcd4','vSocraticHint()'],
-
 ['💻','程式沙盒','安全執行程式碼','#9c27b0','vSandbox()'],
 
 ['🛡️','思考守護','同意管理・思考指數','#3f51b5','vConsent()'],
@@ -3078,14 +3074,12 @@ async function vLangStudy(){
 }
 /* ═══ 新增模組：AI 端點 / 找碴 / 沙盒 / 同意 / 信任 / 思考報告 / 蘇格拉底 ═══ */
 async function vAiProvider(){if(!await needJs(['js/views/vAiProvider.js']))return toast('模組載入失敗','bad');vAiProvider();}
-async function vFindError(){if(!await needJs(['js/views/vFindError.js']))return toast('模組載入失敗','bad');vFindError();}
-async function vSandbox(){if(!await needJs(['js/views/vSandbox.js']))return toast('模組載入失敗','bad');vSandbox();}
+async function vFindError(){if(!await needJs(['js/views/vSocratic.js','js/views/vFindError.js']))return toast('模組載入失敗','bad');vFindError();}
+async function vSandbox(){if(!await needJs(['js/views/vSocratic.js','js/views/vSandbox.js']))return toast('模組載入失敗','bad');vSandbox();}
 async function vConsent(){if(!await needJs(['js/views/vConsent.js']))return toast('模組載入失敗','bad');vConsent();}
 async function vTrust(){if(!await needJs(['js/views/vTrust.js']))return toast('模組載入失敗','bad');vTrust();}
 async function vThinkingReport(){if(!await needJs(['js/views/vThinkingTrace.js']))return toast('模組載入失敗','bad');vThinkingReport();}
-function vSocraticHint(){if(typeof SOCRATIC==='undefined'){needJs(['js/views/vSocratic.js']).then(function(){SOCRATIC?showSocraticHint():toast('載入失敗','bad')});}else showSocraticHint();}
 function vSocraticAdmin(){needJs(['js/views/vSocratic.js']).then(function(){vSocraticAdmin()});}
-function showSocraticHint(){toast('💡 蘇格拉底模式已啟用。在答題時，先提交你的答案，AI 將給予方向提示而非直接答案。');}
 /* vLangStudy 已修復參數轉發 */
 
 
@@ -3275,14 +3269,14 @@ const FEAT_CATS=[
   ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vClassWar']],
   ['🎨 創作分享',['vPixel','vVideo']],
   ['💻 虛擬終端',['vTerminal']],
-  ['🤖 AI 學習',['vFindError','vSandbox','vSocraticHint']],
+  ['🤖 AI 學習',['vFindError','vSandbox']],
   ['🛡️ 信任守護',['vConsent','vTrust','vThinkingReport']],
   ['⚙️ 系統',['vSet','vAdminPanel']]
 ];
 function featCatsHtml(){
   let h='';
   FEAT_CATS.forEach(c=>{
-    const items=FEATS.filter(f=>!(f[5]&&!window.IS_ADMIN)).filter(f=>c[1].includes(String(f[4]).replace('()','')));
+    const items=FEATS.filter(f=>!(f[5]&&!IS_ADMIN())).filter(f=>c[1].includes(String(f[4]).replace('()','')));
     if(!items.length)return;
     h+='<div class="featCat">'+c[0]+'</div><div class="featGrid">'+items.map((f,i)=>'<div class="feat" style="--fc:'+f[3]+';animation:pop .38s both;animation-delay:'+(i*0.04).toFixed(2)+'s" onclick="'+f[4]+'"><span class="fIco">'+f[0]+'</span><b>'+f[1]+'</b><i>'+f[2]+'</i></div>').join('')+'</div>';
   });
@@ -11826,7 +11820,7 @@ function rerollRollAllBatch(selectedIds){
   rerollSet(d);return{ok:true,results};
 }
 function rerollGrantInfinity(attrId){
-  const d=rerollGet();if(!window.IS_ADMIN)return{ok:false,msg:'⚠️ 僅管理員可使用'};
+  const d=rerollGet();if(!IS_ADMIN())return{ok:false,msg:'⚠️ 僅管理員可使用'};
   d.attr[attrId]='∞';rerollSet(d);return{ok:true};
 }
 function rerollGemsForRolls(n){
