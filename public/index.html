@@ -2957,6 +2957,18 @@ let FEATS=[
 
 ['🎬','創作影片','發影片・最長 5 分鐘','#ff6e40','vVideo()'],
 
+['🔍','AI 找碴','找出詳解中的錯誤','#ff5722','vFindError()'],
+
+['🤖','AI 提示','蘇格拉底式引導','#00bcd4','vSocraticHint()'],
+
+['💻','程式沙盒','安全執行程式碼','#9c27b0','vSandbox()'],
+
+['🛡️','思考守護','同意管理・思考指數','#3f51b5','vConsent()'],
+
+['🏛','信任公約','家庭數位信任','#795548','vTrust()'],
+
+['📊','思考報告','我的自主思考指數','#607d8b','vThinkingReport()'],
+
 
 
 ['⚔️','班級戰','全班答題數＋在線時間','#ff7043','vClassWar()'],
@@ -2996,6 +3008,15 @@ async function vLangStudy(){
   if(!await needJs(['js/views/vLangStudy.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vLangStudy();
 }
+/* ═══ 新增模組：AI 端點 / 找碴 / 沙盒 / 同意 / 信任 / 思考報告 / 蘇格拉底 ═══ */
+async function vAiProvider(){if(!await needJs(['js/views/vAiProvider.js']))return toast('模組載入失敗','bad');vAiProvider();}
+async function vFindError(){if(!await needJs(['js/views/vFindError.js']))return toast('模組載入失敗','bad');vFindError();}
+async function vSandbox(){if(!await needJs(['js/views/vSandbox.js']))return toast('模組載入失敗','bad');vSandbox();}
+async function vConsent(){if(!await needJs(['js/views/vConsent.js']))return toast('模組載入失敗','bad');vConsent();}
+async function vTrust(){if(!await needJs(['js/views/vTrust.js']))return toast('模組載入失敗','bad');vTrust();}
+async function vThinkingReport(){if(!await needJs(['js/views/vThinkingTrace.js']))return toast('模組載入失敗','bad');vThinkingReport();}
+function vSocraticHint(){if(typeof SOCRATIC==='undefined'){needJs(['js/views/vSocratic.js']).then(function(){SOCRATIC?showSocraticHint():toast('載入失敗','bad')});}else showSocraticHint();}
+function showSocraticHint(){toast('💡 蘇格拉底模式已啟用。在答題時，先提交你的答案，AI 將給予方向提示而非直接答案。');}
 /* vLangStudy 已修復參數轉發 */
 
 
@@ -3185,6 +3206,8 @@ const FEAT_CATS=[
   ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vClassWar']],
   ['🎨 創作分享',['vPixel','vVideo']],
   ['💻 虛擬終端',['vTerminal']],
+  ['🤖 AI 學習',['vFindError','vSandbox','vSocraticHint']],
+  ['🛡️ 信任守護',['vConsent','vTrust','vThinkingReport']],
   ['⚙️ 系統',['vSet','vAdminPanel']]
 ];
 function featCatsHtml(){
@@ -8312,7 +8335,7 @@ $('#app').innerHTML=
 
 '<aside><div class="panel2" style="display:flex;flex-direction:column;gap:6px">'+
 
-[['home','🏫 我的班級'],['cls','🏫 班級管理'],['hw','📚 班級作業'],['pub','📝 發布作業'],['cross','🔀 跨班檢視'],['reg','📝 學生註冊'],['tfr','👥 教師好友'],['roster','👥 學生名冊'],['audit','🕵️ AI 學情稽核'],['monitor','🔍 聊天監控'],['aiq','🤖 AI 出題'],['lang','🌍 語言包'],['classwar','⚔️ 班級戰']].map(t=>
+[['home','🏫 我的班級'],['cls','🏫 班級管理'],['hw','📚 班級作業'],['pub','📝 發布作業'],['cross','🔀 跨班檢視'],['reg','📝 學生註冊'],['tfr','👥 教師好友'],['roster','👥 學生名冊'],['audit','🕵️ AI 學情稽核'],['monitor','🔍 聊天監控'],['aiq','🤖 AI 出題'],['lang','🌍 語言包'],['classwar','⚔️ 班級戰'],['trust','🏛 信任管理']].map(t=>
 
 '<button class="btn '+(T_TAB===t[0]?'':'ghost')+' mini" id="tt_'+t[0]+'" onclick="tGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+
 
@@ -8326,11 +8349,11 @@ function tGo(tab){
 
 T_TAB=tab;
 
-['home','cls','hw','pub','cross','reg','tfr','roster','audit','monitor','aiq','lang','classwar'].forEach(t=>{const el=document.getElementById('tt_'+t);if(el)el.className='btn '+(t===tab?'':'ghost')+' mini'});
+['home','cls','hw','pub','cross','reg','tfr','roster','audit','monitor','aiq','lang','classwar','trust'].forEach(t=>{const el=document.getElementById('tt_'+t);if(el)el.className='btn '+(t===tab?'':'ghost')+' mini'});
 
 if(tab==='home')vTHome();else if(tab==='cls')vClasses();else if(tab==='hw')tHwList();else if(tab==='pub')tPub();else if(tab==='cross')tCross();
 
-else if(tab==='tfr')tFriends();else if(tab==='roster')vRoster();else if(tab==='reg')vRegStu();else if(tab==='audit')vAiAudit();else if(tab==='aiq')vAiQuiz();else if(tab==='lang')vLangStudy();else if(tab==='classwar')vClassWar();else vMonitor();
+else if(tab==='tfr')tFriends();else if(tab==='roster')vRoster();else if(tab==='reg')vRegStu();else if(tab==='audit')vAiAudit();else if(tab==='aiq')vAiQuiz();else if(tab==='lang')vLangStudy();else if(tab==='classwar')vClassWar();else if(tab==='trust')vTrust();else vMonitor();
 
 }
 
@@ -8914,7 +8937,7 @@ $('#app').innerHTML=
 
 '<div class="wrap"><nav style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+
 
-[['users','👥 用戶管理'],['grant','🎁 資源發放'],['mail_admin','📩 發信箱'],['dolls','🎀 娃娃管理'],['guilds','🛡️ 公會管理'],['content','📸 動態管理'],['books','📚 課本網址'],['codes','🎁 禮包碼生成器'],['post','📢 發布公告'],['monitor','🔍 聊天監控'],['stats','📊 系統統計'],['api','🔑 API 金鑰'],['classes','🏫 班級管理'],['game','⚙️ 遊戲設定'],['lang','🌍 語言包'],['student_view','🎮 學生遊戲面板'],['reset','🔄 重置系統']].map(t=>'<button class="btn ghost mini" onclick="aGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</nav>'+
+[['users','👥 用戶管理'],['grant','🎁 資源發放'],['mail_admin','📩 發信箱'],['dolls','🎀 娃娃管理'],['guilds','🛡️ 公會管理'],['content','📸 動態管理'],['books','📚 課本網址'],['codes','🎁 禮包碼生成器'],['post','📢 發布公告'],['monitor','🔍 聊天監控'],['stats','📊 系統統計'],['api','🔑 API 金鑰'],['aiprovider','🤖 AI 端點'],['classes','🏫 班級管理'],['game','⚙️ 遊戲設定'],['lang','🌍 語言包'],['trust','🏛 信任管理'],['student_view','🎮 學生遊戲面板'],['reset','🔄 重置系統']].map(t=>'<button class="btn ghost mini" onclick="aGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</nav>'+
 
 '<main id="view" class="panel view"></main></div>';
 
@@ -8926,7 +8949,7 @@ function aGo(tab){
 
 if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
 
-else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='classes')vClasses();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
+else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='aiprovider')vAiProvider();else if(tab==='classes')vClasses();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='trust')vTrust();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
 
 }
 

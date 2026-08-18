@@ -20,7 +20,7 @@ const PORT=process.env.PORT||8080;
 const USERS_KEY='ADV9_USERS';
 /* 資料隔離：下列 key 為全服共享（社交/系統/市集/聊天/排名/好友/公告等），原樣保留；
    其餘 key 視為個人資料，寫入時自動加 username: 前綴，避免所有學生共用同一份。 */
-const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT','ADV9_MUSIC_LINKS','ADV9_MUSIC_REQS','ADV9_PIXELS','ADV9_SUDOKU','ADV9_CLASSWAR','ADV9_VIDEOS']);
+const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT','ADV9_MUSIC_LINKS','ADV9_MUSIC_REQS','ADV9_PIXELS','ADV9_SUDOKU','ADV9_CLASSWAR','ADV9_VIDEOS','ADV9_AI_PROVIDERS','ADV9_QBANK','ADV9_TRUST']);
 const MASTER={user:'adv9boss',salt:'ADV9|v1|9f3a7',hash:'c25eba85d26bc97f09b85878ff6b4a6322acd3c740485bf09a4930b7f49e5c42',name:'總管理員'};
 /* 伺服器專用 pepper：可用環境變數 ADV9_PEPPER 覆寫（建議部署時設定為隨機長字串）*/
 const SERVER_PEPPER=process.env.ADV9_PEPPER||'adv9-server-pepper-v1';
@@ -786,6 +786,264 @@ var ext='.docx';
       }catch(e){res.writeHead(400,{'Content-Type':'text/plain; charset=utf-8'});res.end('bad json');}
     });
   }
+  /* ═══════ 新增 API：AI Provider / 出題驗證 / 同意 / 信任 / 沙盒 ═══════ */
+
+  /* AI Provider CRUD（管理員限定）*/
+  if(req.method==='GET'&&p==='/rest/v1/ai/providers'){
+    var pw=checkToken(tok);if(!pw||pw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    var data=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
+    /* 隱藏 API Key 回傳 */
+    var safe=JSON.parse(JSON.stringify(data));
+    safe.providers.forEach(function(p){p.api_key=p.api_key?'***'+p.api_key.slice(-4):''});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(safe));
+  }
+  if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/ai/providers'){
+    var pw2=checkToken(tok);if(!pw2||pw2.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var data=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
+      if(j.id){/* 更新 */
+        var idx=data.providers.findIndex(function(x){return x.id===j.id});
+        if(idx>=0){Object.assign(data.providers[idx],j,data.providers[idx]);}
+        else{j.id='ap_'+Date.now();data.providers.push(j);}
+      }else{/* 新增 */
+        j.id='ap_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+        j.created_at=new Date().toISOString();
+        data.providers.push(j);
+      }
+      j.updated_at=new Date().toISOString();
+      KV['ADV9_AI_PROVIDERS']=data;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='DELETE'&&p.startsWith('/rest/v1/ai/providers/')){
+    var pw3=checkToken(tok);if(!pw3||pw3.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    var pid=p.replace('/rest/v1/ai/providers/','');
+    var data2=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
+    data2.providers=data2.providers.filter(function(x){return x.id!==pid});
+    KV['ADV9_AI_PROVIDERS']=data2;saveKV();
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true}));
+  }
+  if(req.method==='POST'&&p.startsWith('/rest/v1/ai/providers/')&&p.endsWith('/test')){
+    var pw4=checkToken(tok);if(!pw4){res.writeHead(401);return res.end('need login')}
+    var pid2=p.replace('/rest/v1/ai/providers/','').replace('/test','');
+    var data3=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
+    var prov=data3.providers.find(function(x){return x.id===pid2});
+    if(!prov){res.writeHead(404);return res.end('provider not found')}
+    /* 簡單測試：嘗試呼叫 API */
+    return readBody(req,function(b){try{
+      var j2=JSON.parse(b.toString('utf8')||'{}');
+      var prompt=j2.prompt||'請回答：1+1=? 只回答數字';
+      /* 轉發到 provider */
+      var timeout=prov.timeout||15000;
+      var url=prov.base_url||'';
+      if(prov.provider_type==='ol'){url='/rest/v1/ai/ollama';}
+      var payload;
+      if(prov.provider_type==='gm'){
+        url='https://generativelanguage.googleapis.com/v1beta/models/'+prov.model_name+':generateContent?key='+prov.api_key;
+        payload=JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:256}});
+      }else if(prov.provider_type==='ol'){
+        payload=JSON.stringify({model:prov.model_name,host:prov.api_key||'http://127.0.0.1:11434',messages:[{role:'user',content:prompt}],temperature:0.7});
+      }else{
+        payload=JSON.stringify({model:prov.model_name,messages:[{role:'user',content:prompt}],temperature:0.7,max_tokens:256});
+      }
+      var headers={'Content-Type':'application/json'};
+      if(prov.provider_type!=='gm'&&prov.provider_type!=='ol'){headers['Authorization']='Bearer '+prov.api_key;}
+      var req2=http.request(url,{method:'POST',headers:headers,timeout:timeout},function(ures){
+        var ch=[];ures.on('data',function(c){ch.push(c)});ures.on('end',function(){
+          var body=Buffer.concat(ch).toString();
+          try{var rj=JSON.parse(body);
+            var txt='NO_CONTENT';
+            if(rj.choices&&rj.choices[0]&&rj.choices[0].message)txt=rj.choices[0].message.content;
+            else if(rj.candidates&&rj.candidates[0])txt=rj.candidates[0].content.parts[0].text;
+            else if(rj.message)txt=rj.message.content;
+            res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,response:txt.substring(0,200),status:ures.statusCode}));
+          }catch(e2){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,status:ures.statusCode,response:body.substring(0,200)}));}
+        });
+      });
+      req2.on('error',function(e3){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,error:e3.message}));});
+      req2.on('timeout',function(){try{req2.destroy()}catch(e4){}res.writeHead(504);res.end(JSON.stringify({ok:false,error:'timeout'}));});
+      req2.write(payload);req2.end();
+    }catch(e5){res.writeHead(400);res.end('bad json')}});
+  }
+
+  /* 出題驗證（教師/管理員限定）*/
+  if(req.method==='POST'&&p==='/rest/v1/questions/validate'){
+    var qw=checkToken(tok);if(!qw||(qw.role!=='teacher'&&qw.role!=='admin')){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var questions=JSON.parse(b.toString('utf8'));
+      if(!Array.isArray(questions))questions=[questions];
+      var validator=path.join(ROOT,'tools','question_validator.py');
+      if(!fs.existsSync(validator)){res.writeHead(500);return res.end('validator not found')}
+      var fn=path.join('/tmp','adv9_vq_'+crypto.randomBytes(4).toString('hex')+'.json');
+      fs.writeFileSync(fn,JSON.stringify(questions));
+      var r=child_process.spawnSync('python3',[validator,fn],{encoding:'utf8',timeout:15000});
+      try{fs.unlinkSync(fn)}catch(e2){}
+      if(r.status!==0){res.writeHead(500);return res.end('validation failed')}
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(r.stdout||'{}');
+    }catch(e){res.writeHead(500);res.end('validate error')}});
+  }
+
+  /* 同意管理（學生限定）*/
+  if(req.method==='POST'&&p==='/rest/v1/consent/grant'){
+    var cw2=checkToken(tok);if(!cw2||cw2.role!=='student'){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      var sid=cw2.username;
+      var consentKey=sid+':ADV9_CONSENT';
+      var consentData=KV[consentKey]||{events:[]};
+      var now=new Date().toISOString();
+      /* 停用現有同意 */
+      consentData.events.forEach(function(e){if(e.status==='granted'&&!e.revoked_at){e.status='revoked';e.revoked_at=now;}});
+      consentData.events.push({
+        id:'ce_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+        student_id:sid,status:'granted',scope:j.scope||'frontend_trace',
+        granted_at:now,revoked_at:null,data_deletion_due_at:null,data_purged:false
+      });
+      KV[consentKey]=consentData;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='POST'&&p==='/rest/v1/consent/revoke'){
+    var cw3=checkToken(tok);if(!cw3||cw3.role!=='student'){res.writeHead(403);return res.end('forbidden')}
+    var sid2=cw3.username;
+    var consentKey2=sid2+':ADV9_CONSENT';
+    var cd=KV[consentKey2]||{events:[]};
+    var now2=new Date().toISOString();
+    cd.events.forEach(function(e){if(e.status==='granted'&&!e.revoked_at){e.status='revoked';e.revoked_at=now2;e.data_deletion_due_at=new Date(Date.now()+7*86400000).toISOString();}});
+    KV[consentKey2]=cd;saveKV();
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true}));
+  }
+  if(req.method==='GET'&&p.startsWith('/rest/v1/consent/status/')){
+    var cw4=checkToken(tok);if(!cw4){res.writeHead(401);return res.end('need login')}
+    var target=p.replace('/rest/v1/consent/status/','');
+    /* 只有本人、家長、管理員可查 */
+    if(cw4.username!==target&&cw4.role!=='admin'&&cw4.role!=='teacher'){
+      res.writeHead(403);return res.end('forbidden');
+    }
+    var cd2=KV[target+':ADV9_CONSENT']||{events:[]};
+    var active=cd2.events.find(function(e){return e.status==='granted'&&!e.revoked_at});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,active:!!active,event:active||null}));
+  }
+
+  /* 信任公約 & 邀請管理 */
+  if(req.method==='POST'&&p==='/rest/v1/trust/agreement/accept'){
+    var cw5=checkToken(tok);if(!cw5){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var trust=KV['ADV9_TRUST']||{parents:[],students:[],invitations:[],violation_logs:[]};
+      var now3=new Date().toISOString();
+      var existing=trust.parents.find(function(p2){return p2.username===cw5.username});
+      if(existing&&existing.suspension_status==='suspended'){res.writeHead(403);return res.end('suspended')}
+      if(existing){existing.trust_agreement_accepted=true;existing.accepted_at=now3;}
+      else{trust.parents.push({id:'p_'+Date.now(),username:cw5.username,name:cw5.name||cw5.username,trust_agreement_accepted:true,accepted_at:now3,suspension_status:null,suspended_until:null,suspension_reason:null});}
+      KV['ADV9_TRUST']=trust;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='POST'&&p==='/rest/v1/trust/invitations'){
+    var cw6=checkToken(tok);if(!cw6||cw6.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var trust2=KV['ADV9_TRUST']||{parents:[],students:[],invitations:[],violation_logs:[]};
+      /* 檢查家長停權 */
+      var pe=trust2.parents.find(function(p2){return p2.username===cw6.username});
+      if(pe&&pe.suspension_status==='suspended'){res.writeHead(403);return res.end('suspended')}
+      /* 檢查冷卻 */
+      var cd3=trust2.invitations.find(function(i){return i.parent_id===cw6.username&&i.student_id===j.student_id&&i.status==='declined'&&i.cooldown_until&&Date.now()<new Date(i.cooldown_until).getTime()});
+      if(cd3){res.writeHead(429);return res.end('cooldown')}
+      trust2.invitations.push({id:'inv_'+Date.now(),parent_id:cw6.username,student_id:j.student_id,task_id:null,message:j.message||'邀請你加入學習挑戰',status:'pending',created_at:new Date().toISOString(),responded_at:null,cooldown_until:null});
+      KV['ADV9_TRUST']=trust2;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='POST'&&p.startsWith('/rest/v1/trust/invitations/')&&(p.endsWith('/accept')||p.endsWith('/decline'))){
+    var cw7=checkToken(tok);if(!cw7||cw7.role!=='student'){res.writeHead(403);return res.end('forbidden')}
+    var invId=p.split('/')[4];
+    var status=p.endsWith('/accept')?'accepted':'declined';
+    return readBody(req,function(b){try{
+      var trust3=KV['ADV9_TRUST']||{parents:[],students:[],invitations:[],violation_logs:[]};
+      var inv=trust3.invitations.find(function(i2){return i2.id===invId&&i2.student_id===cw7.username});
+      if(!inv){res.writeHead(404);return res.end('not found')}
+      var now4=new Date().toISOString();
+      inv.status=status;inv.responded_at=now4;
+      if(status==='declined')inv.cooldown_until=new Date(Date.now()+24*3600000).toISOString();
+      if(status==='accepted'){
+        var existing2=trust3.students.find(function(s){return s.username===cw7.username});
+        if(existing2){existing2.guardian_id=inv.parent_id;}
+        else{trust3.students.push({id:'s_'+Date.now(),username:cw7.username,guardian_id:inv.parent_id,guardian_mode_enabled:false,last_consent_at:now4,last_consent_revoked_at:null,active_consent_id:null});}
+      }
+      KV['ADV9_TRUST']=trust3;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+
+  /* 違規偵測 */
+  if(req.method==='POST'&&p==='/rest/v1/trust/violation/detect'){
+    var cw8=checkToken(tok);if(!cw8||cw8.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var trust4=KV['ADV9_TRUST']||{parents:[],students:[],invitations:[],violation_logs:[]};
+      trust4.violation_logs.push({
+        id:'vl_'+Date.now(),parent_id:j.parent_id,student_id:j.student_id,
+        violation_type:j.violation_type||'unknown',attempted_action:j.attempted_action||'',
+        request_payload_summary:j.summary||'',detected_at:new Date().toISOString(),
+        result:j.result||'detected',suspension_applied:!!j.suspend
+      });
+      /* 自動停權 */
+      if(j.suspend){
+        var pe2=trust4.parents.find(function(p2){return p2.username===j.parent_id});
+        if(pe2){pe2.suspension_status='suspended';pe2.suspended_until=new Date(Date.now()+30*86400000).toISOString();pe2.suspension_reason=j.violation_type;}
+      }
+      KV['ADV9_TRUST']=trust4;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+
+  /* 程式碼沙盒執行 */
+  if(req.method==='POST'&&p==='/rest/v1/sandbox/run'){
+    var cw9=checkToken(tok);if(!cw9){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var lang=String(j.lang||'python').slice(0,10);
+      var code=String(j.code||'').slice(0,50000);
+      if(!code){res.writeHead(400);return res.end('no code')}
+      var ext='.py',cmd='python3';
+      if(lang==='cpp'){ext='.cpp';cmd='g++';}
+      else if(lang==='java'){ext='.java';cmd='javac';}
+      var fn=path.join('/tmp','adv9_sb_'+crypto.randomBytes(4).toString('hex')+ext);
+      fs.writeFileSync(fn,code);
+      var result={stdout:'',stderr:'',exit_code:1,time_ms:0,error:null};
+      var t0=Date.now();
+      try{
+        if(lang==='python'){
+          var r2=child_process.spawnSync('python3',[fn],{encoding:'utf8',timeout:10000});
+          result.stdout=r2.stdout||'';result.stderr=r2.stderr||'';result.exit_code=r2.status;
+        }else if(lang==='cpp'){
+          var outFn=fn+'.out';
+          var rc=child_process.spawnSync('g++',[fn,'-o',outFn],{encoding:'utf8',timeout:10000});
+          if(rc.status===0){
+            var r3=child_process.spawnSync([outFn],{encoding:'utf8',timeout:10000});
+            result.stdout=r3.stdout||'';result.stderr=r3.stderr||'';result.exit_code=r3.status;
+          }else{result.stderr=rc.stderr||'compile error';result.exit_code=rc.status;}
+          try{fs.unlinkSync(outFn)}catch(e3){}
+        }else if(lang==='java'){
+          var r4=child_process.spawnSync('javac',[fn],{encoding:'utf8',timeout:10000});
+          if(r4.status===0){
+            var dir=path.dirname(fn);var cls=code.match(/class\s+(\w+)/);
+            if(cls){var r5=child_process.spawnSync('java',['-cp',dir,cls[1]],{encoding:'utf8',timeout:10000});
+              result.stdout=r5.stdout||'';result.stderr=r5.stderr||'';result.exit_code=r5.status;}
+          }else{result.stderr=r4.stderr||'compile error';result.exit_code=r4.status;}
+        }else{result.error='不支援的語言：'+lang;}
+      }catch(e4){result.error=e4.message;}
+      result.time_ms=Date.now()-t0;
+      try{fs.unlinkSync(fn)}catch(e5){}
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));
+    }catch(e6){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='GET'&&p==='/rest/v1/sandbox/languages'){
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify([{id:'python',name:'Python'},{id:'cpp',name:'C++'},{id:'java',name:'Java'}]));
+  }
+
   /* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
   if(req.method==='GET'){
     var rel=(p==='/'?'/index.html':p);
