@@ -1818,8 +1818,76 @@ async function callGemini(prompt,systemInstruction){return callAI(prompt,systemI
 function getNextApiKey(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(!data.keys.length)return null;const now=Date.now();if(data.lastUsedTime&&(now-data.lastUsedTime)>30000){data.currentIndex=(data.currentIndex+1)%data.keys.length}const keyObj=data.keys[data.currentIndex];data.lastUsedTime=now;keyObj.useCount=(keyObj.useCount||0)+1;keyObj.lastUsed=new Date().toISOString();set(LS.apiKeys,data);return keyObj}
 function advanceApiKey(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(!data.keys.length)return null;data.currentIndex=(data.currentIndex+1)%data.keys.length;data.lastUsedTime=Date.now();set(LS.apiKeys,data);return data.keys[data.currentIndex]}
 async function callGeminiLegacy(prompt,systemInstruction){let keyData=getNextApiKey();if(!keyData)throw new Error('沒有可用的 API 金鑰');const tried=new Set();while(keyData&&!tried.has(keyData.key)){tried.add(keyData.key);try{const model=keyData.model||'gemini-2.0-flash-lite';const url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+keyData.key;const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:systemInstruction||'你是一個專業的出題助手。'}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})});if(!res.ok){keyData=advanceApiKey();continue;}const json=await res.json();if(!json.candidates||!json.candidates[0])throw new Error('No candidates');return json.candidates[0].content.parts[0].text}catch(e){keyData=advanceApiKey();}}throw new Error('所有 API 金鑰均失敗')}
-/* 將 AI 回應中的 LaTeX 語法轉換為一般可讀數學符號（含 JSON 轉義後的殘留物，如 \t+imes） */
 
+/* ═══ callAIV2：整合自訂 providers + Gemini 用量平分 + 用量追蹤 ═══ */
+function callAIGetProviders(){try{return get('ADV9_AI_PROVIDERS',{providers:[],usage:[]})}catch(e){return{providers:[],usage:[]}}}
+function callAISetProviders(d){try{set('ADV9_AI_PROVIDERS',d)}catch(e){}}
+function callAITrackUsage(pid,toks){
+  var d=callAIGetProviders();var today=new Date().toISOString().slice(0,10);
+  var ex=d.usage.find(function(u){return u.provider_id===pid&&u.date===today});
+  if(ex){ex.call_count++;ex.tokens_used+=toks||0;}
+  else{d.usage.push({date:today,provider_id:pid,call_count:1,tokens_used:toks||0});}
+  var cutoff=new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+  d.usage=d.usage.filter(function(u){return u.date>=cutoff});
+  callAISetProviders(d);
+}
+function callAIRateLimit(pid){
+  var d=callAIGetProviders();var p=d.providers.find(function(x){return x.id===pid});
+  if(!p)return true;
+  var today=new Date().toISOString().slice(0,10);
+  var todayU=d.usage.filter(function(u){return u.provider_id===pid&&u.date===today});
+  var tc=todayU.reduce(function(s,u){return s+u.call_count},0);
+  var tt=todayU.reduce(function(s,u){return s+u.tokens_used},0);
+  /* Gemini 用量平分：若 rate_limit_per_hour=0 則自動計算 */
+  var rl=p.rate_limit_per_hour;
+  var tb=p.token_budget_per_day;
+  if(p.provider_type==='gm'){
+    var gmKeys=d.providers.filter(function(x){return x.provider_type==='gm'});
+    if(gmKeys.length>1){
+      /* 平分：基礎額度 / key 數量 */
+      var baseRl=p._base_rate_limit||rl;
+      var baseTb=p._base_token_budget||tb;
+      if(!p._base_rate_limit&&rl>0){p._base_rate_limit=rl;p._base_token_budget=tb;callAISetProviders(d);}
+      rl=Math.floor((p._base_rate_limit||60)/gmKeys.length);
+      tb=Math.floor((p._base_token_budget||100000)/gmKeys.length);
+    }
+  }
+  if(rl>0&&tc>=rl)return false;
+  if(tb>0&&tt>=tb)return false;
+  return true;
+}
+function callAIEstimateTokens(text){if(!text)return 0;return Math.ceil(text.length*1.5)}
+async function callAICallEndpoint(provider,prompt,sys){
+  var type=provider.provider_type||'oa';var timeout=provider.timeout||25000;
+  var ac=new AbortController();var timer=setTimeout(function(){ac.abort()},timeout);
+  try{
+    if(type==='ol'){
+      var res=await fetch('/rest/v1/ai/ollama',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json',...(typeof WTOKEN!=='undefined'&&WTOKEN?{'x-adv9-token':WTOKEN}:{})},body:JSON.stringify({model:provider.model_name,host:provider.api_key||'http://127.0.0.1:11434',messages:[{role:'system',content:sys||'你是一個專業助手。'},{role:'user',content:prompt}],temperature:provider.temperature||0.7})});
+      if(!res.ok)throw new Error('HTTP '+res.status);var j=await res.json();if(!j.message||!j.message.content)throw new Error('No content');return j.message.content;
+    }
+    if(type==='gm'){
+      var url='https://generativelanguage.googleapis.com/v1beta/models/'+provider.model_name+':generateContent?key='+provider.api_key;
+      var res2=await fetch(url,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sys||'你是一個專業助手。'}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:provider.temperature||0.7,maxOutputTokens:provider.max_tokens||4096}})});
+      if(!res2.ok)throw new Error('HTTP '+res2.status);var j2=await res2.json();if(!j2.candidates||!j2.candidates[0])throw new Error('No candidates');return j2.candidates[0].content.parts[0].text;
+    }
+    var res3=await fetch(provider.base_url,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+provider.api_key},body:JSON.stringify({model:provider.model_name,messages:[{role:'system',content:sys||'你是一個專業助手。'},{role:'user',content:prompt}],temperature:provider.temperature||0.7,max_tokens:provider.max_tokens||4096})});
+    if(!res3.ok)throw new Error('HTTP '+res3.status);var j3=await res3.json();if(!j3.choices||!j3.choices[0])throw new Error('No choices');return j3.choices[0].message.content;
+  }finally{clearTimeout(timer)}
+}
+async function callAIV2(prompt,sys,opts){
+  opts=opts||{};
+  var d=callAIGetProviders();
+  for(var i=0;i<d.providers.length;i++){
+    var p=d.providers[i];
+    if(!callAIRateLimit(p.id))continue;
+    try{var result=await callAICallEndpoint(p,prompt,sys);callAITrackUsage(p.id,callAIEstimateTokens(result));return result;}catch(e){}
+  }
+  return callAI(prompt,sys);
+}
+/* ═══ 蘇格拉底模板系統 ═══ */
+function getSocraticTemplates(){try{var c=get('ADV9_SOCRATIC_TEMPLATES',null);if(c&&typeof c==='object')return c;}catch(e){}return{hint:'你是一位蘇格拉底式導師。學生正在回答以下問題：\n\n【題目】{question}\n【學生答案】{student_answer}\n【正確答案】{correct_answer}\n\n規則：\n1. 絕對不可直接說出正確答案\n2. 只能用反問、提示、方向引導\n3. 幫助學生發現自己的錯誤\n4. 每次只給一個小提示\n5. 用友善鼓勵的語氣',findError:'你是「找碴模式」的 AI 出題者。請根據以下題目和詳解，故意在詳解中植入 1 個邏輯錯誤或計算錯誤。\n\n【題目】{question}\n【選項】{options}\n【正確答案】{answer}\n【原始詳解】{explanation}\n\n輸出格式：{"wrong_explanation":"植入錯誤後的詳解","error_location":"步驟編號(1-based)","error_type":"計算錯誤/邏輯錯誤/符號錯誤/單位錯誤","error_description":"簡短說明"}',codeDebug:'你是一位程式除錯導師。學生的程式碼有問題，但你不能直接給出修正後的完整程式碼。\n\n【語言】{language}\n【學生程式碼】{student_code}\n【執行結果】{result}\n\n規則：不可直接給出完整修正程式碼，只能指出問題所在，用反問引導。',explanation:'你是解題說明助手。請根據以下題目生成詳細的解題步驟。'}}
+
+/* 將 AI 回應中的 LaTeX 語法轉換為一般可讀數學符號（含 JSON 轉義後的殘留物，如 \t+imes） */
 
 /* ════════ 學科 ════════ */
 
@@ -8049,14 +8117,76 @@ async function vStats(){
 
 
 
-/* ── 背景音樂播放器（教師把 mp3/ogg 放 media/music/，學生可選曲）── */
+/* ── 背景音樂播放器（教師把 mp3/ogg 放 media/music/，學生可選曲 + YouTube）── */
 function loadMusicList(cb){if(!WTOKEN){if(cb)cb([]);return}fetch(SUPA_URL+'/rest/v1/media/music',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.ok?r.json():[]).then(l=>{MUSIC.list=l||[];if(cb)cb(l||[])}).catch(()=>{MUSIC.list=[];if(cb)cb([])})}
 function playMusic(){if(!MUSIC.audio||!MUSIC.list.length)return;const f=MUSIC.list[MUSIC.idx];if(!f)return;MUSIC.audio.src=SUPA_URL+'/storage/v1/object/public/media/music/'+encodeURIComponent(f);MUSIC.audio.play().catch(()=>{});saveMusicPref()}
-function musicPlay(){musicInit();if(MUSIC.list.length===0){loadMusicList(()=>{if(MUSIC.list.length){if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx])}else toast('⚠️ media/music/ 尚無音樂檔，請老師上傳後再試','bad')});return}if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx])}
+function musicPlay(){
+  musicInit();
+  /* 先嘗試 server 音樂 */
+  if(MUSIC.list.length===0){
+    loadMusicList(function(){
+      if(MUSIC.list.length){
+        if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx]);
+      }else{
+        /* 也嘗試 YouTube 清單 */
+        var ytLinks=get(LS.musicLinks,[]);
+        if(Array.isArray(ytLinks)&&ytLinks.length>0){
+          MUSIC.yt=ytLinks;if(MUSIC.ytIdx===undefined||MUSIC.ytIdx<0)MUSIC.ytIdx=0;
+          openYtPlayer(ytLinks[MUSIC.ytIdx].url);
+        }else{toast('⚠️ 尚無音樂。請上傳 MP3 或新增 YouTube 連結','bad');}
+      }
+    });return;
+  }
+  if(MUSIC.idx<0)MUSIC.idx=0;playMusic();toast('🎵 開始播放：'+MUSIC.list[MUSIC.idx]);
+}
 function musicStop(){if(MUSIC.audio){MUSIC.audio.pause();MUSIC.audio.currentTime=0}MUSIC.idx=-1;saveMusicPref();toast('⏹ 音樂已停止')}
-function musicNext(){if(!MUSIC.list.length){loadMusicList(musicNext);return}MUSIC.idx=(MUSIC.idx+1)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx])}
-function musicPrev(){if(!MUSIC.list.length){loadMusicList(musicPrev);return}MUSIC.idx=(MUSIC.idx-1+MUSIC.list.length)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx])}
+function musicNext(){
+  /* 優先 server 音樂 */
+  if(MUSIC.list.length){
+    if(!MUSIC.list.length){loadMusicList(musicNext);return}
+    MUSIC.idx=(MUSIC.idx+1)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx]);
+  }else{
+    /* fallback YouTube */
+    var ytLinks=get(LS.musicLinks,[]);
+    if(Array.isArray(ytLinks)&&ytLinks.length){
+      MUSIC.ytIdx=((MUSIC.ytIdx||0)+1)%ytLinks.length;
+      openYtPlayer(ytLinks[MUSIC.ytIdx].url);
+    }
+  }
+}
+function musicPrev(){
+  if(MUSIC.list.length){
+    if(!MUSIC.list.length){loadMusicList(musicPrev);return}
+    MUSIC.idx=(MUSIC.idx-1+MUSIC.list.length)%MUSIC.list.length;playMusic();toast('🎵 '+MUSIC.list[MUSIC.idx]);
+  }else{
+    var ytLinks=get(LS.musicLinks,[]);
+    if(Array.isArray(ytLinks)&&ytLinks.length){
+      MUSIC.ytIdx=((MUSIC.ytIdx||0)-1+ytLinks.length)%ytLinks.length;
+      openYtPlayer(ytLinks[MUSIC.ytIdx].url);
+    }
+  }
+}
 function musicPick(v){musicInit();MUSIC.idx=parseInt(v,10);if(MUSIC.idx>=0)playMusic();else musicStop()}
+/* 管理員 MP3 上傳 */
+function adminUploadMp3(){
+  var input=document.getElementById('mp3UploadInput');if(!input)return;
+  var file=input.files[0];if(!file)return toast('請先選擇 MP3 檔案','bad');
+  if(!file.name.match(/\.(mp3|ogg|wav|flac|m4a|opus)$/i))return toast('不支援的格式，請上傳 mp3/ogg/wav/flac','bad');
+  if(file.size>20*1024*1024)return toast('檔案過大（最大 20MB）','bad');
+  toast('⏳ 上傳中...');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data=new Uint8Array(e.target.result);
+    fetch(SUPA_URL+'/storage/v1/object/public/media/music/'+encodeURIComponent(file.name),{
+      method:'POST',headers:{'Content-Type':'application/octet-stream','x-adv9-token':WTOKEN||''},body:data
+    }).then(function(r){return r.json()}).then(function(j){
+      toast('✅ 上傳成功：'+file.name);
+      loadMusicList();if(typeof renderMusicYt==='function')renderMusicYt();
+      input.value='';
+    }).catch(function(err){toast('❌ 上傳失敗：'+err.message,'bad');});
+  };
+  reader.readAsArrayBuffer(file);
+}
 
 /* ▶️ YouTube 音樂（v4.0）：管理員放 YT 連結、學生可推薦歌曲 */
 function ytIdOf(url){const m=String(url||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:null}
