@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
-   vSudoku 畫面模組 — 數獨排位系統
-   10 段位 × 5 階段，Solo 模式（9×9 / 16×16），PK 模式（12×12）
+   vSudoku — 數獨排位系統 v2
+   10 段位 × 5 階段，Solo（9×9 / 16×16），PK（12×12 真人）
    ════════════════════════════════════════════ */
 
 var SUDOKU_SERVER = 'http://10.67.50.212:8083';
@@ -23,10 +23,7 @@ function _sdRanking(){
   try{var d=JSON.parse(localStorage.getItem('sudoku_ranking'));if(d&&typeof d==='object')return d}catch(e){}
   return def;
 }
-
-function _sdSaveRanking(r){
-  try{localStorage.setItem('sudoku_ranking',JSON.stringify(r))}catch(e){}
-}
+function _sdSaveRanking(r){try{localStorage.setItem('sudoku_ranking',JSON.stringify(r))}catch(e){}}
 
 function _sdTierLabel(tier,stage){
   var t=SUDOKU_TIERS[Math.max(0,Math.min(9,tier))];
@@ -35,36 +32,29 @@ function _sdTierLabel(tier,stage){
 
 function _sdProgressHTML(tier,stage){
   var t=SUDOKU_TIERS[Math.max(0,Math.min(9,tier))];
-  var wins=0, losses=0;
   var r=_sdRanking();
   var last5=r.history.slice(-5);
   var ww=0,ll=0;
   last5.forEach(function(h){if(h.result==='win')ww++;else ll++});
-  wins=ww;losses=ll;
-  var pct=Math.min(100,Math.round((wins/5)*100));
+  var pct=Math.min(100,Math.round((ww/5)*100));
   return '<div style="margin:8px 0">'+_sdTierLabel(tier,stage)+'</div>'+
     '<div style="background:#1a1a2e;border-radius:8px;overflow:hidden;height:22px;position:relative;margin-bottom:4px">'+
     '<div style="background:linear-gradient(90deg,'+t.color+','+t.color+'88);height:100%;width:'+pct+'%;transition:width .4s"></div>'+
-    '<span style="position:absolute;top:0;left:0;right:0;text-align:center;line-height:22px;font-size:12px;color:#fff">'+wins+'/5 勝 (近5場)</span>'+
+    '<span style="position:absolute;top:0;left:0;right:0;text-align:center;line-height:22px;font-size:12px;color:#fff">'+ww+'/5 勝 (近5場)</span>'+
     '</div>'+
     '<div style="font-size:12px;color:var(--mut)">總計 '+r.wins+' 勝 '+r.losses+' 敗</div>';
 }
 
-function _sdCooldownKey(mode){
-  return 'sudoku_cd_' + mode;
-}
-
+function _sdCooldownKey(mode){return 'sudoku_cd_'+mode}
 function _sdCooldownRemaining(mode){
-  var ms={solo9:90*60000,solo16:120*60000};
+  var ms={solo9:90*60*1000,solo16:120*60*1000};
   var limit=ms[mode];if(!limit)return 0;
   try{var t=parseInt(localStorage.getItem(_sdCooldownKey(mode)),10);if(!t)return 0;var rem=t+limit-Date.now();return rem>0?rem:0}catch(e){return 0}
 }
-
-function _sdSetCooldown(mode){
-  try{localStorage.setItem(_sdCooldownKey(mode),String(Date.now()))}catch(e){}
-}
+function _sdSetCooldown(mode){try{localStorage.setItem(_sdCooldownKey(mode),String(Date.now()))}catch(e){}}
 
 function _sdFormatTime(sec){
+  sec=Math.max(0,Math.floor(sec));
   var m=Math.floor(sec/60),s=sec%60;
   return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
 }
@@ -77,15 +67,13 @@ function _sdGridHTML(board,size){
     html+='<tr>';
     for(var c=0;c<size;c++){
       var val=board[r][c];
-      var bt='',rt='',bb='',bl='';
-      if(c%bc===0&&c>0)bt='border-left:2px solid #888;';
-      if(r%br===0&&r>0)rt='border-top:2px solid #888;';
+      var extra='';
+      if(c%bc===0&&c>0)extra+='border-left:2px solid #888;';
+      if(r%br===0&&r>0)extra+='border-top:2px solid #888;';
       var editable=val===0;
       var cls=editable?'sd-cell-editable':'sd-cell-fixed';
-      html+='<td class="'+cls+'" data-r="'+r+'" data-c="'+c+'" style="'+bt+rt+bb+bl+'">';
-      if(!editable){
-        html+='<span class="sd-val">'+val+'</span>';
-      }
+      html+='<td class="'+cls+'" data-r="'+r+'" data-c="'+c+'" style="'+extra+'">';
+      if(!editable)html+='<span class="sd-val">'+val+'</span>';
       html+='</td>';
     }
     html+='</tr>';
@@ -97,9 +85,7 @@ function _sdGridHTML(board,size){
 function _sdNumpadHTML(size){
   var html='<div class="sd-numpad" style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:10px auto;max-width:400px">';
   html+='<button class="sd-num-btn" data-val="0" style="background:#ff4757;color:#fff">✕</button>';
-  for(var i=1;i<=size;i++){
-    html+='<button class="sd-num-btn" data-val="'+i+'">'+i+'</button>';
-  }
+  for(var i=1;i<=size;i++)html+='<button class="sd-num-btn" data-val="'+i+'">'+i+'</button>';
   html+='</div>';
   return html;
 }
@@ -122,7 +108,7 @@ function _sdShowMain(){
   html+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">';
   html+='<button class="btn" onclick="sdStartSolo(9)" style="flex:1;min-width:140px">🎯 Solo 9×9<br><span style="font-size:11px;opacity:.7">10 分鐘限時</span></button>';
   html+='<button class="btn" onclick="sdStartSolo(16)" style="flex:1;min-width:140px">🎯 Solo 16×16<br><span style="font-size:11px;opacity:.7">25 分鐘限時</span></button>';
-  html+='<button class="btn" onclick="sdStartPK()" style="flex:1;min-width:140px">⚔️ PK 12×12<br><span style="font-size:11px;opacity:.7">10 人即時對戰</span></button>';
+  html+='<button class="btn" onclick="sdStartPK()" style="flex:1;min-width:140px">⚔️ PK 12×12<br><span style="font-size:11px;opacity:.7">真人 10 人對戰</span></button>';
   html+='</div>';
   var cd9=_sdCooldownRemaining('solo9');
   var cd16=_sdCooldownRemaining('solo16');
@@ -140,9 +126,7 @@ function _sdShowMain(){
     html+='<div style="background:'+(active?'#1a1a2e':'#111')+';border:1px solid '+(active?t.color:'#333')+';border-radius:8px;padding:8px 12px;font-size:12px;flex:1;min-width:90px;text-align:center">';
     html+='<div style="color:'+t.color+';font-size:14px;font-weight:bold">'+t.name+'</div>';
     html+='<div style="opacity:.6;font-size:11px">'+t.en+'</div>';
-    if(active){
-      html+='<div style="margin-top:4px;color:'+t.color+'">階段 '+(r.stage+1)+'/5</div>';
-    }
+    if(active)html+='<div style="margin-top:4px;color:'+t.color+'">階段 '+(r.stage+1)+'/5</div>';
     html+='</div>';
   }
   html+='</div>';
@@ -153,7 +137,7 @@ function _sdShowMain(){
   html+='• 降級：近 5 場負場 ≥ 3 降 1 階段<br>';
   html+='• Solo 9×9：每 90 分鐘可玩，限時 10 分鐘<br>';
   html+='• Solo 16×16：每 2 小時可玩，限時 25 分鐘<br>';
-  html+='• PK 12×12：10 人同時競速，30 分鐘限時';
+  html+='• PK 12×12：真人 10 人同時競速，30 分鐘限時';
   html+='</div>';
   var hist=r.history.slice(-10).reverse();
   if(hist.length>0){
@@ -178,15 +162,8 @@ function _sdStartCooldownTimers(){
     var cd9=_sdCooldownRemaining('solo9');
     var cd16=_sdCooldownRemaining('solo16');
     if(!cd9&&!cd16){clearInterval(_sdCDTimer);_sdCDTimer=null;return}
-    var el=$('#sdBody');if(!el)return;
-    var cdDiv=el.querySelector('.sd-cd-display');
-    if(cdDiv){
-      var t='';
-      if(cd9>0)t+='⏱ 9×9 冷卻：'+_sdFormatTime(Math.ceil(cd9/1000))+'  ';
-      if(cd16>0)t+='⏱ 16×16 冷卻：'+_sdFormatTime(Math.ceil(cd16/1000));
-      cdDiv.textContent=t;
-    }
-  },1000);
+    _sdShowMain();
+  },5000);
 }
 
 function sdResetRanking(){
@@ -195,53 +172,38 @@ function sdResetRanking(){
   _sdShowMain();
 }
 
-/* ── Solo Mode ── */
+/* ═══════════ Solo Mode ═══════════ */
 var _sdSoloState=null;
 
 function sdStartSolo(size){
   var mode=size===16?'solo16':'solo9';
   var cd=_sdCooldownRemaining(mode);
-  if(cd>0){
-    alert('冷卻中，請等待 '+_sdFormatTime(Math.ceil(cd/1000)));
-    return;
-  }
-  var timeLimit=size===16?25*60:10*60;
+  if(cd>0){alert('冷卻中，請等待 '+_sdFormatTime(Math.ceil(cd/1000)));return}
+  var timeLimitMs=size===16?25*60*1000:10*60*1000;
   $('#sdBody').innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:40px;animation:bob 1s infinite">🧩</div><p style="color:var(--mut);margin-top:10px">正在生成 '+size+'×'+size+' 題目...</p></div>';
   fetch(SUDOKU_SERVER+'/sudoku?size='+size)
     .then(function(r){return r.json()})
     .then(function(data){
       if(!data||!data.puzzle||!data.solution){
-        $('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:var(--ff)">題目生成失敗，請稍後再試</div>';
-        return;
+        $('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">題目生成失敗</div>';return;
       }
       var grid=data.puzzle.map(function(r){return r.slice()});
-      _sdSoloState={
-        size:size,
-        solution:data.solution,
-        grid:grid,
-        puzzle:data.puzzle,
-        timeLimit:timeLimit,
-        elapsed:0,
-        timer:null,
-        active:true,
-        selectedCell:null
-      };
+      _sdSoloState={size:size,solution:data.solution,grid:grid,puzzle:data.puzzle,timeLimitMs:timeLimitMs,elapsedMs:0,timer:null,active:true,selectedCell:null};
       _sdRenderSolo();
     })
-    .catch(function(e){
-      $('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:var(--ff)">無法連線到數獨伺服器<br><small>'+String(e)+'</small></div>';
-    });
+    .catch(function(e){$('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">無法連線到數獨伺服器<br><small>'+String(e)+'</small></div>'});
 }
 
 function _sdRenderSolo(){
   var s=_sdSoloState;if(!s)return;
   var prog=_sdCountProgress(s.grid,s.size);
-  var remain=Math.max(0,s.timeLimit-s.elapsed);
-  var timeColor=remain<60?'color:#ff4757':'';
+  var remainMs=Math.max(0,s.timeLimitMs-s.elapsedMs);
+  var remainSec=Math.ceil(remainMs/1000);
+  var timeColor=remainSec<60?'color:#ff4757':'';
   var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">';
   html+='<div><span style="color:var(--gold)">🎯 Solo '+s.size+'×'+s.size+'</span></div>';
-  html+='<div style="font-size:18px;font-weight:bold;'+timeColor+'">'+_sdFormatTime(Math.ceil(remain/1000))+'</div>';
-  html+='<div style="font-size:12px;color:var(--mut)">完成 '+prog.pct+'%</div>';
+  html+='<div class="sd-timer-val" style="font-size:18px;font-weight:bold;'+timeColor+'">'+_sdFormatTime(remainSec)+'</div>';
+  html+='<div class="sd-prog-val" style="font-size:12px;color:var(--mut)">完成 '+prog.pct+'%</div>';
   html+='</div>';
   html+='<div style="overflow-x:auto">'+_sdGridHTML(s.grid,s.size)+'</div>';
   html+=_sdNumpadHTML(s.size);
@@ -252,38 +214,27 @@ function _sdRenderSolo(){
   if(!s.timer){
     s.timer=setInterval(function(){
       if(!s||!s.active)return;
-      s.elapsed+=1000;
-      if(s.elapsed>=s.timeLimit){
-        _sdSoloFinish(false);
-        return;
-      }
-      var remain2=Math.max(0,s.timeLimit-s.elapsed);
+      s.elapsedMs+=1000;
+      if(s.elapsedMs>=s.timeLimitMs){_sdSoloFinish(false);return}
+      var rem=Math.max(0,s.timeLimitMs-s.elapsedMs);
+      var remSec=Math.ceil(rem/1000);
       var el=$('#sdBody');if(!el)return;
       var timeEl=el.querySelector('.sd-timer-val');
-      if(timeEl){
-        timeEl.textContent=_sdFormatTime(Math.ceil(remain2/1000));
-        if(remain2<60000)timeEl.style.color='#ff4757';
-      }
+      if(timeEl){timeEl.textContent=_sdFormatTime(remSec);if(remSec<60)timeEl.style.color='#ff4757'}
       var progEl=el.querySelector('.sd-prog-val');
-      if(progEl){
-        var p2=_sdCountProgress(s.grid,s.size);
-        progEl.textContent='完成 '+p2.pct+'%';
-      }
+      if(progEl){var p2=_sdCountProgress(s.grid,s.size);progEl.textContent='完成 '+p2.pct+'%'}
     },1000);
   }
 }
 
 function _sdBindGrid(s){
-  var cells=document.querySelectorAll('.sd-cell-editable');
-  cells.forEach(function(td){
+  document.querySelectorAll('.sd-cell-editable').forEach(function(td){
     td.onclick=function(){
-      var cells2=document.querySelectorAll('.sd-cell-editable');
-      cells2.forEach(function(c){c.classList.remove('sd-selected')});
+      document.querySelectorAll('.sd-cell-editable').forEach(function(c){c.classList.remove('sd-selected')});
       td.classList.add('sd-selected');
       s.selectedCell={r:parseInt(td.dataset.r),c:parseInt(td.dataset.c)};
       var v=s.grid[s.selectedCell.r][s.selectedCell.c];
-      var numBtns=document.querySelectorAll('.sd-num-btn');
-      numBtns.forEach(function(b){
+      document.querySelectorAll('.sd-num-btn').forEach(function(b){
         b.classList.remove('sd-num-active');
         if(parseInt(b.dataset.val)===v)b.classList.add('sd-num-active');
       });
@@ -292,31 +243,26 @@ function _sdBindGrid(s){
 }
 
 function _sdBindNumpad(s){
-  var btns=document.querySelectorAll('.sd-num-btn');
-  btns.forEach(function(btn){
+  document.querySelectorAll('.sd-num-btn').forEach(function(btn){
     btn.onclick=function(){
       if(!s.selectedCell)return;
       var val=parseInt(btn.dataset.val);
       var r=s.selectedCell.r,c=s.selectedCell.c;
       s.grid[r][c]=val;
       var td=document.querySelector('.sd-cell-editable[data-r="'+r+'"][data-c="'+c+'"]');
-      if(td){
-        td.innerHTML=val>0?'<span class="sd-val">'+val+'</span>':'';
-        td.classList.remove('sd-selected');
-      }
-      btns.forEach(function(b){b.classList.remove('sd-num-active')});
+      if(td){td.innerHTML=val>0?'<span class="sd-val">'+val+'</span>':'';td.classList.remove('sd-selected')}
+      document.querySelectorAll('.sd-num-btn').forEach(function(b){b.classList.remove('sd-num-active')});
       btn.classList.add('sd-num-active');
       var prog=_sdCountProgress(s.grid,s.size);
       var progEl=document.querySelector('.sd-prog-val');
       if(progEl)progEl.textContent='完成 '+prog.pct+'%';
       if(prog.filled===prog.total){
         var correct=true;
-        for(var rr=0;rr<s.size&&correct;rr++){
-          for(var cc=0;cc<s.size&&correct;cc++){
-            if(s.grid[rr][cc]!==s.solution[rr][cc])correct=false;
-          }
-        }
-        if(correct)_sdSoloFinish(true);
+        for(var rr=0;rr<s.size&&correct;rr++)for(var cc=0;cc<s.size&&correct;cc++)if(s.grid[rr][cc]!==s.solution[rr][cc])correct=false;
+        if(correct){
+          if(_sdPKState&&_sdPKState.active){_sdPKSubmitProgress();_sdPKFinish()}
+          else _sdSoloFinish(true);
+        }else if(_sdPKState&&_sdPKState.active)_sdPKSubmitProgress();
       }
     };
   });
@@ -327,163 +273,117 @@ function _sdSoloFinish(won){
   s.active=false;
   if(s.timer){clearInterval(s.timer);s.timer=null}
   _sdSetCooldown(s.size===16?'solo16':'solo9');
-  var elapsedStr=_sdFormatTime(Math.ceil(s.elapsed/1000));
+  var elapsedStr=_sdFormatTime(Math.ceil(s.elapsedMs/1000));
   var r=_sdRanking();
-  r.history.push({
-    date:new Date().toLocaleDateString(),
-    result:won?'win':'lose',
-    time:elapsedStr,
-    size:s.size,
-    mode:'solo'
-  });
-  if(won){
-    r.wins++;
-    _sdCheckAdvancement(r);
-  }else{
-    r.losses++;
-    _sdCheckDemotion(r);
-  }
+  r.history.push({date:new Date().toLocaleDateString(),result:won?'win':'lose',time:elapsedStr,size:s.size,mode:'solo'});
+  if(won){r.wins++;_sdCheckAdvancement(r)}else{r.losses++;_sdCheckDemotion(r)}
   _sdSaveRanking(r);
   _sdSoloState=null;
   var html='<div style="text-align:center;padding:30px">';
-  if(won){
-    html+='<div style="font-size:48px;margin-bottom:10px">🎉</div>';
-    html+='<div style="font-size:20px;color:#2ed573;font-weight:bold">完成！</div>';
-    html+='<div style="color:var(--mut);margin:8px 0">用時 '+elapsedStr+'</div>';
-  }else{
-    html+='<div style="font-size:48px;margin-bottom:10px">⏰</div>';
-    html+='<div style="font-size:20px;color:#ff4757;font-weight:bold">時間到！</div>';
-    html+='<div style="color:var(--mut);margin:8px 0">'+_sdFormatTime(s.timeLimit)+' 已用完</div>';
-  }
+  html+='<div style="font-size:48px;margin-bottom:10px">'+(won?'🎉':'⏰')+'</div>';
+  html+='<div style="font-size:20px;font-weight:bold;color:'+(won?'#2ed573':'#ff4757')+'">'+(won?'完成！':'時間到！')+'</div>';
+  html+='<div style="color:var(--mut);margin:8px 0">用時 '+elapsedStr+'</div>';
   html+='<div style="margin:12px 0">'+_sdProgressHTML(r.tier,r.stage)+'</div>';
-  html+='<button class="btn" onclick="sdBackToMain()" style="margin-top:10px">返回主頁</button>';
-  html+='</div>';
+  html+='<button class="btn" onclick="sdBackToMain()" style="margin-top:10px">返回主頁</button></div>';
   $('#sdBody').innerHTML=html;
 }
 
 function sdSoloQuit(){
-  if(_sdSoloState){
-    _sdSoloState.active=false;
-    if(_sdSoloState.timer){clearInterval(_sdSoloState.timer);_sdSoloState.timer=null}
-  }
-  _sdSoloState=null;
-  _sdShowMain();
+  if(_sdSoloState){_sdSoloState.active=false;if(_sdSoloState.timer){clearInterval(_sdSoloState.timer);_sdSoloState.timer=null}}
+  _sdSoloState=null;_sdShowMain();
 }
 
-function sdBackToMain(){
-  _sdShowMain();
-}
+function sdBackToMain(){_sdShowMain()}
 
-/* ── Advancement / Demotion Logic ── */
+/* ═══════════ Advancement / Demotion ═══════════ */
 function _sdCheckAdvancement(r){
   var last5=r.history.slice(-5);
-  var wins=0;
-  last5.forEach(function(h){if(h.result==='win')wins++});
-  if(wins>=3){
-    if(r.stage<4){
-      r.stage++;
-    }else if(r.tier<9){
-      r.tier++;
-      r.stage=0;
-    }
-  }
+  var wins=0;last5.forEach(function(h){if(h.result==='win')wins++});
+  if(wins>=3){if(r.stage<4)r.stage++;else if(r.tier<9){r.tier++;r.stage=0}}
 }
-
 function _sdCheckDemotion(r){
   var last5=r.history.slice(-5);
-  var losses=0;
-  last5.forEach(function(h){if(h.result==='lose')losses++});
-  if(losses>=3){
-    if(r.stage>0){
-      r.stage--;
-    }else if(r.tier>0){
-      r.tier--;
-      r.stage=4;
-    }
-  }
+  var losses=0;last5.forEach(function(h){if(h.result==='lose')losses++});
+  if(losses>=3){if(r.stage>0)r.stage--;else if(r.tier>0){r.tier--;r.stage=4}}
 }
 
-/* ── PK Mode (12×12) ── */
+/* ═══════════ PK Mode (12×12 真人) ═══════════ */
 var _sdPKState=null;
+var _sdPKPollTimer=null;
 
 function sdStartPK(){
-  $('#sdBody').innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:40px;animation:bob 1s infinite">⚔️</div><p style="color:var(--mut);margin-top:10px">正在生成 PK 題目並匹配玩家...</p></div>';
-  fetch(SUDOKU_SERVER+'/sudoku?size=12')
+  var uname='';
+  try{var u=get(LS.user,{});uname=u.username||u.name||''}catch(e){}
+  if(!uname)uname='Player'+Math.floor(Math.random()*9999);
+  $('#sdBody').innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:40px;animation:bob 1s infinite">⚔️</div>'+
+    '<p style="color:var(--mut);margin-top:10px">正在加入匹配...</p>'+
+    '<p id="pkQueueInfo" style="color:var(--mut);font-size:12px"></p>'+
+    '<button class="btn" onclick="sdPKLeave()" style="margin-top:12px">取消匹配</button></div>';
+
+  fetch(SUDOKU_SERVER+'/pk/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:uname})})
     .then(function(r){return r.json()})
     .then(function(data){
-      if(!data||!data.puzzle||!data.solution){
-        $('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:var(--ff)">題目生成失敗</div>';
-        return;
+      if(data.error){$('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">'+data.error+'</div>';return}
+      _sdPKState={token:data.token,name:data.name,inQueue:!data.started,matchId:data.matchId||null,puzzle:null,solution:null,grid:null,
+        timeLimitMs:30*60*1000,elapsedMs:0,timer:null,active:true,selectedCell:null,players:[],pollTimer:null};
+      if(data.started&&data.puzzle){
+        _sdPKState.inQueue=false;
+        _sdPKState.matchId=data.match_id;
+        _sdPKState.puzzle=data.puzzle;
+        _sdPKState.solution=data.solution;
+        _sdPKState.grid=data.puzzle.map(function(r){return r.slice()});
+        _sdPKState.timeLimitMs=data.duration*1000;
+        _sdPKRenderGame();
+      }else{
+        _sdPKState.inQueue=true;
+        _sdPKPollQueue();
       }
-      _sdPKSimulate(data);
     })
-    .catch(function(e){
-      $('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:var(--ff)">無法連線到數獨伺服器</div>';
-    });
+    .catch(function(e){$('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">連線失敗: '+String(e)+'</div>'});
 }
 
-function _sdPKSimulate(data){
-  var grid=data.puzzle.map(function(r){return r.slice()});
-  var players=[];
-  var botNames=['小明','阿華','小美','大雄','靜香','胖虎','小夫','櫻桃','紫蘭'];
-  var used={};
-  var uname='你';
-  used[uname]=true;
-  for(var i=0;i<9;i++){
-    var nm=botNames[i];
-    used[nm]=true;
-    players.push({
-      name:nm,
-      progress:0,
-      solved:false,
-      finishTime:null,
-      isBot:true
-    });
-  }
-  players.push({name:uname,progress:0,solved:false,finishTime:null,isBot:false});
-  _sdPKState={
-    size:12,
-    solution:data.solution,
-    grid:grid,
-    puzzle:data.puzzle,
-    timeLimit:30*60,
-    elapsed:0,
-    timer:null,
-    active:true,
-    players:players,
-    selectedCell:null,
-    botInterval:null
-  };
-  _sdPKSimulateBots();
-  _sdRenderPK();
-}
-
-function _sdPKSimulateBots(){
-  var s=_sdPKState;if(!s)return;
-  s.botInterval=setInterval(function(){
-    if(!s||!s.active){clearInterval(s.botInterval);s.botInterval=null;return}
-    s.players.forEach(function(p){
-      if(!p.isBot||p.solved)return;
-      var inc=Math.random()*1.5;
-      p.progress=Math.min(100,p.progress+inc);
-      if(p.progress>=100&&!p.solved){
-        p.solved=true;
-        p.finishTime=s.elapsed;
-        p.progress=100;
-      }
-    });
-    _sdUpdatePKLeaderboard();
+function _sdPKPollQueue(){
+  var s=_sdPKState;if(!s||!s.active)return;
+  _sdPKPollTimer=setInterval(function(){
+    if(!s||!s.active||!s.inQueue){clearInterval(_sdPKPollTimer);_sdPKPollTimer=null;return}
+    fetch(SUDOKU_SERVER+'/pk/status?token='+s.token)
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(!s||!s.active)return;
+        if(data.started&&data.puzzle){
+          clearInterval(_sdPKPollTimer);_sdPKPollTimer=null;
+          s.inQueue=false;s.matchId=data.match_id;
+          s.puzzle=data.puzzle;s.solution=data.solution;
+          s.grid=data.puzzle.map(function(r){return r.slice()});
+          s.timeLimitMs=data.duration*1000;s.elapsedMs=0;
+          _sdPKRenderGame();
+        }else if(data.in_queue){
+          var info=document.getElementById('pkQueueInfo');
+          if(info)info.textContent='隊列中... '+data.queue_size+' 人等待中 (位置 #'+data.queue_pos+')';
+        }
+      }).catch(function(){});
   },2000);
 }
 
-function _sdRenderPK(){
+function sdPKLeave(){
+  if(_sdPKState){
+    fetch(SUDOKU_SERVER+'/pk/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:_sdPKState.token})}).catch(function(){});
+    _sdPKState.active=false;
+  }
+  if(_sdPKPollTimer){clearInterval(_sdPKPollTimer);_sdPKPollTimer=null}
+  if(_sdPKState&&_sdPKState.timer){clearInterval(_sdPKState.timer);_sdPKState.timer=null}
+  _sdPKState=null;_sdShowMain();
+}
+
+function _sdPKRenderGame(){
   var s=_sdPKState;if(!s)return;
   var prog=_sdCountProgress(s.grid,s.size);
-  var remain=Math.max(0,s.timeLimit-s.elapsed);
-  var timeColor=remain<120000?'color:#ff4757':'';
+  var remainMs=Math.max(0,s.timeLimitMs-s.elapsedMs);
+  var remainSec=Math.ceil(remainMs/1000);
+  var timeColor=remainSec<120?'color:#ff4757':'';
   var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">';
-  html+='<div><span style="color:#ff6b6b">⚔️ PK 12×12</span> <span style="font-size:11px;color:var(--mut)">10 人對戰</span></div>';
-  html+='<div class="sd-timer-val" style="font-size:18px;font-weight:bold;'+timeColor+'">'+_sdFormatTime(Math.ceil(remain/1000))+'</div>';
+  html+='<div><span style="color:#ff6b6b">⚔️ PK 12×12</span> <span style="font-size:11px;color:var(--mut)">真人對戰</span></div>';
+  html+='<div class="sd-timer-val" style="font-size:18px;font-weight:bold;'+timeColor+'">'+_sdFormatTime(remainSec)+'</div>';
   html+='</div>';
   html+='<div style="display:flex;gap:12px;flex-wrap:wrap">';
   html+='<div style="flex:1;min-width:300px">';
@@ -494,49 +394,71 @@ function _sdRenderPK(){
   html+='<div style="width:220px;min-width:180px">';
   html+='<div style="font-size:13px;color:var(--mut);margin-bottom:6px"><b>即時排行榜</b></div>';
   html+='<div id="sdPKLeaderboard" style="font-size:12px"></div>';
-  html+='</div>';
-  html+='</div>';
+  html+='</div></div>';
   $('#sdBody').innerHTML=html;
   _sdBindGrid(s);
   _sdBindNumpad(s);
-  _sdUpdatePKLeaderboard();
-  if(!s.timer){
-    s.timer=setInterval(function(){
-      if(!s||!s.active)return;
-      s.elapsed+=1000;
-      if(s.elapsed>=s.timeLimit){
-        _sdPKFinish();
-        return;
-      }
-      var remain2=Math.max(0,s.timeLimit-s.elapsed);
-      var el=$('#sdBody');if(!el)return;
-      var timeEl=el.querySelector('.sd-timer-val');
-      if(timeEl){
-        timeEl.textContent=_sdFormatTime(Math.ceil(remain2/1000));
-        if(remain2<120000)timeEl.style.color='#ff4757';
-      }
-    },1000);
-  }
+  _sdPKUpdateLeaderboard(s.players);
+  _sdPKStartTimer();
+  _sdPKStartPolling();
 }
 
-function _sdUpdatePKLeaderboard(){
+function _sdPKStartTimer(){
+  var s=_sdPKState;if(!s||s.timer)return;
+  s.timer=setInterval(function(){
+    if(!s||!s.active)return;
+    s.elapsedMs+=1000;
+    if(s.elapsedMs>=s.timeLimitMs){_sdPKFinish();return}
+    var rem=Math.max(0,s.timeLimitMs-s.elapsedMs);
+    var remSec=Math.ceil(rem/1000);
+    var el=$('#sdBody');if(!el)return;
+    var timeEl=el.querySelector('.sd-timer-val');
+    if(timeEl){timeEl.textContent=_sdFormatTime(remSec);if(remSec<120)timeEl.style.color='#ff4757'}
+  },1000);
+}
+
+function _sdPKStartPolling(){
+  var s=_sdPKState;if(!s||!s.active)return;
+  s.pollTimer=setInterval(function(){
+    if(!s||!s.active){clearInterval(s.pollTimer);s.pollTimer=null;return}
+    fetch(SUDOKU_SERVER+'/pk/status?token='+s.token)
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(!s||!s.active)return;
+        if(data.players){s.players=data.players;_sdPKUpdateLeaderboard(data.players)}
+        if(data.time_left<=0){_sdPKFinish()}
+      }).catch(function(){});
+  },3000);
+}
+
+function _sdPKSubmitProgress(){
   var s=_sdPKState;if(!s)return;
+  var prog=_sdCountProgress(s.grid,s.size);
+  var solved=prog.filled===prog.total;
+  if(solved){
+    var correct=true;
+    for(var r=0;r<s.size&&correct;r++)for(var c=0;c<s.size&&correct;c++)if(s.grid[r][c]!==s.solution[r][c])correct=false;
+    if(!correct)solved=false;
+  }
+  fetch(SUDOKU_SERVER+'/pk/progress',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token:s.token,filled:prog.filled,total:prog.total,solved:solved})}).catch(function(){});
+}
+
+function _sdPKUpdateLeaderboard(players){
   var el=document.getElementById('sdPKLeaderboard');if(!el)return;
-  var sorted=s.players.slice().sort(function(a,b){
-    if(a.solved&&b.solved)return a.finishTime-b.finishTime;
-    if(a.solved)return -1;
-    if(b.solved)return 1;
-    return b.progress-a.progress;
+  var sorted=players.slice().sort(function(a,b){
+    if(a.solved&&b.solved)return(a.finish_time||9999)-(b.finish_time||9999);
+    if(a.solved)return -1;if(b.solved)return 1;
+    return(b.progress||0)-(a.progress||0);
   });
   var html='';
   sorted.forEach(function(p,i){
-    var name=p.isBot?p.name:'<b style="color:var(--gold)">'+p.name+'</b>';
-    var status=p.solved?'✅ '+_sdFormatTime(Math.ceil(p.finishTime/1000)):'進度 '+Math.round(p.progress)+'%';
+    var isMe=p.name===(_sdPKState?_sdPKState.name:'');
+    var name=isMe?'<b style="color:var(--gold)">'+p.name+'</b>':p.name;
+    var status=p.solved?'✅ '+_sdFormatTime(Math.ceil(p.finish_time||0)):'進度 '+Math.round(p.progress||0)+'%';
     var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    var rowColor=i<3?'color:var(--gold2)':'';
-    html+='<div style="padding:4px 0;border-bottom:1px solid #222;'+rowColor+'">';
-    html+=medal+(i+1)+'. '+name+' <span style="float:right;opacity:.7">'+status+'</span>';
-    html+='</div>';
+    html+='<div style="padding:4px 0;border-bottom:1px solid #222;'+(isMe?'color:var(--gold)':'')+'">';
+    html+=medal+(i+1)+'. '+name+' <span style="float:right;opacity:.7">'+status+'</span></div>';
   });
   el.innerHTML=html;
 }
@@ -545,62 +467,55 @@ function _sdPKFinish(){
   var s=_sdPKState;if(!s)return;
   s.active=false;
   if(s.timer){clearInterval(s.timer);s.timer=null}
-  if(s.botInterval){clearInterval(s.botInterval);s.botInterval=null}
+  if(s.pollTimer){clearInterval(s.pollTimer);s.pollTimer=null}
+  _sdPKSubmitProgress();
   var me=null;
-  s.players.forEach(function(p){if(!p.isBot)me=p});
+  s.players.forEach(function(p){if(p.name===s.name)me=p});
   var won=me&&me.solved;
-  var elapsedStr=_sdFormatTime(Math.ceil(s.elapsed/1000));
-  var r=_sdRanking();
-  r.history.push({
-    date:new Date().toLocaleDateString(),
-    result:won?'win':'lose',
-    time:elapsedStr,
-    size:12,
-    mode:'pk'
+  var rank=-1;
+  var sorted=s.players.slice().sort(function(a,b){
+    if(a.solved&&b.solved)return(a.finish_time||9999)-(b.finish_time||9999);
+    if(a.solved)return -1;if(b.solved)return 1;
+    return(b.progress||0)-(a.progress||0);
   });
-  if(won){r.wins++;_sdCheckAdvancement(r)}
-  else{r.losses++;_sdCheckDemotion(r)}
+  sorted.forEach(function(p,i){if(p.name===s.name)rank=i+1});
+  var elapsedStr=_sdFormatTime(Math.ceil(s.elapsedMs/1000));
+  var r=_sdRanking();
+  r.history.push({date:new Date().toLocaleDateString(),result:won?'win':'lose',time:elapsedStr,size:12,mode:'pk'});
+  if(won){r.wins++;_sdCheckAdvancement(r)}else{r.losses++;_sdCheckDemotion(r)}
   _sdSaveRanking(r);
   _sdPKState=null;
-  var sorted=s.players.slice().sort(function(a,b){
-    if(a.solved&&b.solved)return a.finishTime-b.finishTime;
-    if(a.solved)return -1;
-    if(b.solved)return 1;
-    return b.progress-a.progress;
-  });
-  var myRank=-1;
-  sorted.forEach(function(p,i){if(!p.isBot)myRank=i+1});
   var html='<div style="text-align:center;padding:30px">';
   html+='<div style="font-size:48px;margin-bottom:10px">'+(won?'🏆':'😔')+'</div>';
   html+='<div style="font-size:20px;font-weight:bold;color:'+(won?'#2ed573':'#ff4757')+'">'+(won?'PK 勝利！':'PK 落敗')+'</div>';
-  html+='<div style="color:var(--mut);margin:8px 0">第 '+myRank+' 名 / 10 人 · 用時 '+elapsedStr+'</div>';
+  html+='<div style="color:var(--mut);margin:8px 0">第 '+rank+' 名 / '+sorted.length+' 人 · 用時 '+elapsedStr+'</div>';
   html+='<div class="panel2" style="margin:12px auto;max-width:400px">';
   html+='<div style="font-size:13px;color:var(--mut);margin-bottom:6px"><b>最終排名</b></div>';
   sorted.forEach(function(p,i){
     var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    var isMe=!p.isBot;
+    var isMe=p.name===(s?s.name:'');
     var nm=isMe?'<b style="color:var(--gold)">你</b>':p.name;
-    var st=p.solved?'✅ '+_sdFormatTime(Math.ceil(p.finishTime/1000)):'進度 '+Math.round(p.progress)+'%';
+    var st=p.solved?'✅ '+_sdFormatTime(Math.ceil(p.finish_time||0)):'進度 '+Math.round(p.progress||0)+'%';
     html+='<div style="padding:3px 0;font-size:12px;'+(isMe?'color:var(--gold)':'')+'">'+medal+(i+1)+'. '+nm+' <span style="float:right;opacity:.7">'+st+'</span></div>';
   });
   html+='</div>';
   html+='<div style="margin:12px 0">'+_sdProgressHTML(r.tier,r.stage)+'</div>';
-  html+='<button class="btn" onclick="sdBackToMain()" style="margin-top:10px">返回主頁</button>';
-  html+='</div>';
+  html+='<button class="btn" onclick="sdBackToMain()" style="margin-top:10px">返回主頁</button></div>';
   $('#sdBody').innerHTML=html;
 }
 
 function sdPKQuit(){
   if(_sdPKState){
+    fetch(SUDOKU_SERVER+'/pk/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:_sdPKState.token})}).catch(function(){});
     _sdPKState.active=false;
     if(_sdPKState.timer){clearInterval(_sdPKState.timer);_sdPKState.timer=null}
-    if(_sdPKState.botInterval){clearInterval(_sdPKState.botInterval);_sdPKState.botInterval=null}
+    if(_sdPKState.pollTimer){clearInterval(_sdPKState.pollTimer);_sdPKState.pollTimer=null}
   }
-  _sdPKState=null;
-  _sdShowMain();
+  if(_sdPKPollTimer){clearInterval(_sdPKPollTimer);_sdPKPollTimer=null}
+  _sdPKState=null;_sdShowMain();
 }
 
-/* ── Styles ── */
+/* ═══════════ Styles ═══════════ */
 (function(){
   if(document.getElementById('sdStyles'))return;
   var st=document.createElement('style');
