@@ -71,7 +71,7 @@ The full app requires a Node.js backend. For a **static demo** that connects to 
 
 1. Fork this repository
 2. Go to **Settings → Pages → Source**: Select `main` branch, `/ (root)` folder
-3. The static frontend will be available at `https://your-username.github.io/Adventurer-Learning-Platform/`
+3. The static frontend will be available at `https://loyuan1114.github.io/Adventurer-Learning-Platform/public/index.html`
 4. In the app, go to **Settings → API 金鑰管理** and set the API endpoint to your VPS URL
 
 > ⚠️ GitHub Pages only serves static files. Login and data require a running backend server.
