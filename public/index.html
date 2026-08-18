@@ -6,6 +6,9 @@
 
 <meta charset="UTF-8">
 
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -3762,13 +3765,10 @@ async function vMail(){
 
 
 function claimMail(id){
-
 const u=me(),g=u.g;const m=(g.mail||[]).find(x=>x.id===id);
-
 if(!m||m.claimed||!m.rw)return;
-
-m.claimed=true;grantRw(g,m.rw);saveU(u);hud();toast('🎁 獎勵已領取！');vMail();
-
+m.claimed=true;grantRw(g,m.rw);saveU(u);hud();toast('🎁 獎勵已領取！');
+if(typeof vMail==='function')vMail();
 }
 
 /* ════════════════════════════════════════════
@@ -8914,7 +8914,7 @@ $('#app').innerHTML=
 
 '<div class="wrap"><nav style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+
 
-[['users','👥 用戶管理'],['grant','🎁 資源發放'],['dolls','🎀 娃娃管理'],['guilds','🛡️ 公會管理'],['content','📸 動態管理'],['books','📚 課本網址'],['codes','🎁 禮包碼生成器'],['post','📢 發布公告'],['monitor','🔍 聊天監控'],['stats','📊 系統統計'],['api','🔑 API 金鑰'],['classes','🏫 班級管理'],['game','⚙️ 遊戲設定'],['lang','🌍 語言包'],['student_view','🎮 學生遊戲面板'],['reset','🔄 重置系統']].map(t=>'<button class="btn ghost mini" onclick="aGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</nav>'+
+[['users','👥 用戶管理'],['grant','🎁 資源發放'],['mail_admin','📩 發信箱'],['dolls','🎀 娃娃管理'],['guilds','🛡️ 公會管理'],['content','📸 動態管理'],['books','📚 課本網址'],['codes','🎁 禮包碼生成器'],['post','📢 發布公告'],['monitor','🔍 聊天監控'],['stats','📊 系統統計'],['api','🔑 API 金鑰'],['classes','🏫 班級管理'],['game','⚙️ 遊戲設定'],['lang','🌍 語言包'],['student_view','🎮 學生遊戲面板'],['reset','🔄 重置系統']].map(t=>'<button class="btn ghost mini" onclick="aGo(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</nav>'+
 
 '<main id="view" class="panel view"></main></div>';
 
@@ -8924,10 +8924,72 @@ aGo('users');
 
 function aGo(tab){
 
-if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
+if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
 
 else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='classes')vClasses();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
 
+}
+
+/* ════ 📩 管理員發信箱 ════ */
+function vAdminMail(){
+  const users=get(LS.users,[]).filter(u=>u.role==='student');
+  const students=users.map(u=>u.username+' ('+(u.name||u.username)+')').join('\n');
+  let h='<h3 class="vt">📩 管理員發信箱</h3>';
+  h+='<div class="panel2" style="margin-bottom:12px">';
+  h+='<div style="font-size:13px;color:var(--mut);margin-bottom:8px">共 '+users.length+' 位學生</div>';
+  h+='<div style="margin-bottom:10px"><label style="font-size:12px;color:var(--mut)">🎯 目標學生（username，多人用逗號分隔，空白=全服）</label>';
+  h+='<input id="amTo" placeholder="例如: student1,student2 或留空=全服" style="width:100%;padding:8px;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);font-size:13px"></div>';
+  h+='<div style="margin-bottom:10px"><label style="font-size:12px;color:var(--mut)">📝 信件標題</label>';
+  h+='<input id="amTitle" placeholder="例如: 🎁 作業完成獎勵" style="width:100%;padding:8px;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);font-size:13px"></div>';
+  h+='<div style="margin-bottom:10px"><label style="font-size:12px;color:var(--mut)">📄 信件內容</label>';
+  h+='<textarea id="amBody" rows="3" placeholder="信件內容..." style="width:100%;padding:8px;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);font-size:13px;resize:vertical"></textarea></div>';
+  h+='<div style="margin-bottom:10px"><label style="font-size:12px;color:var(--mut)">🎁 獎勵（可選，留空=純訊息）</label>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">';
+  h+='<label style="font-size:12px">🪙 金幣<input id="amGold" type="number" min="0" placeholder="0" style="width:60px;padding:4px;margin-left:4px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--txt);font-size:12px"></label>';
+  h+='<label style="font-size:12px">💎 鑽石<input id="amDiamond" type="number" min="0" placeholder="0" style="width:60px;padding:4px;margin-left:4px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--txt);font-size:12px"></label>';
+  h+='<label style="font-size:12px">💠 水晶<input id="amCrystal" type="number" min="0" placeholder="0" style="width:60px;padding:4px;margin-left:4px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--txt);font-size:12px"></label>';
+  h+='<label style="font-size:12px">✨ 星光<input id="amStarlight" type="number" min="0" placeholder="0" style="width:60px;padding:4px;margin-left:4px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--txt);font-size:12px"></label>';
+  h+='<label style="font-size:12px">🏅 榮譽<input id="amHonor" type="number" min="0" placeholder="0" style="width:60px;padding:4px;margin-left:4px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--txt);font-size:12px"></label>';
+  h+='</div></div>';
+  h+='<button class="btn big" onclick="adminSendMail()" style="margin-top:8px">📤 發送信件</button>';
+  h+='</div>';
+  h+='<div class="panel2"><div style="font-size:12px;color:var(--mut)"><b>📋 學生列表：</b><pre style="white-space:pre-wrap;font-size:11px;color:var(--mut);max-height:200px;overflow-y:auto;margin-top:4px">'+students+'</pre></div></div>';
+  $('#view').innerHTML=h;
+}
+function adminSendMail(){
+  const to=document.getElementById('amTo').value.trim();
+  const title=document.getElementById('amTitle').value.trim();
+  const body=document.getElementById('amBody').value.trim();
+  if(!title||!body){return toast('⚠️ 請填寫標題和內容','bad')}
+  const rw={};
+  const gold=parseInt(document.getElementById('amGold').value)||0;
+  const diamond=parseInt(document.getElementById('amDiamond').value)||0;
+  const crystal=parseInt(document.getElementById('amCrystal').value)||0;
+  const starlight=parseInt(document.getElementById('amStarlight').value)||0;
+  const honor=parseInt(document.getElementById('amHonor').value)||0;
+  if(gold>0)rw.gold=gold;
+  if(diamond>0)rw.diamond=diamond;
+  if(crystal>0)rw.crystal=crystal;
+  if(starlight>0)rw.starlight=starlight;
+  if(honor>0)rw.honor=honor;
+  const hasRw=Object.keys(rw).length>0;
+  const users=get(LS.users,[]);
+  let targets=[];
+  if(to){
+    const names=to.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+    targets=users.filter(u=>u.role==='student'&&names.includes(u.username.toLowerCase()));
+  }else{
+    targets=users.filter(u=>u.role==='student');
+  }
+  if(!targets.length)return toast('⚠️ 找不到目標學生','bad');
+  let cnt=0;
+  targets.forEach(u=>{
+    if(!u.g)return;
+    addMail(u.g,title,body,hasRw?rw:null);
+    saveU(u);cnt++;
+  });
+  toast('✅ 已發送給 '+cnt+' 位學生'+(hasRw?'（含獎勵）':''));
+  vAdminMail();
 }
 
 /* ════ 🎁 資源發放：單人或全服，可直接發資源、送角色、編輯等級 ════ */
