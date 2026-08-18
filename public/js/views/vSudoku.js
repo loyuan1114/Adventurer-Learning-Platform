@@ -328,10 +328,13 @@ function sdStartPK(){
     '<button class="btn" onclick="sdPKLeave()" style="margin-top:12px">取消匹配</button></div>';
 
   fetch(SUDOKU_SERVER+'/pk/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:uname})})
-    .then(function(r){return r.json()})
+    .then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    })
     .then(function(data){
       if(data.error){$('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">'+data.error+'</div>';return}
-      _sdPKState={token:data.token,name:data.name,inQueue:!data.started,matchId:data.matchId||null,puzzle:null,solution:null,grid:null,
+      _sdPKState={token:data.token,name:data.name,inQueue:!data.started,matchId:data.match_id||null,puzzle:null,solution:null,grid:null,
         timeLimitMs:30*60*1000,elapsedMs:0,timer:null,active:true,selectedCell:null,players:[],pollTimer:null};
       if(data.started&&data.puzzle){
         _sdPKState.inQueue=false;
@@ -346,7 +349,11 @@ function sdStartPK(){
         _sdPKPollQueue();
       }
     })
-    .catch(function(e){$('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">連線失敗: '+String(e)+'</div>'});
+    .catch(function(e){
+      console.error('PK join failed:',e);
+      $('#sdBody').innerHTML='<div style="text-align:center;padding:40px;color:#ff4757">'+
+        '無法連線到 PK 伺服器<br><small>'+String(e)+'</small><br><small>請確認 port 8083 已開放</small></div>';
+    });
 }
 
 function _sdPKPollQueue(){

@@ -97,8 +97,8 @@ function pxEditor(){
   });
   palHtml+='</div>';
 
-  var h='<div style="display:flex;gap:8px;flex-wrap:wrap">';
-  h+='<div style="flex:2;min-width:280px">';
+  var h='<div style="display:flex;gap:12px;flex-wrap:wrap">';
+  h+='<div style="flex:3;min-width:320px">';
 
   // Top bar
   h+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px">';
@@ -109,8 +109,8 @@ function pxEditor(){
   h+='<span style="margin-left:auto;font-size:11px;color:var(--mut)">'+PX.size+'×'+PX.size+'</span></div>';
 
   // Canvas
-  h+='<div style="border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:560px;background:#0a0f1c;display:inline-block;position:relative">';
-  h+='<canvas id="pxCv" width="'+PX.size+'" height="'+PX.size+'" style="width:min('+(PX.size*3)+'px,100%);image-rendering:pixelated;cursor:crosshair;display:block" onmousedown="pxClick(event)" onmousemove="pxDrag(event)" onmouseup="PX.lock=false" onmouseleave="PX.lock=false"></canvas>';
+  h+='<div style="border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:80vh;background:#0a0f1c;display:inline-block;position:relative">';
+  h+='<canvas id="pxCv" width="'+PX.size+'" height="'+PX.size+'" style="width:480px;height:480px;image-rendering:pixelated;cursor:crosshair;display:block" onmousedown="pxClick(event)" onmousemove="pxDrag(event)" onmouseup="PX.lock=false" onmouseleave="PX.lock=false"></canvas>';
   h+='</div>';
 
   // Bottom bar
