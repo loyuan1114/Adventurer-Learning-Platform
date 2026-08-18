@@ -2957,7 +2957,7 @@ let FEATS=[
 
 ['🎬','創作影片','發影片・最長 5 分鐘','#ff6e40','vVideo()'],
 
-['🧩','數獨排位','9×9 競速・py 出題','#ffca28','vSudoku()'],
+
 
 ['⚔️','班級戰','全班答題數＋在線時間','#ff7043','vClassWar()'],
 
@@ -3182,7 +3182,7 @@ const FEAT_CATS=[
   ['⚔️ 戰鬥冒險',['vPK','vTerr','vDungeon','vInfinityExchange']],
   ['🎁 養成經營',['vGacha','vColl','vForge','vBag','vDoll','vEquip','vFreePoints','vBuffStore']],
   ['💬 社群互動',['vSocial','vChatV','vGuild','vAnn']],
-  ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vSudoku','vClassWar']],
+  ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vClassWar']],
   ['🎨 創作分享',['vPixel','vVideo']],
   ['💻 虛擬終端',['vTerminal']],
   ['⚙️ 系統',['vSet','vAdminPanel']]
@@ -11133,20 +11133,8 @@ async function vVideo(){
   vVideo();
 }
 
-/* ════════════════════════════════════════════
-   vSudoku 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 5 個單位：vSudoku, sdRender, sdTimer, sdSubmit, sdRank
-   ════════════════════════════════════════════ */
-/* ════════════════════════════════════════════
-   vSudoku 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 5 個單位：vSudoku, sdRender, sdTimer, sdSubmit, sdRank
-   ════════════════════════════════════════════ */
-let SD={id:'',board:'',lock:[],start:0,sec:0,timer:null};
 
-async function vSudoku(){
-  if(!await needJs(['js/views/vSudoku.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vSudoku();
-}
+
 
 function sdLoad(){
   fetch(SUPA_URL+'/rest/v1/sudoku/new',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.json()).then(j=>{

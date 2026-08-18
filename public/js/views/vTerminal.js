@@ -17,38 +17,98 @@ var TERM_OS_INFO={
   windows:{name:'Windows',prompt:'>',color:'#cccccc',userColor:'#56b6c2',hostColor:'#e5c07b',pathColor:'#98c379',user:'Admin',host:'DESKTOP-3K9Q7',banner:'Microsoft Windows [Version 10.0.22631.3447]',motd:'(c) Microsoft Corporation. All rights reserved.\n\nC:\\Users\\Admin>'}
 };
 
+function _mkDir(children){return {d:children||[]}}
+
 var TERM_FS={
   linux:{
-    '/':{'d':['home','etc','var','usr','bin','sbin','tmp','opt','root','proc','dev']},
-    '/home':{'d':['user']},
-    '/home/user':{'.bash_history':'apt update && apt upgrade\nls -la\ncd /var/log\ncat syslog\nssh root@192.168.1.50\npython3 server.py','Documents':{'.gitconfig':'[user]\n\tname = Student\n\temail = student@adv9.local'},Downloads:{},'.bashrc':'# ~/.bashrc\nexport PATH=$PATH:/usr/local/bin\nalias ll="ls -la"\nalias cls="clear"','.profile':'# ~/.profile\nif [ -f "$HOME/.bashrc" ]; then\n  . "$HOME/.bashrc"\nfi'},
-    '/etc':{'hostname':'adv9','hosts':'127.0.0.1\tlocalhost\n127.0.1.1\tadv9','passwd':'root:x:0:0:root:/root:/bin/bash\nuser:x:1000:1000:user:/home/user:/bin/bash','os-release':'NAME="Ubuntu"\nVERSION="22.04.3 LTS (Jammy Jellyfish)"\nID=ubuntu','nginx':{'nginx.conf':'server {\n  listen 80;\n  server_name localhost;\n  location / {\n    proxy_pass http://127.0.0.1:3000;\n  }\n}'}},
-    '/var':{'log':{'syslog':new Array(50).fill('Aug 18 00:00:01 adv9 systemd[1]: Started Session 1 of User user.').join('\n'),'auth.log':'Aug 18 00:00:01 adv9 sshd[1234]: Accepted password for user from 192.168.1.50','kern.log':'[    0.000000] Linux version 5.15.0-91-generic'},'www':{'html':{'index.html':'<html><body><h1>Hello World</h1></body></html>'}}},
-    '/usr':{'bin':{'python3':'','node':'','npm':'','git':'','vim':'','nano':'','curl':'','wget':'','ssh':'','gcc':'','make':''},'lib':{},'share':{}},
-    '/proc':{'cpuinfo':'processor\t: 0\nmodel name\t: Intel Core i7-12700K\ncpu MHz\t\t: 3600.000\ncache size\t: 25600 KB','meminfo':'MemTotal:       16384000 kB\nMemFree:         8192000 kB\nMemAvailable:   12288000 kB','uptime':' 12345.67 98765.43'},
-    '/tmp':{}
+    '/':_mkDir(['home','etc','var','usr','bin','sbin','tmp','opt','root','proc','dev']),
+    '/home':_mkDir(['user']),
+    '/home/user':_mkDir(['Documents','Downloads','.bashrc','.profile','server.js','Dockerfile']),
+    '/home/user/Documents':_mkDir(['notes.txt','project']),
+    '/home/user/Downloads':_mkDir([]),
+    '/home/user/Documents/notes.txt':'TODO:\n- Fix bug #42\n- Deploy v2.0\n- Write tests',
+    '/home/user/server.js':'const express=require("express");\nconst app=express();\napp.listen(3000);',
+    '/home/user/Dockerfile':'FROM node:18\nWORKDIR /app\nCOPY . .\nRUN npm install\nCMD ["node","server.js"]',
+    '/home/user/.bashrc':'# ~/.bashrc\nexport PATH=$PATH:/usr/local/bin\nalias ll="ls -la"',
+    '/home/user/.profile':'# ~/.profile\nif [ -f "$HOME/.bashrc" ]; then\n  . "$HOME/.bashrc"\nfi',
+    '/home/user/Documents/project':_mkDir(['index.js','README.md']),
+    '/home/user/Documents/project/index.js':'console.log("Hello World");',
+    '/home/user/Documents/project/README.md':'# Project\nA simple Node.js project.',
+    '/etc':_mkDir(['hostname','hosts','passwd','os-release','nginx']),
+    '/etc/hostname':'adv9',
+    '/etc/hosts':'127.0.0.1\tlocalhost\n127.0.1.1\tadv9',
+    '/etc/passwd':'root:x:0:0:root:/root:/bin/bash\nuser:x:1000:1000:user:/home/user:/bin/bash',
+    '/etc/os-release':'NAME="Ubuntu"\nVERSION="22.04.3 LTS"\nID=ubuntu',
+    '/etc/nginx':_mkDir(['nginx.conf']),
+    '/etc/nginx/nginx.conf':'server {\n  listen 80;\n  location / {\n    proxy_pass http://127.0.0.1:3000;\n  }\n}',
+    '/var':_mkDir(['log','www']),
+    '/var/log':_mkDir(['syslog','auth.log','kern.log']),
+    '/var/log/syslog':new Array(20).fill('Aug 18 00:00:01 adv9 systemd[1]: Started Session 1').join('\n'),
+    '/var/log/auth.log':'Aug 18 00:00:01 adv9 sshd[1234]: Accepted password for user from 192.168.1.50',
+    '/var/log/kern.log':'[    0.000000] Linux version 5.15.0-91-generic',
+    '/var/www':_mkDir(['html']),
+    '/var/www/html':_mkDir(['index.html']),
+    '/var/www/html/index.html':'<html><body><h1>Hello World</h1></body></html>',
+    '/usr':_mkDir(['bin','lib','share']),
+    '/usr/bin':_mkDir(['python3','node','npm','git','vim','nano','curl','wget','ssh','gcc','make']),
+    '/proc':_mkDir(['cpuinfo','meminfo','uptime']),
+    '/proc/cpuinfo':'processor\t: 0\nmodel name\t: Intel Core i7-12700K\ncpu MHz\t\t: 3600.000\ncache size\t: 25600 KB',
+    '/proc/meminfo':'MemTotal:       16384000 kB\nMemFree:         8192000 kB\nMemAvailable:   12288000 kB',
+    '/proc/uptime':' 12345.67 98765.43',
+    '/tmp':_mkDir([]),
+    '/opt':_mkDir([]),
+    '/root':_mkDir([])
   },
   kali:{
-    '/':{'d':['home','etc','var','usr','opt','root','tmp','proc']},
-    '/home':{'d':['kali']},
-    '/home/kali':{'.zsh_history':'nmap -sV 192.168.1.0/24\nmsfconsole -q\nsqlmap -u "http://target.com/?id=1" --dbs\nairmon-ng start wlan0\nhashcat -m 0 hash.txt rockyou.txt','Documents':{},'tools':{'nmap':'','sqlmap':'','hashcat':'','john':'','hydra':'','burpsuite':'','metasploit':''},'.zshrc':'# Kali Linux .zshrc\nexport PATH=$PATH:/opt/metasploit-framework/bin\nalias msfconsole="msfconsole -q"'},
-    '/opt':{'metasploit':{'bin':'','data':''},'burpsuite':{'lib':''},'wordlists':{'rockyou.txt':'password\n123456\n12345678\nqwerty\nabc123\nmonkey\n1234567\nletmein\ntrustno1\ndragon','SecList':{'Discovery':{'web':'','network':'':''}}}},
-    '/usr':{'bin':{'nmap':'','sqlmap':'','hashcat':'','john':'','hydra':'','airmon-ng':'','msfconsole':'','curl':'','wget':'','ssh':'','gcc':'','python3':'','ruby':''},'share':{'wordlists':{'rockyou.txt':''}}},
-    '/etc':{'hostname':'kali','os-release':'NAME="Kali GNU/Linux"\nVERSION="2024.1"\nID=kali'}
+    '/':_mkDir(['home','etc','var','usr','opt','root','tmp','proc']),
+    '/home':_mkDir(['kali']),
+    '/home/kali':_mkDir(['Desktop','Documents','tools','.zshrc','.zsh_history']),
+    '/home/kali/Desktop':_mkDir(['burpsuite.desktop','metasploit.desktop']),
+    '/home/kali/Documents':_mkDir([]),
+    '/home/kali/tools':_mkDir(['nmap','sqlmap','hashcat','john','hydra','burpsuite','metasploit']),
+    '/home/kali/.zshrc':'# Kali .zshrc\nexport PATH=$PATH:/opt/metasploit-framework/bin\nalias msf="msfconsole -q"',
+    '/home/kali/.zsh_history':'nmap -sV 192.168.1.0/24\nmsfconsole -q\nsqlmap -u "http://target.com/?id=1" --dbs',
+    '/opt':_mkDir(['metasploit','burpsuite','wordlists']),
+    '/opt/metasploit':_mkDir(['bin','data','modules']),
+    '/opt/burpsuite':_mkDir(['lib']),
+    '/opt/wordlists':_mkDir(['rockyou.txt','SecLists']),
+    '/opt/wordlists/rockyou.txt':'password\n123456\n12345678\nqwerty\nabc123\nmonkey\nletmein',
+    '/opt/wordlists/SecLists':_mkDir(['Discovery','Passwords']),
+    '/usr':_mkDir(['bin','share']),
+    '/usr/bin':_mkDir(['nmap','sqlmap','hashcat','john','hydra','airmon-ng','msfconsole','curl','wget','ssh','gcc','python3','ruby']),
+    '/etc':_mkDir(['hostname','os-release']),
+    '/etc/hostname':'kali',
+    '/etc/os-release':'NAME="Kali GNU/Linux"\nVERSION="2024.1"\nID=kali',
+    '/tmp':_mkDir([]),
+    '/root':_mkDir([])
   },
   macos:{
-    '/':{'d':['Users','Applications','System','Library','Volumes']},
-    '/Users':{'d':['user']},
-    '/Users/user':{'.zsh_history':'brew install node\nnpm install -g yarn\nssh admin@server.local\ncurl ifconfig.me','Desktop':{},'Documents':{'project':'~/Documents/project'},'Downloads':{}},
-    '/Applications':{'Safari.app':'','Xcode.app':'','Terminal.app':'','Visual Studio Code.app':''},
-    '/System':{'Library':''}
+    '/':_mkDir(['Users','Applications','System','Library','Volumes']),
+    '/Users':_mkDir(['user']),
+    '/Users/user':_mkDir(['Desktop','Documents','Downloads','.zshrc','Projects']),
+    '/Users/user/Desktop':_mkDir([]),
+    '/Users/user/Documents':_mkDir(['project']),
+    '/Users/user/Downloads':_mkDir([]),
+    '/Users/user/Projects':_mkDir(['adv9','portfolio']),
+    '/Users/user/.zshrc':'# macOS .zshrc\nexport PATH=$PATH:/usr/local/bin',
+    '/Applications':_mkDir(['Safari.app','Xcode.app','Terminal.app','Visual Studio Code.app']),
+    '/System':_mkDir(['Library']),
+    '/Library':_mkDir([]),
+    '/Volumes':_mkDir([])
   },
   windows:{
-    'C:\\':{'d':['Users','Windows','Program Files','Program Files (x86)']},
-    'C:\\Users':{'d':['Admin','Public']},
-    'C:\\Users\\Admin':{Desktop:{'project.zip':'','notes.txt':'TODO:\n- Finish assignment\n- Deploy server'},Documents:{}.gitconfig:'[user]\n\tname = Admin',Downloads:{}},
-    'C:\\Windows':{'System32':{},'SysWOW64':{}},
-    'C:\\Program Files':{'Google':{},'Mozilla Firefox':{},'Nodejs':{}}
+    'C:\\':_mkDir(['Users','Windows','Program Files','Program Files (x86)']),
+    'C:\\Users':_mkDir(['Admin','Public']),
+    'C:\\Users\\Admin':_mkDir(['Desktop','Documents','Downloads']),
+    'C:\\Users\\Admin\\Desktop':_mkDir(['project.zip','notes.txt']),
+    'C:\\Users\\Admin\\Desktop\\notes.txt':'TODO:\n- Finish assignment\n- Deploy server',
+    'C:\\Users\\Admin\\Documents':_mkDir([]),
+    'C:\\Users\\Admin\\Downloads':_mkDir([]),
+    'C:\\Users\\Public':_mkDir([]),
+    'C:\\Windows':_mkDir(['System32','SysWOW64']),
+    'C:\\Windows\\System32':_mkDir([]),
+    'C:\\Program Files':_mkDir(['Google','Mozilla Firefox','Nodejs']),
+    'C:\\Program Files (x86)':_mkDir([])
   }
 };
 
@@ -227,8 +287,7 @@ async function _termRun(cmd){
     else{_termCwd=(_termCwd==='/'?'/':_termCwd+'/')+d}
     var fs=TERM_FS[TERM_OS]||{};
     var node=fs[_termCwd];
-    if(!node||(node.d&&typeof node==='object'&&node.d)){/* ok if dir */}
-    else if(!fs[_termCwd]&&!_termIsDir(fs,_termCwd)){
+    if(!node||!node.d){
       termPrintRaw('<span style="color:#f85149">bash: cd: '+escHtml(d)+': No such file or directory</span>');
       _termCwd='/home/'+TERM_OS_INFO[TERM_OS].user;
     }
@@ -237,7 +296,7 @@ async function _termRun(cmd){
   if(cmd==='ls'||cmd==='ls -la'||cmd==='ls -l'){
     var fs=TERM_FS[TERM_OS]||{};
     var dir=fs[_termCwd];
-    var children=dir?(dir.d||Object.keys(dir).filter(function(k){return k!=='d'})):[];
+    var children=(dir&&dir.d)?dir.d:[];[];
     if(!children.length){termPrintRaw('<span style="color:#8b949e">(empty)</span>');return}
     if(cmd==='ls -la'||cmd==='ls -l'){
       termPrintRaw('<span style="color:#8b949e">total '+children.length+'</span>');
@@ -432,19 +491,12 @@ async function _termRun(cmd){
 
 function _termIsDir(fs,path){
   var node=fs[path];
-  if(node&&node.d)return true;
-  return false;
+  return node&&node.d&&Array.isArray(node.d);
 }
 function _termGetContent(fs,path){
   var node=fs[path];
   if(!node)return null;
   if(typeof node==='string')return node;
-  if(node&&node.d)return null;
-  if(typeof node==='object'){
-    var keys=Object.keys(node).filter(function(k){return k!=='d'});
-    if(keys.length)return JSON.stringify(node);
-    return null;
-  }
   return null;
 }
 function _termDelay(ms){return new Promise(function(r){setTimeout(r,ms)})}
