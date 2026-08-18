@@ -18,12 +18,16 @@ var SUDOKU_TIERS = [
   {name:'至尊',en:'Supreme',  color:'#ffd32a'}
 ];
 
+function _sdRankingKey(){
+  var u='';try{var usr=get(LS.user,{});u=usr.username||usr.id||''}catch(e){}
+  return 'sudoku_ranking'+(u?'_'+u':'');
+}
 function _sdRanking(){
   var def={tier:0,stage:0,wins:0,losses:0,history:[]};
-  try{var d=JSON.parse(localStorage.getItem('sudoku_ranking'));if(d&&typeof d==='object')return d}catch(e){}
+  try{var d=JSON.parse(localStorage.getItem(_sdRankingKey()));if(d&&typeof d==='object')return d}catch(e){}
   return def;
 }
-function _sdSaveRanking(r){try{localStorage.setItem('sudoku_ranking',JSON.stringify(r))}catch(e){}}
+function _sdSaveRanking(r){try{localStorage.setItem(_sdRankingKey(),JSON.stringify(r))}catch(e){}}
 
 function _sdTierLabel(tier,stage){
   var t=SUDOKU_TIERS[Math.max(0,Math.min(9,tier))];
@@ -45,7 +49,10 @@ function _sdProgressHTML(tier,stage){
     '<div style="font-size:12px;color:var(--mut)">總計 '+r.wins+' 勝 '+r.losses+' 敗</div>';
 }
 
-function _sdCooldownKey(mode){return 'sudoku_cd_'+mode}
+function _sdCooldownKey(mode){
+  var u='';try{var usr=get(LS.user,{});u=usr.username||usr.id||''}catch(e){}
+  return 'sudoku_cd_'+mode+(u?'_'+u:'');
+}
 function _sdCooldownRemaining(mode){
   var ms={solo9:90*60*1000,solo16:120*60*1000};
   var limit=ms[mode];if(!limit)return 0;
