@@ -69,29 +69,41 @@ async function loadFindErrorQuestion(){
   FE_STATE.phase='LOADING';
   vFindError();
   try{
-    /* 從題庫隨機取一題 */
-    const qbank=get('ADV9_QBANK',{questions:[]}).questions||[];
-    if(!qbank.length){
-      toast('題庫為空，請先匯入題目','bad');
-      FE_STATE.phase='LOADING';
-      return vFindError();
+    /* 先嘗試從題庫取題，若題庫為空則 AI 直接生成 */
+    var qbank=get('ADV9_QBANK',{questions:[]}).questions||[];
+    var q=null;
+    if(qbank.length>0){
+      q=qbank[Math.floor(Math.random()*qbank.length)];
+    }else{
+      /* 題庫為空：AI 生成找碴題 */
+      toast('題庫為空，AI 正在生成題目...');
+      var genPrompt='請生成一道選擇題（學科不限），以 JSON 格式回覆：{"question_text":"題目","options":["A","B","C","D"],"answer":"正確選項","explanation":"詳解步驟","subject":"學科","difficulty":3}';
+      var raw=await callAIV2(genPrompt,'你是出題助手，只回覆 JSON。');
+      try{
+        q=JSON.parse(raw.replace(/^```json\s*/i,'').replace(/\s*```$/i,''));
+      }catch(e2){
+        /* 解析失敗：手動生成數學題 */
+        var a=Math.floor(Math.random()*20)+1,b=Math.floor(Math.random()*20)+1;
+        q={question_text:a+' + '+b+' = ?',options:[String(a+b-1),String(a+b),String(a+b+1),String(a+b+2)],answer:String(a+b),explanation:a+' + '+b+' = '+(a+b),subject:'數學',difficulty:1};
+      }
     }
-    const q=qbank[Math.floor(Math.random()*qbank.length)];
+    if(!q||!q.question_text){toast('題目生成失敗','bad');FE_STATE.phase='LOADING';return vFindError();}
 
     /* 呼叫 AI 生成含錯誤的詳解 */
-    const prompt=SOCRATIC.findError
+    var templates=getSocraticTemplates();
+    const prompt=templates.findError
       .replace('{question}',q.question_text)
       .replace('{options}',(q.options||[]).join(', '))
       .replace('{answer}',String(q.answer))
       .replace('{explanation}',q.explanation||'無詳解');
 
-    const raw=await callAIV2(prompt,'你是出題助手。');
+    const errRaw=await callAIV2(prompt,'你是出題助手。');
     let errorInfo;
     try{
-      errorInfo=JSON.parse(raw.replace(/^```json\s*/i,'').replace(/\s*```$/i,''));
+      errorInfo=JSON.parse(errRaw.replace(/^```json\s*/i,'').replace(/\s*```$/i,''));
     }catch(e){
       errorInfo={
-        wrong_explanation:raw,
+        wrong_explanation:errRaw,
         error_location:'未知',
         error_type:'未知',
         error_description:'AI 生成的找碴題'

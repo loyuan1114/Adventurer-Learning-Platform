@@ -1007,36 +1007,41 @@ var ext='.docx';
       var lang=String(j.lang||'python').slice(0,10);
       var code=String(j.code||'').slice(0,50000);
       if(!code){res.writeHead(400);return res.end('no code')}
-      var ext='.py',cmd='python3';
-      if(lang==='cpp'){ext='.cpp';cmd='g++';}
-      else if(lang==='java'){ext='.java';cmd='javac';}
-      var fn=path.join('/tmp','adv9_sb_'+crypto.randomBytes(4).toString('hex')+ext);
-      fs.writeFileSync(fn,code);
+      var fn=path.join('/tmp','adv9_sb_'+crypto.randomBytes(4).toString('hex'));
       var result={stdout:'',stderr:'',exit_code:1,time_ms:0,error:null};
       var t0=Date.now();
       try{
         if(lang==='python'){
-          var r2=child_process.spawnSync('python3',[fn],{encoding:'utf8',timeout:10000});
+          fs.writeFileSync(fn+'.py',code);
+          var r2=child_process.spawnSync('python3',[fn+'.py'],{encoding:'utf8',timeout:10000});
           result.stdout=r2.stdout||'';result.stderr=r2.stderr||'';result.exit_code=r2.status;
+          try{fs.unlinkSync(fn+'.py')}catch(e2){}
         }else if(lang==='cpp'){
+          fs.writeFileSync(fn+'.cpp',code);
           var outFn=fn+'.out';
-          var rc=child_process.spawnSync('g++',[fn,'-o',outFn],{encoding:'utf8',timeout:10000});
+          var rc=child_process.spawnSync('g++',[fn+'.cpp','-o',outFn,'-std=c++17','-pthread'],{encoding:'utf8',timeout:15000});
           if(rc.status===0){
             var r3=child_process.spawnSync([outFn],{encoding:'utf8',timeout:10000});
             result.stdout=r3.stdout||'';result.stderr=r3.stderr||'';result.exit_code=r3.status;
-          }else{result.stderr=rc.stderr||'compile error';result.exit_code=rc.status;}
+          }else{result.stderr=(rc.stderr||'')+'\n編譯失敗';result.exit_code=rc.status;}
           try{fs.unlinkSync(outFn)}catch(e3){}
+          try{fs.unlinkSync(fn+'.cpp')}catch(e3b){}
         }else if(lang==='java'){
-          var r4=child_process.spawnSync('javac',[fn],{encoding:'utf8',timeout:10000});
-          if(r4.status===0){
-            var dir=path.dirname(fn);var cls=code.match(/class\s+(\w+)/);
-            if(cls){var r5=child_process.spawnSync('java',['-cp',dir,cls[1]],{encoding:'utf8',timeout:10000});
-              result.stdout=r5.stdout||'';result.stderr=r5.stderr||'';result.exit_code=r5.status;}
-          }else{result.stderr=r4.stderr||'compile error';result.exit_code=r4.status;}
-        }else{result.error='不支援的語言：'+lang;}
-      }catch(e4){result.error=e4.message;}
+          /* Java：寫入對應 class 的 .java 檔案 */
+          var clsMatch=code.match(/public\s+class\s+(\w+)/);
+          var clsName=clsMatch?clsMatch[1]:'Main';
+          var javaFile=path.join('/tmp',clsName+'.java');
+          fs.writeFileSync(javaFile,code);
+          var rc2=child_process.spawnSync('javac',[javaFile],{encoding:'utf8',timeout:15000});
+          if(rc2.status===0){
+            var r4=child_process.spawnSync('java',['-cp','/tmp',clsName],{encoding:'utf8',timeout:10000,cwd:'/tmp'});
+            result.stdout=r4.stdout||'';result.stderr=r4.stderr||'';result.exit_code=r4.status;
+          }else{result.stderr=(rc2.stderr||'')+'\n編譯失敗';result.exit_code=rc2.status;}
+          try{fs.unlinkSync(javaFile)}catch(e4){}
+          try{fs.unlinkSync(path.join('/tmp',clsName+'.class'))}catch(e4b){}
+        }else{result.error='不支援的語言：'+lang+'。支援：python/cpp/java';}
+      }catch(e5){result.error=e5.message;}
       result.time_ms=Date.now()-t0;
-      try{fs.unlinkSync(fn)}catch(e5){}
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));
     }catch(e6){res.writeHead(400);res.end('bad json')}});
   }
