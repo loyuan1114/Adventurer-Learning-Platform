@@ -21,9 +21,9 @@
     try { if (t) localStorage.setItem("ADV9_WTOKEN", t); else localStorage.removeItem("ADV9_WTOKEN"); } catch (e) {}
   };
 
-  /* ── 微服務基底網址（跨埠，各服務皆已開 CORS *）── */
+  /* ── 微服務基底網址（C++ 黑盒由主 server.js 提供 /rest/v1/calc/*，跨埠微服務僅供參考）── */
   CORE.host = location.hostname;
-  CORE.calcBase   = "http://" + CORE.host + ":8082"; // C++ 計算微服務
+  CORE.calcBase   = location.origin; // C++ 計算黑盒：由主 server.js 調用編譯後的可執行檔
   CORE.autoBase   = "http://" + CORE.host + ":8090"; // Python 自動化微服務
   CORE.coopBase   = "http://" + CORE.host + ":8081"; // Java 即時中繼
 

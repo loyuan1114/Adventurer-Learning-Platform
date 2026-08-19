@@ -74,10 +74,10 @@ function start(CORE, container, state, rerender) {
 
   container.innerHTML = '<div class="loading">🤖 C++ 計算微服務運算中…<br><span class="muted">模擬 ' + state.ticks + ' 回合 × ' + enemies + ' 敵人</span></div>';
 
-  // 同時呼叫 /simulate 與 /loot（只呼叫 C++ 計算微服務）
+  // 同時呼叫 /simulate 與 /loot（由主 server.js 內的 C++ 黑盒計算）
   Promise.all([
-    CORE.compute("/simulate", { seed: seed, ticks: state.ticks, players: 1, enemies: enemies }),
-    CORE.compute("/loot", { count: Math.max(1, Math.round(state.diff / 10)), tier: Math.max(1, Math.round(state.diff / 20)), seed: seed + 7 })
+    CORE.compute("/rest/v1/calc/simulate", { seed: seed, ticks: state.ticks, players: 1, enemies: enemies }),
+    CORE.compute("/rest/v1/calc/loot", { count: Math.max(1, Math.round(state.diff / 10)), tier: Math.max(1, Math.round(state.diff / 20)), seed: seed + 7 })
   ]).then(function (rs) {
     return Promise.all([rs[0].json(), rs[1].json()]);
   }).then(function (data) {
@@ -108,7 +108,7 @@ function start(CORE, container, state, rerender) {
     window.__cBack = function () { rerender(); };
     CORE.toast("修鍊完成！+" + exp + " 經驗");
   }).catch(function (e) {
-    container.innerHTML = '<div class="err">❌ 計算微服務呼叫失敗：' + CORE.esc(e.message) + '<br><span class="muted">請確認 C++ 微服務 (8082) 正在運行。</span><br><button class="btn ghost" onclick="window.__cBack && window.__cBack()">↩ 返回</button></div>';
+    container.innerHTML = '<div class="err">❌ 計算黑盒呼叫失敗：' + CORE.esc(e.message) + '<br><span class="muted">請確認伺服器已編譯 calc_blackbox（g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox）。</span><br><button class="btn ghost" onclick="window.__cBack && window.__cBack()">↩ 返回</button></div>';
     window.__cBack = function () { rerender(); };
   });
 }

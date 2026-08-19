@@ -22,6 +22,7 @@ A gamified learning platform: quiz adventures, card-based character development,
 | 🤖 AI Assistant | Multi-provider (Gemini/OpenAI/DeepSeek/Qwen/Kimi/Ollama) |
 | 🌍 Language Learning | 211 languages with AI-generated vocabulary quizzes |
 | 💻 Code Sandbox | Python, C++, Java, CaoMang, BingZhengZheng execution |
+| ⚙️ C++ Black Box | Cultivation battle simulation & loot generation computed by a compiled C++ black box (`calc_blackbox.cpp`), served by the main server |
 | 🎨 Pixel Art | Collaborative pixel art gallery |
 | 🎵 Background Music | Admin-managed MP3/YouTube music player |
 | 💬 Chat & Social | Friends, groups, mail, story posting |
@@ -54,10 +55,11 @@ Open `http://your-ip:8080` (allow port 8080 in firewall/security group).
 git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
 cd Adventurer-Learning-Platform
 npm install          # installs argon2 (optional: falls back to scrypt)
+g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox   # compile C++ black box (simulation/loot)
 node server.js
 ```
 
-Requires **Node.js 18+** (Node 20+ recommended for Argon2). Python 3 optional (for document import).
+Requires **Node.js 18+** (Node 20+ recommended for Argon2) and **g++** (for the C++ black box). Python 3 optional (for document import).
 
 ### Option 4: macOS / Windows
 

@@ -1,4 +1,6 @@
 /* ADV9 自架後端 v4（Argon2 雜湊・伺服器權威安全版・單獨帳號檔案版）
+   Copyright (C) 2026 loyuan1114
+   Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later).
    安全與儲存重點：
    - 帳號資料獨立存放於 data/users/<username>.json
    - 帳號憑證(password/pwHash/salt)只存伺服器，GET 一律抹除 → 前端永遠看不到密碼
@@ -1058,6 +1060,28 @@ var ext='.docx';
   }
   if(req.method==='GET'&&p==='/rest/v1/sandbox/languages'){
     res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify([{id:'python',name:'Python'},{id:'cpp',name:'C++'},{id:'java',name:'Java'}]));
+  }
+
+  /* ── C++ 計算黑盒：修練場模擬/掉落（邏輯封裝於編譯後的 calc_blackbox，黑盒不揭露內部）── */
+  function runBlackbox(body,cb){
+    var exe=path.join(ROOT,'calc_blackbox'+(process.platform==='win32'?'.exe':''));
+    if(!fs.existsSync(exe)){cb(null,{error:'calc_blackbox not found; compile with: g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox'});return}
+    try{
+      var r=child_process.spawnSync(exe,[],{input:body,encoding:'utf8',timeout:10000,maxBuffer:1024*1024});
+      if(r.status!==0){cb(null,{error:(r.stderr||'blackbox crashed').slice(0,300)});return}
+      cb(null,JSON.parse(r.stdout||'{}'));
+    }catch(e){cb(null,{error:e.message})}
+  }
+  if(req.method==='POST'&&(p==='/rest/v1/calc/simulate'||p==='/rest/v1/calc/loot')){
+    var cwA=checkToken(tok);if(!cwA){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));j.action=p.indexOf('/loot')>=0?'loot':'simulate';
+      runBlackbox(JSON.stringify(j),function(err,out){
+        if(err){res.writeHead(500,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:String(err)}))}
+        if(!out||out.error){res.writeHead(500,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:(out&&out.error)||'blackbox error'}))}
+        res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(out));
+      });
+    }catch(e){res.writeHead(400);res.end('bad json')}});
   }
 
   /* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
