@@ -1436,7 +1436,7 @@ const LOCK_ON=true; /* 設 false 可暫時解除保護（自己除錯時用） *
    3. 把下面兩行換成你專案的 Project URL 與 anon public key（Settings → API）
 */
 const SUPA_URL=(function(){try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return custom.trim()}catch(e){}return location.origin})();      /* 可自訂 API 網址（GitHub Pages 用）：搬機/外網零修改 */
-const SUPA_ON=(function(){try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return true}catch(e){}return !(location.hostname.indexOf('github.io')>=0||location.protocol==='file:')})();/* GitHub Pages 預設單機模式；有自訂 API 位址才啟用後端 */
+const SUPA_ON=(function(){if(location.hostname.indexOf('github.io')>=0||location.protocol==='file:')return false;try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return true}catch(e){}return true})();/* GitHub Pages/離線一律單機模式；本機/VPS 可自訂 API 位址 */
 const SUPA_SKIP=['ADV9_SES','ADV9_LOCAL','ADV9_WTOKEN'];/* session 與本機畢業帳號僅存本機，不上雲 */
 const SUPA_KEY='';/* 金鑰自動從後端 /rest/v1/key 取得（svcKey 流程）；此處留空即代表「尚未取得」 */
 function supaHeaders(){const h={'Content-Type':'application/json'};if(SUPA_KEY)h['apikey']=SUPA_KEY;if(WTOKEN)h['x-adv9-token']=WTOKEN;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}/* 新版 sb_publishable_ 金鑰非 JWT，僅送 apikey；舊版 anon JWT(eyJ...) 才加 Bearer */
@@ -2806,7 +2806,7 @@ async function doLogin() {
   if(!pw||pw.length>100){fail('⚠️ 請輸入密碼');return}
   const _loc=get(LS.local,[]).find(x=>x.username===un); /* 📴 本機畢業帳號：直接本地登入，不靠雲端 */
   if(_loc){set(LS.ses,{u:un,local:true});enter();return}
-  if(!SUPA_ON&&isMasterLogin(un,pw)){ /* 👑 離線模式才走本機主管；連線時改由伺服器雜湊驗證發 token */
+  if(isMasterLogin(un,pw)&&(SUPA_ON===false||location.hostname.indexOf('github.io')>=0)){ /* 👑 本機主管登入（GitHub Pages 單管理員 / 離線模式）：先驗證，成功即本機登入，不靠雲端 */
     const us=get(LS.users,[]);let a=us.find(x=>x.username===MASTER_ADMIN.user);
     if(!a){a={id:MASTER_ADMIN.user,username:MASTER_ADMIN.user,name:MASTER_ADMIN.name,role:'admin',password:'',pwHash:MASTER_ADMIN.hash,master:true,isSchoolAdmin:true,createdAt:new Date().toISOString(),g:null};us.push(a)}
     else{a.role='admin';a.master=true;a.password='';a.pwHash=MASTER_ADMIN.hash;a.isSchoolAdmin=true}

@@ -73,7 +73,7 @@ Requires **Node.js 18+** (Node 20+ recommended for Argon2) and **g++** (for the 
 GitHub Pages serves the **entire `public/` folder** as a fully static site. Because the frontend stores everything in `localStorage`, the **complete game runs offline in single-admin mode** without any backend — no server needed to try it.
 
 **Live demo**: `https://loyuan1114.github.io/Adventurer-Learning-Platform/`
-(Full game lives at `/public/index.html`, the root URL auto-redirects there.)
+(The CI workflow deploys `public/*` to the site root — the game is served directly at the root URL.)
 
 **GitHub Pages account**:
 
