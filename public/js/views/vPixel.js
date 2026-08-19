@@ -175,10 +175,15 @@ function pxRender(){
 
   // Grid
   if(PX.showGrid&&PX.size<=128){
-    ctx.strokeStyle='rgba(255,255,255,0.08)';
+    var cv=document.getElementById('pxCv');
+    var cw=cv?cv.width:480;
+    var ch=cv?cv.height:480;
+    var cellW=cw/PX.size;
+    var cellH=ch/PX.size;
+    ctx.strokeStyle='rgba(255,255,255,0.15)';
     ctx.lineWidth=0.5;
-    for(var x=0;x<=PX.size;x++){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,PX.size);ctx.stroke()}
-    for(var y=0;y<=PX.size;y++){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(PX.size,y);ctx.stroke()}
+    for(var x=0;x<=PX.size;x++){var px=Math.round(x*cellW);ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,ch);ctx.stroke()}
+    for(var y=0;y<=PX.size;y++){var py=Math.round(y*cellH);ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(cw,py);ctx.stroke()}
   }
 }
 

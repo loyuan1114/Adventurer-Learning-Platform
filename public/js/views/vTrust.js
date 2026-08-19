@@ -147,7 +147,32 @@ function renderStudentTrustPanel(u,trust){
   const invitations=trust.invitations||[];
   const myInvites=invitations.filter(function(i){return i.student_id===u.username});
   const pendingInvites=myInvites.filter(function(i){return i.status==='pending'});
+  const hasGuardian=(trust.students||[]).find(function(s){return s.username===u.username});
 
+  /* 同意管理區塊 */
+  h+='<div class="panel2" style="margin-bottom:14px;padding:14px;border-left:4px solid #2196f3">';
+  h+='<div style="font-size:14px;font-weight:bold;margin-bottom:8px">🛡️ 思考守護同意</div>';
+  if(hasGuardian){
+    h+='<div style="font-size:12px;color:var(--mut);margin-bottom:8px">你已綁定家長/監護人：'+esc(hasGuardian.guardian_id)+'</div>';
+    /* 檢查是否有有效同意 */
+    var consentData=get('ADV9_CONSENT_'+u.username,{events:[]});
+    var activeConsent=consentData.events.find(function(e){return e.status==='granted'&&!e.revoked_at});
+    if(activeConsent){
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:10px;height:10px;border-radius:50%;background:#4caf50"></div><span style="font-size:12px;color:#4caf50">思考追蹤已啟用</span></div>';
+      h+='<button class="btn" style="background:#f44336;color:white;font-size:12px" onclick="revokeConsent()">🚫 撤回同意</button>';
+    }else{
+      h+='<div style="font-size:12px;color:var(--mut);margin-bottom:8px">思考守護目前<b>未啟用</b>。啟用後系統會追蹤你的作答行為（專注時間、修改次數等），但不會記錄具體輸入內容。</div>';
+      h+='<div style="display:flex;gap:8px">';
+      h+='<button class="btn" style="background:#4caf50;color:white" onclick="grantConsent(\'frontend_trace\')">✅ 我同意啟用</button>';
+      h+='<button class="btn ghost" style="font-size:12px" onclick="toast(\'已略過，之後可隨時在這裡啟用\')">⏸ 先不要</button>';
+      h+='</div>';
+    }
+  }else{
+    h+='<div style="font-size:12px;color:var(--mut)">你尚未綁定家長/監護人。家長發送邀請並你接受後，即可管理思考守護同意。</div>';
+  }
+  h+='</div>';
+
+  /* 邀請區塊 */
   if(pendingInvites.length){
     h+='<h4 style="margin-bottom:8px">📩 收到的挑戰邀請</h4>';
     pendingInvites.forEach(function(inv){
@@ -156,7 +181,7 @@ function renderStudentTrustPanel(u,trust){
       h+='<div style="font-size:14px;margin-bottom:6px">來自：'+esc(parent?(parent.name||parent.username):inv.parent_id)+'</div>';
       h+='<div style="font-size:13px;color:var(--mut);margin-bottom:10px">'+esc(inv.message||'邀請你加入學習挑戰')+'</div>';
       h+='<div style="display:flex;gap:8px">';
-      h+='<button class="btn" style="background:#4caf50;color:white" onclick="respondInvitation(\''+esc(inv.id)+'\',\'accepted\')">✅ 接受</button>';
+      h+='<button class="btn" style="background:#4caf50;color:white" onclick="respondInvitation(\''+esc(inv.id)+'\',\'accepted\')">✅ 接受邀請</button>';
       h+='<button class="btn" style="background:#9e9e9e;color:white" onclick="respondInvitation(\''+esc(inv.id)+'\',\'declined\')">❌ 婉拒</button>';
       h+='</div></div>';
     });

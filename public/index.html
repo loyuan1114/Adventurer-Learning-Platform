@@ -1435,8 +1435,8 @@ const LOCK_ON=true; /* 設 false 可暫時解除保護（自己除錯時用） *
    2. 在 SQL Editor 執行 supabase_setup.sql
    3. 把下面兩行換成你專案的 Project URL 與 anon public key（Settings → API）
 */
-const SUPA_URL=location.origin;      /* 自動跟著服務網址：搬機/外網零修改 */
-const SUPA_ON=true;/* 自架後端允許 http（區網）*/
+const SUPA_URL=(function(){try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return custom.trim()}catch(e){}return location.origin})();      /* 可自訂 API 網址（GitHub Pages 用）：搬機/外網零修改 */
+const SUPA_ON=(function(){try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return true}catch(e){}return !(location.hostname.indexOf('github.io')>=0||location.protocol==='file:')})();/* GitHub Pages 預設單機模式；有自訂 API 位址才啟用後端 */
 const SUPA_SKIP=['ADV9_SES','ADV9_LOCAL','ADV9_WTOKEN'];/* session 與本機畢業帳號僅存本機，不上雲 */
 const SUPA_KEY='';/* 金鑰自動從後端 /rest/v1/key 取得（svcKey 流程）；此處留空即代表「尚未取得」 */
 function supaHeaders(){const h={'Content-Type':'application/json'};if(SUPA_KEY)h['apikey']=SUPA_KEY;if(WTOKEN)h['x-adv9-token']=WTOKEN;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}/* 新版 sb_publishable_ 金鑰非 JWT，僅送 apikey；舊版 anon JWT(eyJ...) 才加 Bearer */

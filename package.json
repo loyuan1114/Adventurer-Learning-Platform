@@ -1,10 +1,13 @@
 ﻿{
   "name": "adv9",
   "version": "7.0.2",
-  "description": "冒險者九年級學習遊戲平台（教師管理 + 學生學習 + AI 出題）",
+  "description": "冒險者學習平台（教師管理 + 學生學習 + AI 出題）",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "argon2": "^0.41.0"
   },
   "engines": {
     "node": ">=18"

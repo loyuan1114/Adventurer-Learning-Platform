@@ -1,13 +1,14 @@
-/* ADV9 自架後端 v3（零依賴・伺服器權威安全版・單獨帳號檔案版）
+/* ADV9 自架後端 v4（Argon2 雜湊・伺服器權威安全版・單獨帳號檔案版）
    安全與儲存重點：
    - 帳號資料獨立存放於 data/users/<username>.json
    - 帳號憑證(password/pwHash/salt)只存伺服器，GET 一律抹除 → 前端永遠看不到密碼
    - 登入發 token；所有寫入需帶 x-adv9-token
-   - 密碼統一以 scrypt 雜湊 + 每帳號隨機鹽儲存，絕不存明文
+   - 密碼統一以 Argon2id 雜湊 + 每帳號隨機鹽儲存，絕不存明文
    - 娃娃 API 依「擁有者 / admin」授權，杜絕越權讀寫他人資料
    - 登入失敗次數限制，防暴力破解
    - 靜態檔用 path.resolve + 前綴檢查，防路徑穿越 */
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),child_process=require('child_process'),cluster=require('cluster'),os=require('os');
+let argon2;try{argon2=require('argon2')}catch(e){console.warn('[warn] argon2 not installed, falling back to scrypt')}
 const ROOT=__dirname;
 const PUB=path.join(ROOT,'public'),MEDIA=path.join(ROOT,'media'),DATA=path.join(ROOT,'data'),USERSDIR=path.join(DATA,'users');
 const KVFILE=path.join(DATA,'kv.json'),ACCFILE=path.join(DATA,'accounts.json'),TOKFILE=path.join(DATA,'tokens.json');
@@ -51,8 +52,11 @@ function sha256(ascii){
   return res;
 }
 
-/* ── scrypt 雜湊驗證 ── */
-function hashPassword(pw,salt){
+/* ── Argon2id 雜湊驗證（fallback: scrypt）── */
+async function hashPassword(pw,salt){
+  if(argon2){
+    return await argon2.hash(pw,{type:argon2.argon2id,memoryCost:65536,timeCost:3,parallelism:4});
+  }
   return new Promise(function(resolve,reject){
     crypto.scrypt(pw,salt,64,function(err,derived){
       if(err)return reject(err);
@@ -60,9 +64,12 @@ function hashPassword(pw,salt){
     });
   });
 }
-function verifyHash(pw,hash,salt){
+async function verifyHash(pw,hash,salt){
+  if(argon2&&hash&&hash.startsWith('$argon2')){
+    return await argon2.verify(hash,pw);
+  }
   return new Promise(function(resolve,reject){
-    crypto.scrypt(pw,salt,64,function(err,derived){
+    crypto.scrypt(pw,salt||'fallback',64,function(err,derived){
       if(err)return resolve(false);
       resolve(derived.toString('hex')===hash);
     });
@@ -249,25 +256,27 @@ function loginFail(un,ip){var k=loginKey(un,ip),f=loginFails[k]||{n:0,until:0};f
 function loginOk(un,ip){loginFails[loginKey(un,ip)]={n:0,until:0}}
 
 /* ADV9_USERS 智能合併：依寫入者身分授權 */
-function mergeUsers(incoming,w){
+async function mergeUsers(incoming,w){
   if(!Array.isArray(incoming)||!w)return;
   var isAdmin=w.role==='admin', isStaff=isAdmin||w.role==='teacher';
   var byName={}; incoming.forEach(function(u){if(u&&u.username)byName[u.username]=u});
-  function hashIfPlain(iu){ /* 若有明文密碼則雜湊後回傳（絕不存明文），否則原物件 */
+   async function hashIfPlain(iu){ /* 若有明文密碼則雜湊後回傳（絕不存明文），否則原物件 */
     if(typeof iu.password==='string'&&iu.password!==''){
       var salt=crypto.randomBytes(16).toString('hex');
-      var n=Object.assign({},iu);n.salt=salt;n.pwHash=crypto.scryptSync(iu.password,salt,64).toString('hex');n.password='';return n;
+      var n=Object.assign({},iu);n.salt=salt;
+      n.pwHash=await hashPassword(iu.password,salt);
+      n.password='';return n;
     }
     return iu;
   }
-  incoming.forEach(function(iu){
+  for(const iu of incoming){
     if(!iu||!iu.username)return; var un=iu.username, ex=ACC[un];
     if(!ex){
       if(isStaff){
-        ACC[un]=hashIfPlain(iu);
+        ACC[un]=await hashIfPlain(iu);
         saveUserFile(un);
       }
-      return;
+      continue;
     }       /* 建立：僅 admin/teacher；明文密碼自動雜湊 */
     var self=(un===w.username), canEdit=isStaff||self;
     if(canEdit && ('g' in iu)) ex.g=iu.g;                         /* 存檔：本人或職員 */
@@ -276,12 +285,14 @@ function mergeUsers(incoming,w){
     /* 密碼：本人或 admin 可改；主管理員密碼由伺服器設定不走此路；一律雜湊，絕不存明文 */
     if(un!==MASTER.user && (isAdmin||self) && typeof iu.password==='string' && iu.password!==''){
       var salt=crypto.randomBytes(16).toString('hex');
-      ex.salt=salt; ex.pwHash=crypto.scryptSync(iu.password,salt,64).toString('hex'); ex.password='';
+      ex.salt=salt;
+      ex.pwHash=await hashPassword(iu.password,salt);
+      ex.password='';
     }
     if(isAdmin && iu.role) ex.role=iu.role;                      /* 身分：僅 admin */
     ACC[un]=ex;
     saveUserFile(un);
-  });
+  }
   /* 不因前端清單暫時不完整而刪除教師/學生帳號；帳號只能由明確刪除流程移除。 */
 }
 var MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.webp':'image/webp','.mp4':'video/mp4','.webm':'video/webm','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8','.ico':'image/x-icon'};
@@ -417,7 +428,7 @@ var server=http.createServer(function(req,res){
   }
   if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/admin/users/sync'){
     var aw=checkToken(tok); if(!aw || (aw.role!=='admin'&&aw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}
-    return readBody(req,function(b){try{var j=JSON.parse(b.toString('utf8'));mergeUsers(j.users||j,aw);saveKV();saveIndex();console.log('[SYNC]',aw.username,'role='+aw.role,'users='+((Array.isArray(j.users)?j.users:j)||[]).length);res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,users:usersArray()}))}catch(e){res.writeHead(400);res.end('bad users')}})
+    return readBody(req,async function(b){try{var j=JSON.parse(b.toString('utf8'));await mergeUsers(j.users||j,aw);saveKV();saveIndex();console.log('[SYNC]',aw.username,'role='+aw.role,'users='+((Array.isArray(j.users)?j.users:j)||[]).length);res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,users:usersArray()}))}catch(e){res.writeHead(400);res.end('bad users')}})
   }
   if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/admin/api_keys'){
     var ak=checkToken(tok); if(!ak || ak.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
@@ -455,15 +466,15 @@ var server=http.createServer(function(req,res){
   if(req.method==='POST'&&p==='/rest/v1/adv9_kv'){
     var w=checkToken(tok);
     if(!w){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入')}
-    return readBody(req,function(b){
+    return readBody(req,async function(b){
       try{var arr=JSON.parse(b.toString('utf8'));var list=Array.isArray(arr)?arr:[arr];var pushRows=[];
-      list.forEach(function(row){
-        if(!row||row.k==null)return;
+      for(const row of list){
+        if(!row||row.k==null)continue;
         row.v=sanitizeInput(row.v,0);
-        if(row.k===USERS_KEY){mergeUsers(row.v,w);pushRows.push({k:USERS_KEY,v:usersArray()})}
+        if(row.k===USERS_KEY){await mergeUsers(row.v,w);pushRows.push({k:USERS_KEY,v:usersArray()})}
         else if(GLOBAL_KEYS.has(row.k)){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
         else {KV[w.username+':'+row.k]=row.v}
-      });saveKV();
+      }saveKV();
       if(pushRows.length)sseBroadcast(pushRows); /* 📡 即時推送給所有在線端 */
       res.writeHead(201,{'Content-Type':'application/json'});res.end('[]')}
       catch(e){res.writeHead(400);res.end('bad json')}
@@ -659,9 +670,9 @@ var ext='.docx';
         if(ex){
           if(ex.master){ /* 主管理員：固定 SHA-256 雜湊（雜湊值寫死在 MASTER.hash，密碼由伺服器設定）*/
             ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===ex.pwHash;
-          } else if(ex.pwHash){ /* 已雜湊：scrypt 驗證 */
+          } else if(ex.pwHash){ /* 已雜湊：Argon2id 驗證 */
             ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
-          } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為雜湊 */
+          } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為 Argon2id 雜湊 */
             ok=String(ex.password)===(pw==null?'':pw);
             if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.password='';saveACC();}
           }

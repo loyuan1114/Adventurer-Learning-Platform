@@ -1,10 +1,10 @@
 # 🎮 Adventurer Learning Platform / 冒險者學習平台
 
-A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction. **Single Node.js server, zero npm dependencies.**
+A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction. **Single Node.js server + Argon2 password hashing.**
 
-把課業變成冒險遊戲的學習平台：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動。**單一 Node.js 伺服器、零 npm 套件依賴**。
+把課業變成冒險遊戲的學習平台：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動。**單一 Node.js 伺服器、Argon2 密碼雜湊**。
 
-- **No installation required**: GitHub Codespaces ready out of the box
+- **Password security**: Argon2id hashing (falls back to scrypt if `argon2` is unavailable)
 - **Docker one-click deploy**: Any Linux / macOS / Windows
 - **All data stays local**: Accounts, settings, AI keys in `data/`, `media/`
 - **Default admin**: `adv9boss` / `admin123` (**change password on first login**)
@@ -53,10 +53,11 @@ Open `http://your-ip:8080` (allow port 8080 in firewall/security group).
 ```bash
 git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
 cd Adventurer-Learning-Platform
+npm install          # installs argon2 (optional: falls back to scrypt)
 node server.js
 ```
 
-Requires Node.js 18+. Python 3 optional (for document import).
+Requires **Node.js 18+** (Node 20+ recommended for Argon2). Python 3 optional (for document import).
 
 ### Option 4: macOS / Windows
 
@@ -65,16 +66,36 @@ Requires Node.js 18+. Python 3 optional (for document import).
 
 ---
 
-## 🌐 GitHub Pages (Static Frontend Demo)
+## 🌐 GitHub Pages (Static Full-Game Demo)
 
-The full app requires a Node.js backend. For a **static demo** that connects to your VPS backend:
+GitHub Pages serves the **entire `public/` folder** as a fully static site. Because the frontend stores everything in `localStorage`, the **complete game runs offline in single-admin mode** without any backend — no server needed to try it.
+
+**Live demo**: `https://loyuan1114.github.io/Adventurer-Learning-Platform/`
+
+**GitHub Pages account**:
+
+| Role | Username | Password |
+|------|----------|----------|
+| 管理員 / Master admin | `adv9boss` | `admin123` |
+
+> ⚠️ 請在第一次登入後立即變更密碼（帳號頁）。Pages 版資料只存於該瀏覽器的 `localStorage`，清除瀏覽器資料會清空進度。
+> ⚠️ Please change the password immediately after first login (Account page). The Pages version keeps all data in that browser's `localStorage`; clearing browser data wipes progress.
+
+How it works / 運作方式:
+
+1. The `index.html` on GitHub Pages auto-detects `github.io` and runs in **offline single-admin mode** (`SUPA_ON = false`).
+2. All data is stored in the browser's `localStorage`.
+3. Optionally, you can set an **API server address** (設定 → API 伺服器位址) to connect to your VPS for shared data.
+4. Deployment is automatic via GitHub Actions (`deploy-pages`) on every push to `main`.
+
+Deploy to your own Pages / 自行部屬:
 
 1. Fork this repository
-2. Go to **Settings → Pages → Source**: Select `main` branch, `/ (root)` folder
-3. The static frontend will be available at `https://loyuan1114.github.io/Adventurer-Learning-Platform/public/index.html`
-4. In the app, go to **Settings → API 金鑰管理** and set the API endpoint to your VPS URL
+2. Keep the built-in GitHub Actions workflow (`.github/workflows/pages.yml`) — it deploys on every push to `main`
+3. Your demo is live at `https://your-username.github.io/Adventurer-Learning-Platform/`
 
-> ⚠️ GitHub Pages only serves static files. Login and data require a running backend server.
+> ⚠️ GitHub Pages only serves static files. Multi-user shared data requires a VPS backend.
+> ⚠️ GitHub Pages 只提供靜態檔案。若要多人共用資料，請設定 VPS 後端位址。
 
 ---
 
@@ -83,6 +104,7 @@ The full app requires a Node.js backend. For a **static demo** that connects to 
 | Setting | Description |
 |---------|-------------|
 | Default account | `adv9boss` / `admin123` |
+| Password hashing | Argon2id (or scrypt fallback) |
 | Change password | Login → Account page |
 | AI keys | Login → Admin → **API 金鑰管理** |
 | AI Provider | Login → Admin → **AI 端點** (Gemini/OpenAI/DeepSeek/Qwen/Kimi/Ollama) |
@@ -158,4 +180,4 @@ All photos are **CC0 Public Domain**. Uploading photos implies consent to CC0 li
 
 - **Port 8080 not accessible?** Allow port 8080 in your firewall/security group.
 - **How to update?** Download latest release, extract over old (keep `data/` and `media/`), run `docker compose up -d --build`.
-- **No Docker?** Run `node server.js` directly (Node.js 18+ required).
+- **No Docker?** Run `node server.js` directly (Node.js 18+ required, `npm install` first for Argon2).
