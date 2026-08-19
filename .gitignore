@@ -4,3 +4,8 @@ data/users/
 data/tokens.json
 data/kv.json
 data/settings/
+
+# 打包二進位（由原始碼重建，不入庫）
+tools/adv9ctl/adv9ctl.exe
+tools/adv9ctl/adv9ctl.zip
+calc_blackbox
