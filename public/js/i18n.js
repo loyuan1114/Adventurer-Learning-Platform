@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
-   AI 即時翻譯系統 v5.0
-   選語言 → AI 現場翻譯所有 UI 文字 → 存 localStorage
+   AI 即時翻譯系統 v5.1
+   選語言 → 先套用語言包（LANG_PACKS）→ 語言包沒有的才用 AI 現場翻譯 → 存 localStorage
    第二次直接套快取，不用再翻
    ════════════════════════════════════════════ */
 
@@ -15,9 +15,30 @@ function setI18nCache(code,obj){
   const c=getI18nCache();c[code]=obj;
   try{localStorage.setItem(I18N_CACHE_KEY,JSON.stringify(c))}catch(e){}
 }
+
+/* ── 語言包管理（LANG_PACKS[code]=[["原文","翻譯"],...]）── */
+function getLangPackTranslations(code){
+  const packs=window.LANG_PACKS||{};
+  const arr=packs[code];
+  if(!arr||!arr.length)return null;
+  const obj={};
+  arr.forEach(function(p){
+    if(p&&p.length>=2&&p[0]&&p[1])obj[p[0]]=p[1];
+  });
+  return obj;
+}
 function getCachedTranslation(code,zhStr){
   const c=getI18nCache();
-  return c[code]&&c[code][zhStr]?c[code][zhStr]:null;
+  if(c[code]&&c[code][zhStr])return c[code][zhStr];
+  const lp=getLangPackTranslations(code);
+  if(lp&&lp[zhStr])return lp[zhStr];
+  return null;
+}
+function getFullTranslations(code){
+  const c=getI18nCache();
+  const merged=Object.assign({},getLangPackTranslations(code)||{});
+  if(c[code])Object.assign(merged,c[code]);
+  return merged;
 }
 
 /* ── 掃描頁面上所有中文文字 ── */
@@ -67,7 +88,7 @@ async function aiTranslateBatch(texts,targetLang,langName){
   return allTranslations;
 }
 
-/* ── 主翻譯流程 ── */
+/* ── 主翻譯流程（先語言包，剩餘才 AI）── */
 async function translateAndApply(langCode){
   if(!langCode)return;
   const cached=getI18nCache()[langCode];
@@ -77,14 +98,23 @@ async function translateAndApply(langCode){
     toast('🌐 '+langName(langCode)+' 已套用（'+cachedCount+' 筆快取）');
     return;
   }
-  toast('🌐 正在用 AI 翻譯為 '+langName(langCode)+'...');
+  const lp=getLangPackTranslations(langCode)||{};
+  const lpCount=Object.keys(lp).length;
+  toast('🌐 正在翻譯為 '+langName(langCode)+'...（語言包 '+lpCount+' 筆）');
   const texts=collectAllZhTexts();
   if(!texts.length){toast('⚠️ 找不到可翻譯的文字');return}
   try{
-    const translations=await aiTranslateBatch(texts,langCode,langName(langCode));
+    /* 語言包已涵蓋的：直接套用，不送 AI */
+    const missing=texts.filter(function(t){return !lp[t]});
+    const translations=Object.assign({},lp);
+    if(missing.length){
+      const ai=await aiTranslateBatch(missing,langCode,langName(langCode));
+      Object.assign(translations,ai);
+    }
     setI18nCache(langCode,translations);
     applyTranslations(langCode);
-    toast('✅ '+langName(langCode)+' 翻譯完成！（'+Object.keys(translations).length+' 筆）');
+    const aiCount=Object.keys(translations).length-lpCount;
+    toast('✅ '+langName(langCode)+' 翻譯完成！（語言包 '+lpCount+' 筆 + AI '+Math.max(0,aiCount)+' 筆）');
   }catch(e){
     toast('❌ 翻譯失敗：'+e.message);
   }
@@ -92,7 +122,7 @@ async function translateAndApply(langCode){
 
 /* ── 套用翻譯到 DOM ── */
 function applyTranslations(langCode){
-  const cache=getI18nCache()[langCode]||{};
+  const cache=getFullTranslations(langCode);
   const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{
     acceptNode:function(n){
       if(!n.parentElement)return NodeFilter.FILTER_REJECT;
