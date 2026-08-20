@@ -1237,7 +1237,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
   }
   /* ═══ 創作中心（v8.0）：心智圖 / 教材漫畫 / AI 播客 / AI 導師對話記錄 ═══
      內容由前端 callAI 生成，server 儲存 + 個人化路線（rogue 黑盒）選擇 */
-  function crGet(){return KV['ADV9_CREATE']||(KV['ADV9_CREATE']={minds:{},mangas:{},podcasts:{},tutors:{}})}
+  function crGet(){if(!KV['ADV9_CREATE'])KV['ADV9_CREATE']={};var C=KV['ADV9_CREATE'];if(!C.minds)C.minds={};if(!C.mangas)C.mangas={};if(!C.podcasts)C.podcasts={};if(!C.tutors)C.tutors={};if(!C.infos)C.infos={};if(!C.transcripts)C.transcripts={};return C}
   /* 心智圖：儲存 + 列表 */
   if(req.method==='GET'&&p==='/rest/v1/cr/minds'){
     var cw3=checkToken(tok);if(!cw3){res.writeHead(401);return res.end('need login')}
@@ -1320,6 +1320,44 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
         res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ids:out2}));
       });
     }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+
+  /* 資訊圖：儲存 + 列表 */
+  if(req.method==='GET'&&p==='/rest/v1/cr/infos'){
+    var iw=checkToken(tok);if(!iw){res.writeHead(401);return res.end('need login')}
+    var C5=crGet(),arrI=Object.keys(C5.infos).map(function(k){return C5.infos[k]}).filter(function(m){return m.owner===iw.username||iw.role==='admin'}).sort(function(a,b){return b.updatedAt-a.updatedAt});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(arrI));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/cr/infos'){
+    var iw2=checkToken(tok);if(!iw2){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j7=JSON.parse(b.toString('utf8')),C5=crGet(),iid=j7.id||('i'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      C5.infos[iid]={id:iid,owner:iw2.username,noteId:String(j7.noteId||''),title:String(j7.title||'資訊圖').slice(0,200),sections:Array.isArray(j7.sections)?j7.sections:[],stats:Array.isArray(j7.stats)?j7.stats:[],hero:String(j7.hero||'').slice(0,2000),createdAt:(C5.infos[iid]&&C5.infos[iid].createdAt)||Date.now(),updatedAt:Date.now()};
+      saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C5.infos[iid]));
+    }catch(e){res.writeHead(400);return res.end('bad json: '+String(e&&e.message||e).slice(0,200))}});
+  }
+  /* 即時轉錄：儲存 + 列表 */
+  if(req.method==='GET'&&p==='/rest/v1/cr/transcripts'){
+    var tw2=checkToken(tok);if(!tw2){res.writeHead(401);return res.end('need login')}
+    var C6=crGet(),arrT=Object.keys(C6.transcripts).map(function(k){return C6.transcripts[k]}).filter(function(m){return m.owner===tw2.username||tw2.role==='admin'}).sort(function(a,b){return b.updatedAt-a.updatedAt});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(arrT));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/cr/transcripts'){
+    var tw3=checkToken(tok);if(!tw3){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j8=JSON.parse(b.toString('utf8')),C6=crGet(),tid=j8.id||('t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      C6.transcripts[tid]={id:tid,owner:tw3.username,title:String(j8.title||'轉錄稿').slice(0,200),text:String(j8.text||'').slice(0,100000),noteId:String(j8.noteId||''),createdAt:(C6.transcripts[tid]&&C6.transcripts[tid].createdAt)||Date.now(),updatedAt:Date.now()};
+      saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C6.transcripts[tid]));
+    }catch(e){res.writeHead(400);return res.end('bad json: '+String(e&&e.message||e).slice(0,200))}});
+  }
+
+  /* 創作中心資源刪除：/rest/v1/cr/<type>/<id> */
+  if(req.method==='DELETE'&&p.indexOf('/rest/v1/cr/')===0){
+    var dw=checkToken(tok);if(!dw){res.writeHead(401);return res.end('need login')}
+    var parts=p.split('/'),rtype=parts[4],rid=parts[5];if(!rtype||!rid){res.writeHead(400);return res.end('bad path')}
+    var C7=crGet(),bucket=C7[rtype];if(!bucket||!bucket[rid]){res.writeHead(404);return res.end('not found')}
+    if(bucket[rid].owner!==dw.username&&dw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    delete bucket[rid];saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true}));
   }
 
   /* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/

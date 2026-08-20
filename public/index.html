@@ -3524,7 +3524,7 @@ function isGrade9(u){return !u.graduated&&/^9/.test(String(u.classId||''))}
    vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vHome, tutorGuide
    ════════════════════════════════════════════ */
-async function vNotes(){if(!await needJs(['js/views/vNotes.js']))return toast('模組載入失敗，請重新整理頁面','bad');vNotes();}
+async function vNotes(){if(!await needJs(['js/views/vNotes.js']))return toast('模組載入失敗，請重新整理頁面','bad');if(!nbImportShare())vNotes();}
 async function vCreate(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');vCreate();}
 async function vTutor(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');CR.tab='tutor';vCreate();}
 async function vJourney(){if(!await needJs(['js/views/vJourney.js']))return toast('模組載入失敗，請重新整理頁面','bad');vJourney();}

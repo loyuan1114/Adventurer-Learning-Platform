@@ -57,6 +57,9 @@ function nbOpen(id){
     '<button class="btn ghost mini" onclick="nbOpen(\''+n.id+'\')">↻ 重新整理</button>'+
     '<button class="btn gold mini" onclick="nbGenMind(\''+n.id+'\')">🗺️ 生成心智圖</button>'+
     '<button class="btn gold mini" onclick="nbGenCards(\''+n.id+'\')">🎴 生成閃卡</button>'+
+    '<button class="btn ghost mini" onclick="nbExportMd(\''+n.id+'\')">📤 Markdown</button>'+
+    '<button class="btn ghost mini" onclick="nbExportJson(\''+n.id+'\')">📦 JSON</button>'+
+    '<button class="btn ghost mini" onclick="nbShare(\''+n.id+'\')">🔗 分享</button>'+
     '<button class="btn ghost mini" onclick="nbEdit(\''+n.id+'\')">✏️ 編輯</button></div>'+
     '<div class="panel2" style="line-height:1.9;font-size:13.5px">'+esc(n.content||'').replace(/\n/g,'<br>')+'</div>'+
     (n.outline&&n.outline.length?'<div class="panel2" style="margin-top:10px"><b style="color:var(--teal)">📑 大綱</b><ol style="margin:8px 0 0 18px">'+n.outline.map(esc).map(x=>'<li>'+x+'</li>').join('')+'</ol></div>':'')+
@@ -247,4 +250,53 @@ async function nbWeakPractice(units){
   const list=arr.filter(c=>{const t=(c.tags||[]).join('');return units.split(',').some(u=>t.includes(u))||(c.noteId&&units.includes(c.noteId))});
   if(!list.length){toast('沒有找到對應弱項的卡片，可先對筆記生成閃卡','bad');return}
   NB.cards=list;NB.cardIdx=0;NB.flip=false;nbReviewShow();
+}
+
+/* ── 匯出 / 分享：Markdown・JSON・剪貼簿分享連結 ── */
+function nbExportMd(id){
+  const n=NB.note||{};if(!n.id){toast('請先開啟筆記','bad');return}
+  let md='# '+n.title+'\n\n> 來源：'+n.sourceType+'　更新：'+new Date(n.updatedAt).toLocaleString()+'\n\n';
+  md+='## 摘要\n\n'+n.summary+'\n\n';
+  if(n.outline&&n.outline.length){md+='## 大綱\n\n'+n.outline.map(x=>'- '+x).join('\n')+'\n\n'}
+  md+='## 內容\n\n'+n.content+'\n\n';
+  if(n.definitions&&n.definitions.length){md+='## 定義\n\n'+n.definitions.map(d=>'- **'+d.t+'**：'+d.d).join('\n')+'\n\n'}
+  if(n.tags&&n.tags.length){md+='## 標籤\n\n'+n.tags.map(t=>'`'+t+'`').join(' ')+'\n'}
+  nbDownload((n.title||'筆記')+'.md',md,'text/markdown');
+}
+
+function nbExportJson(id){
+  const n=NB.note||{};if(!n.id){toast('請先開啟筆記','bad');return}
+  nbDownload((n.title||'筆記')+'.json',JSON.stringify(n,null,2),'application/json');
+}
+
+function nbDownload(name,content,mime){
+  try{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([content],{type:mime||'text/plain'}));
+    a.download=name;a.click();
+    URL.revokeObjectURL(a.href);
+    toast('已匯出 '+name,'ok');
+  }catch(e){toast('匯出失敗：'+e.message,'bad')}
+}
+
+function nbShare(id){
+  const n=NB.note||{};if(!n.id){toast('請先開啟筆記','bad');return}
+  const data=JSON.stringify({t:'adv9note',v:1,id:n.id,title:n.title,content:n.content,outline:n.outline,summary:n.summary,definitions:n.definitions,tags:n.tags});
+  const url=location.origin+'/share.html#'+encodeURIComponent(btoa(unescape(encodeURIComponent(data))));
+  try{
+    if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast('分享連結已複製','ok')).catch(()=>nbShareCopy(url))}
+    else nbShareCopy(url);
+  }catch(e){nbShareCopy(url)}
+}
+function nbShareCopy(url){prompt('複製分享連結：',url)}
+function nbImportShare(){
+  const h=location.hash||'';
+  if(!h||h.length<20)return false;
+  try{
+    const data=JSON.parse(decodeURIComponent(escape(atob(h.slice(1)))));
+    if(!(data&&data.t==='adv9note'&&data.content))return false;
+    const j={t:'adv9note',v:1,title:data.title,content:data.content,outline:data.outline,summary:data.summary,definitions:data.definitions,tags:data.tags};
+    nbApi('POST','/rest/v1/lib/notes',j).then(n=>{if(n){toast('已從分享連結匯入筆記「'+n.title+'」','ok');vNotes()}});
+    return true;
+  }catch(e){return false}
 }
