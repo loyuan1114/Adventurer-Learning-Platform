@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <cmath>
 
 /* ── 簡單可攜式偽隨機（xorshift64*）── */
@@ -121,6 +122,134 @@ static void handle_loot(const std::string& in) {
     printf("]");
 }
 
+/* ── SM-2 間隔重複排程（閃卡複習）──
+   輸入：{action:"sm2", quality:0-5, reps, intervalDays, ease, lapses}
+   輸出：{intervalDays, ease, reps, lapses, dueTs(提示), status} */
+static void handle_sm2(const std::string& in) {
+    int quality = (int)num_field(in, "quality");
+    long reps   = (long)num_field(in, "reps");
+    double interval = num_field(in, "intervalDays");
+    double ease = num_field(in, "ease");
+    long lapses = (long)num_field(in, "lapses");
+    if (ease < 1.3) ease = 2.5;
+    if (quality < 0) quality = 0; if (quality > 5) quality = 5;
+    if (quality < 3) {
+        // 失敗：重記，間隔回到 1 天
+        reps = 0; interval = 1;
+        if (ease > 1.3) ease -= 0.2;
+        lapses++;
+    } else {
+        reps++;
+        if (reps == 1) interval = 1;
+        else if (reps == 2) interval = 6;
+        else interval = interval * ease;
+        if (interval > 365) interval = 365;
+        ease = ease + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+        if (ease < 1.3) ease = 1.3;
+    }
+    int dueDays = (int)(interval + 0.5);
+    printf("{\"intervalDays\":%.1f,\"ease\":%.2f,\"reps\":%ld,\"lapses\":%ld,\"dueInDays\":%d,\"status\":\"%s\"}",
+           interval, ease, reps, lapses, dueDays, (quality < 3 ? "again" : (reps <= 2 ? "learning" : "review")));
+}
+
+/* ── roguelike 個人化路線生成（每人後期不同）──
+   輸入：{action:"rogue", seed, stage(章節數), level(玩家等級), flavor(風格0-2)}
+   輸出：{route:[{id,type,title,choices:[{text,effect}],reward}]}
+   type: battle/study/boss/event/treasure 隨機組合；seed 綁定玩家 → 同人同路線、人人不同 */
+static void handle_rogue(const std::string& in) {
+    uint64_t seed = (uint64_t)num_field(in, "seed");
+    long stage = (long)num_field(in, "stage");
+    long level = (long)num_field(in, "level");
+    long flavor = (long)num_field(in, "flavor");
+    if (stage < 1) stage = 1; if (stage > 50) stage = 50;
+    if (level < 1) level = 1; if (level > 999) level = 999;
+    if (flavor < 0) flavor = 0; if (flavor > 2) flavor = 2;
+    Rng rng(seed ^ (uint64_t)(level * 2654435761ULL));
+    static const char* types[] = {"battle","study","event","treasure"};
+    static const char* titles[][6] = {
+        {"迷霧森林","古代遺跡","星夜草原","裂谷深淵","暮色高塔","寂靜冰原"},
+        {"知識迷宮","考場幻境","課本之森","錯題沼澤","公式岩洞","概念星河"},
+        {"問題迴廊","記憶試煉","理解之橋","反思秘境","領悟聖殿","超越之塔"},
+    };
+    static const char* choices[][4] = {
+        {"正面迎戰","繞道偷襲","呼叫同伴","專心冥想"},
+        {"複習重點","挑戰難題","請教導師","休息恢復"},
+        {"仔細觀察","大膽嘗試","記錄筆記","分享心得"},
+    };
+    printf("{\"route\":[");
+    for (long i = 0; i < stage; i++) {
+        int t = rng.range(0, 3);
+        if (i % 5 == 4) t = 1; /* 每 5 關固定學習關 */
+        if (i == stage - 1) t = 1; /* 尾關：學習/評量 */
+        const char* ts = types[t];
+        const char* title = titles[flavor][rng.range(0, 5)];
+        int nch = rng.range(2, 4);
+        printf("%s{\"id\":\"s%ld_%d\",\"type\":\"%s\",\"title\":\"%s\",\"choices\":[",
+               (i ? "," : ""), i, rng.range(10, 99), ts, title);
+        for (int c = 0; c < nch; c++) {
+            const char* ch = choices[flavor][rng.range(0, 3)];
+            int eff = rng.range(1, 4);
+            printf("%s{\"text\":\"%s\",\"effect\":\"%d\"}", (c ? "," : ""), ch, eff);
+        }
+        int reward = (level + 1) * (rng.range(3, 8)) * (i + 1);
+        printf("],\"reward\":%d}", reward);
+    }
+    printf("]}");
+}
+
+/* ── 個人化出題選擇（弱項優先，每人後期題目不同）──
+   輸入：{action:"pick", seed, pool:[{id,acc,lastTs}...], count, perMissBonus}
+   acc=近期答對率 0~1；越低越優先。輸出選中的 id 清單 */
+static void handle_pick(const std::string& in) {
+    uint64_t seed = (uint64_t)num_field(in, "seed");
+    long count = (long)num_field(in, "count");
+    if (count < 1) count = 1; if (count > 200) count = 200;
+    // 擷取 pool 陣列中的 id/acc 配對（簡易解析）
+    std::vector<std::string> ids;
+    std::vector<double> accs;
+    size_t p = in.find("\"pool\"");
+    if (p != std::string::npos) {
+        p = in.find('[', p);
+        size_t depth = 0;
+        size_t i = p;
+        while (i < in.size()) {
+            char c = in[i];
+            if (c == '[') depth++;
+            else if (c == ']') { depth--; if (depth == 0) break; }
+            else if (c == '{') {
+                std::string sub = in.substr(i, in.find('}', i) - i + 1);
+                size_t q = sub.find("\"id\"");
+                std::string idv;
+                if (q != std::string::npos) {
+                    q = sub.find(':', q);
+                    q = sub.find('"', q);
+                    size_t e = sub.find('"', q + 1);
+                    idv = sub.substr(q + 1, e - q - 1);
+                }
+                double acc = num_field(sub.c_str(), "acc");
+                if (!idv.empty()) { ids.push_back(idv); accs.push_back(acc); }
+            }
+            i++;
+        }
+    }
+    if (ids.empty()) { printf("[]"); return; }
+    Rng rng(seed);
+    // 依答對率排序（弱項優先），再加少量隨機擾動 → 同人穩定、人人不同
+    std::vector<size_t> order(ids.size());
+    for (size_t i = 0; i < order.size(); i++) order[i] = i;
+    std::sort(order.begin(), order.end(), [&](size_t a, size_t b) {
+        double wa = accs[a] + rng.unit() * 0.15;
+        double wb = accs[b] + rng.unit() * 0.15;
+        return wa < wb;
+    });
+    long take = count < (long)order.size() ? count : (long)order.size();
+    printf("[");
+    for (long i = 0; i < take; i++) {
+        printf("%s\"%s\"", (i ? "," : ""), ids[order[i]].c_str());
+    }
+    printf("]");
+}
+
 int main() {
     std::string in;
     char buf[1024];
@@ -128,6 +257,9 @@ int main() {
 
     std::string action = str_field(in, "action");
     if (action == "loot") { handle_loot(in); }
+    else if (action == "sm2") { handle_sm2(in); }
+    else if (action == "rogue") { handle_rogue(in); }
+    else if (action == "pick") { handle_pick(in); }
     else { handle_simulate(in); }
     return 0;
 }

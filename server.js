@@ -1067,21 +1067,257 @@ var ext='.docx';
   /* ── C++ 計算黑盒：修練場模擬/掉落（邏輯封裝於編譯後的 calc_blackbox，黑盒不揭露內部）── */
   function runBlackbox(body,cb){
     var exe=path.join(ROOT,'calc_blackbox'+(process.platform==='win32'?'.exe':''));
-    if(!fs.existsSync(exe)){cb(null,{error:'calc_blackbox not found; compile with: g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox'});return}
+    if(!fs.existsSync(exe)){return jsCalc(body,cb)}
     try{
       var r=child_process.spawnSync(exe,[],{input:body,encoding:'utf8',timeout:10000,maxBuffer:1024*1024});
-      if(r.status!==0){cb(null,{error:(r.stderr||'blackbox crashed').slice(0,300)});return}
+      if(r.status!==0){return jsCalc(body,cb)}
       cb(null,JSON.parse(r.stdout||'{}'));
+    }catch(e){jsCalc(body,cb)}
+  }
+  /* JS fallback：沒有 C++ 黑盒時用純 JS 同邏輯（結果與 C++ 略有不同但規則一致） */
+  function jsCalc(body,cb){
+    try{
+      var j=JSON.parse(body),a=j.action||'simulate';
+      function mulberry32(seed){var t=seed>>>0;return function(){t+=0x6D2B79F5;var r=Math.imul(t^t>>>15,1|t);r^=r+Math.imul(r^r>>>7,61|t);return((r^r>>>14)>>>0)/4294967296}}
+      function pickRng(seedStr){var h=2166136261;for(var i=0;i<seedStr.length;i++){h^=seedStr.charCodeAt(i);h=Math.imul(h,16777619)}return mulberry32(h)}
+      if(a==='simulate'){
+        var ticks=Math.max(1,Math.min(100000,Number(j.ticks)||1));
+        var enemies=Math.max(0,Math.min(1000,Number(j.enemies)||0));
+        var r=pickRng(String(j.seed||1)),td=0,k=0,ts=0;
+        for(var t=0;t<ticks;t++){for(var e=0;e<enemies;e++){if(r()<0.72){td+=8+Math.floor(r()*30);if(r()<0.38)k++}}if(r()<0.02)break;ts++}
+        return cb(null,{totalDamage:td,kills:k,tickSurvived:ts,rounds:ticks,fallback:true});
+      }
+      if(a==='loot'){
+        var count=Math.max(1,Math.min(50,Number(j.count)||1)),tier=Math.max(1,Math.min(10,Number(j.tier)||1));
+        var r2=pickRng(String(j.seed||1)+'L'),out=[];
+        var slots=['武器','護甲','戒指','項鏈','護符','鞋子','頭盔','盾牌'],attrs=['攻擊','防禦','生命','魔力','敏捷','暴擊'];
+        for(var i2=0;i2<count;i2++){
+          var roll=Math.floor(r2()*100);
+          var rar=roll+(tier>=5?4:0)>=97?'UR':roll+(tier>=5?4:0)>=88?'SSR':roll+(tier>=5?4:0)>=70?'SR':roll+(tier>=5?4:0)>=40?'R':'N';
+          out.push({slot:slots[Math.floor(r2()*8)],rarity:rar,attr:attrs[Math.floor(r2()*6)],value:3+Math.floor(r2()*18)+tier*4});
+        }
+        return cb(null,out);
+      }
+      if(a==='sm2'){
+        var q=Math.max(0,Math.min(5,Number(j.quality)||0)),reps=Number(j.reps)||0,iv=Number(j.intervalDays)||1,ef=Number(j.ease)||2.5,lp=Number(j.lapses)||0;
+        if(ef<1.3)ef=2.5;
+        if(q<3){reps=0;iv=1;if(ef>1.3)ef-=0.2;lp++;}else{reps++;if(reps===1)iv=1;else if(reps===2)iv=6;else iv=iv*ef;if(iv>365)iv=365;ef=ef+(0.1-(5-q)*(0.08+(5-q)*0.02));if(ef<1.3)ef=1.3;}
+        return cb(null,{intervalDays:Math.round(iv*10)/10,ease:Math.round(ef*100)/100,reps:reps,lapses:lp,dueInDays:Math.round(iv),status:q<3?'again':(reps<=2?'learning':'review'),fallback:true});
+      }
+      if(a==='rogue'){
+        var stage=Math.max(1,Math.min(50,Number(j.stage)||1)),level=Math.max(1,Number(j.level)||1),flavor=Math.max(0,Math.min(2,Number(j.flavor)||0));
+        var r3=pickRng(String(j.seed||1)+'R'+level),types=['battle','study','event','treasure'];
+        var titles=[['迷霧森林','古代遺跡','星夜草原','裂谷深淵','暮色高塔','寂靜冰原'],['知識迷宮','考場幻境','課本之森','錯題沼澤','公式岩洞','概念星河'],['問題迴廊','記憶試煉','理解之橋','反思秘境','領悟聖殿','超越之塔']];
+        var choices=[['正面迎戰','繞道偷襲','呼叫同伴','專心冥想'],['複習重點','挑戰難題','請教導師','休息恢復'],['仔細觀察','大膽嘗試','記錄筆記','分享心得']];
+        var route=[];
+        for(var s2=0;s2<stage;s2++){
+          var t2=s2%5===4||s2===stage-1?1:Math.floor(r3()*4);
+          var nch=2+Math.floor(r3()*3),cs=[];
+          for(var c2=0;c2<nch;c2++)cs.push({text:choices[flavor][Math.floor(r3()*4)],effect:String(1+Math.floor(r3()*4))});
+          route.push({id:'s'+s2+'_'+Math.floor(10+r3()*90),type:types[t2],title:titles[flavor][Math.floor(r3()*6)],choices:cs,reward:(level+1)*(3+Math.floor(r3()*6))*(s2+1)});
+        }
+        return cb(null,{route:route,fallback:true});
+      }
+      if(a==='pick'){
+        var count2=Math.max(1,Math.min(200,Number(j.count)||1)),pool=j.pool||[];
+        if(!pool.length)return cb(null,[]);
+        var r4=pickRng(String(j.seed||1)+'P'),arr=pool.map(function(x){return{x:x,acc:(Number(x.acc)||0)+r4()*0.15}});
+        arr.sort(function(a,b){return a.acc-b.acc});
+        return cb(null,arr.slice(0,count2).map(function(x){return x.x.id}));
+      }
+      cb(null,{error:'unknown action '+a});
     }catch(e){cb(null,{error:e.message})}
   }
-  if(req.method==='POST'&&(p==='/rest/v1/calc/simulate'||p==='/rest/v1/calc/loot')){
+  if(req.method==='POST'&&p.indexOf('/rest/v1/calc/')===0){
     var cwA=checkToken(tok);if(!cwA){res.writeHead(401);return res.end('need login')}
     return readBody(req,function(b){try{
-      var j=JSON.parse(b.toString('utf8'));j.action=p.indexOf('/loot')>=0?'loot':'simulate';
+      var j=JSON.parse(b.toString('utf8'));
+      if(p==='/rest/v1/calc/simulate')j.action='simulate';
+      else if(p==='/rest/v1/calc/loot')j.action='loot';
+      else if(p==='/rest/v1/calc/sm2')j.action='sm2';
+      else if(p==='/rest/v1/calc/rogue')j.action='rogue';
+      else if(p==='/rest/v1/calc/pick')j.action='pick';
+      else {res.writeHead(404);return res.end('unknown calc action')}
       runBlackbox(JSON.stringify(j),function(err,out){
         if(err){res.writeHead(500,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:String(err)}))}
         if(!out||out.error){res.writeHead(500,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:(out&&out.error)||'blackbox error'}))}
         res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(out));
+      });
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+
+  /* ═══ 學習寶庫（v8.0）：筆記 / 閃卡 / 測驗規劃 / 進度追蹤 ═══
+     AI 生成在前端（callAI），server 負責儲存 + 排程計算（C++ SM-2，無 C++ 自動 JS fallback）*/
+  function libGet(){return KV['ADV9_LEARNLIB']||(KV['ADV9_LEARNLIB']={notes:{},cards:{},plans:{},prog:{}})}
+  function libNote(id){var L=libGet();return L.notes[id]||null}
+  /* 筆記 CRUD */
+  if(req.method==='GET'&&p==='/rest/v1/lib/notes'){
+    var lw=checkToken(tok);if(!lw){res.writeHead(401);return res.end('need login')}
+    var L=libGet(),arr=Object.keys(L.notes).map(function(k){return L.notes[k]}).filter(function(n){return n.owner===lw.username||lw.role==='admin'}).sort(function(a,b){return b.updatedAt-a.updatedAt});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(arr));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/lib/notes'){
+    var lw2=checkToken(tok);if(!lw2){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var L=libGet(),id=j.id||('n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      var n={id:id,owner:lw2.username,title:String(j.title||'未命名筆記').slice(0,200),sourceType:String(j.sourceType||'text').slice(0,20),content:String(j.content||'').slice(0,100000),outline:Array.isArray(j.outline)?j.outline:[],summary:String(j.summary||'').slice(0,20000),definitions:Array.isArray(j.definitions)?j.definitions:[],tags:Array.isArray(j.tags)?j.tags.map(String).slice(0,50):[],sources:Array.isArray(j.sources)?j.sources:[],createdAt:(L.notes[id]&&L.notes[id].createdAt)||Date.now(),updatedAt:Date.now()};
+      L.notes[id]=n;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(n));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='DELETE'&&p.indexOf('/rest/v1/lib/notes/')===0){
+    var lw3=checkToken(tok);if(!lw3){res.writeHead(401);return res.end('need login')}
+    var L=libGet(),nid=p.split('/').pop();
+    var n=L.notes[nid];if(!n){res.writeHead(404);return res.end('note not found')}
+    if(n.owner!==lw3.username&&lw3.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    delete L.notes[nid];
+    Object.keys(L.cards).forEach(function(k){if(L.cards[k].noteId===nid)delete L.cards[k]});
+    saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true}));
+  }
+  /* 閃卡：CRUD + SM-2 複習回報 */
+  if((req.method==='GET'||req.method==='POST')&&p==='/rest/v1/lib/cards'){
+    var cw=checkToken(tok);if(!cw){res.writeHead(401);return res.end('need login')}
+    if(req.method==='GET'){
+      var L2=libGet(),arr2=Object.keys(L2.cards).map(function(k){return L2.cards[k]}).filter(function(c){return c.owner===cw.username}).sort(function(a,b){return a.sm2.due-b.sm2.due});
+      return res.end(JSON.stringify(arr2));
+    }
+    return readBody(req,function(b){try{
+      var j2=JSON.parse(b.toString('utf8')),L2=libGet(),cid=j2.id||('c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      var c={id:cid,owner:cw.username,noteId:String(j2.noteId||''),front:String(j2.front||'').slice(0,5000),back:String(j2.back||'').slice(0,5000),tags:Array.isArray(j2.tags)?j2.tags.map(String).slice(0,30):[],sm2:{reps:0,interval:0,ease:2.5,lapses:0,due:Date.now()},createdAt:Date.now()};
+      L2.cards[cid]=c;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(c));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  if(req.method==='POST'&&p==='/rest/v1/lib/cards/review'){
+    var cw2=checkToken(tok);if(!cw2){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j3=JSON.parse(b.toString('utf8')),L2=libGet(),card=L2.cards[String(j3.id||'')];
+      if(!card||card.owner!==cw2.username){res.writeHead(404);return res.end('card not found')}
+      var q=Math.max(0,Math.min(5,Number(j3.quality)||0));
+      var payload={action:'sm2',quality:q,reps:card.sm2.reps,intervalDays:card.sm2.interval,ease:card.sm2.ease,lapses:card.sm2.lapses};
+      runBlackbox(JSON.stringify(payload),function(err,out){
+        if(err||!out||out.error){res.writeHead(500);return res.end(JSON.stringify({error:'schedule failed'}));}
+        card.sm2.reps=out.reps;card.sm2.interval=out.intervalDays;card.sm2.ease=out.ease;card.sm2.lapses=out.lapses;
+        card.sm2.due=Date.now()+(out.dueInDays||1)*86400000;
+        card.reviews=card.reviews||[];card.reviews.push({t:Date.now(),q:q});
+        saveKV();
+        res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,card:card}));
+      });
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  /* 測驗規劃：設定考試日期與科目 → 系統依剩餘天數自動規劃複習進度 */
+  if(req.method==='GET'&&p==='/rest/v1/lib/plan'){
+    var pw=checkToken(tok);if(!pw){res.writeHead(401);return res.end('need login')}
+    var L3=libGet();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(L3.plans[pw.username]||{examDate:null,subjects:[],plan:[]}));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/lib/plan'){
+    var pw2=checkToken(tok);if(!pw2){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j4=JSON.parse(b.toString('utf8')),L3=libGet();
+      var plan={examDate:Number(j4.examDate)||null,subjects:Array.isArray(j4.subjects)?j4.subjects.map(String).slice(0,30):[],plan:Array.isArray(j4.plan)?j4.plan:[]};
+      L3.plans[pw2.username]=plan;saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(plan));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  /* 進度追蹤：記錄每章節完成狀態，供個人化出題/複習 */
+  if(req.method==='POST'&&p==='/rest/v1/lib/progress'){
+    var pw3=checkToken(tok);if(!pw3){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j5=JSON.parse(b.toString('utf8')),L4=libGet();
+      var prog=L4.prog[pw3.username]||(L4.prog[pw3.username]={units:{},answered:0,correct:0});
+      if(j5.unit){var u=prog.units[String(j5.unit)]||(prog.units[String(j5.unit)]={attempts:0,correct:0,last:0});u.attempts++;u.last=Date.now();if(j5.correct)u.correct++;prog.answered++;if(j5.correct)prog.correct++;}
+      saveKV();
+      res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(prog));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
+    var pw4=checkToken(tok);if(!pw4){res.writeHead(401);return res.end('need login')}
+    var L4=libGet();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(L4.prog[pw4.username]||{units:{},answered:0,correct:0}));
+  }
+  /* ═══ 創作中心（v8.0）：心智圖 / 教材漫畫 / AI 播客 / AI 導師對話記錄 ═══
+     內容由前端 callAI 生成，server 儲存 + 個人化路線（rogue 黑盒）選擇 */
+  function crGet(){return KV['ADV9_CREATE']||(KV['ADV9_CREATE']={minds:{},mangas:{},podcasts:{},tutors:{}})}
+  /* 心智圖：儲存 + 列表 */
+  if(req.method==='GET'&&p==='/rest/v1/cr/minds'){
+    var cw3=checkToken(tok);if(!cw3){res.writeHead(401);return res.end('need login')}
+    var C=crGet(),arr3=Object.keys(C.minds).map(function(k){return C.minds[k]}).filter(function(m){return m.owner===cw3.username||cw3.role==='admin'}).sort(function(a,b){return b.updatedAt-a.updatedAt});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(arr3));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/cr/minds'){
+    var cw4=checkToken(tok);if(!cw4){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')),C=crGet(),mid=j.id||('m'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      C.minds[mid]={id:mid,owner:cw4.username,noteId:String(j.noteId||''),title:String(j.title||'心智圖').slice(0,200),nodes:Array.isArray(j.nodes)?j.nodes:[],createdAt:(C.minds[mid]&&C.minds[mid].createdAt)||Date.now(),updatedAt:Date.now()};
+      saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C.minds[mid]));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  /* 教材漫畫：儲存 + 列表 */
+  if(req.method==='GET'&&p==='/rest/v1/cr/mangas'){
+    var mw=checkToken(tok);if(!mw){res.writeHead(401);return res.end('need login')}
+    var C2=crGet(),arr4=Object.keys(C2.mangas).map(function(k){return C2.mangas[k]}).filter(function(m){return m.owner===mw.username||mw.role==='admin'}).sort(function(a,b){return b.updatedAt-a.updatedAt});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(arr4));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/cr/mangas'){
+    var mw2=checkToken(tok);if(!mw2){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j2=JSON.parse(b.toString('utf8')),C2=crGet(),mid2=j2.id||('ma'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      C2.mangas[mid2]={id:mid2,owner:mw2.username,noteId:String(j2.noteId||''),title:String(j2.title||'教材漫畫').slice(0,200),panels:Array.isArray(j2.panels)?j2.panels:[],createdAt:(C2.mangas[mid2]&&C2.mangas[mid2].createdAt)||Date.now(),updatedAt:Date.now()};
+      saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C2.mangas[mid2]));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  /* AI 播客：儲存 + 列表 */
+  if(req.method==='GET'&&p==='/rest/v1/cr/podcasts'){
+    var pw5=checkToken(tok);if(!pw5){res.writeHead(401);return res.end('need login')}
+    var C3=crGet(),arr5=Object.keys(C3.podcasts).map(function(k){return C3.podcasts[k]}).filter(function(m){return m.owner===pw5.username||pw5.role==='admin'}).sort(function(a,b){return b.updatedAt-a.updatedAt});
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(arr5));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/cr/podcasts'){
+    var pw6=checkToken(tok);if(!pw6){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j3=JSON.parse(b.toString('utf8')),C3=crGet(),pid=j3.id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      C3.podcasts[pid]={id:pid,owner:pw6.username,noteId:String(j3.noteId||''),title:String(j3.title||'AI 播客').slice(0,200),script:String(j3.script||'').slice(0,50000),audio:j3.audio||null,createdAt:(C3.podcasts[pid]&&C3.podcasts[pid].createdAt)||Date.now(),updatedAt:Date.now()};
+      saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C3.podcasts[pid]));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  /* AI 導師對話記錄（每人一份，保存前 200 則） */
+  if((req.method==='GET'||req.method==='POST')&&p==='/rest/v1/cr/tutors'){
+    var tw=checkToken(tok);if(!tw){res.writeHead(401);return res.end('need login')}
+    if(req.method==='GET'){
+      var C4=crGet();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C4.tutors[tw.username]||[]));
+    }
+    return readBody(req,function(b){try{
+      var j4=JSON.parse(b.toString('utf8')),C4=crGet();
+      var list=C4.tutors[tw.username]||(C4.tutors[tw.username]=[]);
+      if(j4.msg&&j4.msg.q)list.push({q:String(j4.msg.q).slice(0,5000),a:String(j4.msg.a||'').slice(0,20000),t:Date.now()});
+      if(list.length>200)list.splice(0,list.length-200);
+      saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,count:list.length}));
+    }catch(e){res.writeHead(400);res.end('bad json')}});
+  }
+  /* 個人化冒險路線：種子=玩家名+等級 → 每人路線不同、同人穩定 */
+  if(req.method==='GET'&&p==='/rest/v1/cr/journey'){
+    var jw=checkToken(tok);if(!jw){res.writeHead(401);return res.end('need login')}
+    var uj=ACC[jw.username]||{};
+    var g=uj.g||{};
+    var seed=0;for(var ii=0;ii<jw.username.length;ii++)seed=seed*31+jw.username.charCodeAt(ii);
+    var stage=Math.min(50,Math.max(1,Math.floor(((g.lv||1)-1)/5)+1));
+    var payload={action:'rogue',seed:seed,stage:stage,level:g.lv||1,flavor:(g.equip&&g.equip.character?Number(g.equip.character)%3:0)};
+    runBlackbox(JSON.stringify(payload),function(err,out){
+      if(err||!out||out.error){res.writeHead(500);return res.end(JSON.stringify({error:'journey failed'}));}
+      res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(out));
+    });
+  }
+  /* 個人化出題推薦：依錯題/弱項選題（weak 欄位由前端從進度計算） */
+  if(req.method==='POST'&&p==='/rest/v1/cr/recommend'){
+    var rw=checkToken(tok);if(!rw){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j6=JSON.parse(b.toString('utf8')),pool=Array.isArray(j6.pool)?j6.pool:[];
+      var payload2={action:'pick',seed:0,count:Number(j6.count)||10,pool:pool};
+      var h=0;for(var k2=0;k2<rw.username.length;k2++)h=h*31+rw.username.charCodeAt(k2);
+      payload2.seed=h+ (Number(j6.seed)||0);
+      runBlackbox(JSON.stringify(payload2),function(err2,out2){
+        if(err2||!out2||out2.error){res.writeHead(500);return res.end(JSON.stringify({error:'recommend failed'}));}
+        res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ids:out2}));
       });
     }catch(e){res.writeHead(400);res.end('bad json')}});
   }

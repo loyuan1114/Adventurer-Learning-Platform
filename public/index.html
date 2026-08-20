@@ -3015,6 +3015,14 @@ let FEATS=[
 ['🎟','密碼禮包','自動辨識','#e040fb','vCodes()'],
 ['🌍','語言包',LANG_TOTAL+' 種語言・每語言一包・1.3x 獎勵','#29b6f6','vLangStudy()'],
 
+['📝','筆記寶庫','AI 結構化筆記・閃卡複習・考試規劃','#ffd740','vNotes()'],
+
+['🎨','創作中心','心智圖・教材漫畫・AI 播客','#ff6e40','vCreate()'],
+
+['🤖','AI 導師','針對筆記問答・專屬家教','#3d5afe','vTutor()'],
+
+['🗺️','個人冒險','每人路線都不同・roguelike','#8b6ce0','vJourney()'],
+
 ['📊','統計報表','週報・弱項','#69f0ae','vStats()'],
 
 ['🌟','娃娃物語','風火水土・四屬性養成','#7ff0dd','vDoll()'],
@@ -3516,6 +3524,10 @@ function isGrade9(u){return !u.graduated&&/^9/.test(String(u.classId||''))}
    vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vHome, tutorGuide
    ════════════════════════════════════════════ */
+async function vNotes(){if(!await needJs(['js/views/vNotes.js']))return toast('模組載入失敗，請重新整理頁面','bad');vNotes();}
+async function vCreate(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');vCreate();}
+async function vTutor(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');CR.tab='tutor';vCreate();}
+async function vJourney(){if(!await needJs(['js/views/vJourney.js']))return toast('模組載入失敗，請重新整理頁面','bad');vJourney();}
 async function vHome(){
   if(!await needJs(['js/views/vHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vHome();
