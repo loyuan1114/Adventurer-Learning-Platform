@@ -12,6 +12,8 @@
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),child_process=require('child_process'),cluster=require('cluster'),os=require('os');
 let argon2;try{argon2=require('argon2')}catch(e){console.warn('[warn] argon2 not installed, falling back to scrypt')}
 const ROOT=__dirname;
+const PYTHON=process.platform==='win32'?'python':'python3';
+const TMPDIR=process.platform==='win32'?(process.env.TEMP||'C:\\Windows\\Temp'):'/tmp';
 const PUB=path.join(ROOT,'public'),MEDIA=path.join(ROOT,'media'),DATA=path.join(ROOT,'data'),USERSDIR=path.join(DATA,'users');
 const KVFILE=path.join(DATA,'kv.json'),ACCFILE=path.join(DATA,'accounts.json'),TOKFILE=path.join(DATA,'tokens.json');
 const INDEXFILE=path.join(DATA,'users_index.json'); /* 全帳號主檔：所有帳號的備援清單（「有誰誰誰」），帳號遺失時自動復原 */
@@ -380,7 +382,7 @@ var server=http.createServer(function(req,res){
   function sudokuRun(){
     return new Promise(function(resolve){
       try{
-        child_process.execFile('python3',[path.join(ROOT,'sudoku_gen.py')],{timeout:10000},function(e,so){
+        child_process.execFile(PYTHON,[path.join(ROOT,'sudoku_gen.py')],{timeout:10000},function(e,so){
           if(e){resolve(null);return}
           var g=null;try{g=JSON.parse(so)}catch(x){}
           if(!g||!g.board||!g.answer||g.board.length!==81||g.answer.length!==81)resolve(null);else resolve(g);
@@ -653,8 +655,8 @@ var ext='.docx';
       else if(b[0]===0x25&&b[1]===0x50){ext='.pdf'}                               /* %PDF → pdf */
       else if(b[0]===0xD0&&b[1]===0xCF){res.writeHead(415,{'Content-Type':'text/plain; charset=utf-8'});return res.end('此為舊版 .doc 格式，請先用 Word「另存新檔」存成 .docx 或 .txt 後再上傳')} /* OLE → 舊版 doc */
       else{ext='.txt'}                                                            /* 其餘視為純文字 */
-      var fn=path.join('/tmp','adv9_'+crypto.randomBytes(8).toString('hex')+ext);fs.writeFileSync(fn,b);
-      var r=child_process.spawnSync('python3',[path.join(ROOT,'docx_extract.py'),fn],{encoding:'utf8',timeout:15000});try{fs.unlinkSync(fn)}catch(e){}
+      var fn=path.join(TMPDIR,'adv9_'+crypto.randomBytes(8).toString('hex')+ext);fs.writeFileSync(fn,b);
+      var r=child_process.spawnSync(PYTHON,[path.join(ROOT,'docx_extract.py'),fn],{encoding:'utf8',timeout:15000});try{fs.unlinkSync(fn)}catch(e){}
       if(r.status!==0){res.writeHead(400);return res.end('parse failed')}
       res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});res.end(r.stdout||'[]');
     }catch(e){res.writeHead(500);res.end('parse error')}})
@@ -888,9 +890,9 @@ var ext='.docx';
       if(!Array.isArray(questions))questions=[questions];
       var validator=path.join(ROOT,'tools','question_validator.py');
       if(!fs.existsSync(validator)){res.writeHead(500);return res.end('validator not found')}
-      var fn=path.join('/tmp','adv9_vq_'+crypto.randomBytes(4).toString('hex')+'.json');
+      var fn=path.join(TMPDIR,'adv9_vq_'+crypto.randomBytes(4).toString('hex')+'.json');
       fs.writeFileSync(fn,JSON.stringify(questions));
-      var r=child_process.spawnSync('python3',[validator,fn],{encoding:'utf8',timeout:15000});
+      var r=child_process.spawnSync(PYTHON,[validator,fn],{encoding:'utf8',timeout:15000});
       try{fs.unlinkSync(fn)}catch(e2){}
       if(r.status!==0){res.writeHead(500);return res.end('validation failed')}
       res.writeHead(200,{'Content-Type':'application/json'});res.end(r.stdout||'{}');
@@ -1020,21 +1022,21 @@ var ext='.docx';
       var lang=String(j.lang||'python').slice(0,10);
       var code=String(j.code||'').slice(0,50000);
       if(!code){res.writeHead(400);return res.end('no code')}
-      var fn=path.join('/tmp','adv9_sb_'+crypto.randomBytes(4).toString('hex'));
+      var fn=path.join(TMPDIR,'adv9_sb_'+crypto.randomBytes(4).toString('hex'));
       var result={stdout:'',stderr:'',exit_code:1,time_ms:0,error:null};
       var t0=Date.now();
       try{
         if(lang==='python'){
           fs.writeFileSync(fn+'.py',code);
-          var r2=child_process.spawnSync('python3',[fn+'.py'],{encoding:'utf8',timeout:10000});
+          var r2=child_process.spawnSync(PYTHON,[fn+'.py'],{encoding:'utf8',timeout:10000});
           result.stdout=r2.stdout||'';result.stderr=r2.stderr||'';result.exit_code=r2.status;
           try{fs.unlinkSync(fn+'.py')}catch(e2){}
         }else if(lang==='cpp'){
           fs.writeFileSync(fn+'.cpp',code);
-          var outFn=fn+'.out';
+          var outFn=fn+'.out'+(process.platform==='win32'?'.exe':'');
           var rc=child_process.spawnSync('g++',[fn+'.cpp','-o',outFn,'-std=c++17','-pthread'],{encoding:'utf8',timeout:15000});
           if(rc.status===0){
-            var r3=child_process.spawnSync([outFn],{encoding:'utf8',timeout:10000});
+            var r3=child_process.spawnSync(outFn,{encoding:'utf8',timeout:10000});
             result.stdout=r3.stdout||'';result.stderr=r3.stderr||'';result.exit_code=r3.status;
           }else{result.stderr=(rc.stderr||'')+'\n編譯失敗';result.exit_code=rc.status;}
           try{fs.unlinkSync(outFn)}catch(e3){}
@@ -1043,15 +1045,15 @@ var ext='.docx';
           /* Java：寫入對應 class 的 .java 檔案 */
           var clsMatch=code.match(/public\s+class\s+(\w+)/);
           var clsName=clsMatch?clsMatch[1]:'Main';
-          var javaFile=path.join('/tmp',clsName+'.java');
+          var javaFile=path.join(TMPDIR,clsName+'.java');
           fs.writeFileSync(javaFile,code);
           var rc2=child_process.spawnSync('javac',[javaFile],{encoding:'utf8',timeout:15000});
           if(rc2.status===0){
-            var r4=child_process.spawnSync('java',['-cp','/tmp',clsName],{encoding:'utf8',timeout:10000,cwd:'/tmp'});
+            var r4=child_process.spawnSync('java',['-cp',TMPDIR,clsName],{encoding:'utf8',timeout:10000,cwd:TMPDIR});
             result.stdout=r4.stdout||'';result.stderr=r4.stderr||'';result.exit_code=r4.status;
           }else{result.stderr=(rc2.stderr||'')+'\n編譯失敗';result.exit_code=rc2.status;}
           try{fs.unlinkSync(javaFile)}catch(e4){}
-          try{fs.unlinkSync(path.join('/tmp',clsName+'.class'))}catch(e4b){}
+          try{fs.unlinkSync(path.join(TMPDIR,clsName+'.class'))}catch(e4b){}
         }else{result.error='不支援的語言：'+lang+'。支援：python/cpp/java';}
       }catch(e5){result.error=e5.message;}
       result.time_ms=Date.now()-t0;
