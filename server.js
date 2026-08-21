@@ -277,7 +277,11 @@ async function mergeUsers(incoming,w){
     if(!iu||!iu.username)return; var un=iu.username, ex=ACC[un];
     if(!ex){
       if(isStaff){
-        ACC[un]=await hashIfPlain(iu);
+        var created=await hashIfPlain(iu);
+        if(!created.createdAt)created.createdAt=new Date().toISOString();
+        if(!created.id)created.id=un;
+        if(!created.role)created.role='student';
+        ACC[un]=created;
         saveUserFile(un);
       }
       continue;
@@ -326,7 +330,7 @@ var server=http.createServer(function(req,res){
   }catch(e){}});
 
   /* 管理資料的權威寫入端點：帳號/API 不再依賴前端 localStorage 或延遲佇列 */
-  if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}mergeUsers([nu],cw);saveKV();saveIndex(); /* 立即寫入主檔，防建立後崩潰/被刪遺失 */res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
+  if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}if(!nu.createdAt)nu.createdAt=new Date().toISOString();if(!nu.role)nu.role='student';mergeUsers([nu],cw);saveKV();saveIndex(); /* 立即寫入主檔，防建立後崩潰/被刪遺失 */res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
   /* 刪除帳號（僅管理員；主管理員不可刪；同步移除獨立帳號檔與其私有 KV 資料）*/
   if(req.method==='POST'&&p==='/rest/v1/admin/users/delete'){
     var dw=checkToken(tok); if(!dw || dw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
