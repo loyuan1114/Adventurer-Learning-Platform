@@ -4,17 +4,19 @@
    ════════════════════════════════════════════ */
 let NB={tab:'notes',note:null,editing:false,genState:0,cards:null,cardIdx:0,flip:false};
 
-function vNotes(){
+async function vNotes(){
   const u=me();if(!u)return;
   const g=u.g||{};
   const due=(g.stats&&g.stats.dueCards)||0;
+  let noteCount=0;
+  try{const arr=await nbApi('GET','/rest/v1/lib/notes');if(Array.isArray(arr))noteCount=arr.length;}catch(e){}
   $('#view').innerHTML=back()+'<h3 class="vt">📝 筆記寶庫 <span class="vsub">AI 結構化筆記・閃卡間隔複習・考試規劃・進度追蹤</span></h3>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
-  '<button class="btn '+(NB.tab==='notes'?'gold':'ghost')+'" onclick="NB.tab=\'notes\';vNotes()">📒 筆記 ('+0+')</button>'+
+  '<button class="btn '+(NB.tab==='notes'?'gold':'ghost')+'" onclick="NB.tab=\'notes\';vNotes()">📒 筆記 ('+noteCount+')</button>'+
   '<button class="btn '+(NB.tab==='cards'?'gold':'ghost')+'" onclick="NB.tab=\'cards\';vNotes()">🎴 閃卡'+(due?' <span style="color:#ff5252">('+due+')</span>':'')+'</button>'+
   '<button class="btn '+(NB.tab==='plan'?'gold':'ghost')+'" onclick="NB.tab=\'plan\';vNotes()">🗓️ 考試規劃</button>'+
   '<button class="btn '+(NB.tab==='progress'?'gold':'ghost')+'" onclick="NB.tab=\'progress\';vNotes()">📊 進度</button>'+
-  '<button class="btn ghost" onclick="vNotesNew()">＋ 新增筆記</button></div>'+
+  '<button class="btn ghost" onclick="nbNew()">＋ 新增筆記</button></div>'+
   '<div id="nbBody"></div>';
   if(NB.tab==='notes'){nbList()}
   else if(NB.tab==='cards'){nbCards()}
@@ -39,7 +41,7 @@ async function nbList(){
     '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'+
     '<div><b style="font-family:var(--serif);font-size:15px">'+esc(n.title)+'</b>'+
     '<div style="font-size:11.5px;color:var(--mut)">'+(n.sourceType||'text')+'・'+new Date(n.updatedAt).toLocaleString()+(n.tags&&n.tags.length?'・🏷 '+n.tags.map(esc).join(', '):'')+'</div></div>'+
-    '<div style="display:flex;gap:6px"><button class="btn ghost mini" onclick="event.stopPropagation();nbGenMind(\''+n.id+'\')">🗺️ 心智圖</button>'+
+    '<div style="display:flex;gap:6px"><button class="btn ghost mini" onclick="event.stopPropagation();nbToMind(\''+n.id+'\')">🗺️ 心智圖</button>'+
     '<button class="btn ghost mini" onclick="event.stopPropagation();nbGenCards(\''+n.id+'\')">🎴 閃卡</button>'+
     '<button class="btn ghost mini" onclick="event.stopPropagation();nbDel(\''+n.id+'\')">🗑️</button></div></div>'+
     (n.summary?'<div style="font-size:12.5px;color:var(--mut);margin-top:6px;border-left:3px solid var(--line);padding-left:8px">'+esc(n.summary)+'</div>':'')+
@@ -55,7 +57,7 @@ function nbOpen(id){
     $('#view').innerHTML=back("vNotes()")+'<h3 class="vt">📒 '+esc(n.title)+'</h3>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
     '<button class="btn ghost mini" onclick="nbOpen(\''+n.id+'\')">↻ 重新整理</button>'+
-    '<button class="btn gold mini" onclick="nbGenMind(\''+n.id+'\')">🗺️ 生成心智圖</button>'+
+    '<button class="btn gold mini" onclick="nbToMind(\''+n.id+'\')">🗺️ 生成心智圖</button>'+
     '<button class="btn gold mini" onclick="nbGenCards(\''+n.id+'\')">🎴 生成閃卡</button>'+
     '<button class="btn ghost mini" onclick="nbExportMd(\''+n.id+'\')">📤 Markdown</button>'+
     '<button class="btn ghost mini" onclick="nbExportJson(\''+n.id+'\')">📦 JSON</button>'+
@@ -299,4 +301,9 @@ function nbImportShare(){
     nbApi('POST','/rest/v1/lib/notes',j).then(n=>{if(n){toast('已從分享連結匯入筆記「'+n.title+'」','ok');vNotes()}});
     return true;
   }catch(e){return false}
+}
+
+async function nbToMind(noteId){
+  if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗','bad');
+  CR.tab='mind';crMindGen(noteId);
 }

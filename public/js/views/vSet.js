@@ -86,11 +86,11 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚙️ 設定</h3>'+
 
 '<div id="setLangGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:8px;max-height:180px;overflow-y:auto"></div></div>'+
 
-'<div class="panel2" style="margin-bottom:10px"><b style="color:var(--gold2);font-family:var(--serif)">🔗 API 伺服器位址</b> <span style="font-size:11.5px;color:var(--mut)">GitHub Pages 使用者請填入 VPS 後端網址</span>'+
+'<div class="panel2" style="margin-bottom:10px">'+(typeof IS_ADMIN==='function'&&IS_ADMIN()?'<b style="color:var(--gold2);font-family:var(--serif)">🔗 API 伺服器位址</b> <span style="font-size:11.5px;color:var(--mut)">GitHub Pages 使用者請填入 VPS 後端網址</span>'+
 '<div style="display:flex;gap:8px;margin-top:8px;align-items:center"><input id="apiUrlInput" placeholder="'+esc(location.origin)+'" value="'+esc(apiUrlPref)+'" style="flex:1;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt)">'+
 '<button class="btn mini teal" onclick="saveApiUrl()">💾 儲存</button>'+
 '<button class="btn ghost mini" onclick="resetApiUrl()">🔄 還原</button></div>'+
-'<div style="font-size:11px;color:var(--mut);margin-top:4px">預設為 '+esc(location.origin)+'，留空則使用預設</div></div>'+
+'<div style="font-size:11px;color:var(--mut);margin-top:4px">預設為 '+esc(location.origin)+'，留空則使用預設</div>':'')+'</div>'+
 
 '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
 
