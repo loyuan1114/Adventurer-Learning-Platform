@@ -2,9 +2,15 @@
    vAdminPanel 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vAdminPanel, adminSystemBackup
    ════════════════════════════════════════════ */
-function vAdminPanel(){
+async function vAdminPanel(){
   if (!(typeof IS_ADMIN==='function'&&IS_ADMIN())) return toast('⚠️ 僅管理員可進入', 'bad');
   const sys = get('ADV9_SYS_SETTINGS', { max_level: 300, free_point_single_limit: 300, festival_mode: false });
+
+  let serverUsers = get(LS.users,[]);
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/admin/users_index',{headers:supaHeaders()});
+    if (r.ok) { const d = await r.json(); if(d.index && d.index.length){ serverUsers = d.index; set(LS.users, serverUsers); } }
+  } catch(e) {}
 
   let html = back() + '<h3 class="vt">👑 管理員系統控制台 <span class="vsub">參數設定・貨幣發放・備份還原</span></h3>';
 
@@ -21,7 +27,7 @@ function vAdminPanel(){
   html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">👑 管理員直接贈送 ∞ 神階</b>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">';
   html += '<select id="admGrantUser">';
-  get(LS.users,[]).forEach(u => { html += '<option value="' + u.id + '">' + esc(u.name) + ' (' + u.username + ')</option>'; });
+  serverUsers.forEach(u => { html += '<option value="' + (u.id||u.username) + '">' + esc(u.name||u.username) + ' (' + u.username + ')</option>'; });
   html += '</select>';
   html += '<select id="admGrantAttr">';
   REROLL_ATTRS.forEach(a => { html += '<option value="' + a.id + '">' + a.icon + ' ' + a.name + '</option>'; });
