@@ -9,7 +9,7 @@ use std::thread;
 fn main() -> eframe::Result<()> {
     let opts = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([520.0, 440.0])
+            .with_inner_size([520.0, 460.0])
             .with_resizable(false)
             .with_title("ADV9 Installer"),
         ..Default::default()
@@ -23,7 +23,17 @@ fn main() -> eframe::Result<()> {
 }
 
 #[derive(Clone, PartialEq)]
-enum Step { Welcome, Checking, InstallDocker, Download, Building, Done, Error(String) }
+enum Step {
+    Welcome,
+    Checking,
+    InstallDocker,
+    Download,
+    Building,
+    Done,
+    Uninstalling,
+    UninstallDone,
+    Error(String),
+}
 
 struct App {
     step: Step,
@@ -90,6 +100,47 @@ impl App {
         });
     }
 
+    fn start_uninstall(&mut self) {
+        self.step = Step::Uninstalling;
+        self.log.lock().unwrap().clear();
+        *self.progress.lock().unwrap() = 0.0;
+        let (tx, rx) = std::sync::mpsc::channel();
+        self.rx = Some(rx);
+        let log = self.log.clone();
+        let pg = self.progress.clone();
+        let dir = self.install_dir.clone();
+
+        thread::spawn(move || {
+            macro_rules! lg { ($m:expr) => {{ log.lock().unwrap().push($m.to_string()); }}; }
+
+            lg!("Stopping Docker containers...");
+            *pg.lock().unwrap() = 0.1;
+            let _ = std::process::Command::new("docker")
+                .args(["compose","down"]).current_dir(&dir).output();
+
+            lg!("Removing Docker images...");
+            *pg.lock().unwrap() = 0.3;
+            let _ = std::process::Command::new("docker")
+                .args(["rmi","-f","adv9"]).output();
+
+            lg!("Deleting project files...");
+            *pg.lock().unwrap() = 0.6;
+            if let Err(e) = std::fs::remove_dir_all(&dir) {
+                lg!(&format!("Warning: could not delete {}: {}", dir, e));
+            } else {
+                lg!(&format!("Deleted: {}", dir));
+            }
+
+            lg!("Cleaning temp files...");
+            *pg.lock().unwrap() = 0.8;
+            let _ = std::fs::remove_file(std::env::temp_dir().join("adv9_main.zip"));
+
+            *pg.lock().unwrap() = 1.0;
+            lg!("Uninstall complete!");
+            tx.send(Step::UninstallDone).ok();
+        });
+    }
+
     fn log_panel(&self, ui: &mut egui::Ui) {
         let log = self.log.lock().unwrap();
         egui::ScrollArea::vertical().max_height(180.0).show(ui, |ui| {
@@ -132,11 +183,18 @@ impl eframe::App for App {
                     ui.label("  \u{1F539} \u{5EFA}\u{7F6E}\u{4E26}\u{555F}\u{52D5}\u{670D}\u{52D9}");
                     ui.label("  \u{1F539} \u{81EA}\u{52D5}\u{958B}\u{555F}\u{700F}\u{89BD}\u{5668}");
                     ui.add_space(20.0);
-                    if ui.add_sized([200.0,44.0], egui::Button::new(
-                        egui::RichText::new("\u{1F680} \u{958B}\u{59CB}\u{5B89}\u{88DD}").size(18.0).strong()
-                    ).fill(egui::Color32::from_rgb(40,167,69))).clicked() {
-                        self.start();
-                    }
+                    ui.horizontal(|ui| {
+                        if ui.add_sized([200.0,44.0], egui::Button::new(
+                            egui::RichText::new("\u{1F680} \u{958B}\u{59CB}\u{5B89}\u{88DD}").size(18.0).strong()
+                        ).fill(egui::Color32::from_rgb(40,167,69))).clicked() {
+                            self.start();
+                        }
+                        if ui.add_sized([200.0,44.0], egui::Button::new(
+                            egui::RichText::new("\u{1F5D1}\u{FE0F} \u{5378}\u{8F09} ADV9").size(16.0)
+                        ).fill(egui::Color32::from_rgb(180,60,60))).clicked() {
+                            self.start_uninstall();
+                        }
+                    });
                 }
                 Step::Checking => {
                     ui.add_space(30.0); ui.spinner();
@@ -166,10 +224,33 @@ impl eframe::App for App {
                     ui.label(egui::RichText::new("\u{5E33}\u{865F}: adv9boss / admin123").size(13.0));
                     self.log_panel(ui);
                     ui.add_space(10.0);
-                    if ui.add_sized([160.0,36.0], egui::Button::new(
-                        egui::RichText::new("\u{1F310} \u{958B}\u{555F}\u{700F}\u{89BD}\u{5668}").size(14.0)
-                    ).fill(egui::Color32::from_rgb(0,123,255))).clicked() {
-                        let _ = open::that("http://127.0.0.1:8080");
+                    ui.horizontal(|ui| {
+                        if ui.add_sized([160.0,36.0], egui::Button::new(
+                            egui::RichText::new("\u{1F310} \u{958B}\u{555F}\u{700F}\u{89BD}\u{5668}").size(14.0)
+                        ).fill(egui::Color32::from_rgb(0,123,255))).clicked() {
+                            let _ = open::that("http://127.0.0.1:8080");
+                        }
+                        if ui.add_sized([120.0,36.0], egui::Button::new(
+                            egui::RichText::new("\u{21BA} \u{56DE}\u{9996}\u{9801}").size(14.0)
+                        ).fill(egui::Color32::from_rgb(100,100,100))).clicked() {
+                            self.step = Step::Welcome;
+                        }
+                    });
+                }
+                Step::Uninstalling => {
+                    ui.add_space(10.0);
+                    ui.label(egui::RichText::new("\u{1F5D1}\u{FE0F} \u{6B63}\u{5728}\u{5378}\u{8F09}...").size(16.0).color(egui::Color32::from_rgb(220,53,69)));
+                    self.bar(ui); self.log_panel(ui);
+                }
+                Step::UninstallDone => {
+                    ui.add_space(20.0);
+                    ui.label(egui::RichText::new("\u{2705} \u{5378}\u{8F09}\u{5B8C}\u{6210}\u{FF01}").size(24.0).strong().color(egui::Color32::from_rgb(40,167,69)));
+                    ui.add_space(10.0);
+                    ui.label(egui::RichText::new("ADV9 \u{5DF2}\u{5B8C}\u{5168}\u{522A}\u{9664}").size(14.0));
+                    self.log_panel(ui);
+                    ui.add_space(12.0);
+                    if ui.add_sized([120.0,32.0], egui::Button::new("\u{21BA} \u{56DE}\u{9996}\u{9801}")).clicked() {
+                        self.step = Step::Welcome;
                     }
                 }
                 Step::Error(msg) => {
