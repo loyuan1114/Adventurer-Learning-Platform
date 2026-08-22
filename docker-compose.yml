@@ -1,0 +1,13 @@
+services:
+  adv9:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - adv9-data:/app/data
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - ADV9_PEPPER=
+volumes:
+  adv9-data:

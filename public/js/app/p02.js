@@ -124,7 +124,7 @@ async function vSandbox(){if(!await needJs(['js/views/vSocratic.js','js/views/vS
 async function vConsent(){if(!await needJs(['js/views/vConsent.js']))return toast('模組載入失敗','bad');vConsent();}
 async function vTrust(){if(!await needJs(['js/views/vTrust.js']))return toast('模組載入失敗','bad');vTrust();}
 async function vThinkingReport(){if(!await needJs(['js/views/vThinkingTrace.js']))return toast('模組載入失敗','bad');vThinkingReport();}
-function vSocraticAdmin(){needJs(['js/views/vSocratic.js']).then(function(){vSocraticAdmin()});}
+async function vSocraticAdmin(){if(!await needJs(['js/views/vSocratic.js']))return toast('模組載入失敗，請重新整理頁面','bad');vSocraticAdmin();}
 /* vLangStudy 已修復參數轉發 */
 
 

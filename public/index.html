@@ -587,23 +587,13 @@ code{background:rgba(0,0,0,.3);border:1px solid var(--line);padding:2px 7px;bord
 .dunTile.waveInfo{font-size:10px;opacity:.7}
 .lootFloat{position:fixed;font-size:18px;font-family:var(--serif);font-weight:900;pointer-events:none;z-index:200;animation:rewardDrop .9s ease-out forwards}
 
-}
-
 .spIn h2{font-family:var(--serif);font-weight:900;color:var(--gold2);margin:10px 0 6px;font-size:23px}
 
 .spIn p{color:var(--mut);font-size:13.5px}
 
 .spBar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ffd97a);width:0;animation:load 1s forwards}
 
-}
-
 @media(max-width:900px){#login{grid-template-columns:1fr;max-width:520px;gap:26px}.pdfWrap,.pkArena{grid-template-columns:1fr}.cRow{grid-template-columns:86px 1fr 86px}}
-
-h2:has(> span.vsub:contains("位")),
-
-display: none !important;
-
-}
 
 @keyframes viewIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 /* 登入頁進場動畫（打開即播放） */
@@ -744,17 +734,11 @@ display: none !important;
 </style>
 
 <style>
-
 p.sp2,
-
-div.spBar,
-
-display: none !important;
-
-    visibility: hidden !important;
-
+div.spBar {
+  display: none !important;
+  visibility: hidden !important;
 }
-
 </style>
 <script src="js/i18n.js"></script>
 <meta name="theme-color" content="#6d4aff">

@@ -82,71 +82,57 @@ English-only, AI pronunciation practice / 英語專攻、AI 口說練習 | **Coo
 
 ## 🚀 Deployment / 部署方法
 
-### Option 1: GitHub Codespaces (Free / 免費)
+### Option 1: One-Click Deploy / 一鍵部署（推薦）
+
+**Windows** — 雙擊 `deploy.bat`，或 PowerShell 執行：
+```powershell
+.\deploy.ps1
+```
+自動安裝 Docker（如未安裝）→ 建置 → 啟動 → 瀏覽器自動開啟。
+
+**Linux / Mac** — 終端執行：
+```bash
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+chmod +x deploy.sh && ./deploy.sh
+```
+自動安裝 Docker（如未安裝）→ 建置 → 啟動。
+
+> 首次安裝 Docker 後可能需要重開機或執行 `newgrp docker`。
+
+---
+
+### Option 2: GitHub Codespaces (Free / 免費)
 
 1. Go to repo → **Code → Codespaces → Create codespace on main**
-   前往儲存庫 → **Code → Codespaces → Create codespace on main**
-
 2. Paste in terminal / 貼上：
 ```bash
 [ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
 ```
-
 3. **Ports** panel → 8080 → Right-click → **Port Visibility → Public** → Open 🌐
-   **Ports** 面板 → 8080 → 右鍵 → **Port Visibility → Public** → 開啟 🌐
 
 ---
 
-### Option 2: VPS / Docker (Ubuntu/Debian)
+### Option 3: Docker Compose / Docker（手動）
 
 ```bash
-command -v docker >/dev/null 2>&1 || curl -fsSL https://get.docker.com | sh
-docker compose version >/dev/null 2>&1 || sudo apt-get install -y docker-compose-plugin
-
 git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
 cd Adventurer-Learning-Platform
 docker compose up -d --build
 ```
-
 Then open / 開啟：`http://your-server-ip:8080`
-(Allow port 8080 in firewall / 請在防火牆放行 8080 埠)
 
 ---
 
-### Option 3: Direct Node.js (Recommended / 推薦)
+### Option 4: Direct Node.js / 直接執行
 
 ```bash
 git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
 cd Adventurer-Learning-Platform
 npm install
-g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox
 node server.js
 ```
-
-After startup, the terminal will display:
-啟動後終端機會顯示：
-
-```
-  ╔══════════════════════════════════════════╗
-  ║  🎮 Adventurer Learning Platform        ║
-  ║  冒險者學習平台 v8.0.1                  ║
-  ╠══════════════════════════════════════════╣
-  ║  🌐 http://127.0.0.1:8080               ║
-  ║  👤 admin: adv9boss / admin123          ║
-  ╚══════════════════════════════════════════╝
-```
-
-**Browser opens automatically** / 瀏覽器會自動開啟。Default account / 預設帳號：`adv9boss` / `admin123`
-
-Requires **Node.js 18+** and **g++**. Python 3 optional.
-需要 **Node.js 18+** 與 **g++**。Python 3 為選用。
-
----
-
-### Option 4: macOS / Windows (Docker)
-
-- **macOS**: `brew install --cask docker` → Docker Desktop → run Option 2 command
-- **Windows**: `winget install Docker.DockerDesktop` → Docker Desktop → run Option 2 command
+Requires **Node.js 18+**. Browser opens automatically at `http://127.0.0.1:8080`
 
 ### Change Port / 更改端口
 
