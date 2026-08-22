@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/screenshots/banner.png" width="600" alt="ADV9 Banner">
-</p>
-
 <h1 align="center">ADV9 Adventurer Learning Platform</h1>
 
 <p align="center">
