@@ -3018,9 +3018,11 @@ let FEATS=[
 ['💬','世界頻道','公開聊天','#38d9c0','vChatV()'],
 
 ['📢','公告欄','全校公告','#f2c14e','vAnn()'],
+['⚙️','設定','主題・時間鎖','#546e7a','vSet()'],
 
-['⚙️','設定','主題・時間鎖','#546e7a','vSet()']
+['🗺️','AI 學習路徑','弱點分析・個人化推薦','#00bcd4','generateLearningPathUI()'],
 
+['🏟️','班級即時競賽','全班同步答題・即時排名','#ff5722','startClassCompetitionUI()']
 
 ];
 function langName(code){for(const r in LANG_DATA){const f=LANG_DATA[r].find(x=>x[0]===code);if(f)return f[1]}return code||''}
@@ -13195,10 +13197,7 @@ FEATS.push(
   ['♾️','∞ 神階換取','七階段考驗・神級學科換取','#7e57c2','vInfinityExchange()'],
   ['🧪','雙倍增益與商店','星辰幣・4種雙倍・7種時長','#ffa726','vBuffStore()'],
   ['💻','虛擬終端','AI 驅動・模擬真實指令列','#00e676','vTerminal()'],
-  ['👑','管理員系統控制台','等級上限・單項上限・備份還原・禮包碼','#e53935','vAdminPanel()', true],
-  ['🗺️','AI 學習路徑','弱點分析・個人化推薦','#00bcd4','generateLearningPathUI()'],
-  ['🏟️','班級即時競賽','全班同步答題・即時排名','#ff5722','startClassCompetitionUI()'],
-  ['📝','作業檔案匯入','.docx/.txt 自動解析','#8bc34a','vAdminPanel()']
+  ['👑','管理員系統控制台','等級上限・單項上限・備份還原・禮包碼','#e53935','vAdminPanel()', true]
 );
 
 /* ════════════════════════════════════════════
