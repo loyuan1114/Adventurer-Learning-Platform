@@ -54,7 +54,7 @@ async function vAdminPanel(){
   html += '</div></div>';
 
   html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">📄 作業檔案匯入</b>';
-   html += '<div style="margin-top:8px;font-size:12px;color:var(--mut)">推薦使用 <b>.txt</b>（Word 請另存新檔為純文字）。每題固定 6 行：第 1 行題目、第 2-5 行四個選項、第 6 行正確答案（可填 a/b/c/d、1-4 或選項全文）。支援不帶引號或四周加雙引號的格式，亦可混用。</div>';
+   html += '<div style="margin-top:8px;font-size:12px;color:var(--mut)">推薦使用 <b>.txt</b>（Word 請另存新檔為純文字）。每題固定 6 行：第 1 行題目、第 2-5 行四個選項、第 6 行正確答案（可填 a/b/c/d、1-4 或選項全文）。支援 <span style="color:var(--teal);font-weight:700">不帶引號</span> 或 <span style="color:var(--teal);font-weight:700">四周加雙引號</span> 的格式，亦可<span style="color:var(--teal);font-weight:700">混用</span>。</div>';
    html += '<pre style="margin-top:6px;padding:8px;background:#12121f;border:1px solid #333;border-radius:6px;font-size:12px;color:#9fd;line-height:1.5">格式一（免引號）：\n題目文字\n選項A\n選項B\n選項C\n選項D\n正確答案（a/b/c/d 或 1-4 或選項全文）\n\n格式二（帶引號，亦可混用）：\n"題目文字"\n"a"\n"b"\n"c"\n"d"\n"答案"</pre>';
   html += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
   html += '<label class="btn mini teal">📂 選擇作業檔案<input type="file" accept=".docx,.txt" style="display:none" id="hwFileInput" onchange="adminParseHomeworkFile(this)"></label>';
