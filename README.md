@@ -1,4 +1,4 @@
-﻿# 🎮 ADV9 Adventurer Learning Platform / 冒險者學習平台
+# 🎮 ADV9 Adventurer Learning Platform / 冒險者學習平台
 
 > A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction.
 >
