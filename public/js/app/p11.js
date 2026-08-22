@@ -846,9 +846,9 @@ toast('📤 已分享作業模板給 '+(fr?fr.name:'好友')+'！');
    vRoster 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vRoster
    ════════════════════════════════════════════ */
-async function vRoster(){
+async function vRoster(fGrade,fClass){
   if(!await needJs(['js/views/vRoster.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vRoster();
+  vRoster(fGrade,fClass);
 }
 
 

@@ -214,9 +214,9 @@ async function vSubj(){
    含 1 個單位：vUnitList
    ════════════════════════════════════════════ */
 
-async function vUnitList(){
+async function vUnitList(subj){
   if(!await needJs(['js/views/vUnitList.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vUnitList();
+  vUnitList(subj);
 }
 
 
@@ -303,7 +303,7 @@ const diffEl=$('#diffS');if(diffEl){Quiz.diff=+diffEl.value;
 
 if(sysCfg().diffMode==='隨機')Quiz.diff=clamp(Quiz.diff+((Math.random()*21)|0)-10,1,100);} /* 難度模式由管理員全域設定 */
 
-const aiEl=$('#useAI');Quiz.useAI=true; /* 修煉場必定使用 AI API 出題 */
+Quiz.useAI=true; /* 修煉場必定使用 AI API 出題 */
 
 Quiz.phase='LOADING';showLoading();
 
@@ -522,9 +522,9 @@ return R;
    vResult 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vResult
    ════════════════════════════════════════════ */
-async function vResult(){
+async function vResult(ok,el,R){
   if(!await needJs(['js/views/vResult.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vResult();
+  vResult(ok,el,R);
 }
 
 

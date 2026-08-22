@@ -117,9 +117,9 @@ function socialTabs(active){const g=me()&&me().g;const um=g?unreadMail(g):0;retu
    vSocial 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vSocial
    ════════════════════════════════════════════ */
-async function vSocial(){
+async function vSocial(tab){
   if(!await needJs(['js/views/vFriends.js', 'js/views/vGroup.js', 'js/views/vMail.js', 'js/views/vStory.js', 'js/views/vSocial.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vSocial();
+  vSocial(tab);
 }
 
 
