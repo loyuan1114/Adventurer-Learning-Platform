@@ -1,39 +1,73 @@
-# 🎮 ADV9 Adventurer Learning Platform / 冒險者學習平台
+<p align="center">
+  <img src="https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/docs/screenshots/banner.png" width="640" alt="ADV9 Banner">
+</p>
 
-> A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction.
->
-> 把課業變成冒險遊戲的學習平台：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動。
+<h1 align="center">ADV9</h1>
+<p align="center"><strong>Adventurer Learning Platform</strong><br><sub>A gamified learning platform with AI, code sandbox, and RPG progression</sub></p>
 
-- **密碼安全** / **Password security**: Argon2id 雜湊（無法使用 argon2 時自動降級為 scrypt）/ Argon2id hashing (falls back to scrypt if argon2 is unavailable)
-- **Docker 一鍵部署** / **Docker one-click deploy**: 支援 Linux / macOS / Windows / Works on any OS with Docker
-- **資料留在本機** / **All data stays local**: 帳號、設定、AI 金鑰都存在 `data/`、`media/` / Accounts, settings, AI keys stored in `data/`, `media/`
-- **預設管理員** / **Default admin**: `adv9boss` / `admin123`（首次登入請改密碼 / **change password on first login**）
+<p align="center">
+  <a href="#installation"><kbd>Installation</kbd></a>
+  <span>&nbsp;·&nbsp;</span>
+  <a href="#features"><kbd>Features</kbd></a>
+  <span>&nbsp;·&nbsp;</span>
+  <a href="#demo"><kbd>Live Demo</kbd></a>
+  <span>&nbsp;·&nbsp;</span>
+  <a href="#deployment"><kbd>Deployment</kbd></a>
+  <span>&nbsp;·&nbsp;</span>
+  <a href="#license"><kbd>License</kbd></a>
+</p>
 
----
-
-## 🚀 快速開始 / Quick Start
-
-### 📥 桌面安裝器 / Desktop Installer
-
-下載對應版本，雙擊執行：
-Download the installer for your platform and double-click:
-
-| 檔案 / File | 平台 / Platform | 下載 / Download |
-|------------|----------------|----------------|
-| `adv9-installer-windows-x64.exe` | Windows 64 位元 | [Releases](../../releases/latest) |
-| `adv9-installer-windows-x86.exe` | Windows 32 位元 | [Releases](../../releases/latest) |
-| `adv9-installer-windows-arm64.exe` | Windows ARM | [Releases](../../releases/latest) |
-| `adv9-installer-mac-arm64` | macOS Apple Silicon (M1+) | [Releases](../../releases/latest) |
-| `adv9-installer-mac-x64` | macOS Intel | [Releases](../../releases/latest) |
-| `adv9-installer-linux-x64` | Linux 64 位元 | [Releases](../../releases/latest) |
-
-> 安裝器會自動：安裝 Docker → 下載專案 → 建置容器 → 開啟瀏覽器 / The installer will: install Docker → download project → build container → open browser.
-
-**預設登入 / Default login**: `adv9boss` / `admin123`
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/loyuan1114/Adventurer-Learning-Platform?style=flat-square" alt="Release">
+  <img src="https://img.shields.io/github/downloads/loyuan1114/Adventurer-Learning-Platform/total?style=flat-square" alt="Downloads">
+  <img src="https://img.shields.io/github/license/loyuan1114/Adventurer-Learning-Platform?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/Node.js-18%2B-brightgreen?style=flat-square" alt="Node.js">
+</p>
 
 ---
 
-### 🐳 Docker Compose
+## Overview
+
+ADV9 transforms academic subjects into an RPG adventure. Students answer questions to progress through dungeons, collect cards, forge equipment, and compete in guild battles — all while teachers get AI-powered analytics and students get personalized learning paths.
+
+<strong>ADV9 把課業變成冒險遊戲。</strong>學生答題推進地牢、收集卡牌、鍛造裝備、公會對戰；老師獲得 AI 學情分析，學生獲得個人化學習路徑。
+
+### Quick Stats
+
+| Metric | Value |
+|--------|-------|
+| Subjects | Math, Chinese, English, Science, Social, Code, 211 Languages |
+| AI Providers | Gemini, OpenAI, DeepSeek, Qwen, Kimi, Ollama (local) |
+| Code Sandbox | Python, C++, Java |
+| Data Storage | Local JSON / Optional Supabase |
+| Deployment | Docker, VPS, GitHub Pages, Local |
+
+---
+
+## Installation / 安裝
+
+### Option 1: Desktop Installer (Recommended) / 桌面安裝器（推薦）
+
+Download the installer for your platform from [Releases](../../releases/latest) and double-click.
+
+| File | Platform | Size |
+|------|----------|------|
+| `adv9-installer-windows-x64.exe` | Windows 64-bit | 7.5 MB |
+| `adv9-installer-windows-x86.exe` | Windows 32-bit | 6.6 MB |
+| `adv9-installer-windows-arm64.exe` | Windows ARM | 6.8 MB |
+| `adv9-installer-mac-arm64` | macOS Apple Silicon | 8.5 MB |
+| `adv9-installer-mac-x64` | macOS Intel | 8.8 MB |
+| `adv9-installer-linux-x64` | Linux 64-bit | 19.0 MB |
+
+**What the installer does / 安裝器會自動：**
+1. Install Docker (if not present) / 安裝 Docker（如未安裝）
+2. Download project from GitHub / 從 GitHub 下載專案
+3. Build and start Docker container / 建置並啟動容器
+4. Open browser to `http://127.0.0.1:8080` / 自動開啟瀏覽器
+
+Default credentials / 預設帳號：`adv9boss` / `admin123`
+
+### Option 2: Docker Compose / Docker Compose 部署
 
 ```bash
 git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
@@ -41,135 +75,214 @@ cd Adventurer-Learning-Platform
 docker compose up -d
 ```
 
----
+### Option 3: Direct Node.js / 直接執行
 
-### 💻 GitHub Codespaces（免費）/ Free
-
-1. Fork 此倉庫 → **Code → Codespaces → Create codespace**
-2. 在終端機執行：
 ```bash
-docker compose up -d --build
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+npm install
+node server.js
 ```
-3. **Ports** 面板 → 8080 → 右鍵 → **Port Visibility → Public**
 
 ---
 
-## ✨ 功能特色 / Features
+## Features / 功能
 
-### 📚 核心學習 / Core Learning
+### Core Learning / 核心學習
 
-| 模組 / Module | 功能 / Description |
-|--------------|-------------------|
-| 🎯 問答冒險 / Quiz Adventure | AI 出題、地牢推進、XP 與戰利品獎勵 / AI-generated questions, dungeon progression, XP & loot |
-| 📝 作業系統 / Homework System | 老師發布、自動批改、AI 弱點分析 / Teacher assignment, auto-grading, AI weak-point analysis |
-| 🃏 閃卡複習 / Flashcards (SM-2) | 間隔重複算法，長期記憶保留 / Spaced repetition for long-term retention |
-| 📝 筆記與心智圖 / Notes & Mindmaps | 豐富筆記 + AI 生成視覺心智圖 / Rich notes with AI-generated mindmaps |
-| 📅 考試規劃 / Exam Planning | 倒數計時、AI 學習計畫、進度追蹤 / Countdown, AI study plans, progress tracking |
+| Module | Description |
+|--------|-------------|
+| **Quiz Adventure** / 問答冒險 | AI-generated questions, dungeon progression, XP & loot rewards |
+| **Homework System** / 作業系統 | Teacher assignment, auto-grading, AI weak-point analysis |
+| **Flashcards (SM-2)** / 閃卡複習 | Spaced repetition algorithm for long-term retention |
+| **Notes & Mindmaps** / 筆記與心智圖 | Rich note-taking with AI-generated visual mindmaps |
+| **Exam Planning** / 考試規劃 | Countdown, AI-generated study plans, progress tracking |
 
-### ⚔️ RPG 系統 / RPG Systems
+### RPG Systems / RPG 系統
 
-| 模組 / Module | 功能 / Description |
-|--------------|-------------------|
-| 🎴 卡牌收集 / Card Gacha | 角色、寵物、動漫卡牌，稀有度階梯 / Character, pet, anime card gacha with rarity tiers |
-| ⚒️ 鍛造裝備 / Forge & Equipment | 品質階梯、強化、素材蒐集 / Crafting, enhancement, material gathering |
-| 🗺️ 領土征服 / Territory | 跨學科攻佔戰，獎勵倍率 / Cross-subject conquest with reward multipliers |
-| 🏰 公會戰 / Guild Wars | 團隊戰鬥、領土控制、班級競賽 / Team battles, territory control, class competitions |
-| 🗡️ 個人冒險 / Rogue-like | 每個玩家獨一無二的冒險路線 / Unique adventure path per player |
+| Module | Description |
+|--------|-------------|
+| **Card Gacha** / 卡牌收集 | Character, pet, and anime card collection with rarity tiers |
+| **Forge & Equipment** / 鍛造裝備 | Crafting with quality tiers, enhancement, material gathering |
+| **Territory** / 領土征服 | Cross-subject conquest battles with reward multipliers |
+| **Guild Wars** / 公會戰 | Team battles, territory control, class competitions |
+| **Rogue-like** / 個人冒險 | Unique adventure path per player |
 
-### 🤖 AI 整合 / AI Integration
+### AI Integration / AI 整合
 
-| 模組 / Module | 功能 / Description |
-|--------------|-------------------|
-| 🤖 多供應商 AI / Multi-Provider AI | Gemini、OpenAI、DeepSeek、Qwen、Kimi、Ollama（本機）/ 6+ AI providers, local Ollama support |
-| 🗣️ AI 導師 / AI Tutor | 根據筆記與進度個人化輔導 / Personalized tutoring based on notes & progress |
-| 📊 AI 學情稽核 / AI Audit | 老師後台 + AI 學生行為分析 / Teacher dashboard with AI-powered analysis |
-| 🎙️ AI 播客 / AI Podcast | 自動生成音訊學習教材 / Auto-generated audio study materials |
-| 🧭 AI 學習路徑 / AI Learning Path | 根據表現數據個人化課程 / Personalized curriculum from performance data |
+| Module | Description |
+|--------|-------------|
+| **Multi-Provider AI** / 多供應商 AI | Gemini, OpenAI, DeepSeek, Qwen, Kimi, Ollama (local) |
+| **AI Tutor** / AI 導師 | Personalized tutoring based on notes and progress |
+| **AI Audit** / AI 學情稽核 | Teacher dashboard with AI-powered student behavior analysis |
+| **AI Podcast** / AI 播客 | Auto-generated audio study materials |
+| **AI Learning Path** / AI 學習路徑 | Personalized curriculum based on performance data |
 
-### 💬 社交與管理 / Social & Admin
+### Social & Admin / 社交與管理
 
-| 模組 / Module | 功能 / Description |
-|--------------|-------------------|
-| 💬 聊天與社交 / Chat & Social | 好友、群組、郵件、貼文 / Friends, groups, mail, story posting |
-| 💻 程式沙盒 / Code Sandbox | Python、C++、Java 執行 / Python, C++, Java execution |
-| 👨‍👩‍👧 家長儀表板 / Parent Dashboard | 即時進度監控、同意管理 / Real-time progress monitoring, consent management |
-| 👑 管理員後台 / Admin Panel | 用戶管理、系統備份還原、API 金鑰管理 / User management, backup/restore, API keys |
-
----
-
-## 📊 平台比較 / Platform Comparison
-
-| 項目 / Item | **ADV9** | PaGamO | 均一教育平台 | Cool English |
-|------------|---------|--------|-----------|-------------|
-| **類型 / Type** | 開源自架 / Open-source | 商業 SaaS | 非營利 SaaS | 政府 SaaS |
-| **費用 / Cost** | 免費（自備主機）/ Free | 免費＋課金 / Free + premium | 完全免費 / Free | 完全免費 / Free |
-| **學科 / Subjects** | 全科 + 程式 + 211 語言 / All + code + 211 langs | 國小到高中五大領域 / K-12 five domains | 國小到高中數理語文 / K-12 STEM | 僅英語 / English only |
-| **遊戲化 / Gamification** | RPG 抽卡 + 公會 + 領土 + 鍛造 / Full RPG | 領土攻佔 + PK / Territory + PK | 徽章 + 點數 / Badges + points | 小遊戲 / Mini-games |
-| **AI 功能 / AI** | 6+ 供應商，支援本機 / 6+ providers | 基本分析 / Basic analytics | 內容推薦 / Content rec. | AI 發音 / Pronunciation |
-| **程式沙盒 / Code** | Python, C++, Java | ✗ | 電腦科學課程 / CS courses | ✗ |
-| **社群 / Social** | 好友、公會、郵件、貼文 / Full social | 團隊 PK、排行榜 / Team PK | 有限 / Limited | 有限 / Limited |
-| **部署 / Deploy** | Docker / Codespaces / VPS / 本機 | 雲端僅 / Cloud only | 雲端僅 / Cloud only | 雲端僅 / Cloud only |
-| **資料控制 / Data** | 完全自控 / Full control | 廠商代管 / Vendor | 廠商代管 / Vendor | 政府代管 / Gov |
-| **可客製 / Custom** | 完全（開源）/ Full (open) | 否 / No | 否 / No | 否 / No |
+| Module | Description |
+|--------|-------------|
+| **Chat & Social** / 聊天與社交 | Friends, groups, mail, story posting |
+| **Code Sandbox** / 程式沙盒 | Python, C++, Java execution in isolated containers |
+| **Parent Dashboard** / 家長儀表板 | Real-time progress monitoring, consent management |
+| **Admin Panel** / 管理員後台 | User management, system backup/restore, API key management |
 
 ---
 
-## 🌐 線上演示 / Live Demo
+## Platform Comparison / 平台比較
+
+| | **ADV9** | PaGamO | 均一 | Cool English |
+|---|---------|--------|------|-------------|
+| **Type** | Open-source self-hosted | Commercial SaaS | Non-profit SaaS | Government SaaS |
+| **Cost** | Free (self-host) | Free + premium | Free | Free |
+| **Subjects** | All + code + 211 langs | K-12 five domains | K-12 STEM | English only |
+| **Gamification** | Full RPG system | Territory + PK | Badges + points | Mini-games |
+| **AI** | 6+ providers, local | Basic analytics | Content rec. | Pronunciation |
+| **Code Sandbox** | Python, C++, Java | ✗ | CS courses | ✗ |
+| **Social** | Full (guilds, mail) | Limited | Limited | Limited |
+| **Deployment** | Docker / VPS / Pages | Cloud only | Cloud only | Cloud only |
+| **Data Control** | Full ownership | Vendor managed | Vendor managed | Government |
+| **Custom** | AGPL-3.0 (open) | No | No | No |
+
+---
+
+## Live Demo / 線上演示
 
 **GitHub Pages**: [https://loyuan1114.github.io/Adventurer-Learning-Platform/](https://loyuan1114.github.io/Adventurer-Learning-Platform/)
 
-| 角色 / Role | 帳號 / Username | 密碼 / Password |
+| Role / 角色 | Username / 帳號 | Password / 密碼 |
 |------------|----------------|----------------|
-| 管理員 / Admin | `adv9boss` | `admin123` |
+| Admin / 管理員 | `adv9boss` | `admin123` |
 
-> ⚠️ Pages 版資料只存於該瀏覽器的 `localStorage`，清除瀏覽器資料會清空進度。
-> The Pages version stores all data in browser `localStorage`. Clearing browser data will erase progress.
-
----
-
-## 🛠️ 管理員設定 / Admin Settings
-
-| 設定 / Setting | 位置 / Location |
-|--------------|----------------|
-| 預設帳號 / Default account | `adv9boss` / `admin123` |
-| 密碼雜湊 / Password hashing | Argon2id（scrypt 降級）/ Argon2id (scrypt fallback) |
-| 修改密碼 / Change password | 登入 → 帳號頁 / Login → Account page |
-| AI 金鑰 / AI keys | 管理員 → API 金鑰管理 / Admin → API Keys |
-| AI 端點 / AI endpoints | 管理員 → AI 端點 / Admin → AI Endpoints |
-| 背景音樂 / Background music | 設定 → 背景音樂 / Settings → Music |
-| 蘇格拉底設定 / Socratic settings | 管理員 → 蘇格拉底設定 / Admin → Socratic |
+> ⚠️ Pages version runs entirely in browser `localStorage`. Multi-user requires VPS backend.
+> Pages 版資料存在瀏覽器 `localStorage`，多人連線需架 VPS。
 
 ---
 
-## 🤖 本機 AI（Ollama，免費無 API 金鑰）/ Local AI (Ollama, Free)
+## Deployment / 部署
+
+### Docker
+
+```bash
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+docker compose up -d --build
+```
+
+### VPS (Ubuntu/Debian)
+
+```bash
+# Install Docker / 安裝 Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Clone and run / 克隆並運行
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+docker compose up -d --build
+```
+
+### Port Configuration / 端口設定
+
+Edit `docker-compose.yml` to change port:
+修改 `docker-compose.yml` 更改端口：
+
+```yaml
+services:
+  adv9:
+    ports:
+      - "3000:8080"  # Host:Container
+```
+
+---
+
+## Data & Backup / 資料與備份
+
+```
+data/    Accounts, settings, AI keys, homework, chat logs
+media/   Uploaded photos, videos, music
+```
+
+| Action / 動作 | Command / 指令 |
+|--------------|---------------|
+| Upgrade / 升級 | `docker compose down && docker compose up -d --build` |
+| Backup / 備份 | `tar czf backup.tgz data media` |
+| Restore / 還原 | Extract backup → `docker compose restart` |
+| Uninstall / 卸載 | `docker compose down && rm -rf adv9` |
+
+---
+
+## Local AI (Ollama) / 本機 AI
+
+Run AI entirely on your server with no API keys needed:
+完全在伺服器上運行 AI，無需 API 金鑰：
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull huihui_ai/qwen2.5-vl-abliterated:7b
 ```
 
-然後：管理員 → **AI 端點** → 新增 → 供應商：Ollama → 模型：`qwen2.5-vl-abliterated:7b` → 金鑰：`http://127.0.0.1:11434`
-Then: Admin → **AI Endpoints** → Add → Provider: Ollama → Model: `qwen2.5-vl-abliterated:7b` → Key: `http://127.0.0.1:11434`
+Then configure in Admin → **AI Endpoints** → Add → Provider: Ollama → Key: `http://127.0.0.1:11434`
+然後在管理員 → **AI 端點** → 新增 → 供應商：Ollama → 金鑰：`http://127.0.0.1:11434`
 
 ---
 
-## 📝 作業檔案匯入 / Homework Import
+## Architecture / 架構
 
-### 檔案格式 / File Format
+```
+adv9/
+├── server.js              # Node.js HTTP server (auth, KV, WebSocket, sandbox)
+├── public/
+│   ├── index.html         # Main entry (1,461 lines, CSS + loader + SW)
+│   ├── js/
+│   │   ├── app/           # 19 app modules (p00-p15, q00-q01, api-layer)
+│   │   └── views/         # 84 lazy-loaded view modules
+│   ├── sw.js              # Service Worker (network-first)
+│   └── manifest.json      # PWA manifest
+├── data/                  # Persistent storage (JSON files)
+├── installer/             # Rust desktop installer source
+│   └── src/               # main.rs, docker.rs, deploy.rs, platform.rs
+├── Dockerfile             # Node 20 Alpine
+└── docker-compose.yml
+```
 
-推薦使用 `.txt`（Word 請另存新檔為純文字）
-Recommend using `.txt` (in Word: File → Save As → Plain Text)
+---
 
-每題固定 **6 行**：
-Each question requires exactly **6 lines**:
-1. 題目 / Question
-2. 選項 a / Option a
-3. 選項 b / Option b
-4. 選項 c / Option c
-5. 選項 d / Option d
-6. 答案 / Answer（可填 a/b/c/d、1-4 或選項全文 / can be a/b/c/d, 1-2-3-4, or full option text）
+## Development / 開發
 
-### 範例 / Example
+```bash
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+npm install
+node server.js
+```
+
+Requires **Node.js 18+**.
+
+### Building the Installer / 編譯安裝器
+
+```bash
+cd installer
+cargo build --release
+# Binary: target/release/adv9-installer
+```
+
+Cross-compile targets / 交叉編譯目標：
+```bash
+cargo build --release --target x86_64-unknown-linux-gnu   # Linux x64
+cargo build --release --target aarch64-apple-darwin       # macOS ARM64
+cargo build --release --target x86_64-apple-darwin        # macOS x64
+```
+
+---
+
+## Homework Import Format / 作業匯入格式
+
+### Plain Text / 純文字格式
+
+Each question requires exactly 6 lines:
+每題固定 6 行：
 
 ```
 題目：下列哪一個是質數？
@@ -178,19 +291,12 @@ b. 6
 c. 7
 d. 9
 答案：c
-
-題目：水的化學式為何？
-a. CO2
-b. H2O
-c. NaCl
-d. O2
-答案：b
 ```
 
-### 雙引號格式 / Quoted Format（支援）
+### Quoted Format / 帶引號格式
 
-也可以每個欄位用雙引號包起來，或者混用：
-You can also wrap each field in quotes, or mix formats:
+Also supported, with quotes around each field:
+也支援每欄位加引號：
 
 ```
 "題目：下列哪一個是質數？"
@@ -201,78 +307,53 @@ You can also wrap each field in quotes, or mix formats:
 "答案：c"
 ```
 
----
+### Mixed Format / 混用格式
 
-## 📁 資料與備份 / Data & Backup
+You can mix quoted and unquoted lines:
+可以混用有引號和無引號的格式：
 
 ```
-data/    帳號、設定、AI 金鑰、作業、聊天記錄（JSON 檔案）
-         Accounts, settings, AI keys, homework, chat logs (JSON)
-media/   上傳的照片、影片、音樂
-         Uploaded photos, videos, music
+題目：下列哪一個是質數？
+"a. 4"
+b. 6
+"c. 7"
+d. 9
+答案：c
 ```
 
-| 動作 / Action | 指令 / Command |
-|--------------|---------------|
-| 升級 / Upgrade | `docker compose down && docker compose up -d --build` |
-| 備份 / Backup | `tar czf backup.tgz data media` |
-| 還原 / Restore | 解壓備份 → `docker compose restart` |
-| 卸載 / Uninstall | 使用安裝器「卸載」按鈕，或 `docker compose down && rm -rf adv9` |
+Answer formats: `a/b/c/d`, `1-4`, or exact option text.
+答案格式：`a/b/c/d`、`1-4`、或選項原文。
 
 ---
 
-## 🗑️ 卸載與刪除 / Uninstall
+## FAQ / 常見問題
 
-- **停止（保留資料）** / **Stop (keep data)**: `cd adv9 && docker compose down`
-- **刪除所有** / **Delete everything**: `docker compose down && rm -rf adv9`
-- **先備份** / **Backup first**: `tar czf backup.tgz data media` before deleting
+**Q: Port 8080 is not accessible? / 端口 8080 無法存取？**
+Allow port 8080 in your firewall or security group.
+在防火牆或安全組中放行 8080 端口。
+
+**Q: How to update? / 如何更新？**
+Download latest release, extract over old (keep `data/` and `media/`), run `docker compose up -d --build`.
+下載最新版，解壓縮覆蓋（保留 `data/` 和 `media/`），執行 `docker compose up -d --build`。
+
+**Q: No Docker? / 沒有 Docker？**
+Run `node server.js` directly (requires Node.js 18+).
+直接執行 `node server.js`（需要 Node.js 18+）。
 
 ---
 
-## 📜 開源授權 / License
+## License / 授權
 
-**AGPL-3.0-or-later**（見 `LICENSE`）。若您修改此軟體並以網路服務形式運行，必須向使用者提供原始碼。
+**AGPL-3.0-or-later**
+
 If you modify and run this software as a network service, you must provide the source code to users.
+若您修改此軟體並以網路服務形式運行，必須向使用者提供原始碼。
 
----
-
-## 🔍 AI 呼叫揭露 / AI Call Disclosure
-
-| 功能 / Function | 供應商 / Provider | 資料流向 / Data Flow |
-|----------------|------------------|---------------------|
-| 🤖 自動出題 / Auto Quiz | 您設定的供應商 / Your configured provider | 題目請求 → 供應商 → 題目回傳 / Question request → Provider → Quiz returned |
-| 📊 弱點分析 / Weak Analysis | 同上（預設：本機 Ollama）/ Same (default: Ollama local) | 錯誤統計 → 供應商 → 教學建議 / Error stats → Provider → Teaching suggestions |
-| 💬 AI 評語 / AI Comments | 同上 / Same | 學生姓名、成績 → 供應商 / Student name, grades → Provider |
-| 🔤 字體 / Fonts | Google Fonts | 瀏覽器載入字體檔案 / Browser loads font files |
-| 🖼 縮圖 / Thumbnails | Bing | 搜尋縮圖載入 / Search thumbnails loaded |
-
-> 只有 **Ollama 本機模式** 能完全保留資料在您的伺服器上。
-> **Only Ollama local mode** keeps data entirely on your server.
-
----
-
-## 📸 圖片授權政策 / Photo Policy
-
-所有照片均為 **CC0 公有領域**。上傳照片即表示同意 CC0 授權。請使用 CC0 來源（Pixabay/Unsplash/Wikimedia Commons）作為內建背景。
-All photos are **CC0 Public Domain**. Uploading photos implies consent to CC0 licensing. Use CC0 sources (Pixabay/Unsplash/Wikimedia Commons) for built-in backgrounds.
-
----
-
-## ❓ 常見問題 / FAQ
-
-- **Port 8080 無法存取？** / **Port 8080 not accessible?**
-  請在防火牆放行 8080 埠 / Allow port 8080 in your firewall/security group
-
-- **如何更新？** / **How to update?**
-  下載最新版，解壓縮覆蓋（保留 `data/` 和 `media/`），執行 `docker compose up -d --build`
-  Download latest, extract over old (keep `data/` and `media/`), run `docker compose up -d --build`
-
-- **沒有 Docker？** / **No Docker?**
-  直接執行 `node server.js`（需要 Node.js 18+，先 `npm install` 安裝 Argon2）
-  Run `node server.js` directly (Node.js 18+ required, `npm install` first for Argon2)
+See [`LICENSE`](LICENSE) for full text.
+完整授權條款請見 [`LICENSE`](LICENSE)。
 
 ---
 
 <p align="center">
-  <sub>Built with ❤️ for learners everywhere / 為全世界學習者而建 ❤️</sub>
+  <sub>Built with ❤️ for learners everywhere · 為全世界學習者而建 ❤️</sub>
 </p>
