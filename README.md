@@ -1,4 +1,4 @@
-# ? ADV9 Adventurer Learning Platform / ??飛蝧像??
+﻿# ? ADV9 Adventurer Learning Platform / ??飛蝧像??
 > A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction.
 >
 > ?玨璆剛????芷??脩?摮貊?撟喳嚗?憿??芥?⊿?????啜?璆剔撣I ?拍??冗蝢支???
