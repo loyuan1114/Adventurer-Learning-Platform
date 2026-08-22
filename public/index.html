@@ -9328,15 +9328,30 @@ var g=child.g;
 
 var h='<h2 class="mt">👨‍👩‍👧 家長觀察面板</h2>';
 h+='<p style="color:var(--mut)">👤 觀察對象：'+esc(child.name||childUsername)+'</p>';
+
+/* 法律保護條款 */
+h+='<div style="background:#1a2a4a;border:2px solid #ff6b6b;border-radius:12px;padding:12px 16px;margin:10px 0">';
+h+='<p style="color:#ff6b6b;font-weight:bold;margin:0 0 6px;font-size:13px">⚠️ 重要提醒</p>';
+h+='<ul style="color:var(--mut);font-size:12px;margin:0;padding-left:18px;line-height:1.7">';
+h+='<li>本面板僅供關心與鼓勵，請勿作為責備依據</li>';
+h+='<li>孩子有權隨時<strong style="color:#ff6b6b">撤銷</strong>你的查看權限</li>';
+h+='<li>家長<strong style="color:#ff6b6b">不得</strong>因孩子拒絕或撤銷而懲罰、威脅、逼迫或棄養</li>';
+h+='<li>違反者將被<strong style="color:#ff6b6b">永久停權</strong>家長端功能</li>';
+h+='</ul></div>';
+
+var _streak=(g.streak&&typeof g.streak==='object')?(g.streak.count||0):(g.streak||0);
+var _pkWin=((g.pk||{}).win)||0;
+var _stats=g.stats||{};
+var _acc=Math.round(((_stats.correct)||0)/((_stats.total||0)||1)*100);
 h+='<div class="rwRow">';
-h+='<span class="rwChip">📊 Lv.'+g.lv+' '+esc(g.title||'冒險者')+'</span>';
-h+='<span class="rwChip">⚡ '+g.streak+' 連擊</span>';
-h+='<span class="rwChip">🎯 正確率 '+Math.round((g.correct||0)/((g.total||1)||1)*100)+'%</span>';
+h+='<span class="rwChip">📊 Lv.'+(g.lv||1)+' '+esc(g.title||'冒險者')+'</span>';
+h+='<span class="rwChip">🔥 '+(g.sign&&g.sign.total||0)+' 天簽到</span>';
+h+='<span class="rwChip">🎯 正確率 '+_acc+'%</span>';
 h+='</div>';
 h+='<div class="rwRow">';
-h+='<span class="rwChip">🗡️ '+g.fightswon+' 勝</span>';
+h+='<span class="rwChip">🗡️ PK '+_pkWin+' 勝</span>';
 h+='<span class="rwChip">🏰 領地 '+Object.keys((g.territory||{}).owned||{}).length+'</span>';
-h+='<span class="rwChip">📝 筆記 '+(g.notes||[]).length+'</span>';
+h+='<span class="rwChip">📝 筆記 '+((g.notes&&g.notes.length)||0)+'</span>';
 h+='</div>';
 
 var today=new Date(),weekAgo=new Date(today.getTime()-7*86400000);
@@ -9347,7 +9362,7 @@ weekSessions.forEach(function(s){h+='<div>• '+new Date(s.date).toLocaleDateStr
 if(!weekSessions.length)h+='<div>本週無活動紀錄</div>';
 h+='</div>';
 
-h+='<div class="mBtns" style="margin-top:16px"><button class="btn ghost" onclick="parentDashboard()">返回</button>';
+h+='<div class="mBtns" style="margin-top:16px"><button class="btn ghost" onclick="closeModal();parentDashboard()">返回</button>';
 h+='<button class="btn danger" onclick="if(confirm(\'確定要撤銷查看權限嗎？\')){parentRevokeAccess(\''+childUsername+'\');parentDashboard();}">撤銷權限</button></div>';
 
 openModal(h);
