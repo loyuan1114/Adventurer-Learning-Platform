@@ -80,59 +80,35 @@ English-only, AI pronunciation practice / 英語專攻、AI 口說練習 | **Coo
 
 ---
 
-## 🚀 Deployment / 部署方法
+## 🚀 安裝方法（Windows 一鍵部署）
 
-### Option 1: One-Click Deploy / 一鍵部署（推薦）
+### 第一步：下載程式
 
-**Windows** — 雙擊 `deploy.bat`，或 PowerShell 執行：
-```powershell
-.\deploy.ps1
-```
-自動安裝 Docker（如未安裝）→ 建置 → 啟動 → 瀏覽器自動開啟。
+1. 打開 https://github.com/loyuan1114/Adventurer-Learning-Platform
+2. 點綠色按鈕 **<> Code**
+3. 點 **Download ZIP**
+4. 解壓縮到桌面
 
-**Linux / Mac** — 終端執行：
-```bash
-git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
-cd Adventurer-Learning-Platform
-chmod +x deploy.sh && ./deploy.sh
-```
-自動安裝 Docker（如未安裝）→ 建置 → 啟動。
+### 第二步：雙擊執行
 
-> 首次安裝 Docker 後可能需要重開機或執行 `newgrp docker`。
+1. 打開解壓縮後的資料夾
+2. 找到 **deploy.bat**
+3. **雙擊它**
+4. 跳出視窗問你 → 按 **是**
+5. 等它跑完（第一次會自動裝 Docker，約 5 分鐘）
+6. 裝完後**重開機**
+7. 重開後再雙擊一次 **deploy.bat**
+8. 瀏覽器自動打開 → 完成！
 
----
-
-### Option 2: GitHub Codespaces (Free / 免費)
-
-1. Go to repo → **Code → Codespaces → Create codespace on main**
-2. Paste in terminal / 貼上：
-```bash
-[ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
-```
-3. **Ports** panel → 8080 → Right-click → **Port Visibility → Public** → Open 🌐
+> 預設帳號：`adv9boss` / `admin123`
 
 ---
 
-### Option 3: Docker Compose / Docker（手動）
+### 其他平台
 
-```bash
-git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
-cd Adventurer-Learning-Platform
-docker compose up -d --build
-```
-Then open / 開啟：`http://your-server-ip:8080`
-
----
-
-### Option 4: Direct Node.js / 直接執行
-
-```bash
-git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
-cd Adventurer-Learning-Platform
-npm install
-node server.js
-```
-Requires **Node.js 18+**. Browser opens automatically at `http://127.0.0.1:8080`
+- **Mac**：打開終端機，輸入 `./deploy.sh`
+- **Linux**：打開終端機，輸入 `./deploy.sh`
+- **有 Docker 的 VPS**：`docker compose up -d`
 
 ### Change Port / 更改端口
 
