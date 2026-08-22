@@ -53,9 +53,44 @@ async function vAdminPanel(){
   html += '<label class="btn mini danger">⚠️ 全系統還原<input type="file" accept=".json" style="display:none" onchange="adminSystemRestore(this)"></label>';
   html += '</div></div>';
 
+  html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">📄 作業檔案匯入</b>';
+  html += '<div style="margin-top:8px;font-size:12px;color:var(--mut)">支援 .docx / .txt 檔案，解析後回傳純文字內容供出題使用。</div>';
+  html += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
+  html += '<label class="btn mini teal">📂 選擇作業檔案<input type="file" accept=".docx,.txt" style="display:none" id="hwFileInput" onchange="adminParseHomeworkFile(this)"></label>';
+  html += '<span id="hwFileName" style="font-size:12px;color:var(--mut)"></span>';
+  html += '</div>';
+  html += '<div id="hwParseResult" style="margin-top:8px;max-height:300px;overflow:auto;display:none"></div>';
+  html += '</div>';
+
   $('#view').innerHTML = html;
 }
 
 function adminSystemBackup(){
   window.location.href = '/rest/v1/system_backup';
+}
+
+async function adminParseHomeworkFile(input){
+  var file=input.files[0];
+  if(!file)return;
+  var nameEl=document.getElementById('hwFileName');
+  var resultEl=document.getElementById('hwParseResult');
+  nameEl.textContent=file.name+' ('+(file.size/1024).toFixed(1)+' KB)';
+  resultEl.style.display='block';
+  resultEl.innerHTML='<span style="color:var(--mut)">⏳ 解析中...</span>';
+  try{
+    var fd=new FormData();
+    fd.append('file',file);
+    var r=await fetch(SUPA_URL+'/rest/v1/homework/parse_file',{method:'POST',headers:{'x-adv9-token':getToken()},body:fd});
+    var j=await r.json();
+    if(j.ok){
+      resultEl.innerHTML='<div style="margin-bottom:6px;font-size:12px;color:var(--gold2)">✅ 解析成功 ('+j.content.length+' 字元)</div>'
+        +'<textarea readonly style="width:100%;height:250px;font-size:13px;padding:8px;border:1px solid #444;border-radius:6px;background:#1a1a2e;color:#eee;resize:vertical">'+esc(j.content)+'</textarea>'
+        +'<div style="margin-top:6px"><button class="btn mini teal" onclick="navigator.clipboard.writeText(document.querySelector(\'#hwParseResult textarea\').value);toast(\'✅ 已複製\')">📋 複製內容</button></div>';
+    }else{
+      resultEl.innerHTML='<span style="color:#e74c3c">❌ '+esc(j.msg||'解析失敗')+'</span>';
+    }
+  }catch(e){
+    resultEl.innerHTML='<span style="color:#e74c3c">❌ 網路錯誤: '+esc(e.message)+'</span>';
+  }
+  input.value='';
 }

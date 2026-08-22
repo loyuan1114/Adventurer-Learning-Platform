@@ -14,6 +14,20 @@ $('#view').innerHTML=back()+'<h3 class="vt">⚔️ 選擇科目 <span class="vsu
 
 '<div class="subjGrid">'+
 
-Object.keys(SUBJ).map(s=>'<button class="subjB" style="background:'+SUBJ[s].c+'" onclick="vUnitList(\''+s+'\')">'+SUBJ[s].i+'<br>'+s+'</button>').join('')+'</div>';
+Object.keys(SUBJ).map(s=>'<button class="subjB" style="background:'+SUBJ[s].c+'" onclick="vUnitList(\''+s+'\')">'+SUBJ[s].i+'<br>'+s+'</button>').join('')+'</div>'+
 
+'<div style="margin-top:14px;text-align:center"><button class="btn teal" onclick="pickLearningPathSubject()">🗺️ AI 學習路徑</button></div>';
+
+}
+
+function pickLearningPathSubject(){
+  var h='<h2 class="mt">🗺️ AI 個人化學習路徑</h2>';
+  h+='<p style="color:var(--mut);font-size:13px;margin-bottom:14px">選擇科目查看 AI 根據你的答題弱點規劃的學習順序</p>';
+  h+='<div class="subjGrid">';
+  Object.keys(SUBJ).forEach(function(s){
+    h+='<button class="subjB" style="background:'+SUBJ[s].c+'" onclick="closeModal();generateLearningPath(\''+s+'\')">'+SUBJ[s].i+'<br>'+s+'</button>';
+  });
+  h+='</div>';
+  h+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
+  openModal(h);
 }

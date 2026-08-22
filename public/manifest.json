@@ -1,0 +1,13 @@
+{
+  "name": "冒險者學習平台 Adventurer Learning Platform",
+  "short_name": "ADV9",
+  "description": "把課業變成冒險遊戲的學習平台",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#6d4aff",
+  "orientation": "any",
+  "icons": [
+    {"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}

@@ -25,7 +25,7 @@ const PORT=process.env.PORT||8080;
 const USERS_KEY='ADV9_USERS';
 /* 資料隔離：下列 key 為全服共享（社交/系統/市集/聊天/排名/好友/公告等），原樣保留；
    其餘 key 視為個人資料，寫入時自動加 username: 前綴，避免所有學生共用同一份。 */
-const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT','ADV9_MUSIC_LINKS','ADV9_MUSIC_REQS','ADV9_PIXELS','ADV9_SUDOKU','ADV9_CLASSWAR','ADV9_VIDEOS','ADV9_AI_PROVIDERS','ADV9_QBANK','ADV9_TRUST']);
+const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT','ADV9_MUSIC_LINKS','ADV9_MUSIC_REQS','ADV9_PIXELS','ADV9_SUDOKU','ADV9_CLASSWAR','ADV9_VIDEOS','ADV9_AI_PROVIDERS','ADV9_QBANK','ADV9_TRUST','ADV9_PARENT_CONSENTS']);
 const MASTER={user:'adv9boss',salt:'ADV9|v1|9f3a7',hash:'c25eba85d26bc97f09b85878ff6b4a6322acd3c740485bf09a4930b7f49e5c42',name:'總管理員'};
 /* 伺服器專用 pepper：可用環境變數 ADV9_PEPPER 覆寫（建議部署時設定為隨機長字串）*/
 const SERVER_PEPPER=process.env.ADV9_PEPPER||'adv9-server-pepper-v1';
@@ -664,6 +664,131 @@ var ext='.docx';
       if(r.status!==0){res.writeHead(400);return res.end('parse failed')}
       res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});res.end(r.stdout||'[]');
     }catch(e){res.writeHead(500);res.end('parse error')}})
+  }
+
+  /* ═══ 作業檔案匯入（docx/txt 解析）：教師上傳 .docx 或 .txt，伺服器提取純文字回傳 ═══ */
+  if(req.method==='POST'&&p==='/rest/v1/homework/parse_file'){
+    var hw=checkToken(tok);if(!hw||(hw.role!=='teacher'&&hw.role!=='admin')){res.writeHead(403);return res.end('forbidden')}
+    var ct=req.headers['content-type']||'';
+    if(ct.indexOf('multipart/form-data')<0){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'需要 multipart/form-data'}))}
+    var boundaryMatch=ct.match(/boundary=(.+)/);
+    if(!boundaryMatch){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'缺少 boundary'}))}
+    var boundary=boundaryMatch[1].trim();
+    readBody(req,function(buf){
+      if(!buf||buf.length<4){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'空檔案'}))}
+      /* 簡易 multipart 解析：找 boundary 分隔段，提取檔案名稱與內容 */
+      var sep=Buffer.from('--'+boundary);
+      var parts=[];
+      var pos=0;
+      while(pos<buf.length){
+        var idx=buf.indexOf(sep,pos);
+        if(idx<0)break;
+        var start=idx+sep.length;
+        /* 跳過 boundary 後的 CRLF */
+        if(buf[start]===0x0D&&buf[start+1]===0x0A)start+=2;
+        else{pos=start;continue}
+        /* 找下一個 boundary 作為結束 */
+        var endIdx=buf.indexOf(sep,start);
+        if(endIdx<0)endIdx=buf.length;
+        /* 回退到結尾 CRLF 前 */
+        var partEnd=endIdx;
+        if(partEnd>=2&&buf[partEnd-2]===0x0D&&buf[partEnd-1]===0x0A)partEnd-=2;
+        var partData=buf.slice(start,partEnd);
+        /* 分離 header 與 body：找 \r\n\r\n */
+        var headerEnd=partData.indexOf(Buffer.from('\r\n\r\n'));
+        if(headerEnd<0){pos=endIdx;continue}
+        var headers=partData.slice(0,headerEnd).toString('utf8');
+        var body=partData.slice(headerEnd+4);
+        /* 提取 filename */
+        var fnMatch=headers.match(/filename="([^"]+)"/i);
+        var nameMatch=headers.match(/name="([^"]+)"/i);
+        if(fnMatch){parts.push({filename:fnMatch[1],name:nameMatch?nameMatch[1]:'file',data:body})}
+        pos=endIdx;
+      }
+      if(!parts.length){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'未找到檔案欄位'}))}
+      var f=parts[0];
+      var fname=(f.filename||'').toLowerCase();
+      var content='';
+      if(fname.endsWith('.txt')){
+        content=f.data.toString('utf8');
+      }else if(fname.endsWith('.docx')){
+        /* docx 為 zip：解壓縮 word/document.xml 後用 regex 提取 <w:t> 標籤內文字 */
+        try{
+          var str=f.data.toString('binary');
+          /* docx 內含 word/document.xml（也可能在 word/_rels/document.xml.rels 裡，但幾乎所有 docx 都有 word/document.xml）*/
+          /* 使用 unzip 簡易提取：找 word/document.xml 在 zip 中的 local file header */
+          var xmlContent='';
+          var scanPos=0;
+          var marker=Buffer.from('word/document.xml');
+          while(scanPos<f.data.length){
+            var found=f.data.indexOf(marker,scanPos);
+            if(found<0)break;
+            /* 向前找 local file header signature (PK\x03\x04) 以取得壓縮方法與大小 */
+            var hdrStart=Math.max(0,found-30);
+            var sig=f.data.readUInt32LE(hdrStart);
+            if(sig===0x04034B50){
+              var compMethod=f.data.readUInt16LE(hdrStart+8);
+              var compSize=f.data.readUInt32LE(hdrStart+18);
+              var uncompSize=f.data.readUInt32LE(hdrStart+22);
+              var fnameLen=f.data.readUInt16LE(hdrStart+26);
+              var extraLen=f.data.readUInt16LE(hdrStart+28);
+              var dataStart=hdrStart+30+fnameLen+extraLen;
+              if(compMethod===0){
+                /* stored (未壓縮) */
+                xmlContent=f.data.slice(dataStart,dataStart+uncompSize).toString('utf8');
+                break;
+              }else{
+                /* deflate 壓縮：用 Node.js zlib */
+                try{
+                  var zlib=require('zlib');
+                  var compressed=f.data.slice(dataStart,dataStart+compSize);
+                  xmlContent=zlib.inflateRawSync(compressed).toString('utf8');
+                  break;
+                }catch(zErr){
+                  /* zlib 失敗嘗試 inflateSync */
+                  try{
+                    var zlib2=require('zlib');
+                    xmlContent=zlib2.inflateSync(f.data.slice(dataStart,dataStart+compSize)).toString('utf8');
+                    break;
+                  }catch(zErr2){
+                    scanPos=found+marker.length;continue;
+                  }
+                }
+              }
+            }
+            scanPos=found+marker.length;
+          }
+          if(!xmlContent){
+            /* fallback：直接從二進位中 regex 搜尋 <w:t> 標籤 */
+            var binStr=f.data.toString('binary');
+            var re=/<w:t[^>]*>([^<]+)<\/w:t>/g;
+            var m2;var texts=[];
+            while((m2=re.exec(binStr))!==null){texts.push(m2[1])}
+            content=texts.join('');
+          }else{
+            var re2=/<w:t[^>]*>([^<]+)<\/w:t>/g;
+            var m3;var texts2=[];
+            while((m3=re2.exec(xmlContent))!==null){texts2.push(m3[1])}
+            content=texts2.join('');
+          }
+        }catch(e){
+          /* 最終 fallback：嘗試 regex 於原始 buffer */
+          try{
+            var rawStr=f.data.toString('binary');
+            var re3=/<w:t[^>]*>([^<]+)<\/w:t>/g;
+            var m4;var texts3=[];
+            while((m4=re3.exec(rawStr))!==null){texts3.push(m4[1])}
+            content=texts3.join('');
+          }catch(e2){content='[解析失敗: '+e2.message+']'}
+        }
+      }else{
+        /* 其他格式嘗試當純文字讀取 */
+        content=f.data.toString('utf8');
+      }
+      res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});
+      res.end(JSON.stringify({ok:true,content:content,filename:f.filename}));
+    });
+    return;
   }
 
   /* 登入：伺服器端驗證，回傳帳號＋token（不回傳密碼）*/
@@ -1393,6 +1518,213 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
   }
   if(!res.headersSent){ res.writeHead(404); res.end('404'); }
 });
+/* ═══ WebSocket Real-time PK ═══ */
+function createWebSocketServer(server) {
+  server.on('upgrade', function(req, socket, head) {
+    if (req.url !== '/ws/pk') { socket.destroy(); return; }
+    
+    var key = req.headers['sec-websocket-key'];
+    var accept = crypto.createHash('sha1')
+      .update(key + '258EAFA5-E914-47DA-95CA-5AB5DC65C740')
+      .digest('base64');
+    
+    socket.write(
+      'HTTP/1.1 101 Switching Protocols\r\n' +
+      'Upgrade: websocket\r\n' +
+      'Connection: Upgrade\r\n' +
+      'Sec-WebSocket-Accept: ' + accept + '\r\n\r\n'
+    );
+    
+    socket._pkRoom = null;
+    socket._pkUser = null;
+    socket._pkAlive = true;
+    
+    socket.on('data', function(data) {
+      try {
+        if (data.length < 2) return;
+        var opcode = data[0] & 0x0f;
+        if (opcode === 8) { socket._pkAlive = false; socket.destroy(); return; }
+        if (opcode !== 1) return;
+        
+        var mask = (data[1] & 0x80) !== 0;
+        var payloadLen = data[1] & 0x7f;
+        var offset = 2;
+        
+        if (payloadLen === 126) {
+          payloadLen = data.readUInt16BE(2);
+          offset = 4;
+        } else if (payloadLen === 127) {
+          payloadLen = Number(data.readBigUInt64BE(2));
+          offset = 10;
+        }
+        
+        if (mask) {
+          var maskKey = data.slice(offset, offset + 4);
+          offset += 4;
+          for (var i = 0; i < payloadLen; i++) {
+            data[offset + i] = data[offset + i] ^ maskKey[i % 4];
+          }
+        }
+        
+        var msg = JSON.parse(data.slice(offset, offset + payloadLen).toString('utf8'));
+        handlePkMessage(socket, msg);
+      } catch(e) {}
+    });
+    
+    socket.on('close', function() { socket._pkAlive = false; cleanupPkSocket(socket); });
+    socket.on('error', function() { socket._pkAlive = false; });
+  });
+}
+
+var PK_ROOMS = {};
+
+/* ═══ Real-time Class Competition ═══ */
+var CLASS_COMPETITIONS = {};
+
+function startClassCompetition(classId, teacherId, subject, duration) {
+  var compId = 'comp_' + Date.now();
+  CLASS_COMPETITIONS[compId] = {
+    id: compId,
+    classId: classId,
+    teacher: teacherId,
+    subject: subject,
+    duration: duration || 300000, // 5 minutes default
+    questions: [],
+    participants: {},
+    startTime: Date.now(),
+    status: 'active'
+  };
+  return compId;
+}
+
+function handleClassCompMessage(socket, msg) {
+  if (msg.type === 'comp_join') {
+    var comp = CLASS_COMPETITIONS[msg.compId];
+    if (!comp || comp.status !== 'active') return;
+    comp.participants[socket._pkUser] = { score: 0, answers: [], startTime: Date.now() };
+    broadcastToRoom('comp_' + msg.compId, { type: 'comp_joined', user: socket._pkUser, count: Object.keys(comp.participants).length });
+  }
+  else if (msg.type === 'comp_answer') {
+    var comp = CLASS_COMPETITIONS[msg.compId];
+    if (!comp) return;
+    var p = comp.participants[socket._pkUser];
+    if (!p) return;
+    p.answers.push({ q: msg.qIndex, correct: msg.correct, time: msg.time });
+    if (msg.correct) p.score += Math.max(10, 100 - Math.floor(msg.time / 1000));
+
+    // Broadcast to teacher
+    var teacherSocket = PK_ROOMS['comp_' + msg.compId] && PK_ROOMS['comp_' + msg.compId][comp.teacher];
+    if (teacherSocket) {
+      wsSend(teacherSocket, { type: 'comp_update', user: socket._pkUser, score: p.score, total: Object.keys(comp.participants).length });
+    }
+  }
+  else if (msg.type === 'comp_end') {
+    var comp = CLASS_COMPETITIONS[msg.compId];
+    if (!comp) return;
+    comp.status = 'finished';
+    var results = Object.keys(comp.participants).map(function(u) {
+      return { user: u, score: comp.participants[u].score, correct: comp.participants[u].answers.filter(function(a){return a.correct}).length };
+    }).sort(function(a,b){return b.score - a.score});
+    broadcastToRoom('comp_' + msg.compId, { type: 'comp_results', results: results });
+    delete CLASS_COMPETITIONS[msg.compId];
+  }
+}
+
+function handlePkMessage(socket, msg) {
+  if (msg.type === 'join') {
+    socket._pkUser = msg.user;
+    socket._pkRoom = msg.room || 'lobby';
+    if (!PK_ROOMS[socket._pkRoom]) PK_ROOMS[socket._pkRoom] = {};
+    PK_ROOMS[socket._pkRoom][socket._pkUser] = socket;
+    broadcastToRoom(socket._pkRoom, {type: 'user_joined', user: socket._pkUser, users: Object.keys(PK_ROOMS[socket._pkRoom])});
+  }
+  else if (msg.type === 'challenge') {
+    var target = PK_ROOMS[msg.room || 'lobby'] && PK_ROOMS[msg.room || 'lobby'][msg.target];
+    if (target) {
+      wsSend(target, {type: 'challenge_received', from: socket._pkUser, subj: msg.subj, unit: msg.unit});
+    }
+  }
+  else if (msg.type === 'challenge_accept') {
+    var challenger = PK_ROOMS[msg.room || 'lobby'] && PK_ROOMS[msg.room || 'lobby'][msg.from];
+    if (challenger) {
+      wsSend(challenger, {type: 'challenge_accepted', by: socket._pkUser});
+      var battleRoom = 'battle_' + Date.now();
+      PK_ROOMS[battleRoom] = {};
+      PK_ROOMS[battleRoom][socket._pkUser] = socket;
+      PK_ROOMS[battleRoom][msg.from] = challenger;
+      socket._pkRoom = battleRoom;
+      challenger._pkRoom = battleRoom;
+      broadcastToRoom(battleRoom, {type: 'battle_start', room: battleRoom});
+    }
+  }
+  else if (msg.type === 'answer') {
+    var room = PK_ROOMS[socket._pkRoom];
+    if (room) {
+      for (var u in room) {
+        if (u !== socket._pkUser) {
+          wsSend(room[u], {type: 'opponent_answered', user: socket._pkUser, correct: msg.correct, time: msg.time});
+        }
+      }
+    }
+  }
+  else if (msg.type === 'comp_start') {
+    var compId = startClassCompetition(msg.classId || 'default', socket._pkUser, msg.subject || '數學', msg.duration || 300000);
+    socket._pkRoom = 'comp_' + compId;
+    if (!PK_ROOMS['comp_' + compId]) PK_ROOMS['comp_' + compId] = {};
+    PK_ROOMS['comp_' + compId][socket._pkUser] = socket;
+    wsSend(socket, { type: 'comp_started', compId: compId, subject: msg.subject || '數學', duration: msg.duration || 300000 });
+  }
+  else if (msg.type === 'comp_join' || msg.type === 'comp_answer' || msg.type === 'comp_end') {
+    handleClassCompMessage(socket, msg);
+  }
+  else if (msg.type === 'battle_end') {
+    broadcastToRoom(socket._pkRoom, {type: 'battle_over', winner: msg.winner, loser: msg.loser});
+    delete PK_ROOMS[socket._pkRoom];
+  }
+}
+
+function wsSend(socket, data) {
+  if (!socket || socket.destroyed) return;
+  var payload = Buffer.from(JSON.stringify(data), 'utf8');
+  var header;
+  if (payload.length < 126) {
+    header = Buffer.alloc(2);
+    header[0] = 0x81;
+    header[1] = payload.length;
+  } else if (payload.length < 65536) {
+    header = Buffer.alloc(4);
+    header[0] = 0x81;
+    header[1] = 126;
+    header.writeUInt16BE(payload.length, 2);
+  } else {
+    header = Buffer.alloc(10);
+    header[0] = 0x81;
+    header[1] = 127;
+    header.writeBigUInt64BE(BigInt(payload.length), 2);
+  }
+  try { socket.write(Buffer.concat([header, payload])); } catch(e) {}
+}
+
+function broadcastToRoom(room, data) {
+  if (!PK_ROOMS[room]) return;
+  for (var u in PK_ROOMS[room]) {
+    wsSend(PK_ROOMS[room][u], data);
+  }
+}
+
+function cleanupPkSocket(socket) {
+  if (socket._pkRoom && PK_ROOMS[socket._pkRoom]) {
+    delete PK_ROOMS[socket._pkRoom][socket._pkUser];
+    if (Object.keys(PK_ROOMS[socket._pkRoom]).length === 0) {
+      delete PK_ROOMS[socket._pkRoom];
+    } else {
+      broadcastToRoom(socket._pkRoom, {type: 'user_left', user: socket._pkUser});
+    }
+  }
+}
+
+createWebSocketServer(server);
+
 /* ── 每日 09:00 PK 無限競技塔 排名獎勵 ──
    伺服器每日 09:00 依「無限競技塔 最高層數(g.arena.floor)」對全體帳號排名，
    把每人獎勵寫入 KV['ADV9_ARENA_MAIL']（陣列）。客戶端雲端同步（每 15 秒）會把該 KV 拉進

@@ -757,6 +757,11 @@ display: none !important;
 
 </style>
 <script src="js/i18n.js"></script>
+<meta name="theme-color" content="#6d4aff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ADV9">
+<link rel="manifest" href="/manifest.json">
 </head>
 
 <body>
@@ -1226,7 +1231,7 @@ function addWrong(g,subj,q,sel){
 
 g.wrong[subj]=g.wrong[subj]||[];
 
-g.wrong[subj].push({q:{'題目':q['題目'],'選項':q['選項'],'答案':q['答案'],'解析':q['解析']},sel,t:fmt(Date.now()),done:false});
+g.wrong[subj].push({q:{'題目':q['題目'],'選項':q['選項'],'答案':q['答案'],'解析':q['解析']},sel,t:fmt(Date.now()),unit:Quiz.unit||'',done:false});
 
 if(g.wrong[subj].length>50)g.wrong[subj]=g.wrong[subj].slice(-50);
 
@@ -2426,7 +2431,7 @@ $('#login').style.display='none';const _app=$('#app');_app.style.display='block'
 startHeartbeat(); /* 👁 重新整理/恢復登入時也要啟動（否則心跳與即時輪詢不會跑） */
 startFastSync(); /* 📨 開始即時訊息輪詢 */
 
-if(u.role==='admin')renderAdmin(u);else if(u.role==='teacher')renderTeacher(u);else renderStudent(u);
+if(u.role==='admin')renderAdmin(u);else if(u.role==='teacher')renderTeacher(u);else if(u.role==='parent')renderParent(u);else renderStudent(u);
 
 /* 🔄 版本更新重新整理後：自動還原上次看的私聊與滾動位置（滑到哪就回到哪） */
 try{if(localStorage.getItem('ADV9_UPDATE_RESTORE')){
@@ -3002,6 +3007,8 @@ let FEATS=[
 
 ['🏛','信任公約','家庭數位信任','#795548','vTrust()'],
 
+['👨‍👩‍👧','家長查看要求','同意或拒絕家長查看','#e91e63','childConsentPanel()'],
+
 ['📊','思考報告','我的自主思考指數','#607d8b','vThinkingReport()'],
 
 
@@ -3286,6 +3293,8 @@ $('#app').innerHTML=
 
 '<span class="chip honor">🏅 <b id="hudHonor">'+g.honor+'</b></span>'+
 
+(function(){try{var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});var pending=consents.requests.filter(function(r){return r.child===u.username&&r.status==='pending'});return pending.length?'<span class="chip imp" style="cursor:pointer" onclick="childConsentPanel()">📨 家長要求 <b>'+pending.length+'</b></span>':'';}catch(e){return ''}})()+
+
 (u.role==='admin'?'<button class="btn mini teal" onclick="renderAdmin(me())">👑 返回管理員</button>':'')+(imp?'<span class="chip imp">👑 管理員觀察中</span><button class="btn mini" onclick="backAdmin()">返回管理員</button>':'')+
 
 '<button class="btn ghost mini" onclick="logout()">🚪 登出</button></div></header>'+
@@ -3400,6 +3409,89 @@ async function callOneAI(k,prompt,sys){
 
 
 const TIPS=['💡 氫氣是密度最小的氣體','💡 英文的 I 永遠大寫','💡 歐姆定律 V = IR','💡 電流 I = Q/t','💡 光的入射角等於反射角','💡 質量守恆定律','💡 pH 值越小越酸','💡 地球自轉一圈約 24 小時','💡 三角形內角和 180°','💡 水的電解：氫:氧 = 2:1','💡 光合作用需要光與葉綠素','💡 牛頓第二運動定律 F = ma','💡 連擊 10 以上經驗加成 12%！'];
+
+/* ═══ AI 個人化學習路徑 ═══ */
+function analyzeLearningPath(subj){
+  var u=me(),g=u.g;
+  var wrong=g.wrong||{};
+  var subjectWrong=wrong[subj]||[];
+
+  var unitStats={};
+  subjectWrong.forEach(function(w){
+    var unit=w.unit||'未分類';
+    if(!unitStats[unit])unitStats[unit]={total:0,recent:0,items:[]};
+    unitStats[unit].total++;
+    var wt=new Date(w.t).getTime();
+    if(Date.now()-wt<7*86400000)unitStats[unit].recent++;
+    unitStats[unit].items.push(w);
+  });
+
+  var sorted=Object.keys(unitStats).sort(function(a,b){
+    var sa=unitStats[a],sb=unitStats[b];
+    var scoreA=sa.total+sa.recent*2;
+    var scoreB=sb.total+sb.recent*2;
+    return scoreB-scoreA;
+  });
+
+  var path=[];
+  sorted.forEach(function(unit){
+    var s=unitStats[unit];
+    var mastery='beginner';
+    if(s.total<=2)mastery='learning';
+    else if(s.total<=5)mastery='practicing';
+    else mastery='needs_review';
+
+    path.push({
+      unit:unit,
+      mistakes:s.total,
+      recentMistakes:s.recent,
+      mastery:mastery,
+      priority:s.total+s.recent*2
+    });
+  });
+
+  return path;
+}
+
+function generateLearningPath(subj){
+  var path=analyzeLearningPath(subj);
+  var u=me(),g=u.g;
+
+  var h='<h2 class="mt">🗺️ '+esc(subj)+' 學習路徑</h2>';
+
+  if(!path.length){
+    h+='<p style="color:var(--mut);text-align:center">目前還沒有答題紀錄，先去修煉場挑戰吧！</p>';
+    h+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
+    openModal(h);
+    return;
+  }
+
+  h+='<p style="color:var(--mut);font-size:13px">根據你的答題弱點，AI 為你規劃了以下學習順序（弱點優先）</p>';
+
+  path.forEach(function(item,idx){
+    var colors={'needs_review':'#ff6b6b','practicing':'#ffa500','learning':'#4ecdc4','beginner':'#95a5a6'};
+    var labels={'needs_review':'🔴 需複習','practicing':'🟠 練習中','learning':'🟢 學習中','beginner':'⚪ 初學'};
+
+    h+='<div class="rwRow" style="border-left:4px solid '+colors[item.mastery]+';padding-left:12px;margin:8px 0">';
+    h+='<div style="flex:1">';
+    h+='<strong>'+(idx+1)+'. '+esc(item.unit)+'</strong>';
+    h+='<div style="font-size:12px;color:var(--mut)">'+labels[item.mastery]+' | 錯 '+item.mistakes+' 題 | 近期 '+item.recentMistakes+' 題</div>';
+    h+='</div>';
+    h+='<button class="btn sm" onclick="closeModal();Quiz.unit=\''+esc(item.unit)+'\';Quiz.subj=\''+esc(subj)+'\';startQuizBank()">開始練習</button>';
+    h+='</div>';
+  });
+
+  var totalMistakes=path.reduce(function(a,b){return a+b.mistakes},0);
+  var needsReview=path.filter(function(p){return p.mastery==='needs_review'}).length;
+  h+='<div class="rwRow" style="margin-top:16px;background:#1a2a4a">';
+  h+='<span class="rwChip">📊 共 '+path.length+' 單元</span>';
+  h+='<span class="rwChip">🔴 需複習 '+needsReview+'</span>';
+  h+='<span class="rwChip">📝 共錯 '+totalMistakes+' 題</span>';
+  h+='</div>';
+
+  h+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
+  openModal(h);
+}
 
 function procMathQ(tier){
 
@@ -9047,6 +9139,258 @@ aGo('users');
 
 }
 
+/* ════════ 家長端 Parent Dashboard ════════ */
+
+function renderParent(u){
+applyMyTheme();
+CUR.role='parent';
+var pendingCount=0;
+try{
+  var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+  var users=get(LS.users,[]);
+  pendingCount=consents.requests.filter(function(r){
+    return users.some(function(x){return x.username===r.child})&&r.status==='pending';
+  }).length;
+}catch(e){}
+
+$('#app').innerHTML=
+
+'<header class="hud"><div class="hudL"><span class="hlogo">👨‍👩‍👧</span><span class="hlv">家長端</span><span class="htitle">'+esc(u.name)+'</span></div>'+
+
+'<div class="hudR">'+(pendingCount?'<span class="chip imp">📨 '+pendingCount+' 待審</span>':'')+
+
+'<button class="btn mini" onclick="parentRequestLink()">➕ 連結孩子</button>'+
+
+'<button class="btn ghost mini" onclick="openChangePw()">🔒 修改密碼</button><button class="btn ghost mini" onclick="logout()">🚪 登出</button></div></header>'+
+
+'<div class="wrap"><main id="view" class="panel view"></main></div>';
+
+parentDashboard();
+
+}
+
+function parentDashboard(){
+var u=me();if(!u)return;
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var users=get(LS.users,[]);
+var myReqs=consents.requests.filter(function(r){return r.parent===u.username;});
+var granted=myReqs.filter(function(r){return r.status==='granted';});
+var pending=myReqs.filter(function(r){return r.status==='pending';});
+var denied=myReqs.filter(function(r){return r.status==='denied'||r.status==='revoked';});
+
+var h='<h3 class="vt">👨‍👩‍👧 家長觀察面板</h3>';
+h+='<p class="vsub">查看孩子的學習狀態與進度</p>';
+
+/* 已授權的孩子 */
+if(granted.length){
+  h+='<h4 style="margin:16px 0 8px;color:var(--teal)">✅ 已授權</h4>';
+  granted.forEach(function(r){
+    var child=users.find(function(x){return x.username===r.child;});
+    if(!child)return;
+    var g=child.g||{};
+    h+='<div class="panel2" style="margin-bottom:10px;padding:14px;cursor:pointer;border-left:4px solid var(--teal)" onclick="parentViewDashboard(\''+esc(child.username)+'\')">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    h+='<div><b style="font-size:15px">'+esc(child.name||child.username)+'</b>';
+    h+='<span style="font-size:12px;color:var(--mut);margin-left:8px">@'+esc(child.username)+'</span></div>';
+    h+='<span class="rwChip">📊 Lv.'+(g.lv||1)+'</span>';
+    h+='</div>';
+    h+='<div style="font-size:12px;color:var(--mut);margin-top:6px">';
+    h+='⚡ '+((g.streak)||0)+' 連擊｜🎯 正確率 '+Math.round(((g.correct||0)/((g.total||1)||1))*100)+'%｜🗡️ '+(g.fightswon||0)+' 勝';
+    h+='</div></div>';
+  });
+}
+
+/* 待處理要求 */
+if(pending.length){
+  h+='<h4 style="margin:16px 0 8px;color:var(--gold2)">📨 等待孩子回覆</h4>';
+  pending.forEach(function(r){
+    h+='<div class="panel2" style="margin-bottom:8px;padding:10px;display:flex;justify-content:space-between;align-items:center">';
+    h+='<span>'+esc(r.child)+'</span><span style="font-size:12px;color:var(--mut)">已送出 '+new Date(r.createdAt).toLocaleDateString()+'</span>';
+    h+='</div>';
+  });
+}
+
+/* 被拒絕/撤銷 */
+if(denied.length){
+  h+='<h4 style="margin:16px 0 8px;color:var(--mut)">❌ 未通過</h4>';
+  denied.forEach(function(r){
+    h+='<div class="panel2" style="margin-bottom:6px;padding:8px;opacity:.6">';
+    h+='<span>'+esc(r.child)+'</span> <span style="font-size:11px;color:var(--mut)">（'+(r.status==='denied'?'已拒絕':'已撤銷')+'）</span>';
+    h+='</div>';
+  });
+}
+
+if(!myReqs.length){
+  h+='<div class="panel2" style="text-align:center;padding:40px 20px">';
+  h+='<div style="font-size:40px;margin-bottom:12px">👨‍👩‍👧‍👦</div>';
+  h+='<p style="color:var(--mut);margin-bottom:16px">尚未連結任何孩子</p>';
+  h+='<button class="btn big" onclick="parentRequestLink()">➕ 連結孩子帳號</button>';
+  h+='</div>';
+}
+
+$('#view').innerHTML=h;
+}
+
+function parentGo(tab){
+parentDashboard();
+}
+
+/* ═══ 家長端 Child Consent Functions ═══ */
+
+function parentRequestLink(){
+var u=me(),childName=prompt('請輸入孩子的帳號：');
+if(!childName)return;
+var users=get(LS.users,[]);
+var child=users.find(function(x){return x.username===childName});
+if(!child)return toast('找不到該帳號','bad');
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var existing=consents.requests.find(function(r){return r.parent===u.username&&r.child===childName&&(r.status==='pending'||r.status==='granted')});
+if(existing)return toast('已有進行中的要求','bad');
+consents.requests.push({
+id:'pc_'+Date.now(),
+parent:u.username,
+child:childName,
+status:'pending',
+createdAt:new Date().toISOString()
+});
+set('ADV9_PARENT_CONSENTS',consents);
+toast('✅ 已送出要求，等待孩子同意');
+parentDashboard();
+}
+
+function parentGrantView(childUsername){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var req=consents.requests.find(function(r){return r.parent===me().username&&r.child===childUsername&&r.status==='pending'});
+if(!req)return toast('找不到要求','bad');
+req.status='granted';
+req.grantedAt=new Date().toISOString();
+set('ADV9_PARENT_CONSENTS',consents);
+toast('✅ 已獲得查看權限');
+}
+
+function parentRevokeAccess(childUsername){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var req=consents.requests.find(function(r){return r.parent===me().username&&r.child===childUsername});
+if(!req)return;
+req.status='revoked';
+req.revokedAt=new Date().toISOString();
+set('ADV9_PARENT_CONSENTS',consents);
+toast('已撤銷查看權限');
+parentDashboard();
+}
+
+function childApproveRequest(requestId){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var req=consents.requests.find(function(r){return r.id===requestId&&r.child===me().username&&r.status==='pending'});
+if(!req)return toast('找不到要求','bad');
+req.status='granted';
+req.grantedAt=new Date().toISOString();
+set('ADV9_PARENT_CONSENTS',consents);
+toast('✅ 已同意家長查看');
+}
+
+function childDenyRequest(requestId){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var req=consents.requests.find(function(r){return r.id===requestId&&r.child===me().username&&r.status==='pending'});
+if(!req)return toast('找不到要求','bad');
+req.status='denied';
+req.deniedAt=new Date().toISOString();
+set('ADV9_PARENT_CONSENTS',consents);
+toast('已拒絕');
+}
+
+function parentViewDashboard(childUsername){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var req=consents.requests.find(function(r){return r.parent===me().username&&r.child===childUsername&&r.status==='granted'});
+if(!req)return toast('⚠️ 沒有查看權限，請先取得孩子同意','bad');
+
+var users=get(LS.users,[]);
+var child=users.find(function(x){return x.username===childUsername});
+if(!child||!child.g)return toast('找不到孩子資料','bad');
+var g=child.g;
+
+var h='<h2 class="mt">👨‍👩‍👧 家長觀察面板</h2>';
+h+='<p style="color:var(--mut)">👤 觀察對象：'+esc(child.name||childUsername)+'</p>';
+h+='<div class="rwRow">';
+h+='<span class="rwChip">📊 Lv.'+g.lv+' '+esc(g.title||'冒險者')+'</span>';
+h+='<span class="rwChip">⚡ '+g.streak+' 連擊</span>';
+h+='<span class="rwChip">🎯 正確率 '+Math.round((g.correct||0)/((g.total||1)||1)*100)+'%</span>';
+h+='</div>';
+h+='<div class="rwRow">';
+h+='<span class="rwChip">🗡️ '+g.fightswon+' 勝</span>';
+h+='<span class="rwChip">🏰 領地 '+Object.keys((g.territory||{}).owned||{}).length+'</span>';
+h+='<span class="rwChip">📝 筆記 '+(g.notes||[]).length+'</span>';
+h+='</div>';
+
+var today=new Date(),weekAgo=new Date(today.getTime()-7*86400000);
+var weekSessions=(g.sessions||[]).filter(function(s){return new Date(s.date)>=weekAgo});
+h+='<h3 style="margin-top:16px">📅 本週活動 ('+weekSessions.length+' 次)</h3>';
+h+='<div style="font-size:13px;color:var(--mut)">';
+weekSessions.forEach(function(s){h+='<div>• '+new Date(s.date).toLocaleDateString()+' '+new Date(s.date).toLocaleTimeString()+'</div>'});
+if(!weekSessions.length)h+='<div>本週無活動紀錄</div>';
+h+='</div>';
+
+h+='<div class="mBtns" style="margin-top:16px"><button class="btn ghost" onclick="parentDashboard()">返回</button>';
+h+='<button class="btn danger" onclick="if(confirm(\'確定要撤銷查看權限嗎？\')){parentRevokeAccess(\''+childUsername+'\');parentDashboard();}">撤銷權限</button></div>';
+
+openModal(h);
+}
+
+/* ═══ 孩子端同意管理 ═══ */
+
+function childConsentPanel(){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var pending=consents.requests.filter(function(r){return r.child===me().username&&r.status==='pending'});
+var granted=consents.requests.filter(function(r){return r.child===me().username&&r.status==='granted'});
+
+var h='<h2 class="mt">🔐 家長查看要求</h2>';
+
+h+='<div style="background:#1a2a4a;border:2px solid #ff6b6b;border-radius:12px;padding:16px;margin:12px 0">';
+h+='<p style="color:#ff6b6b;font-weight:bold;margin:0 0 8px">⚠️ 重要提醒</p>';
+h+='<ul style="color:var(--mut);font-size:13px;margin:0;padding-left:18px">';
+h+='<li>你有權<strong style="color:#ff6b6b">拒絕</strong>任何家長的查看要求</li>';
+h+='<li>家長<strong style="color:#ff6b6b">不得</strong>因你拒絕而懲罰、威脅或棄養</li>';
+h+='<li>違反者將被<strong style="color:#ff6b6b">永久停權</strong>家長端功能</li>';
+h+='<li>你隨時可以<strong style="color:#ff6b6b">撤銷</strong>已同意的查看權限</li>';
+h+='</ul></div>';
+
+if(pending.length){
+  h+='<h3>📨 待處理要求</h3>';
+  pending.forEach(function(r){
+    h+='<div class="rwRow" style="justify-content:space-between">';
+    h+='<span>'+esc(r.parent)+'</span>';
+    h+='<div><button class="btn mini" onclick="childApproveRequest(\''+r.id+'\');childConsentPanel()">同意</button> ';
+    h+='<button class="btn mini danger" onclick="childDenyRequest(\''+r.id+'\');childConsentPanel()">拒絕</button></div>';
+    h+='</div>';
+  });
+}
+
+if(granted.length){
+  h+='<h3 style="margin-top:12px">✅ 已授權</h3>';
+  granted.forEach(function(r){
+    h+='<div class="rwRow" style="justify-content:space-between">';
+    h+='<span>'+esc(r.parent)+'</span>';
+    h+='<button class="btn mini danger" onclick="if(confirm(\'確定撤銷？\')){childRevokeAccess(\''+r.id+'\');childConsentPanel()}">撤銷</button>';
+    h+='</div>';
+  });
+}
+
+if(!pending.length&&!granted.length)h+='<p style="color:var(--mut);text-align:center">目前沒有家長查看要求</p>';
+
+h+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
+openModal(h);
+}
+
+function childRevokeAccess(requestId){
+var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+var req=consents.requests.find(function(r){return r.id===requestId&&r.child===me().username});
+if(!req)return;
+req.status='revoked';
+req.revokedAt=new Date().toISOString();
+set('ADV9_PARENT_CONSENTS',consents);
+toast('已撤銷查看權限');
+}
+
 function aGo(tab){
 
 if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
@@ -10465,9 +10809,9 @@ openModal('<h3 class="mt">'+(isAdmin?'👥 建立新帳號':'📝 新增帳號')
 
 '<label class="mlab">身份<select id="nuRole">'+
 
-(isAdmin?'<option value="student">👤 學生</option><option value="teacher">👩‍🏫 老師</option><option value="admin">👑 管理員</option>'
+(isAdmin?'<option value="student">👤 學生</option><option value="teacher">👩‍🏫 老師</option><option value="parent">👨‍👩‍👧 家長</option><option value="admin">👑 管理員</option>'
 
-:'<option value="student">👤 學生</option><option value="teacher">👩‍🏫 老師</option>')+'</select></label>'+
+:'<option value="student">👤 學生</option><option value="teacher">👩‍🏫 老師</option><option value="parent">👨‍👩‍👧 家長</option>')+'</select></label>'+
 
 '<label class="mlab">姓名<input id="nuName" placeholder="例：王小明"></label>'+
 
@@ -10517,11 +10861,11 @@ if(!validPassword(pw))return toast('⚠️ 密碼只能使用英文、數字或�
 const us=get(LS.users,[]);
 if(us.some(x=>x.username===un))return toast('⚠️ 帳號「'+un+'」已存在','bad');
 const nu={id:un,username:un,name:name,role:role,password:pw,classId:classId,g:role==='student'?newGame():null,createdAt:new Date().toISOString()};
-if(role==='teacher'){nu.managedClassIds=[];nu.isSchoolAdmin=false;nu.classId=null}
+if(role==='teacher'||role==='parent'){nu.managedClassIds=[];nu.isSchoolAdmin=false;nu.classId=null}
 if(SUPA_ON&&WTOKEN){try{const rr=await fetch(SUPA_URL+'/rest/v1/admin/users/create',{method:'POST',headers:supaHeaders(),body:JSON.stringify(nu)});if(!rr.ok)return toast('⚠️ VPS 建立帳號失敗（HTTP '+rr.status+'）','bad')}catch(e){return toast('⚠️ VPS 建立帳號失敗','bad')}}
 us.push(nu);
 set(LS.users,us);
-toast('✅ 已建立'+(role==='teacher'?'教師':'學生')+'帳號：'+name+'（'+un+'）');
+toast('✅ 已建立'+(role==='teacher'?'教師':role==='parent'?'家長':'學生')+'帳號：'+name+'（'+un+'）');
 vUsers();
 }
 
@@ -12851,6 +13195,77 @@ async function vTerminal(){
 }
 
 
+/* Real-time PK WebSocket */
+var _pkWs=null;
+function pkWsConnect(room,user){
+  if(_pkWs){try{_pkWs.close()}catch(e){}}
+  var proto=location.protocol==='https:'?'wss:':'ws:';
+  _pkWs=new WebSocket(proto+'//'+location.host+'/ws/pk');
+  _pkWs.onopen=function(){_pkWs.send(JSON.stringify({type:'join',room:room,user:user}))};
+  _pkWs.onmessage=function(e){try{var m=JSON.parse(e.data);handlePkWsMsg(m)}catch(e){}};
+  _pkWs.onclose=function(){_pkWs=null};
+}
+function pkWsSend(data){if(_pkWs&&_pkWs.readyState===1)_pkWs.send(JSON.stringify(data))}
+function handlePkWsMsg(m){
+  if(m.type==='challenge_received'){toast('⚔️ '+m.from+' 向你發起 PK 挑戰！')}
+  else if(m.type==='battle_start'){toast('⚔️ PK 開始！')}
+  else if(m.type==='opponent_answered'){/* update opponent status */}
+  else if(m.type==='battle_over'){toast(m.winner?'🏆 你贏了！':'💀 你輸了...')}
+  else if(m.type==='user_joined'){/* update lobby */}
+  else if(m.type==='user_left'){/* update lobby */}
+  else if(m.type==='comp_started'){toast('🎮 班級競賽已建立！ID: '+m.compId)}
+}
+
+/* ═══ 班級即時競賽 ═══ */
+var _compWs=null,_compId=null,_compTimer=null;
+
+function startClassCompetition(){
+  var subj=prompt('科目（數學/英文/自然/社會）：')||'數學';
+  var dur=parseInt(prompt('時間（秒）：','300'))||300;
+  var ws=location.protocol==='https:'?'wss:':'ws:';
+  _compWs=new WebSocket(ws+'//'+location.host+'/ws/pk');
+  _compWs.onopen=function(){
+    _compWs.send(JSON.stringify({type:'join',room:'comp',user:me().username}));
+    _compWs.send(JSON.stringify({type:'comp_start',subject:subj,duration:dur*1000}));
+  };
+  _compWs.onmessage=function(e){
+    try{var m=JSON.parse(e.data);handleCompMsg(m)}catch(e){}
+  };
+  toast('🎮 班級競賽已開始！'+dur+' 秒');
+}
+
+function joinCompetition(compId){
+  var ws=location.protocol==='https:'?'wss:':'ws:';
+  _compWs=new WebSocket(ws+'//'+location.host+'/ws/pk');
+  _compId=compId;
+  _compWs.onopen=function(){
+    _compWs.send(JSON.stringify({type:'join',room:'comp_'+compId,user:me().username}));
+    _compWs.send(JSON.stringify({type:'comp_join',compId:compId}));
+  };
+  _compWs.onmessage=function(e){
+    try{var m=JSON.parse(e.data);handleCompMsg(m)}catch(e){}
+  };
+}
+
+function handleCompMsg(m){
+  if(m.type==='comp_joined'){
+    toast('👤 '+m.user+' 加入了競賽（共 '+m.count+' 人）');
+  }else if(m.type==='comp_update'){
+    // Teacher sees live updates
+  }else if(m.type==='comp_results'){
+    var h='<h2 class="mt">🏆 競賽結果</h2><div id="compResults">';
+    m.results.forEach(function(r,i){
+      var medals=['🥇','🥈','🥉'];
+      h+='<div class="rwRow"><span style="font-size:20px">'+(medals[i]||'')+'</span> <strong>'+esc(r.user)+'</strong> <span style="margin-left:auto;color:var(--mut)">'+r.score+' 分 | '+r.correct+' 題</span></div>';
+    });
+    h+='</div><div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
+    openModal(h);
+  }
+}
+
+</script>
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}
 </script>
 </body>
 </html>
