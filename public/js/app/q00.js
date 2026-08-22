@@ -349,6 +349,8 @@ async function vVideo(){
 
 
 
+let SD={id:null,board:'',start:0,sec:0,lock:[],timer:null};
+
 function sdLoad(){
   fetch(SUPA_URL+'/rest/v1/sudoku/new',{headers:{'x-adv9-token':WTOKEN}}).then(r=>r.json()).then(j=>{
     if(!j||!j.ok){$('#sdBody').innerHTML='<div class="panel2" style="text-align:center;padding:30px;color:var(--red)">❌ 題目載入失敗</div>';return}
