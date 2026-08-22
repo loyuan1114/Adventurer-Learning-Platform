@@ -1,3 +1,2236 @@
+﻿<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{--bg:#0d1526;--panel:#141e34;--panel2:#121c31;--line:#2c3d63;--gold:#f2c14e;--gold2:#ffd97a;--goldD:#7a5f27;
+
+--txt:#e9eef8;--mut:#8fa0bd;--red:#ef5350;--green:#7ed957;--teal:#38d9c0;--serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif}
+
+body{font-family:var(--sans);color:var(--txt);min-height:100vh;overflow-x:hidden;background:
+
+radial-gradient(900px 600px at 85% -10%,rgba(56,217,192,.10),transparent 60%),
+
+radial-gradient(800px 520px at -10% 110%,rgba(242,148,60,.11),transparent 60%),
+
+linear-gradient(180deg,var(--bg),var(--bg) 40%,var(--panel));background-attachment:fixed}
+
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+
+#bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:tw 3s infinite}
+
+.ember{position:absolute;bottom:-12px;width:4px;height:4px;background:#ffb35c;border-radius:50%;filter:blur(1px);animation:rise linear infinite}
+
+@keyframes tw{50%{opacity:.08}}@keyframes rise{to{transform:translateY(-110vh);opacity:0}}
+
+#fxlayer{position:fixed;inset:0;z-index:98;pointer-events:none}
+
+.floater{position:fixed;z-index:99;font-family:var(--serif);font-weight:900;font-size:24px;pointer-events:none;transform:translateX(-50%);animation:fl 1.05s ease-out forwards}
+
+.floater.good{color:#8ee06a;text-shadow:0 0 12px rgba(126,217,87,.7)}.floater.bad{color:#ff7b72}.floater.crit{color:#ffd97a;font-size:32px}
+
+@keyframes fl{to{transform:translateX(-50%) translateY(-72px);opacity:0}}
+
+.panel{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--goldD);border-radius:12px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px rgba(242,193,78,.12)}
+
+.panel2{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:15px;transition:.2s}
+
+.btn{font-family:var(--sans);font-weight:700;letter-spacing:.5px;padding:10px 18px;border-radius:5px;border:1px solid #a37c2c;
+
+background:linear-gradient(180deg,#ffd97a,#e0a63a 55%,#c8862a);color:#3a2703;cursor:pointer;box-shadow:0 3px 0 #7a5514;transition:.15s;position:relative;overflow:hidden}
+
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 #7a5514,0 10px 22px rgba(242,193,78,.28)}
+.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.2);border-radius:50%;transform:translate(-50%,-50%);opacity:0}
+.btn:active::after{width:200px;height:200px;opacity:1;transition:width .3s,height .3s,opacity .3s}
+
+.btn:active{transform:translateY(1px)}
+
+.btn.ghost{background:linear-gradient(180deg,var(--panel2),var(--panel));color:var(--txt);border-color:var(--line);box-shadow:0 3px 0 rgba(0,0,0,.4)}
+
+.btn.danger{background:linear-gradient(180deg,#ff8a80,#e5484d 55%,#c73a3f);color:#fff;border-color:#8f272b;box-shadow:0 3px 0 #6e1d20}
+
+.btn.teal{background:linear-gradient(180deg,#7ff0dd,#2aa8a0 60%,#1f7d78);color:#03272a;border-color:#1f7d78;box-shadow:0 3px 0 #145550}
+
+.btn.mini{padding:7px 12px;font-size:13px}.btn.big{width:100%;padding:13px;font-size:16px;margin-top:4px}.btn.dis{opacity:.4;pointer-events:none}
+
+input,textarea,select{background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:5px;font-family:var(--sans);font-size:14px;outline:none;transition:.2s;width:100%}
+
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,193,78,.15)}
+
+.hud{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(10,16,30,.96);border-bottom:1px solid var(--goldD)}
+
+.hudL,.hudR{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+.hlogo{font-size:24px;filter:drop-shadow(0 0 8px rgba(242,193,78,.6))}
+
+.hlv{font-family:var(--serif);font-weight:900;color:var(--gold2);font-size:17px}
+
+.htitle{font-family:var(--serif);font-weight:700;color:#cfe0ff;font-size:13px}
+
+.chip{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.3);border:1px solid var(--line);padding:5px 10px;border-radius:4px;font-weight:700;font-size:12.5px}
+
+.chip b{color:var(--gold2);font-family:var(--serif)}
+
+.chip.cry b{color:#7ff0dd}.chip.coin b{color:#ffd97a}.chip.gem b{color:#d9a7ff}.chip.honor b{color:#ff9d7a}.chip.qp b{color:#9fd8ff}.chip.sl b{color:#c9a6ff}
+
+.chip.imp{color:#ffd97a;border-color:var(--goldD);animation:pulse 1.6s infinite}
+
+@keyframes pulse{50%{box-shadow:0 0 16px rgba(242,193,78,.45)}}
+
+.bar{height:10px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:99px;overflow:hidden;position:relative}
+
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#4caf50,#8ee06a);position:relative;transition:width .5s}
+
+.bar i::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);animation:shine 2.4s infinite}
+
+@keyframes shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+.xpb{width:110px}.xpwrap{display:flex;align-items:center;gap:6px}.xpwrap b{font-size:11px;color:var(--mut)}
+
+.hpb i{background:linear-gradient(90deg,#c73a3f,#ff7b72)}.enb i{background:linear-gradient(90deg,#2aa8a0,#67d8c8)}.qpb i{background:linear-gradient(90deg,#2aa8a0,#67d8c8)}
+
+.wrap{max-width:1120px;margin:0 auto;padding:16px 18px 60px;position:relative;z-index:1}
+
+.view{padding:20px;min-height:440px;animation:viewIn .35s ease-out}
+
+@keyframes pop{from{transform:scale(.97);opacity:0}}
+
+.vt{font-family:var(--serif);font-weight:900;font-size:21px;color:var(--gold2);margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.vsub{font-size:13px;color:var(--mut);font-family:var(--sans);font-weight:500}
+
+.empty{color:var(--mut);text-align:center;padding:28px 0}
+
+.back{margin-bottom:12px}
+
+.featGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+
+.feat{background:linear-gradient(180deg,var(--panel2),#101a2e);border:1px solid var(--line);border-left:4px solid var(--fc,#888);border-radius:11px;padding:14px 13px;cursor:pointer;transition:.18s;position:relative;overflow:hidden}
+
+.feat:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(0,0,0,.45);border-color:var(--fc)}
+
+.feat::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 40%,rgba(255,255,255,.06) 50%,transparent 60%);transform:translateX(-100%);transition:.5s}
+
+.feat:hover::after{transform:translateX(100%)}
+
+.fIco{font-size:26px;display:block;margin-bottom:6px}
+
+.feat b{display:block;font-family:var(--serif);font-size:14.5px}
+
+.feat i{display:block;font-style:normal;font-size:11px;color:var(--mut);margin-top:3px}
+.feat{min-height:92px}
+.featCat{font-family:var(--serif);font-weight:900;font-size:15.5px;color:var(--gold2);margin:18px 0 8px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.featCat::before,.featCat::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,130,.35),transparent)}
+
+.subjGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+
+.subjB{border:none;border-radius:8px;padding:16px 10px;cursor:pointer;color:#fff;font-family:var(--serif);font-weight:900;font-size:16px;transition:.18s;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+
+.subjB:hover{transform:translateY(-4px) scale(1.03);filter:brightness(1.15)}
+
+.unitRow{display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--txt);padding:8px 12px;font-size:13.5px;cursor:pointer;border-radius:4px;transition:.15s}
+
+.unitRow:hover{background:rgba(242,193,78,.1);transform:translateX(4px)}
+
+.semT{font-family:var(--serif);color:var(--teal);font-weight:900;font-size:14px;margin:10px 4px 4px}
+
+.qStatus{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+
+.qCard{margin-bottom:10px}
+
+.qTag{font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:900}
+
+.qStem{font-size:17px;line-height:1.8;margin:10px 0 14px;white-space:pre-wrap}
+
+.optBtn{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:12px 14px;margin-bottom:7px;border-radius:6px;font-size:14.5px;font-weight:700;cursor:pointer;transition:.15s}
+
+.optBtn:hover{border-color:var(--gold);transform:translateX(6px);background:rgba(242,193,78,.08)}
+
+.optBtn.sel{border-color:var(--teal);background:rgba(56,217,192,.12)}
+
+.optBtn.ok{border-color:#4caf50;background:rgba(76,175,80,.18);color:#a5f0b5}
+
+.optBtn.no{border-color:#e5484d;background:rgba(229,72,77,.15);color:#ffb4ab}
+
+.optBtn.lock{pointer-events:none;opacity:.85}
+
+.calc{font-family:Consolas,monospace;color:#00ff88;background:#050b14!important}
+
+.resBig{font-family:var(--serif);font-weight:900;font-size:26px;text-align:center;margin:8px 0}
+
+.rwRow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+
+.rwChip{background:linear-gradient(180deg,rgba(242,193,78,.12),rgba(0,0,0,.35));border:1px solid var(--goldD);color:var(--gold2);padding:6px 13px;border-radius:99px;font-weight:700;font-size:13px;animation:pop .3s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+
+.quote{color:#c9a6ff;font-size:12.5px;text-align:center;margin:8px 0}
+
+.expl{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:6px;padding:12px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;margin:10px 0}
+
+.tabRow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+
+.tabB{padding:9px 16px;border-radius:5px 5px 0 0;border:1px solid var(--line);border-bottom:none;background:var(--panel2);color:var(--mut);font-weight:700;cursor:pointer;font-size:13.5px;transition:.15s}
+
+.tabB:hover{color:var(--gold2)}
+
+.tabB.on{color:var(--gold2);background:#182338;border-top:2px solid var(--gold)}
+
+.rarN{color:#9ca3af}.rarR{color:#22c55e}.rarSR{color:#3b82f6}.rarSSR{color:#a855f7}.rarUR{color:#f59e0b}
+
+.collIt{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+
+.collIt .pBox{width:52px;height:52px;background:rgba(0,0,0,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px;flex:none}
+
+.collInfo{flex:1;min-width:0}
+
+.skTxt{font-size:11px;color:var(--mut);margin-top:2px}
+
+.pkArena{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+
+.pkSide{padding:14px;border-radius:8px;border:1px solid var(--line)}
+
+.pkSide.me{border-color:var(--teal);background:rgba(56,217,192,.05)}
+
+.pkSide.foe{border-color:var(--red);background:rgba(239,83,80,.05)}
+
+.pkName{font-family:var(--serif);font-weight:900;font-size:16px;margin-bottom:8px}
+
+.pkIco{font-size:44px;text-align:center;margin:6px 0;transition:.2s}
+
+.pkIco.hit{animation:hitFx .35s}
+
+.pkIco.atk{animation:atkFx .4s}
+
+@keyframes hitFx{25%{transform:translateX(-9px) scale(.94);filter:brightness(1.7) drop-shadow(0 0 14px #ef5350)}75%{transform:translateX(9px)}}
+
+@keyframes atkFx{30%{transform:translateX(14px) scale(1.08)}}
+
+.pkLog{height:150px;overflow-y:auto;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:12.5px;line-height:1.9}
+
+.pkLog .crit{color:var(--gold2);font-weight:900}
+
+.pkLog .dmg{color:#ff9d97}.pkLog .heal{color:#8ee06a}
+
+.flashWin{animation:winFl .8s}
+
+@keyframes winFl{0%,100%{box-shadow:none}50%{box-shadow:0 0 40px rgba(242,193,78,.8)}}
+
+.forgeAnvil{font-size:70px;text-align:center;margin:10px 0;transition:.1s}
+
+.forgeAnvil.strike{animation:strike .3s}
+
+@keyframes strike{30%{transform:scale(.9) rotate(-6deg);filter:brightness(1.8) drop-shadow(0 0 20px #ffb35c)}}
+
+.sparkFx{position:absolute;pointer-events:none;font-size:18px;animation:spark .7s ease-out forwards}
+
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+
+.tblWrap{overflow-x:auto}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+
+th{background:rgba(0,0,0,.3);color:var(--gold2);font-family:var(--serif);padding:9px 11px;text-align:left;border-bottom:2px solid var(--goldD);white-space:nowrap}
+
+td{padding:8px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+
+tbody tr{transition:.15s}tbody tr:hover td{background:rgba(242,193,78,.05)}
+
+code{background:rgba(0,0,0,.3);border:1px solid var(--line);padding:2px 7px;border-radius:4px;color:var(--teal);font-size:12px}
+
+.rankIt{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+
+.rMed{font-size:22px}.rName{flex:1}.rLv{color:#cfe0ff;font-size:12.5px}.rXp{color:var(--mut);font-size:12px}
+
+.rankIt.top0{border-color:var(--gold);background:linear-gradient(90deg,rgba(242,193,78,.14),transparent)}
+
+.chatBox{height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:6px}
+
+/* ?? LINE嚗G嚗B 憸冽撠店瘞?部嚗陛閮?嚗?? */
+.chatMsg{display:flex;gap:10px;align-items:flex-end;max-width:100%;animation:pop .25s}
+.chatMsg.mine{flex-direction:row-reverse}
+.cmAv{flex:0 0 auto;display:flex;align-items:flex-end}
+.cmAv img{box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.cmCol{display:flex;flex-direction:column;max-width:86%;min-width:0}
+.chatMsg.mine .cmCol{align-items:flex-end}
+.cmName{font-size:12px;color:var(--mut);margin:0 4px 3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.cmName b{color:var(--gold2);font-size:13px}
+.chatMsg.admin .cmName b{color:var(--gold)}
+.chatMsg.teacher .cmName b{color:#7ea6ff}
+.chatMsg.mine .cmName{justify-content:flex-end}
+.cTime{color:var(--mut);font-size:11px}
+.cmBub{background:rgba(255,255,255,.1);border:1px solid var(--line);color:#e8eefb;border-radius:16px 16px 16px 6px;padding:10px 16px;font-size:15px;line-height:1.6;word-break:break-word;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.chatMsg.mine .cmBub{background:linear-gradient(135deg,#00b894,#00a381);border-color:transparent;color:#fff;border-radius:16px 16px 6px 16px}
+.cmBub p{margin:0;font-size:15px;word-break:break-word}
+.chatMsg.mine .cmBub p{color:#fff}
+.cmBub img{max-width:460px;border-radius:12px;display:block;margin:3px 0;border:1px solid var(--line);cursor:zoom-in}
+.cmBub video{max-width:480px;border-radius:12px;display:block;margin:3px 0}
+.chatMsg .btn{font-size:11.5px;padding:4px 8px}
+.chatMsg.system{align-self:center;display:flex;justify-content:center}
+.chatMsg.system .cmCol{max-width:100%;align-items:center}
+.chatMsg.system .cmBub{background:rgba(255,255,255,.07);color:var(--mut);border-radius:14px;padding:5px 16px;font-size:13px}
+.chatMsg.system .cmBub p{font-size:13px;color:var(--mut)}
+/* ?? 銝????蝐?*/
+.onlBadge{font-size:11px;margin-left:6px;padding:1px 8px;border-radius:10px;display:inline-block;vertical-align:middle}
+.onlBadge.on{color:#4ade80;background:rgba(74,222,128,.14)}
+.onlBadge.off{color:var(--mut);background:rgba(255,255,255,.06)}
+
+.annIt{margin-bottom:12px}.annIt b{font-family:var(--serif);font-size:15.5px;color:var(--gold2)}
+
+.annMeta{display:block;color:var(--mut);font-size:12px;margin:4px 0 6px}.annIt p{font-size:13.5px;line-height:1.7}
+
+.statGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px}
+
+.statIt{text-align:center}.statIt span{font-size:11.5px;color:var(--mut);display:block}.statIt b{font-family:var(--serif);font-size:24px;color:var(--gold2)}
+
+.cRow{display:grid;grid-template-columns:120px 1fr 110px;gap:10px;align-items:center;margin-bottom:8px}
+
+.cVal{font-size:11.5px;color:var(--mut);text-align:right}
+
+.abRow{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+
+.abRow .bar{flex:1}
+
+.expIt{margin-bottom:10px}.expIt b{font-family:var(--serif);font-size:15px}
+
+.stepLi{font-size:13px;line-height:1.9;padding-left:6px}
+
+.frIt{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+
+.onDot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+
+.onDot.on{background:#4caf50;box-shadow:0 0 6px #4caf50}.onDot.off{background:#555}
+
+.pdfWrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.pdfWrap iframe{width:100%;height:520px;border:1px solid var(--line);border-radius:6px;background:#fff}
+
+.terrGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:7px;max-height:300px;overflow-y:auto;padding:6px 4px}
+
+.terrChip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:46px;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 4px;font-weight:700;cursor:pointer;color:#fff;transition:.15s;text-align:center;background:var(--tc,#333c50);box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
+
+.terrChip .tcNum{font-size:11px;line-height:1.1}.terrChip .tcLv{font-size:9.5px;opacity:.85;font-weight:800}
+
+.terrChip:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.15);box-shadow:0 6px 14px rgba(0,0,0,.4)}
+
+.terrChip.done{background:linear-gradient(160deg,#2f6b45,#204d33)!important;border-color:#3c8a5a;cursor:default;color:#cdeed6}
+
+.terrChip.lock{background:#1c2740!important;border-color:var(--line);color:#5b6a86;cursor:not-allowed;box-shadow:none}
+
+.terrChip.next{box-shadow:0 0 0 2px var(--gold),0 0 14px rgba(242,193,78,.4);animation:pulse 1.6s infinite}
+
+.terrChip.boss{border-color:var(--gold2)}.terrChip.boss .tcNum{color:#fff;text-shadow:0 0 6px rgba(255,217,122,.8)}
+
+.terrInfo{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+
+.terrInfo span{flex:1;min-width:220px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--mut);line-height:1.6}
+
+.terrInfo b{color:var(--gold2)}
+
+.alogGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;max-height:62vh;overflow-y:auto;padding:4px 2px}
+
+.alogCard{aspect-ratio:16/9;display:flex;flex-direction:column;background:linear-gradient(155deg,#1a2540,#101a2e);border:1px solid var(--line);border-left:5px solid var(--fc,#888);border-radius:14px;padding:12px 15px;box-shadow:0 8px 20px rgba(0,0,0,.4);transition:.18s;overflow:hidden;position:relative}
+
+.alogCard:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(0,0,0,.55);border-color:var(--fc)}
+
+.alogCard.ok{--fc:#4caf50}.alogCard.no{--fc:#e5484d}
+
+.alogTop{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px}
+
+.alogTop .rsBadge{font-family:var(--serif);font-weight:900;font-size:13px;color:var(--fc)}
+
+.alogTag{padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--mut);font-weight:700}
+
+.alogTime{margin-left:auto;color:var(--mut);font-size:10.5px}
+
+.alogStem{flex:1;margin:9px 0;font-size:14px;line-height:1.55;color:var(--txt);overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+
+.alogBot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;border-top:1px solid var(--line);padding-top:7px}
+
+.alogBot .ansv{flex:1;min-width:0;color:#cfe0ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.alogBot .sec{color:var(--gold2);font-weight:700;font-family:var(--serif)}
+
+.alogBot .calc{background:rgba(56,217,192,.14);border:1px solid var(--teal);color:var(--teal);padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700}
+
+.gshopIt{position:relative;border:1px solid var(--goldD);background:linear-gradient(160deg,#1a2540,#121c31)}
+
+.gshopIt .stockTag{position:absolute;top:-8px;right:10px;background:#e5484d;color:#fff;font-size:10px;padding:2px 9px;border-radius:99px;font-weight:900}
+
+.gshopIt.soldout{opacity:.45}
+
+.tradeIt{border:1px solid var(--line);border-left:4px solid var(--teal)}
+
+.tradeIt .valNote{font-size:11px;color:var(--mut)}
+
+.upType{display:inline-block;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;margin-left:6px}
+
+.upType.star{background:rgba(201,166,255,.18);color:#c9a6ff;border:1px solid #6a4fa0}
+
+.upType.enh{background:rgba(255,157,122,.15);color:#ff9d7a;border:1px solid #8a4a35}
+
+#login{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;max-width:1060px;margin:0 auto;padding:44px 22px;position:relative;z-index:1}
+
+.emb{font-size:84px;width:max-content;animation:bob 3s ease-in-out infinite;filter:drop-shadow(0 0 26px rgba(242,193,78,.45))}
+
+@keyframes bob{50%{transform:translateY(-8px)}}
+
+.logoT{font-family:var(--serif);font-weight:900;font-size:clamp(32px,5vw,50px);line-height:1.15;color:#f6d78a;text-shadow:0 2px 0 #7a5514,0 4px 18px rgba(242,193,78,.35);margin-top:10px}
+
+.verRow{display:flex;gap:8px;margin:14px 0 20px}
+
+.verChip{border:1px solid var(--goldD);color:var(--gold2);padding:4px 12px;border-radius:99px;font-size:12.5px;font-weight:700}
+
+.verChip.star{background:linear-gradient(90deg,#c8862a,#e8b64c);color:#3a2703;border:none}
+
+.featL{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+
+.featL li{display:flex;gap:12px;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--line);padding:9px 13px;border-radius:5px;transition:.2s}
+
+.featL li:hover{transform:translateX(6px);border-color:var(--goldD)}
+
+.featL b{font-size:20px}.featL strong{color:var(--gold2);display:block;font-family:var(--serif)}
+
+.featL span{font-size:12.5px;color:var(--mut);line-height:1.5}
+
+.lgCard{padding:28px 26px}
+
+.cor{position:absolute;width:20px;height:20px;border-color:var(--gold);border-style:solid;border-width:0;z-index:2}
+
+.tl{top:-2px;left:-2px;border-top-width:3px;border-left-width:3px}.tr{top:-2px;right:-2px;border-top-width:3px;border-right-width:3px}
+
+.bl{bottom:-2px;left:-2px;border-bottom-width:3px;border-left-width:3px}.br{bottom:-2px;right:-2px;border-bottom-width:3px;border-right-width:3px}
+
+.lgT{font-family:var(--serif);font-weight:900;font-size:21px;color:var(--gold2)}
+
+.lgSub{color:var(--mut);margin:6px 0 14px;font-size:13.5px}
+
+.roleTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+
+.rtab{background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--mut);padding:10px 4px;border-radius:5px;cursor:pointer;font-weight:700;font-size:12.5px;line-height:1.6;transition:.15s;font-family:var(--sans)}
+
+.rtab:hover{color:var(--gold2);transform:translateY(-2px)}
+
+.rtab.on{background:linear-gradient(180deg,#2a3a63,#1c2a4c);border-color:var(--gold);color:var(--gold2);box-shadow:0 0 12px rgba(242,193,78,.2)}
+
+.lgHint{margin-top:12px;font-size:12.5px;color:var(--mut);background:rgba(0,0,0,.25);border:1px solid var(--line);padding:9px 12px;border-radius:5px}
+
+.lgHint b{color:var(--teal)}
+
+.lgNote{margin-top:8px;font-size:12px;color:var(--mut)}
+
+.lgReset{margin-top:12px;font-size:12px}.lgReset a{color:#ff8a80;text-decoration:none}
+
+.shake{animation:shk .4s}
+
+@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+.mwrap{position:fixed;inset:0;background:rgba(4,8,16,.78);z-index:110;display:flex;align-items:center;justify-content:center;padding:20px}
+
+.mpanel{width:100%;max-width:480px;padding:22px;animation:pop .25s;max-height:88vh;overflow-y:auto}
+
+.mt{font-family:var(--serif);font-weight:900;color:var(--gold2);font-size:19px;margin-bottom:6px}
+
+.msub{color:var(--mut);font-size:12.5px;margin-bottom:12px}
+
+.mlab{display:block;font-size:12.5px;color:var(--mut);margin-bottom:11px;font-weight:700}
+
+.mlab input,.mlab select{margin-top:5px}
+
+.mBtns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+
+#toasts{position:fixed;right:16px;bottom:16px;z-index:120;display:flex;flex-direction:column;gap:8px}
+
+.toast{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--goldD);border-left:4px solid var(--gold);padding:11px 15px;border-radius:5px;font-weight:700;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:tin .25s;max-width:330px}
+
+.toast.bad{border-left-color:var(--red)}
+
+.toast.out{opacity:0;transform:translateX(30px);transition:.4s}
+
+@keyframes tin{from{opacity:0;transform:translateX(40px)}}
+@keyframes slideInL{from{transform:translateX(-120px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideInR{from{transform:translateX(120px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes critShake{0%,100%{transform:translate(0)}10%{transform:translate(-6px,4px)}20%{transform:translate(6px,-4px)}30%{transform:translate(-4px,6px)}40%{transform:translate(4px,-6px)}50%{transform:translate(-2px,2px)}}
+@keyframes victoryPop{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes urGlow{0%,100%{box-shadow:0 0 15px rgba(245,158,11,.4),0 0 30px rgba(245,158,11,.2)}50%{box-shadow:0 0 30px rgba(245,158,11,.8),0 0 60px rgba(245,158,11,.4)}}
+@keyframes urReveal{0%{transform:scale(0) rotate(-180deg);opacity:0;filter:brightness(3)}60%{transform:scale(1.2) rotate(10deg);opacity:1;filter:brightness(2)}100%{transform:scale(1) rotate(0);opacity:1;filter:brightness(1)}}
+@keyframes goldRain{0%{transform:translateY(-40px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes modalIn{from{transform:translateY(40px) scale(.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@keyframes levelUp{0%{transform:scale(0);opacity:0}40%{transform:scale(1.3);opacity:1}70%{transform:scale(.95)}100%{transform:scale(1);opacity:1}}
+@keyframes rewardDrop{0%{transform:translateY(-60px) scale(1.5);opacity:0}60%{transform:translateY(10px) scale(1);opacity:1}100%{transform:translateY(0);opacity:1}}
+@keyframes enhSuccess{0%{transform:scale(1);box-shadow:none}50%{transform:scale(1.08);box-shadow:0 0 20px rgba(242,193,78,.6)}100%{transform:scale(1);box-shadow:none}}
+@keyframes enhFail{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
+.pkSlideL{animation:slideInL .5s ease-out}
+.pkSlideR{animation:slideInR .5s ease-out}
+.critShake{animation:critShake .5s}
+.victoryPop{animation:victoryPop .6s ease-out}
+.urCard{animation:urReveal .8s ease-out,urGlow 2s infinite 0.8s}
+.modalAnim .mpanel{animation:modalIn .3s ease-out}
+.fadeIn{animation:fadeIn .3s}
+.enhOk{animation:enhSuccess .6s}
+.enhNo{animation:enhFail .5s}
+.pkSkillFx{position:absolute;font-size:28px;pointer-events:none;animation:victoryPop .5s ease-out forwards;z-index:5}
+@keyframes goldFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+.gachaFlash{position:fixed;inset:0;z-index:150;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(255,217,122,.9),rgba(242,193,78,.4) 42%,transparent 75%);animation:goldFlash .95s ease-out forwards}
+@keyframes ssrReveal{0%{transform:scale(0) rotate(120deg);opacity:0;filter:brightness(2.6)}60%{transform:scale(1.14) rotate(-6deg);opacity:1;filter:brightness(1.8)}100%{transform:scale(1) rotate(0);opacity:1;filter:brightness(1)}}
+@keyframes ssrGlow{0%,100%{box-shadow:0 0 12px rgba(168,85,247,.4)}50%{box-shadow:0 0 26px rgba(168,85,247,.85),0 0 48px rgba(168,85,247,.35)}}
+.ssrCard{animation:ssrReveal .7s ease-out,ssrGlow 2.2s infinite .7s}
+@keyframes hiBanner{0%{transform:translateX(-50%) scale(0);opacity:0}45%{transform:translateX(-50%) scale(1.25);opacity:1}70%{transform:translateX(-50%) scale(.96)}100%{transform:translateX(-50%) scale(1);opacity:1}}
+/* ?? 蝔?漲憿 ?? */
+.equipR{color:#22c55e}.equipE{color:#4fc3f7}.equipA{color:#fff176}.equipS{color:#64b5f6}
+.equipSS{color:#9575cd}.equipSSS{color:#e040fb}.equipZ{color:#ff5252}.equipZZ{color:#ff9800}
+.equipZZZ{color:#f50057}
+@keyframes rainbowFlow{0%{background-position:0% 50%}100%{background-position:400% 50%}}
+.equipINF{background:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowFlow 2s linear infinite}
+/* ?? 鋆?蝝?憡??? */
+.dollView{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start}
+.dollAvatar{text-align:center}
+.dollAvatar .dollIcon{font-size:80px;display:block;margin:0 auto 8px;animation:bob 3s infinite;filter:drop-shadow(0 0 12px rgba(242,193,78,.4))}
+.dollSlots{display:flex;flex-direction:column;gap:8px}
+.slotRow{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;transition:.15s}
+.slotRow:hover{border-color:var(--goldD)}
+.slotIcon{font-size:22px;width:32px;text-align:center;flex:none}
+.slotLabel{font-size:11px;color:var(--mut);font-weight:700;min-width:36px}
+.slotItem{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slotEmpty{color:var(--mut);font-size:12px;font-style:italic}
+.slotBtns{display:flex;gap:4px;flex:none}
+/* ?? ?舀?圈洛 ?? */
+.dungeonCanvasWrap{position:relative;width:100%;max-width:640px;margin:0 auto}
+#dungeonCanvas{width:100%;height:400px;background:#0a0e1a;border:1px solid var(--line);border-radius:8px;display:block}
+.dungeonHUD{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.dungeonWave{font-family:var(--serif);font-weight:900;color:var(--gold2);font-size:15px}
+.dungeonHPBar{flex:1;min-width:120px}
+.dungeonHPBar .bar{height:14px}
+.dungeonHPBar .bar i{background:linear-gradient(90deg,#c73a3f,#ff7b72)}
+.dungeonEnemyHP .bar i{background:linear-gradient(90deg,#e5484d,#ff8a80)}
+.dungeonMobList{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;font-size:12px}
+.dungeonMob{padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.3);border:1px solid var(--line)}
+.dungeonMob.alive{border-color:#4caf50;color:#8ee06a}
+.dungeonMob.dead{opacity:.4;text-decoration:line-through}
+.dungeonBoss{border-color:var(--gold)!important;color:var(--gold2)!important;font-weight:900}
+.dungeonLog{height:100px;overflow-y:auto;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11.5px;line-height:1.7}
+.dungeonLog .crit{color:var(--gold2);font-weight:900}
+.dungeonLog .dmg{color:#ff9d97}
+.dungeonLog .heal{color:#8ee06a}
+.dungeonLog .info{color:var(--teal)}
+.touchControls{display:none;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.touchCtrl{width:56px;height:56px;border-radius:50%;background:rgba(242,193,78,.15);border:2px solid var(--goldD);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.touchCtrl:active{background:rgba(242,193,78,.35)}
+.touchDpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px);gap:4px}
+.touchDpad .touchCtrl{font-size:18px}
+.touchDpad .empty{visibility:hidden}
+@media(hover:none)and(pointer:coarse){.touchControls{display:flex!important}}
+/* ?? ?皛曉?蝯梯????? */
+.rerollPanel{display:grid;grid-template-columns:1fr 280px;gap:14px}
+@media(max-width:860px){.rerollPanel{grid-template-columns:1fr}}
+.rerollAttrRow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;margin-bottom:6px;transition:.15s}
+.rerollAttrRow:hover{border-color:var(--goldD)}
+.rerollAttrIcon{font-size:22px;width:30px;text-align:center;flex:none}
+.rerollAttrName{flex:1;min-width:0;font-size:13px;font-weight:700}
+.rerollBadge{padding:2px 10px;border-radius:99px;font-size:12px;font-weight:900;font-family:var(--serif);flex:none}
+.rerollBadge.R{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.rerollBadge.E{background:rgba(79,195,247,.15);color:#4fc3f7;border:1px solid rgba(79,195,247,.3)}
+.rerollBadge.A{background:rgba(255,241,118,.15);color:#fff176;border:1px solid rgba(255,241,118,.3)}
+.rerollBadge.S{background:rgba(100,181,246,.15);color:#64b5f6;border:1px solid rgba(100,181,246,.3)}
+.rerollBadge.SS{background:rgba(149,117,205,.15);color:#9575cd;border:1px solid rgba(149,117,205,.3)}
+.rerollBadge.SSS{background:rgba(224,64,251,.15);color:#e040fb;border:1px solid rgba(224,64,251,.3)}
+.rerollBadge.Z{background:rgba(239,83,80,.15);color:#ff5252;border:1px solid rgba(239,83,80,.3)}
+.rerollBadge.ZZ{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.3)}
+.rerollBadge.ZZZ{background:rgba(245,0,87,.15);color:#f50057;border:1px solid rgba(245,0,87,.3)}
+.rerollBadge.INF{animation:rainbowFlow 2s linear infinite;background:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);background-size:400% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;border:1px solid rgba(255,255,255,.3)}
+.rerollBonus{font-size:12px;color:var(--mut);flex:none;width:50px;text-align:right}
+.rerollBtns{display:flex;gap:4px;flex:none;flex-wrap:wrap}
+.rerollSide{display:flex;flex-direction:column;gap:10px}
+.rerollAutoDel{margin-top:8px}
+.rerollAutoDel select{width:100%;margin-top:4px}
+/* ?? 鋆??∠? ?? */
+.equipCard{border:1px solid var(--line);border-radius:10px;padding:12px;background:linear-gradient(160deg,rgba(20,30,52,.9),rgba(10,16,30,.95));transition:.18s}
+.equipCard:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.equipCardR{border-color:rgba(34,197,94,.3)}.equipCardE{border-color:rgba(79,195,247,.3)}.equipCardA{border-color:rgba(255,241,118,.3)}.equipCardS{border-color:rgba(100,181,246,.3)}
+.equipCardSS{border-color:rgba(149,117,205,.3)}.equipCardSSS{border-color:rgba(224,64,251,.3)}.equipCardZ{border-color:rgba(239,83,80,.3)}.equipCardZZ{border-color:rgba(255,152,0,.3)}
+.equipCardZZZ{border-color:rgba(245,0,87,.3)}.equipCardINF{border-color:rgba(255,255,255,.5);animation:ssrGlow 2.2s infinite,rainbowFlow 3s linear infinite}
+.equipName{font-family:var(--serif);font-weight:900;font-size:14px;margin-bottom:4px}
+.equipSub{font-size:11px;color:var(--mut);margin-bottom:6px}
+.equipSubs{font-size:11.5px;line-height:1.6}
+.equipSubs div{display:flex;justify-content:space-between;gap:8px;padding:1px 0}
+.equipSubs .sv{color:var(--gold2);font-weight:700}
+.equipLv{font-size:11px;color:var(--teal);margin-top:4px}
+.equipMain{font-size:12px;color:var(--txt);margin-top:3px}
+/* ?? ?舀?啣? ?? */
+.dunMapGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:5px;max-height:280px;overflow-y:auto;padding:6px 4px}
+.dunTile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 4px;font-weight:700;cursor:pointer;color:#fff;transition:.15s;text-align:center;font-size:11px;background:var(--tc,#2a3050)}
+.dunTile:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.15)}
+.dunTile.done{background:linear-gradient(160deg,#2f6b45,#204d33)!important;border-color:#3c8a5a;cursor:default;color:#cdeed6}
+.dunTile.lock{background:#1c2740!important;border-color:var(--line);color:#5b6a86;cursor:not-allowed}
+.dunTile.next{box-shadow:0 0 0 2px var(--gold),0 0 14px rgba(242,193,78,.4);animation:pulse 1.6s infinite}
+.dunTile.boss{border-color:var(--gold2)}.dunTile.boss .tcNum{color:#fff;text-shadow:0 0 6px rgba(255,217,122,.8)}
+.dunTile.waveInfo{font-size:10px;opacity:.7}
+.lootFloat{position:fixed;font-size:18px;font-family:var(--serif);font-weight:900;pointer-events:none;z-index:200;animation:rewardDrop .9s ease-out forwards}
+
+}
+
+.spIn h2{font-family:var(--serif);font-weight:900;color:var(--gold2);margin:10px 0 6px;font-size:23px}
+
+.spIn p{color:var(--mut);font-size:13.5px}
+
+.spBar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ffd97a);width:0;animation:load 1s forwards}
+
+}
+
+@media(max-width:900px){#login{grid-template-columns:1fr;max-width:520px;gap:26px}.pdfWrap,.pkArena{grid-template-columns:1fr}.cRow{grid-template-columns:86px 1fr 86px}}
+
+h2:has(> span.vsub:contains("雿?)),
+
+display: none !important;
+
+}
+
+@keyframes viewIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* ?餃?脣?嚗???剜嚗?*/
+.lgLeft{animation:lgInL .7s cubic-bezier(.2,.9,.3,1) both}
+.lgCard{animation:lgInUp .7s cubic-bezier(.2,.9,.3,1) .15s both}
+.roleTabs .rtab{animation:lgInUp .5s ease both}
+.roleTabs .rtab:nth-child(1){animation-delay:.3s}
+.roleTabs .rtab:nth-child(2){animation-delay:.4s}
+.roleTabs .rtab:nth-child(3){animation-delay:.5s}
+.lgCard .mlab,.lgCard .btn.big,.lgCard .lgNote,.lgCard .lgReset{animation:lgInUp .5s ease .55s both}
+.featL li{animation:lgInL .55s ease both}
+.featL li:nth-child(1){animation-delay:.25s}.featL li:nth-child(2){animation-delay:.35s}.featL li:nth-child(3){animation-delay:.45s}.featL li:nth-child(4){animation-delay:.55s}
+@keyframes lgInL{from{opacity:0;transform:translateX(-46px)}to{opacity:1;transform:translateX(0)}}
+@keyframes lgInUp{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* ?餃???? */
+@keyframes swordIn{0%{transform:scale(0) rotate(-160deg);opacity:0}70%{transform:scale(1.18) rotate(8deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeOutFx{to{opacity:0}}
+/* ?脣銝餌?Ｘ楚??*/
+#app.appIn{animation:viewIn .55s ease both}
+/* ??頛?恍嚗??潮??湛??貊??脣漲璇?*/
+#splash{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%,#1a2440,#0a0e1a 72%);transition:opacity .5s ease;overflow:hidden}
+#splash.off{opacity:0;pointer-events:none}
+@keyframes splashFadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+#splash { animation: splashFadeOut 2.5s forwards; }
+.ldWrap{text-align:center;position:relative}
+.ldLogo{font-size:64px;animation:swordIn .7s cubic-bezier(.2,1.4,.4,1) both,ldGlow 1.6s ease-in-out .7s infinite;filter:drop-shadow(0 0 18px rgba(242,193,78,.85))}
+@keyframes ldGlow{50%{transform:scale(1.12);filter:drop-shadow(0 0 34px rgba(255,217,122,1))}}
+.ldTitle{font-family:var(--serif);font-weight:900;margin:12px 0 4px;font-size:26px;background:linear-gradient(90deg,#f2c14e 20%,#fff7d6 40%,#f2c14e 60%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:ldSheen 1.8s linear infinite,riseIn .6s ease .2s both}
+@keyframes ldSheen{to{background-position:-200% 0}}
+.ldVer{color:var(--mut);font-size:13px;margin-bottom:16px;animation:riseIn .6s ease .35s both}
+.ldBar{position:relative;width:320px;height:16px;border:1px solid rgba(242,193,78,.65);border-radius:99px;overflow:hidden;margin:0 auto;background:rgba(0,0,0,.5);animation:ldBarGlow 1.4s ease-in-out infinite}
+@keyframes ldBarGlow{50%{box-shadow:0 0 22px rgba(242,193,78,.75)}}
+.ldBar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#b8860b,var(--gold),#ffd97a,#fff3c4);background-size:200% 100%;box-shadow:0 0 14px rgba(242,193,78,.9);animation:ldLoad 1.8s ease-out forwards,ldSheen 1.1s linear infinite}
+@keyframes ldLoad{to{width:100%}}
+.ldShine{position:absolute;top:0;left:-40%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:ldSweep 1s linear infinite}
+@keyframes ldSweep{to{left:110%}}
+.ldPct{color:var(--gold2);font-size:17px;margin-top:10px;font-weight:900;font-family:var(--serif);text-shadow:0 0 12px rgba(242,193,78,.7);animation:ldGlow 1.2s ease-in-out infinite}
+.ldTip{color:var(--mut);font-size:12.5px;margin-top:8px;min-height:18px;animation:fadeIn .4s}
+.ldStar{position:absolute;pointer-events:none;animation:ldFloat 2.4s ease-in-out infinite;opacity:.85}
+@keyframes ldFloat{0%,100%{transform:translateY(0) scale(1);opacity:.5}50%{transform:translateY(-18px) scale(1.25);opacity:1}}
+.ldBurst span{position:absolute;left:50%;top:0;font-size:20px;pointer-events:none;animation:ldBoom .95s ease-out forwards}
+@keyframes ldBoom{0%{transform:translate(0,0) scale(.4);opacity:0}12%{opacity:1;transform:translate(0,0) scale(1.35)}100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+/* ???????? 憡?蝟餌絞 CSS ???????? */
+.dollCard{background:linear-gradient(145deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.dollCard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--gold));opacity:.7}
+.dollCard.ssr::before{background:linear-gradient(90deg,#ffd700,var(--pink),#9d4edd)}
+.dollCard.ur::before{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffd700,#00ff88,#00bfff,#4b0082)}
+.dollCard:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(255,107,157,.2);border-color:var(--pink)}
+.dollCard .dollAvatar{width:56px;height:56px;background:linear-gradient(135deg,#3d2060,#2d1b4e);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--line);flex:none}
+.dollInfo h4{font-family:var(--serif);font-size:15px;color:var(--pink2);margin-bottom:3px}
+.dollMeta{font-size:10.5px;color:var(--mut);display:flex;gap:6px;flex-wrap:wrap}
+.dollStats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.statBar{display:flex;flex-direction:column;gap:3px}
+.statLbl{font-size:10px;color:var(--mut);display:flex;justify-content:space-between}
+.statTrack{height:5px;background:rgba(0,0,0,.4);border-radius:3px;overflow:hidden}
+.statFill{height:100%;border-radius:3px;transition:width .5s}
+.statFill.w{background:linear-gradient(90deg,#ff6b9d,#ff9ec4)}
+.statFill.o{background:linear-gradient(90deg,#9d4edd,#c77dff)}
+.statFill.r{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.statFill.a{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.bondBar{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.bondLbl{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-bottom:5px}
+.bondLbl b{color:var(--pink2)}
+.rarityTag{font-weight:900;padding:2px 7px;border-radius:9px;font-size:9px}
+.rarity-R{background:#6b7280;color:#fff}.rarity-SR{background:#3b82f6;color:#fff}.rarity-SSR{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff}.rarity-UR{background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff}
+.dollChat{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:120px;max-height:200px;overflow-y:auto;margin:12px 0}
+.dollMsg{margin-bottom:10px;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;animation:pop .2s;max-width:80%;word-break:break-word}
+.dollMsg.doll{background:linear-gradient(135deg,rgba(255,107,157,.22),rgba(157,78,221,.22));border-radius:14px 14px 14px 4px}
+.dollMsg.user{background:linear-gradient(135deg,#00b894,#00a381);color:#fff;margin-left:auto;text-align:left;border-radius:14px 14px 4px 14px}
+.dollMsg .mTime{font-size:10px;color:var(--mut);margin-top:3px}
+.dollInput{display:flex;gap:8px}
+.dollInput input{flex:1;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:8px;padding:10px 14px;color:var(--txt);font-family:var(--sans);font-size:14px}
+.dollInput input:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,107,157,.2)}
+.dollInteract{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.dollIBtn{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:10px;padding:14px 10px;color:var(--txt);cursor:pointer;transition:.2s;text-align:center}
+.dollIBtn:hover{border-color:var(--pink);transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,107,157,.2)}
+.dollIBtn .iIcon{font-size:24px;display:block;margin-bottom:4px}
+.dollIBtn .iLabel{font-size:11px;font-weight:700}
+.dollFoodGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.dollFoodBtn{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:8px;padding:12px;color:var(--txt);cursor:pointer;transition:.2s;text-align:center}
+.dollFoodBtn:hover{border-color:var(--gold);transform:scale(1.03)}
+.dollFoodBtn .fIcon{font-size:22px;display:block;margin-bottom:4px}
+.dollFoodBtn .fName{font-size:11px;font-weight:700}
+.dollFoodBtn .fDesc{font-size:9px;color:var(--mut);margin-top:2px}
+.dollHistory{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.dollHistTitle{font-size:11px;color:var(--mut);font-weight:700;margin-bottom:8px}
+.dollHistItem{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px;color:var(--mut);border-bottom:1px solid rgba(61,32,112,.3)}
+.dollHistItem:last-child{border-bottom:none}
+.dollHistItem .hIcon{font-size:14px}
+.dollHistItem .hType{color:var(--pink2);font-weight:700}
+.mbtiGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mbtiBtn{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 4px;color:var(--txt);cursor:pointer;font-size:10px;font-weight:700;transition:.2s;text-align:center}
+.mbtiBtn:hover,.mbtiBtn.sel{border-color:var(--pink);background:rgba(255,107,157,.15);color:var(--pink2)}
+.mbtiBtn .mbName{font-size:8px;color:var(--mut);display:block;margin-top:2px}
+.shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.shopItem{background:linear-gradient(145deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:.2s}
+.shopItem:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 4px 12px rgba(242,193,78,.2)}
+.shopItem .sIcon{font-size:28px;margin-bottom:4px}
+.shopItem .sName{font-size:11px;font-weight:700;margin-bottom:3px}
+.shopItem .sPrice{font-size:10.5px;color:var(--gold)}
+.createForm .fg{margin-bottom:12px}
+.createForm .fg label{display:block;font-size:11px;color:var(--mut);margin-bottom:5px;font-weight:700}
+.createForm .fg input,.createForm .fg select{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:6px;padding:9px 12px;color:var(--txt);font-family:var(--sans);font-size:13px}
+.createForm .fg input:focus,.createForm .fg select:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,107,157,.2)}
+/* ???? ?? 憡?蝞∠?敺 ???? */
+.catTabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.catTab{padding:8px 16px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--mut);font-weight:700;cursor:pointer;font-size:13px;transition:.15s}
+.catTab.on{color:var(--gold2);border-color:var(--gold);background:#182338}
+.dollAdminCard{background:linear-gradient(180deg,var(--panel2),#101a2e);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:.15s}
+.dollAdminCard:hover{border-color:var(--goldD)}
+.dollAdminCard .dIcon{font-size:28px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);border-radius:8px;flex:none}
+.dollAdminCard .dInfo{flex:1;min-width:0}
+.dollAdminCard .dName{font-weight:700;font-size:14px;color:var(--gold2)}
+.dollAdminCard .dMeta{font-size:11.5px;color:var(--mut);margin-top:3px}
+.dollAdminCard .dActs{display:flex;gap:6px;flex-wrap:wrap;flex:none}
+.shopAdminCard{background:linear-gradient(180deg,var(--panel2),#101a2e);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+.shopAdminCard .sHead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.shopAdminCard .sIcon{font-size:28px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);border-radius:8px}
+.shopAdminCard .sBody{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;align-items:end}
+.shopAdminCard .sBody .fg{margin-bottom:0}
+.shopAdminCard .sBody label{font-size:11px;color:var(--mut);display:block;margin-bottom:4px;font-weight:700}
+.shopAdminCard .sBody input,.shopAdminCard .sBody select{width:100%;padding:7px 10px;font-size:13px}
+.eventCard{background:linear-gradient(180deg,var(--panel2),#101a2e);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+.eventCard.active{border-color:var(--green);border-left:4px solid var(--green)}
+.eventCard .eHead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.eventCard .eName{font-weight:700;color:var(--gold2);font-size:14px}
+.eventCard .eBody{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.eventCard .eBody label{font-size:11px;color:var(--mut);display:block;margin-bottom:4px;font-weight:700}
+.eventCard .eBody input{padding:7px 10px;font-size:13px}
+.toggleRow{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.toggleRow input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:var(--green)}
+.toggleRow label{font-size:13px;cursor:pointer;font-weight:700}
+</style>
+
+<style>
+
+p.sp2,
+
+div.spBar,
+
+display: none !important;
+
+    visibility: hidden !important;
+
+}
+
+</style>
+<script src="js/i18n.js"></script>
+</head>
+
+<body>
+
+<div id="bgfx"></div><div id="fxlayer"></div>
+
+<div id="splash"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px;animation:bob 1.2s infinite">??</div><div class="ldPct" id="ldPct">0%</div><div class="ldTip" id="ldTip">甇?頛...</div></div><i class="ldStar" style="left:10%;top:18%;font-size:18px">??/i><i class="ldStar" style="left:85%;top:24%;font-size:22px;animation-delay:.4s">??</i><i class="ldStar" style="left:16%;top:72%;font-size:20px;animation-delay:.8s">潃?/i><i class="ldStar" style="left:80%;top:70%;font-size:17px;animation-delay:1.2s">?</i><i class="ldStar" style="left:48%;top:12%;font-size:15px;animation-delay:.6s">??/i><i class="ldStar" style="left:60%;top:82%;font-size:19px;animation-delay:1s">??</i><div class="ldWrap"><div class="ldBurst" id="ldBurst"></div><div class="ldLogo">??</div><h2 class="ldTitle">?券????芾??頂蝯?/h2><p class="ldVer">v4.0.1 隤???209?餃雿蔣?頛?靽桀儔</p><div class="ldBar"><i></i><span class="ldShine"></span></div></div></div>
+
+<div id="login" style="display:grid">
+
+<div class="lgLeft">
+
+<div class="emb">??</div>
+
+<h1 class="logoT">?券????芾?br>擗?蝟餌絞</h1>
+
+<div class="verRow"><span class="verChip">v4.0</span><span class="verChip star">???券??之?湔</span></div>
+
+<ul class="featL">
+
+<li><b>??</b><span><strong>靽桃??渡移?撠?/strong>?詨??閮剖????菟?憪?銝??∩?</span></li>
+
+<li><b>??儭?/b><span><strong>PK ?⊿?蝡嗆?憛?/strong>??⊿????餅????蝣???/span></li>
+
+<li><b>?儭?/b><span><strong>?? 2500 ??/strong>瘥? 500 ?憟賢??予?喟?蝢斤???</span></li>
+
+<li><b>?儭?/b><span><strong>?梁?靽風</strong>?葦???啣飛????冽????餃末?漱??40% 靽?</span></li>
+
+</ul>
+
+</div>
+
+<div class="panel lgCard">
+
+<span class="cor tl"></span><span class="cor tr"></span><span class="cor bl"></span><span class="cor br"></span>
+
+<h2 class="lgT">?? ?餃?券????芾??頂蝯?/h2>
+
+<p class="lgSub" id="lgPortalSub">頛詨撣唾???蝣潘?蝟餌絞?芸?颲刻??函?頨怠?</p>
+
+<label class="mlab">撣唾?<input id="lgUser" autocomplete="username"></label>
+
+<label class="mlab">撖Ⅳ<input id="lgPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></label>
+
+<button class="btn big" onclick="doLogin()">?? ?餃</button>
+
+<p class="lgNote" id="lgNote"></p>
+
+<p class="lgReset"><a href="javascript:void(0)" onclick="resetFromLogin()">?? ?⊥??餃嚗?甇日?蝵株???/a></p>
+
+<p class="lgReset"><label style="cursor:pointer;color:var(--teal)">? ?臬?Ｘ平摮?嚗璈董?敺抬?<input type="file" accept="application/json,.json" style="display:none" onchange="importSaveFile(this)"></label></p>
+
+</div>
+
+</div>
+
+<div id="app" style="display:none"></div>
+
+<div id="modal" class="mwrap" style="display:none" onclick="if(event.target.id==='modal')closeModal()"><div class="panel mpanel" id="mbody"></div></div>
+
+<div id="toasts"></div>
+
+<script>
+/* ????????????????????????????????????????????????????????????
+   璅∠??嗉??伐???tools/build/splitall.py ?Ｙ?嚗???對?
+   瘥?Ｖ???js/views/ 璅∠?嚗?唳?頛嚗??典???其?頛?   ???????????????????????????????????????????????????????????? */
+const JSLOAD={};
+async function needJs(list){
+  if(typeof list==='string')list=[list];
+  const out=await Promise.all(list.map(src=>new Promise(res=>{
+    if(JSLOAD[src])return res(true);
+    const t=document.createElement('script');
+    t.src=src;t.onload=()=>{JSLOAD[src]=1;res(true)};t.onerror=()=>res(false);
+    document.head.appendChild(t);
+  })));
+  return out.every(Boolean);
+}
+function onlHtml(user){
+  const un=(user&&(user.username||user.id))||'';
+  const on=_onlineSet.has(un);
+  return '<span class="onlBadge '+(on?'on':'off')+'" data-u="'+esc(un)+'">'+(on?'??蝺?':'???Ｙ?')+'</span>';
+}
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const fmt=t=>new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+
+const pick=a=>a[(Math.random()*a.length)|0];
+
+const today=()=>new Date().toDateString();
+
+const CFG={
+
+MAX_LV:300,lvMult:l=>+(1+(l-1)*.04).toFixed(2), /* 蝑?銝? 300 */
+
+needXp:l=>Math.floor(l*80+Math.pow(l,1.5)*20),
+
+dRew:l=>({exp:Math.floor(8+l*1.6),crystal:Math.floor(3+l*.5),gold:Math.floor(8+l*2.5)}),
+
+dropRate:l=>Math.min(.65,.08+l*.006),
+
+dDesc:l=>l<=10?'蝪∪-?箇?憿?:l<=20?'?桅??脤?憿?:l<=35?'銝剔?-憭郊撽?:l<=50?'銝凋?-???:l<=65?'頛-閫敹菟?':l<=80?'?圈-?琿++':l<=90?'璆菟-鞈憿?:'?啁?-頞???,
+
+COMBO:{3:.03,6:.06,10:.12,15:.18,20:.25,30:.35},
+
+GACHA:{single:30,ten:270,rates:{N:.5,R:.3,SR:.14,SSR:.05,UR:.01},pity:{SR:10,SSR:50,UR:100}},
+
+ENH:{rate:{0:1,1:1,2:1,3:1,4:1,5:.8,6:.65,7:.5,8:.38,9:.28,10:.2,11:.14,12:.09,13:.05,14:.03},cost:l=>l<=3?1:l<=7?2:l<=11?3:5,pen:l=>l<=5?0:l<=9?1:l<=12?2:3},
+
+STAR_COST:{2:5,3:10,4:20,5:40},STAR_BONUS:{1:1,2:1.3,3:1.6,4:2,5:2.5},
+
+SIGN:{1:{t:'gold',n:100,d:'?? ?馳 ?100'},2:{t:'crystal',n:50,d:'?? 瘞湔 ?50'},3:{t:'enhStone',n:10,d:'? 撘瑕????10'},4:{t:'starlight',n:5,d:'????蝣? ?5'},5:{t:'gold',n:300,d:'?? ?馳 ?300'},6:{t:'crystal',n:150,d:'?? 瘞湔 ?150'},7:{t:'diamond',n:10,d:'?? ?賜 ?10'}},
+
+RAR_C:{N:'#9ca3af',R:'#22c55e',SR:'#3b82f6',SSR:'#a855f7',UR:'#f59e0b'},
+
+RAR_S:{N:'??,R:'??',SR:'????,SSR:'????',UR:'??????},
+
+QUAL:['?桅?,'?芰?','蝎曇','?脰帘','?唾牧'],
+
+QUAL_C:{'?桅?:'#9ca3af','?芰?':'#22c55e','蝎曇':'#3b82f6','?脰帘':'#a855f7','?唾牧':'#f59e0b'},
+
+QBASE:{'?桅?:5,'?芰?':12,'蝎曇':25,'?脰帘':50,'?唾牧':100},
+
+UNLOCK:{1:1,31:5,51:10,71:20,86:30,96:40},
+
+MILE:[100,500,1000,2000,3000,5000,8000,10000,15000,20000],
+
+TRADE_MIN_RATIO:0.40, /* #9 鈭斗??寞銝?雿?拙??孵?40% */
+
+FORGE_RECIPES:[
+
+{id:'r1',name:'?萄?',slot:'甇血',mats:{ironOre:3,starlight:1},rate:.85,qw:{'?桅?:50,'?芰?':35,'蝎曇':12,'?脰帘':3,'?唾牧':0},pool:['?萄?','?潮銋?']},
+
+{id:'r2',name:'?桃',slot:'?貊',mats:{ironOre:2,starlight:1},rate:.85,qw:{'??':55,'??':30,'??':12,'??':3,'??':0},pool:['??','????']},
+
+{id:'r3',name:'??',slot:'??',mats:{ironOre:2,starlight:2},rate:.8,qw:{'?桅?:50,'?芰?':32,'蝎曇':14,'?脰帘':4,'?唾牧':0},pool:['?萇?','摰??剔?']},
+
+{id:'r4',name:'霅瑁?',slot:'霅瑁?',mats:{ironOre:1,starlight:2},rate:.8,qw:{'?桅?:52,'?芰?':32,'蝎曇':13,'?脰帘':3,'?唾牧':0},pool:['霅瑁?','蝎暸霅瑁?']},
+
+{id:'r5',name:'?暸◢??,slot:'??',mats:{ironOre:2,starlight:3},rate:.75,qw:{'?桅?:45,'?芰?':35,'蝎曇':15,'?脰帘':5,'?唾牧':0},pool:['?暸◢??,'餈銋']},
+
+{id:'r6',name:'??',slot:'??',mats:{ironOre:3,starlight:4},rate:.7,qw:{'?桅?:40,'?芰?':35,'蝎曇':18,'?脰帘':6,'?唾牧':1},pool:['??','?劓??']},
+
+{id:'r7',name:'??',slot:'??',mats:{ironOre:3,starlight:5},rate:.65,qw:{'?桅?:38,'?芰?':35,'蝎曇':19,'?脰帘':7,'?唾牧':1},pool:['??','鞈Ｚ???]},
+
+{id:'r8',name:'?唾牧銋?',slot:'甇血',mats:{ironOre:10,starlight:15},rate:.4,qw:{'?桅?:10,'?芰?':25,'蝎曇':35,'?脰帘':25,'?唾牧':5},pool:['?唾牧銋?','?萎?銋?']},
+
+{id:'r9',name:'樴???,slot:'?貊',mats:{ironOre:8,starlight:6,labMat:4},rate:.55,qw:{'?桅?:20,'?芰?':32,'蝎曇':28,'?脰帘':16,'?唾牧':4},pool:['樴???,'???賊']},
+
+{id:'r10',name:'鞈Ｚ???,slot:'甇血',mats:{ironOre:5,starlight:8,labMat:6},rate:.55,qw:{'?桅?:18,'?芰?':30,'蝎曇':30,'?脰帘':18,'?唾牧':4},pool:['鞈Ｚ???,'憟扯?甈?']},
+
+{id:'r11',name:'?劓撘?,slot:'甇血',mats:{ironOre:6,starlight:10,labMat:5},rate:.5,qw:{'?桅?:15,'?芰?':28,'蝎曇':32,'?脰帘':20,'?唾牧':5},pool:['?劓撘?,'瘚??瑕?']},
+
+{id:'r12',name:'摰風撌函',slot:'霅瑁?',mats:{ironOre:12,starlight:4,labMat:8},rate:.6,qw:{'?桅?:22,'?芰?':33,'蝎曇':27,'?脰帘':14,'?唾牧':4},pool:['摰風撌函','??銋']},
+
+{id:'r13',name:'蟡?霅瑞泵',slot:'??',mats:{ironOre:4,starlight:12,labMat:10},rate:.45,qw:{'?桅?:12,'?芰?':26,'蝎曇':34,'?脰帘':22,'?唾牧':6},pool:['蟡?霅瑞泵','憭拐蝙憓ˇ']},
+
+{id:'r14',name:'?萎???',slot:'?剔?',mats:{ironOre:15,starlight:20,labMat:15},rate:.35,qw:{'?桅?:5,'?芰?':18,'蝎曇':32,'?脰帘':32,'?唾牧':13},pool:['?萎???','瘞豢???']}
+
+],
+
+EXCH:[
+
+{f:'crystal',fn:100,t:'gold',tn:200,d:'??100 ????200'},
+
+{f:'gold',fn:200,t:'crystal',tn:30,d:'??200 ????30'},
+
+{f:'honor',fn:20,t:'pkExtra',tn:1,d:'??璁株亳撟?0 ????儭K??蜆?'},
+
+{f:'quizPts',fn:50,t:'quizExtra',tn:1,d:'??蝑?蝛?50 ????靽桃??湔活?蜆?'},
+
+{f:'honor',fn:100,t:'teammate',tn:'?詨飛?菜',d:'??璁株亳撟?00 ????蝔???摮詨?Ｕ?},
+
+{f:'labMat',fn:30,t:'pet',tn:'?劓曋?,d:'?妒撖阡?蝝?30 ?????撖萇??颲圈溯??},
+
+{f:'gold',fn:500,t:'diamond',tn:1,d:'??500 ????1'},
+
+{f:'starlight',fn:20,t:'diamond',tn:2,d:'??0 ????2'},
+
+{f:'gold',fn:300,t:'labMat',tn:10,d:'??300 ???妒撖阡?蝝?10'},
+
+{f:'crystal',fn:100,t:'labMat',tn:15,d:'??100 ???妒撖阡?蝝?15'}
+
+],
+
+EGGS:{'?征撖Ⅳ':{t:'starAll',d:'?券閫 +1 ??'},'瘞湔蟡窄':{t:'crystal',n:100,d:'?脣? 100 ??嚗?},'璉格?銋窄':{t:'diamond',n:5,d:'?脣? 5 ??嚗?}}
+
+};
+
+function effMaxLv(){const m=window.getMaxLevel?window.getMaxLevel():CFG.MAX_LV;return Math.max(300,m)}
+
+const SUBJ={
+
+'?詨飛':{c:'#ff5252',i:'??',u:{'7銝?:['?湔??','??????,'銝??甈⊥蝔?','鈭?銝甈∟蝡蝔?,'銝??甈∩?蝑?','?貊???撠?],'7銝?:['???摮貉???,'撟單?寡??Ｘ?摰?','???圾','????','銝甈∪??],'8銝?:['銋??砍?','憭?撘?皜?,'????','銝甈∩?蝑?','?賣?耦'],'8銝?:['銝?敶Ｚ??函?','??敶?,'????','瘥?蝺挾','?訾撮敶?],'9銝?:['銝??甈⊥蝔?','鈭活?賣','?文撘???,'擗?摰?'],'9銝?:['??????,'銝?瘥?,'蝯梯?????,'蝛粹??耦']}},
+
+'?望?':{c:'#00e5ff',i:'?',u:{'7銝?:['Be??','隞??閰?,'??','Wh-?','?曉蝪∪撘?],'7銝?:['?曉?脰?撘?,'There be ?亙?','?拙?閰?can','蟡蝙??,'隞頂閰?],'8銝?:['?蝪∪撘?,'?餌??航?','瘥?蝝??擃?','銝?閰?,'??閰?],'8銝?:['?曉摰?撘?,'鋡怠?隤?','??隞??閰?,'璇辣??,'?芯?撘?],'9銝?:['?摰?撘?,'?撘?','??瑽','?身隤除'],'9銝?:['蝮質?蝧?瘜?,'?梯??撌?,'??摮?,'雿?','?賢?蝺渡?']}},
+
+'??':{c:'#448aff',i:'??',u:{'7銝?:['隢???,'摮???,'銝牧?啗?','?帘??,'摰???],'7銝?:['?斗??貉?','?曆誨???','?啗帘','撠牧?貉?','???],'8銝?:['?脰???,'?帘','摰?','?','?斗?閫甇?],'8銝?:['撌血??,'?啣?蝑?,'??撠牧','?曆誨???','?訾縑'],'9銝?:['隢?瘛梯?','?斗?閫甇?,'?啗帘鞈?','撠牧'],'9銝?:['蝮質?蝧?,'撖思?','?梯?皜祇?','?飛撣貉?']}},
+
+'?芰':{c:'#69f0ae',i:'?',u:{'7銝?:['蝝啗??＊敺桅','??雿','?澆雿','?萇?','???'],'7銝?:['?抵釭????,'瘞湔熄瘨?,'蝛箸除????,'憭拇除','撗拍?丹??],'8銝?:['????','憯?','瘚桀?','皞怠漲?','?餉?蝤?],'8銝?:['???脤','?餌???','?飛????','?餅?','????],'9銝?:['?啁???摰?,'?踹???','憭拇除蝟餌絞','?賣?'],'9銝?:['??蝟?,'瞍?','?箏','蝮質?蝧?]}},
+
+'蝷暹?':{c:'#ffab40',i:'??',u:{'7銝?:[['?箇?脣???','甇瑕'],['?瑁正蝯望祥','甇瑕'],['?箇雿蔭','?啁?'],['?箇?啣耦','?啁?'],['?犖????,'?祆?']],'7銝?:[['????','甇瑕'],['?交祥??','甇瑕'],['?箇瘞??,'?啁?'],['鈭箏????,'?啁?'],['摰嗅滬??瘣?,'?祆?']],'8銝?:[['銝剖?銝??,'甇瑕'],['蝘行慰??','甇瑕'],['銝剖??啣耦','?啁?'],['銝剖?瘞??,'?啁?'],['摮豢?暑','?祆?']],'8銝?:[['摰???','甇瑕'],['瘞?撱箇?','甇瑕'],['銝??啁?','?啁?'],['?祆?蝷暹?','?祆?']],'9銝?:[['銝???,'甇瑕'],['銝?????,'?啁?'],['?振?瘜?,'?祆?'],['?踹???','?祆?']],'9銝?:[['?嗡誨銝?','甇瑕'],['?函???,'?啁?'],['??蝯?','?祆?'],['蝮質?蝧?,'?函?']]}},
+
+'蝬?瘣餃?':{c:'#ff6e40',i:'?妝',u:{'7銝?:['?芣??Ｙ揣','鈭粹???','摮貊??寞?','?雄閬?'],'7銝?:['??蝞∠?','瘨祥銵','隡??暑','?啣??'],'8銝?:['?批撟喟?','瘜?撣貉?','敹???','?脩?'],'8銝?:['?瑟平閰行','?瓷?','慦?蝝?','???圾'],'9銝?:['?飛頛?','憯?隤輸','??','?祆???'],'9銝?:['?Ｘ平皞?','?雄瘙箇?','蝷暹??拇?','蝮質?蝧?]}},
+
+'?仿?':{c:'#ea80fc',i:'??',u:{'7銝?:['蝐?','皜豢陶','?啣?','蝢賜?','?亙熒憌脤?'],'7銝?:['??','獢?','擃?','頞喟?','?交?撣貉?'],'8銝?:['蝐??脤?','憯?','??','蝬脩?','?刻摰'],'8銝?:['蝢賜??脤?','甇西?','?餃?瘣餃?','皜豢陶?脤?','敹??亙熒'],'9銝?:['蝬???','?脰澈銵?,'擃閮毀','???瑕拿'],'9銝?:['蝯澈??','?亙熒擃?','??閮','蝮質?蝧?]}},
+
+'??':{c:'#b2ff59',i:'?',u:{'7銝?:['蝝?','瘞游蔗','?渡?','?','?'],'7銝?:['瘞游◢','?豢?','蝭憟???,'?脣?','?嗉?'],'8銝?:['????','?脣蔗摮?,'璅?','??','?蔣'],'8銝?:['閮剛?','撌亥?','?單?甈??','?','?'],'9銝?:['??鞈?','?萎?','??','蝺刻?','憭?擃?],'9銝?:['?Ｘ平鋆賭?','??閰?','撅?','蝮質?蝧?]}},
+
+'蝘?':{c:'#18ffff',i:'?',u:{'7銝?:['撌亦???瑽?,'Scratch 蝔?','瞍?瘜?,'3D 撱箸芋','?典極'],'7銝?:['Python ?箇?','蝬脤? HTML/CSS','璈?游?','?瑕??','?葫??],'8銝?:['Python ?脤?','?豢???','App ?','Arduino','AI 擃?'],'8銝?:['App Inventor','?抵蝬?,'璈鈭?,'?賣?蝘?','?萄恥'],'9銝?:['撠?鋆賭?','蝔?蝡嗉魚','鞈?摨?,'蝬脰楝摰','蝘??怎?'],'9銝?:['AI ?','?芯?蝘?','蝮質?蝧?,'雿??潸”']}},
+
+'頛?':{c:'#ffd54f',i:'?妣',u:{'7銝?:['?芣?隤?','??閬箏?','鈭粹?皞?,'?拇??啁憓?],'7銝?:['憯?蝞∠?','??閬?','銵???','?雄?Ｙ揣'],'8銝?:['?芣??臬?','蝬脰楝摰','?批撠?','摮貊?蝑'],'8銝?:['摰嗅滬皞?,'?急?隤輸','????','?瑟平隤?'],'9銝?:['?雄??','?飛憯?','?芣?撖衣','鈭粹???'],'9銝?:['?芯?閬?','?雄頛?','敹??亙熒','蝮質?蝧?]}}
+
+};
+
+const CHARS={
+
+'閬?瘜葦':{r:'N',icon:'??',sk:[['擳???','蝪∪憿?撽?5%',{exp_easy_bonus:.05}],['撟賊???,'???2%',{drop_bonus:.02}]]},
+
+'?詨飛蝎暸?':{r:'N',icon:'?妙',sk:[['?詨??','?詨飛蝬?+8%',{math_exp_bonus:.08}],['????梢陷','3???隞乩?蝬?+5%',{combo3_exp:.05}]]},
+
+'?望?隞?':{r:'N',icon:'??',sk:[['隤?憭抵釵','?望?蝬?+8%',{english_exp_bonus:.08}],['摰風撅?','10%???靽風',{combo_protect:.10}]]},
+
+'???詨':{r:'N',icon:'??',sk:[['?飛蝝?','??蝬?+8%',{chinese_exp_bonus:.08}],['皞急??交','?毀蝬?+10%',{retry_exp_bonus:.10}]]},
+
+'撟曆??啣ㄚ':{r:'R',icon:'??',sk:[['蝎暹???','???3%',{drop_bonus:.03}],['撘梢?瘣?','20%???靽風',{combo_protect:.20}],['?馳?菜?','瘥??馳+5',{gold_per_correct:5}]]},
+
+'?琿敹?:{r:'R',icon:'?扑',sk:[['?琿?','?圈憿?撽?10%',{exp_hard_bonus:.10}],['?????,'?????+3%',{combo_extra:.03}]]},
+
+'瘚瑟?蟡剖':{r:'R',icon:'??',sk:[['瞏格?蟡?','?芰蝬?+10%',{science_exp_bonus:.10}],['瘞港?撅?','15%???靽風',{combo_protect:.15}],['瘚瑚???,'PK?啣?+5%',{pk_power_bonus:.05}]]},
+
+'?飛?恥':{r:'R',icon:'??',sk:[['??','PK?啣?+5%',{pk_power_bonus:.05}],['閰拙?','蝷暹?蝬?+10%',{social_exp_bonus:.10}]]},
+
+'?蔣?萎犖':{r:'R',icon:'?',sk:[['?蔣甇?,'25%???靽風',{combo_protect:.25}],['曋寧','?函?撽?5%',{all_exp_bonus:.05}]]},
+
+'???批葦':{r:'R',icon:'??,sk:[['蟡','瘥隞餃??+15%',{mission_bonus:.15}],['蟡?','蝬?+5%',{exp_bonus:.05}]]},
+
+'?征?犖':{r:'SR',icon:'??',sk:[['?征??,'?函?撽?12%',{all_exp_bonus:.12}],['?征撅?','35%???靽風',{combo_protect:.35}],['璈楠','?+5%',{drop_bonus:.05}]]},
+
+'??蟡剖':{r:'SR',icon:'??',sk:[['??蟡?','瘞湔+20%',{crystal_bonus:.20}],['???','???????,{combo_bonus_double:true}]]},
+
+'樴?擉ㄚ':{r:'SR',icon:'?',sk:[['樴?','PK?啣?+12%',{pk_power_bonus:.12}],['樴?','?釭??+25%',{quality_up:.25}],['樴?','40%???靽風',{combo_protect:.40}]]},
+
+'曈喳撌怠戊':{r:'SR',icon:'?',sk:[['銝香曈?,'45%???靽風',{combo_protect:.45}],['曈喟','?函?撽?10%',{all_exp_bonus:.10}]]},
+
+'憭折?撠葦':{r:'SR',icon:'??',sk:[['擳?憓?','撘瑕???+5%',{enhance_bonus:.05}],['?琿?','?詨飛蝬?+15%',{math_exp_bonus:.15}],['擳?憡?','PK+8%',{pk_power_bonus:.08}]]},
+
+'撖嗉??萎犖':{r:'SR',icon:'?',sk:[['撠窄','?+8%',{drop_bonus:.08}],['?暸◢','?漲??+30%',{speed_bonus:.30}]]},
+
+'??憭拐蝙':{r:'SSR',icon:'?',sk:[['??摨風','?函?撽?20%',{all_exp_bonus:.20}],['憭拐蝙銋','瘥3甈⊿??靽風',{combo_protect_daily:3}],['蟡?','?+8%',{drop_bonus:.08}]]},
+
+'??憟喟?':{r:'SSR',icon:'??',sk:[['?','瘞湔+35%',{crystal_bonus:.35}],['??摰風','瘥5甈⊿??靽風',{combo_protect_daily:5}],['憟喟?蟡?','PK+15%',{pk_power_bonus:.15}]]},
+
+'甇衣??啣?':{r:'SSR',icon:'?儭?,sk:[['甇衣?','PK?啣?+18%',{pk_power_bonus:.18}],['?啣??,'?+10% ?釭+35%',{drop_bonus:.10,quality_up:.35}]]},
+
+'鞈Ｚ???:{r:'SSR',icon:'??',sk:[['??','?函?撽?18% ?+8%',{all_exp_bonus:.18,drop_bonus:.08}],['暺??','????',{territory_bonus:true}],['鞈Ｚ?,'?釭+30%',{quality_up:.30}]]},
+
+'?萎?銋?':{r:'UR',icon:'??',sk:[['?萎?','?函?撽?30%',{all_exp_bonus:.30}],['蟡?','?+15% ?釭100%??',{drop_bonus:.15,quality_up:1}],['憭拙','靽?-10??,{pity_reduce:10}]]},
+
+'瘞豢?銋?':{r:'UR',icon:'?橘?',sk:[['瘞豢?','?函?撽?25%',{all_exp_bonus:.25}],['?∠','瘞湔+50%',{crystal_bonus:.50}],['??','PK+20%',{pk_power_bonus:.20}]]},
+
+'鞎∪?銋?':{r:'UR',icon:'??',sk:[['鞎⊥?','?+20% ?馳+50%',{drop_bonus:.20,gold_bonus:.50}],['?窄??,'瘥10甈⊿??靽風',{combo_protect_daily:10}],['??','?釭+80%',{quality_up:.80}]]},
+
+/* ?? ?游?閫 50 ?? */
+'??蜓':{r:'UR',icon:'?',sk:[['?憸冽','?函?撽?15%',{all_exp_bonus:.15}],['?','?+10%',{drop_bonus:.10}],['?怎車','PK+8%',{pk_power_bonus:.08}]]},
+'?圈?憟喟?':{r:'SSR',icon:'??',sk:[['?啣?撅?','???靽風30%',{combo_protect:.30}],['??','PK+10%',{pk_power_bonus:.10}],['?湧','瘞湔+15%',{crystal_bonus:.15}]]},
+'憭批摰?':{r:'SR',icon:'?爸',sk:[['蝤','?脩戌+20%',{defense_bonus:.20}],['?啗?','?馳+15%',{gold_bonus:.15}],['?','撘瑕?+3%',{enhance_bonus:.03}]]},
+'憸刻???:{r:'R',icon:'?儭?,sk:[['?暸◢甇?,'?漲+25%',{speed_bonus:.25}],['憸典?','?+4%',{drop_bonus:.04}]]},
+'??蟡剖':{r:'SR',icon:'?儭?,sk:[['??銵?,'隞餃??+10%',{mission_bonus:.10}],['瘛典?','???靽風25%',{combo_protect:.25}]]},
+'?蔣?箏恥':{r:'SSR',icon:'?儭?,sk:[['?捏','PK+15%',{pk_power_bonus:.15}],['瞏?','?+8%',{drop_bonus:.08}],['瘥?','?馳+20%',{gold_bonus:.20}]]},
+'??憯?:{r:'SR',icon:'?儭?,sk:[['蟡?霅瑞','???靽風35%',{combo_protect:.35}],['甇?儔','?函?撽?6%',{all_exp_bonus:.06}]]},
+'?憯?:{r:'R',icon:'??',sk:[['?','?????+5%',{combo_extra:.05}],['?啣','?圈憿?撽?8%',{exp_hard_bonus:.08}]]},
+'敺琿陌隡?:{r:'SR',icon:'?',sk:[['?芰?梢陷','?芰蝬?+15%',{science_exp_bonus:.15}],['霈耦','瘞湔+10%',{crystal_bonus:.10}]]},
+'??撣?:{r:'SSR',icon:'?',sk:[['?情?葫','靽?-5??,{pity_reduce:5}],['?賡?','?+6%',{drop_bonus:.06}],['??','?函?撽?8%',{all_exp_bonus:.08}]]},
+'??銵ㄚ':{r:'R',icon:'?妒',sk:[['頧?','撘瑕?+4%',{enhance_bonus:.04}],['隤踹?','?萇丹+20%',{iron_bonus:.20}]]},
+'璈１撌亦?撣?:{r:'SR',icon:'??',sk:[['鋆','???靽風20%',{combo_protect:.20}],['蝎曄?','?馳+18%',{gold_bonus:.18}]]},
+'瘚瑞??寥':{r:'R',icon:'???儭?,sk:[['?左','?+3%',{drop_bonus:.03}],['?芣絲','蝬?+5%',{exp_bonus:.05}]]},
+'蝬凋漪?啣ㄚ':{r:'SR',icon:'??',sk:[['??,'PK+10%',{pk_power_bonus:.10}],['蝖祉','?脩戌+15%',{defense_bonus:.15}]]},
+'甇血ㄚ':{r:'SSR',icon:'??',sk:[['撅???,'PK+18%',{pk_power_bonus:.18}],['甇血ㄚ??,'?函?撽?10%',{all_exp_bonus:.10}],['???,'?釭+20%',{quality_up:.20}]]},
+'敹之撣?:{r:'R',icon:'?扑',sk:[['敶勗?頨?,'???靽風15%',{combo_protect:.15}],['?ㄐ??,'?+3%',{drop_bonus:.03}]]},
+'撠?甇血':{r:'SR',icon:'??',sk:[['瘞??','蝬?+10%',{exp_bonus:.10}],['?萄?銵?,'???靽風25%',{combo_protect:.25}]]},
+'??瘜?:{r:'UR',icon:'??',sk:[['閰?','PK+20%',{pk_power_bonus:.20}],['??憛?,'瘞湔+40%',{crystal_bonus:.40}],['頧?','瘥3甈∪?甇?,{combo_protect_daily:3}]]},
+'撣??梢?':{r:'SSR',icon:'??儭?,sk:[['蟡?','PK+15%',{pk_power_bonus:.15}],['?除','?+7%',{drop_bonus:.07}],['?箸','蝑?蝛?+15%',{quiz_pts_bonus:.15}]]},
+'??蟡?':{r:'UR',icon:'??,sk:[['?瑞?銋?','?函?撽?30%',{all_exp_bonus:.30}],['?梢?畾?,'?馳+50%',{gold_bonus:.50}],['蟡?','靽?-10??,{pity_reduce:10}]]},
+'??摮貉?:{r:'SR',icon:'?妞',sk:[['??','撘瑕?+5%',{enhance_bonus:.05}],['蝥?','???靽風30%',{combo_protect:.30}]]},
+'樴?銵ㄚ':{r:'SSR',icon:'??',sk:[['樴?','?詨飛蝬?+20%',{math_exp_bonus:.20}],['樴?','?釭+25%',{quality_up:.25}],['樴','PK+12%',{pk_power_bonus:.12}]]},
+'蝎暸?撠?':{r:'R',icon:'?',sk:[['曋寧','?圈憿?憭偌??,{hard_crystal_bonus:3}],['蝎暹?','?+4%',{drop_bonus:.04}]]},
+'?桐犖?萄?':{r:'SR',icon:'?',sk:[['?之撣?,'撘瑕?+8%',{enhance_bonus:.08}],['蝘?','?萇丹+30%',{iron_bonus:.30}]]},
+'?訾犖?':{r:'R',icon:'?朵',sk:[['?唳','PK+6%',{pk_power_bonus:.06}],['?辰','蝬?+5%',{exp_bonus:.05}]]},
+'憭拐蝙??:{r:'UR',icon:'?',sk:[['蟡','?函?撽?28%',{all_exp_bonus:.28}],['敺拇暑','瘥1甈⊿??靽風',{combo_protect_daily:1}],['??','PK+18%',{pk_power_bonus:.18}]]},
+'?⊿??蜓':{r:'SSR',icon:'??',sk:[['擳','?+9%',{drop_bonus:.09}],['憟?','?馳+25%',{gold_bonus:.25}],['瘛望殿','瘞湔+20%',{crystal_bonus:.20}]]},
+'?征銵?:{r:'SSR',icon:'??,sk:[['???怠?','???靽風40%',{combo_protect:.40}],['撟唾?','?函?撽?12%',{all_exp_bonus:.12}]]},
+'??雿?:{r:'R',icon:'??',sk:[['?啁憸冽偌','?函???5%',{all_exp_bonus:.05}],['?梢陷','?????+3%',{combo_extra:.03}]]},
+'???萎犖':{r:'SR',icon:'??',sk:[['?瑕???','PK+8%',{pk_power_bonus:.08}],['摰?閬?','?+5%',{drop_bonus:.05}]]},
+'撟餉?撣?:{r:'R',icon:'?',sk:[['撟餃蔣','???靽風10%',{combo_protect:.10}],['?航死','PK+4%',{pk_power_bonus:.04}]]},
+'?挪擉ㄚ':{r:'SSR',icon:'??',sk:[['?','???靽風45%',{combo_protect:.45}],['??頠?,'?函?撽?14%',{all_exp_bonus:.14}]]},
+'暺?瘜葦':{r:'SR',icon:'?尿',sk:[['閰?','PK+10%',{pk_power_bonus:.10}],['暺','?+5%',{drop_bonus:.05}]]},
+'?賡?瘜葦':{r:'R',icon:'??,sk:[['瘝餌?','隞餃??+8%',{mission_bonus:.08}],['蟡?','蝬?+4%',{exp_bonus:.04}]]},
+'?喲洛憯?:{r:'R',icon:'??',sk:[['???','?????+5%',{combo_extra:.05}],['?菜','撘瑕?+3%',{enhance_bonus:.03}]]},
+'??':{r:'UR',icon:'?儭?,sk:[['?⊿?','PK+25%',{pk_power_bonus:.25}],['??','?函?撽?22%',{all_exp_bonus:.22}],['璆菜?','?釭+40%',{quality_up:.40}]]},
+'瑽?':{r:'SR',icon:'?',sk:[['??','PK+12%',{pk_power_bonus:.12}],['??','?+4%',{drop_bonus:.04}]]},
+'撘?':{r:'R',icon:'?',sk:[['鞎怎忽','?圈憿?撽?10%',{exp_hard_bonus:.10}],['蟡?','瘞湔+8%',{crystal_bonus:.08}]]},
+'?曇?':{r:'R',icon:'?儭?,sk:[['?脰?','???靽風20%',{combo_protect:.20}],['??','?馳+5%',{gold_bonus:.05}]]},
+'蝒???:{r:'SR',icon:'?',sk:[['?','?+6%',{drop_bonus:.06}],['?啗?','蝬?+10%',{exp_bonus:.10}]]},
+'?怨風??:{r:'R',icon:'?',sk:[['?交?','隞餃??+10%',{mission_bonus:.10}],['曌?','???靽風10%',{combo_protect:.10}]]},
+'????:{r:'SR',icon:'?',sk:[['?','蝑?蝛?+15%',{quiz_pts_bonus:.15}],['?舀','?函?撽?6%',{all_exp_bonus:.06}]]},
+'?孵?':{r:'SSR',icon:'?儭?,sk:[['皛脤?,'?+8%',{drop_bonus:.08}],['?質?','PK+14%',{pk_power_bonus:.14}],['?捏','?馳+20%',{gold_bonus:.20}]]},
+'?菜':{r:'R',icon:'??',sk:[['?函?','蝷暹?蝬?+12%',{social_exp_bonus:.12}],['閫撖?,'?+3%',{drop_bonus:.03}]]},
+'撖嗉??萎犖?餅':{r:'SR',icon:'?',sk:[['撠窄','?+10%',{drop_bonus:.10}],['撟賊?','?釭+15%',{quality_up:.15}]]},
+'???:{r:'R',icon:'?妣',sk:[['撠','????',{territory_bonus:true}],['??','蝬?+5%',{exp_bonus:.05}]]},
+'?摮詨振':{r:'SR',icon:'?',sk:[['?斤','蝷暹?蝬?+15%',{social_exp_bonus:.15}],['靽桀儔','撘瑕?+5%',{enhance_bonus:.05}]]},
+'??摮詨振':{r:'R',icon:'?',sk:[['??','?芰蝬?+12%',{science_exp_bonus:.12}],['靽','瘞湔+5%',{crystal_bonus:.05}]]},
+'?箏?摮詨振':{r:'SSR',icon:'?妞',sk:[['蝒?','?函?撽?16%',{all_exp_bonus:.16}],['瞍?','?+7%',{drop_bonus:.07}]]},
+'憭芰征鈭?:{r:'UR',icon:'???',sk:[['憭梢?','PK+18%',{pk_power_bonus:.18}],['?Ｙ揣','?函?撽?24%',{all_exp_bonus:.24}],['?△','瘞湔+45%',{crystal_bonus:.45}]]}
+
+};
+
+
+const EXPS=[
+
+{n:'?妒 ?賊匱銝剖?皛游?',d:'?冽鬥瘞批??輕摰??賂?閫撖?pH 霈?',rw:{exp:80,crystal:15,labMat:8},st:['1. 皞??皞嗆雯 50mL','2. 皛游???內?皛?,'3. ?輕? NaOH 銝行???,'4. 閫撖熄瘨脩?∟頧蝎???,'5. 閮??豢?銝西?蝞?摨?],kn:'??+ 暽???暽?+ 瘞湛?銝剖?暺?pH??'},
+
+{n:'? ?飛??撖阡?',d:'閫撖?蝺忽????鞈芰????曇情',rw:{exp:90,crystal:18,labMat:9},st:['1. 皞??瑕?蝑???敶Ｙ??,'2. 隤踵?亙?閫?30簞','3. 閫撖?撠?霈?','4. 皜祇??亙?閫???閫?,'5. 閮?????n=sin i/sin r'],kn:'?訾??喳?敺?n?in庛??= n?in庛??},
+
+{n:'???餉楝璅⊥撖阡?',d:'蝯?銝脰?蒂?舫頝荔?皜祇??餅??餃?',rw:{exp:100,crystal:20,labMat:10},st:['1. 皞??餅???瘜～?蝺?,'2. 蝯?銝脰?餉楝','3. 皜祇????餅?','4. ?寧?銝西?餉楝','5. 瘥?銝脖蒂?臬榆??],kn:'甇?摰? V=IR嚗葡?舫瘚??銝西?餃??詨?'},
+
+{n:'?? ?惇瘣餅折?摨?,d:'閫撖?撅祈??詨?????蝔漲',rw:{exp:100,crystal:20,labMat:10},st:['1. 皞?蝔暽賡?蝔桅?撅?,'2. ??曉?????','3. 閫撖除瘜∠??','4. ?瘣餅折?摨?Mg>Zn>Fe>Cu','5. 閮?撖阡?蝯?'],kn:'?惇瘣餅扯?撘瘀????頞???},
+
+{n:'? 瘞渡??餉圾',d:'?餉圾瘞渡?鬥瘞??瘞扳除',rw:{exp:120,crystal:25,labMat:12},st:['1. 皞??餉圾瑽質??餅扔','2. ?撠??餉圾鞈?,'3. ?仿皞?,'4. 閫撖璆菜除瘜∴??唳扔 H???賣扔 O??','5. 皜祇?擃?瘥?],kn:'2H? ??2H?? + O??嚗?蝛? 2:1'},
+
+{n:'? ??雿閫撖?,d:'閫撖偌????Ｙ?瘞?部',rw:{exp:110,crystal:22,labMat:11},st:['1. 皞??圈悅瘞渲?','2. ?曉鋆偌????,'3. 隞交???閰衣恣?園?瘞??','4. ?銝畾菜???,'5. 隞仿??潭璇炎撽飢瘞?],kn:'??雿嚗O??+ H? ??????蝝? ??? + O??},
+
+{n:'?? 撠??撅?,d:'撠???嚗??Ｙ?鈭飢?４',rw:{exp:90,crystal:18,labMat:9},st:['1. ??怠控??','2. ?撠???','3. ????脩?','4. 閫撖部瘝怠??,'5. 閮????曇情'],kn:'NaHCO??+ CH?OOH ??CO?? + H? + CH?OONa'},
+
+{n:'?妓 ?餌???撖阡?',d:'蝘餃?蝤蝛輸?蝺??Ｙ????餅?',rw:{exp:115,crystal:23,labMat:11},st:['1. 皞?蝺????瘚?','2. 撠??萄翰???亦???,'3. 閫撖瘚?????','4. ?寡?蝤?漲???,'5. 甇貊????餅?閬?'],kn:'瘜?蝚砍?敺?蝤?霈??Ｙ????餃???}
+
+];
+
+function newGame(){return{
+
+lv:1,xp:0,needXp:CFG.needXp(1),
+
+crystal:100,gold:200,diamond:5000,starlight:5,enhStone:5,protect:2,shield:0,ironOre:10,labMat:0,
+
+honor:0,quizPts:0,pkExtra:0,quizExtra:0,guildCoin:0,
+
+combo:0,forgeCount:0,forgeLv:1,
+
+stats:{total:0,correct:0,maxCombo:0,hardCorrect:0,retry:0,enhance:0,missions:0,subj:{},milestones:[]},
+
+gacha:{total:0,sinceSR:0,sinceSSR:0,sinceUR:0,hist:[],plv:1,pxp:0}, /* plv/pxp嚗瘙?蝝????脣漲嚗?∪?鞎餌敞蝛? */
+
+owned:{character:[],pet:[],anime:[],teammate:[]},
+
+equip:{character:null,pet:null,anime:null,teammate:null},
+
+stars:{},collLv:{},awaken:[],weapons:[],blueprints:[],
+
+titles:['t0'],equippedTitle:'t0',ach:{},
+
+missions:{date:'',list:[]},shop:{date:'',items:[],bought:[],refreshes:0},
+
+wrong:{},qSeen:[],qSeenTxt:[],territory:{owned:{},levels:{},target:'',targetDate:'',sweepDate:''},
+
+pk:{win:0,lose:0,today:0,date:'',streak:0,maxStreak:0,gwUsed:0,firstWin:false},
+
+arena:{floor:1,best:1}, /* #2 PK ?⊿?蝡嗆?憛?*/
+
+video:{date:'',count:0,watched:[]},rankClaim:{date:'',boards:[]},arenaClaim:'', /* 敶梁?閫???萸?銵?/蝡嗆?憛??交????菟?????*/
+
+weekly:{wk:'',n:0,claimed:false}, /* 瘥曹遙?脣漲 */
+
+energy:{date:'',sent:[],received:[]},streak:{date:'',count:0},groupId:null,guildId:null,
+
+sign:{cycle:0,last:'',total:0},lab:[],potion:{at:'',bonus:0},
+
+answerLog:[], /* 雿???蝝??靘葦/蝞∠垢瑼Ｚ?嚗??柴???胯?蝑??詻?衣閮?璈?*/
+
+mail:[],rankMailDate:'', /* ? 靽∠拳嚗???21:00 ?芸??潭??璁??萄靽∠拳 */
+
+theme:'瘛梢??征',timeLock:true,diffMode:'蝎暹?',eggs:[],feedback:[],
+
+doll:{list:[],shopBought:[]}, /* 憡?蝟餌絞嚗ist=??憡?嚗hopBought=撌脰頃鞎瑕?摨?憡D */
+
+  /* ??鋆?蝟餌絞嚗wned=??鋆?皜嚗quipped=7??雿歇鋆?ID */
+  eq:{owned:[],equipped:{'??:null,'銵??':null,'銴脣?':null,'??':null,'甇血':null,'??':null,'??':null}},
+  /* ???皛曉?蝯梯??潛頂蝯?*/
+  rr:{attr:{},pity:{stage:1,count:0},autoDelete:'ZZZ',autoOn:false,autoTimer:null,totalRolls:0},
+
+}}
+
+
+function itemValue(w){return Math.max(10, Math.floor(((CFG.QBASE[w.q]||5)+(w.lv||0)*8)*6));}
+
+function fillGame(g){const base=newGame();if(!g||typeof g!=='object'||Array.isArray(g))return base;const isObj=v=>v&&typeof v==='object'&&!Array.isArray(v);const merge=(b,o)=>{if(Array.isArray(b)){if(Array.isArray(o))return o;if(isObj(o))return Object.values(o);return b}if(isObj(b)){const r={};const src=isObj(o)?o:{};for(const k in b)r[k]=merge(b[k],src[k]);for(const k in src)if(!(k in r))r[k]=src[k];return r}return o===undefined?b:o};return merge(base,g)}
+
+function loginFX(name){ /* ?餃????Ｗ??? */
+
+const ov=document.createElement('div');
+
+ov.style.cssText='position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(36,52,94,.97),rgba(10,14,26,.985));animation:fadeOutFx .55s ease 1.05s forwards;pointer-events:none';
+
+ov.innerHTML='<div style="font-size:66px;animation:swordIn .7s cubic-bezier(.2,1.4,.4,1) both">??</div>'+
+
+'<div style="font-family:var(--serif);font-size:24px;font-weight:900;color:var(--gold2);margin-top:12px;animation:riseIn .6s ease .18s both">甇∟???嚗?+esc(name)+'嚗?/div>'+
+
+'<div style="font-size:13px;color:var(--mut);margin-top:8px;animation:riseIn .6s ease .34s both">甇??脣?券????芯???/div>';
+
+document.body.appendChild(ov);
+
+for(let i=0;i<10;i++){const sp=document.createElement('span');sp.style.cssText='position:fixed;font-size:'+(13+Math.random()*11)+'px;pointer-events:none;z-index:301;left:'+(Math.random()*100)+'vw;top:-24px;animation:goldRain '+(1+Math.random()*1.2)+'s ease-in forwards;animation-delay:'+(Math.random()*0.5)+'s';sp.textContent=['??,'??','潃?,'?'][i%4];document.body.appendChild(sp);setTimeout(()=>sp.remove(),2600)}
+
+setTimeout(()=>ov.remove(),1750);
+
+}
+
+function checkSign(g){
+
+const d=today();if(g.sign.last===d)return null;
+
+const y=new Date(Date.now()-86400000).toDateString();
+
+g.sign.cycle=(g.sign.last===y)?g.sign.cycle+1:1;g.sign.last=d;g.sign.total=(g.sign.total||0)+1;
+
+const day=((g.sign.cycle-1)%7)+1,rw=CFG.SIGN[day];
+
+g[rw.t==='enhStone'?'enhStone':rw.t]+=rw.n;
+
+return{day,cycle:g.sign.cycle,rw};
+
+}
+
+let CUR={};
+
+function back(t){return '<button class="btn ghost mini back" onclick="'+(t||'vHome()')+'">??餈?</button>'}
+
+const Quiz={phase:'IDLE',mode:'normal',subj:'',sem:'',unit:'',diff:50,pub:'摨瑁???,useAI:true,q:null,sel:null,terrName:null,retrySubj:null,retryIdx:null,t0:0};
+
+function qReset(){Quiz.phase='IDLE';Quiz.sel=null;Quiz.q=null}
+
+function logAns(g,ok,el){
+
+if(!Quiz||!Quiz.q)return;
+
+const modeName={terr:'??敺?',retry:'?舫??毀',pk:'蝡嗆???,weekend:'?冽瘙粹洛'}[Quiz.mode]||'靽桃???;
+
+const opts=Quiz.q['?賊?']||[];
+
+g.answerLog=g.answerLog||[];
+
+g.answerLog.push({sub:Quiz.subj||Quiz.retrySubj||'',unit:Quiz.unit||'',stem:String(Quiz.q['憿']||'').slice(0,120),
+
+sel:opts[Quiz.sel]!=null?String(opts[Quiz.sel]).slice(0,40):'',ans:opts[Quiz.q['蝑?']]!=null?String(opts[Quiz.q['蝑?']]).slice(0,40):'',
+
+calc:(()=>{const c=document.getElementById('calc');return !!(c&&String(c.value||'').trim())})(), /* ?妙 ?臬雿輻閮?璈?蝔?*/
+
+calcText:(()=>{const c=document.getElementById('calc');return c?String(c.value||'').trim().slice(0,500):''})(), /* ?妙 閮?璈?蝔踹摰對?靘葦??蝔? */
+
+ok:!!ok,sec:+el,mode:modeName,t:Date.now()});
+
+if(g.answerLog.length>80)g.answerLog=g.answerLog.slice(-80);
+
+}
+
+function addWrong(g,subj,q,sel){
+
+g.wrong[subj]=g.wrong[subj]||[];
+
+g.wrong[subj].push({q:{'憿':q['憿'],'?賊?':q['?賊?'],'蝑?':q['蝑?'],'閫??':q['閫??']},sel,t:fmt(Date.now()),done:false});
+
+if(g.wrong[subj].length>50)g.wrong[subj]=g.wrong[subj].slice(-50);
+
+}
+
+function getShop(g){
+
+const d=today();
+
+if(g.shop.date!==d){
+
+g.shop.date=d;const pool=SHOP_POOL.slice();const items=[];
+
+while(items.length<8&&pool.length){const it=JSON.parse(JSON.stringify(pool.splice((Math.random()*pool.length)|0,1)[0]));
+
+it.disc=Math.random()<.3?(.6+Math.random()*.3):1;
+
+it.hot=Math.random()<.25;items.push(it)}
+
+g.shop.items=items;g.shop.bought=[];g.shop.refreshes=0;
+
+}
+
+return g.shop;
+
+}
+
+
+const st=(l,v)=>'<div class="panel2 statIt"><span>'+l+'</span><b>'+v+'</b></div>';
+
+function importQuestions(qs,log){
+  const el=log||document.getElementById('hwQsImportLog');
+  if(!Array.isArray(qs)||!qs.length){if(el)el.textContent='?? 瑼?銝剜???函?憿';return}
+  let ok=0;const bad=[];
+  qs.forEach((q,i)=>{
+    const v=validateQuestion(q);
+    if(!v.ok){bad.push('蝚?'+(i+1)+' 憿?'+v.msg);return}
+    q.id=newQid();if(!q['閫??'])q['閫??']='嚗??閫??嚗?;PUB.qs.push(q);ok++;
+  });
+  renderPubQs();
+  if(el)el.textContent=bad.length?('???臬 '+ok+' 憿??仿? '+bad.length+' 憿?'+bad.slice(0,5).join('嚗?)):('?????臬 '+ok+' 憿?);
+}
+
+function renderPubQs(){
+
+const el=document.getElementById('pubQs');if(!el)return;
+
+el.innerHTML=PUB.qs.map((q,i)=>'<div class="panel2" style="margin-bottom:6px;display:flex;gap:8px;align-items:center"><span style="flex:1;font-size:12.5px">'+(i+1)+'. '+esc(q['憿'])+'</span><button class="btn danger mini" onclick="PUB.qs.splice('+i+',1);renderPubQs()">??</button></div>').join('')||'<p style="font-size:12px;color:var(--mut)">撠?憿</p>';
+
+}
+
+function showCalc(i){
+
+const a=(window._alogView||[])[i];if(!a)return;
+
+const txt=a.calcText||'嚗飛???閮??阮嚗?;
+
+let pop=document.getElementById('calcPop');if(pop)pop.remove();
+
+pop=document.createElement('div');pop.id='calcPop';
+
+pop.style.cssText='position:fixed;inset:0;z-index:130;background:rgba(4,8,16,.75);display:flex;align-items:center;justify-content:center;padding:20px';
+
+pop.onclick=e=>{if(e.target.id==='calcPop')pop.remove()};
+
+pop.innerHTML='<div class="panel" style="max-width:460px;width:100%;padding:20px"><h3 class="mt">?妙 閮???</h3>'+
+
+'<p class="msub">'+esc(a.sub||'')+'嚚?+esc(a.stem||'')+'</p>'+
+
+'<pre class="calc" style="white-space:pre-wrap;word-break:break-all;padding:12px;border-radius:8px;max-height:50vh;overflow:auto;margin:0">'+esc(txt)+'</pre>'+
+
+'<div class="mBtns"><button class="btn" onclick="document.getElementById(\'calcPop\').remove()">??</button></div></div>';
+
+document.body.appendChild(pop);
+
+}
+
+function add2048(){const s=CUR.g2048;const em=[];s.b.forEach((v,i)=>{if(!v)em.push(i)});if(!em.length)return;s.b[em[(Math.random()*em.length)|0]]=Math.random()<.9?2:4}
+
+function can2048(){const b=CUR.g2048.b;for(let i=0;i<16;i++){if(!b[i])return true;const r=i%4;if(r<3&&b[i]===b[i+1])return true;if(i<12&&b[i]===b[i+4])return true}return false}
+
+function snakeFood(){const st=CUR.snake;let p;do{p=[(Math.random()*20)|0,(Math.random()*20)|0]}while(st.s.some(q=>q[0]===p[0]&&q[1]===p[1]));st.f=p}
+
+function snakeDir(dx,dy){const st=CUR.snake;if(!st||st.over)return;if(dx!==-st.d[0]||dy!==-st.d[1])st.nd=[dx,dy]}
+
+function gmkWin(p){
+const b=CUR.gmk.b;
+for(let y=0;y<15;y++)for(let x=0;x<15;x++){
+if(b[y*15+x]!==p)continue;
+for(const d of [[1,0],[0,1],[1,1],[1,-1]]){
+let k=1;while(k<5){const nx=x+d[0]*k,ny=y+d[1]*k;if(nx<0||nx>=15||ny<0||ny>=15||b[ny*15+nx]!==p)break;k++}
+if(k>=5)return true}}
+return false}
+
+function gmkAI(){
+const b=CUR.gmk.b;let best=-1,bs=-1;
+for(let i=0;i<225;i++){
+if(b[i])continue;
+const x=i%15,y=(i/15)|0;
+let sc=0;
+for(const d of [[1,0],[0,1],[1,1],[1,-1]]){
+for(const p of [2,1]){
+let cnt=0;
+for(let k=1;k<5;k++){const nx=x+d[0]*k,ny=y+d[1]*k;if(nx<0||nx>=15||ny<0||ny>=15||b[ny*15+nx]!==p)break;cnt++}
+for(let k=1;k<5;k++){const nx=x-d[0]*k,ny=y-d[1]*k;if(nx<0||nx>=15||ny<0||ny>=15||b[ny*15+nx]!==p)break;cnt++}
+sc+=(p===2?1.1:1)*Math.pow(10,cnt);
+}}
+sc+=Math.random();
+if(sc>bs){bs=sc;best=i}}
+return best}
+
+function tetHit(m,px,py){const s=CUR.tet;
+for(let y=0;y<m.length;y++)for(let x=0;x<m[0].length;x++){
+if(!m[y][x])continue;const nx=px+x,ny=py+y;
+if(nx<0||nx>=10||ny>=20)return true;
+if(ny>=0&&s.b[ny][nx])return true}
+return false}
+
+function tetRot(){const s=CUR.tet;const m=s.cur[0].map((_,i)=>s.cur.map(r=>r[i]).reverse());if(!tetHit(m,s.x,s.y))s.cur=m}
+
+function dollPersonaPreview(){
+  const pv=document.getElementById('dPersonaPrev');if(!pv)return;
+  const el=(document.getElementById('dNewElement')||{}).value||'??;
+  const mbti=((document.getElementById('dNewMbti')||{}).value||'INFJ').split(' ')[0];
+  const name=((DOLL_ELT_EPI[el]||'??')+'繚'+(DOLL_MBTI_FULL[mbti]||mbti));
+  const base=DOLL_ELT_NATURE[el]||'?函';
+  pv.innerHTML='<b>?妞 ?其??∩??犖?潘?'+esc(name)+'</b><div style="margin-top:4px;color:var(--mut)">'+esc(base)+'嚗???+(DOLL_MBTI_TRAITS[mbti]||mbti)+'???寡釭嚗??其?????蝥霈?/div>';
+}
+
+function selDollElement(e,el){
+  document.querySelectorAll('.mbtiBtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');document.getElementById('dNewElement').value=e;
+  dollPersonaPreview();
+}
+
+function genEquipment(slot,dungeonTier){
+  const rarity=rollEqRarity(dungeonTier);
+  const name=rarity==='???'???阬?:'';
+  let itemName=name;
+  if(slot==='甇血'){const w=pick(EQ_WEAPONS);itemName+=w.icon+' '+w.name}else{
+    const prefixes={'??:['??,'??,'蝎暸?','擳?],'銵??':['撣?,'??,'??,'??],'銴脣?':['??,'??,'霅?],'??':['??,'??,'??],'??':['?','??,'蝘?],'??':['撉?,'??,'瘞湔']};
+    const p=prefixes[slot]?.[Math.floor(Math.random()*4)]||'';itemName+=p+'鋆?;
+  }
+  const mainAttr=EQ_MAIN_ATTR[slot];
+  const mainVal=Math.round((slot==='甇血'?5:slot==='??'?3:slot==='??'?2:slot==='??'?1.5:slot==='???2:slot==='銵??'?20:3)*({R:1,E:1.5,A:2,S:2.5,SS:3,SSS:3.5,Z:4,ZZ:5,ZZZ:6,'??:8}[rarity]||1)*10)/10;
+  const subN=eqSubCount(rarity);const subs=[];
+  for(let i=0;i<subN;i++){const st=pick(EQ_SUB_STAT_POOL);subs.push({stat:st,value:parseFloat(eqSubValue(rarity,st).toFixed(2))})}
+  return{id:'eq'+Date.now()+Math.random().toString(36).slice(2,6),name:itemName,rarity,slot,level:0,maxLevel:rarity==='???150:100,mainAttr,mainValue:mainVal,subStats:subs};
+}
+
+function genFixedEquip(slot,rarity){
+  const name=rarity==='???'???阬?:'';
+  let itemName=name;
+  if(slot==='甇血'){const w=pick(EQ_WEAPONS);itemName+=w.icon+' '+w.name}else{
+    const prefixes={'??:['??,'??,'蝎暸?','擳?],'銵??':['撣?,'??,'??,'??],'銴脣?':['??,'??,'霅?],'??':['??,'??,'??],'??':['?','??,'蝘?],'??':['撉?,'??,'瘞湔']};
+    const p=prefixes[slot]?.[Math.floor(Math.random()*4)]||'';itemName+=p+'鋆?;
+  }
+  const mainAttr=EQ_MAIN_ATTR[slot];
+  const mainVal=Math.round((slot==='甇血'?5:slot==='??'?3:slot==='??'?2:slot==='??'?1.5:slot==='???2:slot==='銵??'?20:3)*({R:1,E:1.5,A:2,S:2.5,SS:3,SSS:3.5,Z:4,ZZ:5,ZZZ:6,'??:8}[rarity]||1)*10)/10;
+  const subN=eqSubCount(rarity);const subs=[];
+  for(let i=0;i<subN;i++){const st=pick(EQ_SUB_STAT_POOL);subs.push({stat:st,value:parseFloat(eqSubValue(rarity,st).toFixed(2))})}
+  return{id:'eq'+Date.now()+Math.random().toString(36).slice(2,6),name:itemName,rarity,slot,level:0,maxLevel:rarity==='???150:100,mainAttr,mainValue:mainVal,subStats:subs};
+}
+
+const LOCK_ON=true; /* 閮?false ?舀?圾?支?霅瘀??芸楛?日?嚗?*/
+(function(){
+  if(!LOCK_ON)return;
+  const warn=(m)=>{try{
+    let t=document.getElementById('__lockWarn');
+    if(!t){t=document.createElement('div');t.id='__lockWarn';
+      t.style.cssText='position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:2147483647;background:#c73a3f;color:#fff;font:700 14px/1.5 sans-serif;padding:10px 18px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:.3s';
+      (document.body||document.documentElement).appendChild(t);}
+    t.textContent=m;t.style.opacity='1';clearTimeout(t._h);t._h=setTimeout(()=>{t.style.opacity='0'},1600);
+  }catch(e){}};
+  /* 蝳?喲?詨嚗?炎閬?憪Ⅳ?摮?*/
+  addEventListener('contextmenu',e=>{e.preventDefault();warn('?? 撌脣??典??);},true);
+  /* 敹急?萄???F12嚗trl+Shift+I,J,C,K嚗trl+U 瑼Ｚ???蝣潘?Ctrl+S ?血? */
+  addEventListener('keydown',e=>{
+    const k=(e.key||'').toLowerCase();
+    const block=e.key==='F12'
+      ||((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c','k'].includes(k))
+      ||((e.ctrlKey||e.metaKey)&&['u','s'].includes(k));
+    if(block){e.preventDefault();e.stopPropagation();warn('?? 撌脣??券??潸極?瘀?瑼Ｚ???蝣?);return false;}
+    if(e.key==='PrintScreen'||k==='printscreen'){ /* ?芸??嚗?蝛箏鞎潛倏 */
+      try{navigator.clipboard&&navigator.clipboard.writeText('?? ?祇?蝳迫?芸?');}catch(_){}
+      warn('?? 撌脣?閰阡???);
+    }
+  },true);
+  /* ?菜葫??極?琿???閬?撠箏站撌殷???璅∠??恍? */
+  let devOpen=false;
+  setInterval(()=>{
+    const th=170,open=(outerWidth-innerWidth>th)||(outerHeight-innerHeight>th);
+    if(open&&!devOpen){devOpen=true;document.documentElement.style.filter='blur(10px)';warn('?? ?菜葫?圈??潸極?瘀?隢???);}
+    else if(!open&&devOpen){devOpen=false;document.documentElement.style.filter='';}
+  },800);
+  /* ?芸??嚗仃?佗?????芋蝟???撠望敺?*/
+  const shield=()=>{document.documentElement.style.filter='blur(10px)';};
+  const unshield=()=>{if(!devOpen)document.documentElement.style.filter='';};
+  addEventListener('blur',shield);addEventListener('focus',unshield);
+  document.addEventListener('visibilitychange',()=>{document.hidden?shield():unshield();});
+})();
+</script>
+<script>
+/* ???????? Supabase ?脩垢?郊撅歹?摰敺垢嚗?????????   1. ??https://supabase.com 撱箇?撠?
+   2. ??SQL Editor ?瑁? supabase_setup.sql
+   3. ???Ｗ銵???撠???Project URL ??anon public key嚗ettings ??API嚗?*/
+const SUPA_URL=(function(){try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return custom.trim()}catch(e){}return location.origin})();      /* ?航閮?API 蝬脣?嚗itHub Pages ?剁?嚗璈?憭雯?嗡耨??*/
+const SUPA_ON=(function(){if(location.hostname.indexOf('github.io')>=0||location.protocol==='file:')return false;try{var custom=localStorage.getItem('ADV9_API_URL');if(custom&&custom.trim())return true}catch(e){}return true})();/* GitHub Pages/?Ｙ?銝敺璈芋撘??祆?/VPS ?航閮?API 雿? */
+const SUPA_SKIP=['ADV9_SES','ADV9_LOCAL','ADV9_WTOKEN'];/* session ?璈璆剖董??摮璈?銝???*/
+const SUPA_KEY='';/* ??芸?敺?蝡?/rest/v1/key ??嚗vcKey 瘚?嚗?甇方??征?喃誨銵具??芸?敺?*/
+function supaHeaders(){const h={'Content-Type':'application/json'};if(SUPA_KEY)h['apikey']=SUPA_KEY;if(WTOKEN)h['x-adv9-token']=WTOKEN;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}/* ?啁? sb_publishable_ ???JWT嚗???apikey嚗???anon JWT(eyJ...) ?? Bearer */
+/* ?? 慦??脩垢?脣?嚗??敶梁?銝??Supabase Storage嚗edia 獢塚?嚗??臬摮雯? ??蝒 3MB ?
+   銝甈⊥扯身摰???Supabase SQL Editor ?瑁?獢??supabase_storage_setup.sql 撱箇? media 獢?*/
+const MEDIA_BUCKET='media',MEDIA_MAX=50*1024*1024; /* ?格?銝? 50MB */
+/* 銝?脣漲璇?UI嚗pProg(?曉?瘥???)嚗 null ?? */
+function cloudUpload(f,done,fail,prog){ /* prog(?曉?瘥?嚗??喲脣漲?嚗 XHR ?敺?單??脣漲嚗?*/
+if(!SUPA_ON)return fail&&fail('no-supa');
+const ext=((f.type&&f.type.split('/')[1])||'bin').replace(/[^\w]/g,'').slice(0,8);
+const name=Date.now().toString(36)+Math.random().toString(36).slice(2,8)+'.'+ext;
+const x=new XMLHttpRequest();
+x.open('POST',SUPA_URL+'/storage/v1/object/'+MEDIA_BUCKET+'/'+name);
+const h=mediaHeaders(f.type||'application/octet-stream');for(const k in h)x.setRequestHeader(k,h[k]);
+if(x.upload&&prog)x.upload.onprogress=e=>{if(e.lengthComputable)prog(Math.round(e.loaded/e.total*100))};
+x.onload=()=>{if(x.status>=200&&x.status<300)done('/storage/v1/object/public/'+MEDIA_BUCKET+'/'+name);else fail&&fail('HTTP '+x.status)};
+x.onerror=()=>fail&&fail('network');
+x.send(f);
+}
+function cloudDelete(url){ /* ?∪???芷?脩垢瑼?嚗????嚗??蝡舐雯??芸??仿? */
+try{if(typeof url!=='string')return;
+if(url.indexOf('gd:')===0)return gdDelete(url); /* Google Drive 瑼?*/
+const p='/storage/v1/object/public/'+MEDIA_BUCKET+'/';
+if(url.indexOf(p)<0)return;
+fetch(SUPA_URL+'/storage/v1/object/'+MEDIA_BUCKET+'/'+url.split(p)[1],{method:'DELETE',headers:mediaHeaders()}).catch(()=>{})}catch(e){}
+}
+/* ?? Google Drive 敶梁??脣?嚗?5GB嚗???雿撌梢蝵脩? Apps Script 璈銝?唳?摰??冗
+   閮剖??寞?閬??Ｕoogle?脩垢閮剖?隤芣?.txt???函蔡摰? /exec 蝬脣?鞎澆銝 GDRIVE_URL ?唾???剁?敶梁??孵? Drive嚗??韏?Supabase嚗?*/
+const GDRIVE_MAX=30*1024*1024; /* Drive ?格敶梁?銝? 30MB嚗ase64 ?唾撓?嚗?*/
+function gdUpload(f,done,fail,prog){
+if(!GDRIVE_URL)return fail&&fail('no-gdrive');
+const r=new FileReader();
+r.onload=e=>{
+const x=new XMLHttpRequest();
+x.open('POST',GDRIVE_URL); /* 銝身 Content-Type ??蝪∪隢?嚗??Apps Script 銝?渡? CORS ?炎 */
+if(x.upload&&prog)x.upload.onprogress=ev=>{if(ev.lengthComputable)prog(Math.round(ev.loaded/ev.total*100))};
+x.onload=()=>{try{const j=JSON.parse(x.responseText);if(j&&j.id)return done('gd:'+j.id)}catch(_){}fail&&fail('bad-response')};
+x.onerror=()=>fail&&fail('network');
+x.send(JSON.stringify({action:'up',name:'adv9_'+Date.now(),type:f.type||'video/mp4',data:e.target.result.split(',')[1]}));
+};
+r.readAsDataURL(f);
+}
+/* 撣唾?皜?脣?嚗PS ?蝛箸??格??芸銝餌恣?????閬??祆?撣唾?嚗??撣怠董??憭晞? */
+function applyUsersFromServer(v){
+  try{
+    const arr=Array.isArray(v)?v:null; if(!arr)return false;
+    if(arr.length===0){if(typeof toast==='function')toast('?? VPS ?蝛箇?撣唾?皜嚗歇靽??祆?撣唾??踹?隤文','bad');return false}
+    let local=[];try{local=JSON.parse(localStorage.getItem('ADV9_USERS')||'[]')||[]}catch(e){}
+    if(arr.length===1&&local.length>1){if(typeof toast==='function')toast('?? VPS ?桀??銝餌恣?撣唾?嚗歇靽??祆??葦/摮貊?撣唾?','bad');return false}
+    localStorage.setItem('ADV9_USERS',JSON.stringify(arr));return true;
+  }catch(e){return false}
+}
+/* ????甇亥??仿蝡航????餃?撘?蝣箔?銝餌?撘??唳??啣???? */
+if(SUPA_ON){try{
+const x=new XMLHttpRequest();
+x.open('GET',SUPA_URL+'/rest/v1/adv9_kv?select=k,v',false);
+const H=supaHeaders();for(const hk in H)x.setRequestHeader(hk,H[hk]);
+x.send();
+if(x.status===200){JSON.parse(x.responseText).forEach(row=>{if(SUPA_SKIP.includes(row.k))return;if(row.k==='ADV9_USERS'){applyUsersFromServer(row.v);return}try{localStorage.setItem(row.k,JSON.stringify(row.v))}catch(e){}});window._supaLoaded=true;console.log('?? Supabase ?脩垢鞈?撌脰???)}
+else console.warn('Supabase ???啣虜('+x.status+')嚗?冽?啗???);
+}catch(e){console.warn('Supabase 頛憭望?嚗?冽?啗???,e)}}
+/* 撖怠?餅??甈∩???*/
+const _supaQ={};let _supaT=null;
+function _curSyncRole(){try{const u=me();return u?u.role:null}catch(e){return null}}
+function supaPush(k,v){
+if(!SUPA_ON||SUPA_SKIP.includes(k))return;
+if(k==='ADV9_USERS'){
+  /* ?芣?蝞∠????葦?賢?甇亙董???殷?摮貊???餃銝敺?暺??隡箸??冽???403嚗?/
+  const r=_curSyncRole();
+  if(r!=='admin'&&r!=='teacher')return;
+  fetch(SUPA_URL+'/rest/v1/admin/users/sync',{method:'POST',headers:supaHeaders(),body:JSON.stringify({users:v})}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>{console.warn('VPS account save failed',e);if(!window._supaUsersWarnAt||Date.now()-window._supaUsersWarnAt>30000){window._supaUsersWarnAt=Date.now();const why=(e&&e.message)?e.message:'?⊥????';toast('?? 撣唾??郊??VPS 憭望?嚗?+why+'嚗?隢炎?仿??敺?閰?,'bad')}});
+  return;
+}
+if(k==='ADV9_APIKEYS'){
+  if(_curSyncRole()!=='admin')return; /* ??郊??蝞∠???*/
+  fetch(SUPA_URL+'/rest/v1/admin/api_keys',{method:'POST',headers:supaHeaders(),body:JSON.stringify(v)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>{console.warn('VPS API key save failed',e);toast('?? API ??郊??VPS 憭望?','bad')});
+  return;
+}
+_supaQ[k]=v;
+if(_supaT)return;
+_supaT=setTimeout(()=>{
+_supaT=null;
+const rows=Object.keys(_supaQ).map(kk=>({k:kk,v:_supaQ[kk],updated_at:new Date().toISOString()}));
+for(const kk in _supaQ)delete _supaQ[kk];
+fetch(SUPA_URL+'/rest/v1/adv9_kv',{method:'POST',headers:Object.assign(supaHeaders(),{'Prefer':'resolution=merge-duplicates'}),body:JSON.stringify(rows)}).catch(e=>console.warn('Supabase ?郊憭望?',e));
+},400);
+}
+function flushSupaQ(){ /* 蝡銝雿?嚗?閮?剁?銝?敺?400ms debounce嚗?*/
+if(!_supaQ||!_supaT)return;
+clearTimeout(_supaT);_supaT=null;
+const rows=Object.keys(_supaQ).map(kk=>({k:kk,v:_supaQ[kk],updated_at:new Date().toISOString()}));
+for(const kk in _supaQ)delete _supaQ[kk];
+if(rows.length)fetch(SUPA_URL+'/rest/v1/adv9_kv',{method:'POST',headers:Object.assign(supaHeaders(),{'Prefer':'resolution=merge-duplicates'}),body:JSON.stringify(rows)}).catch(e=>console.warn('Supabase ?郊憭望?',e));
+}
+/* ?? 銝????瘥?25 蝘?隡箸??典?堆?銝血?敺蝺??殷??恍??蝺??梁?閮剖?嚗?*/
+async function heartbeat(){
+  if(!SUPA_ON||!WTOKEN||WTOKEN.indexOf('local_')===0)return;
+  try{
+    const u=me();
+    const r=await fetch(SUPA_URL+'/rest/v1/user/heartbeat',{method:'POST',headers:supaHeaders(),body:JSON.stringify({hide:!!(u&&u.prof&&u.prof.hideOnline)})});
+    if(!r.ok)return;
+    const j=await r.json().catch(()=>null);
+    if(j&&Array.isArray(j.online)){_onlineSet=new Set(j.online);updateOnlBadges()}
+  }catch(e){}
+}
+function startHeartbeat(){
+  if(_hbTimer)clearInterval(_hbTimer);
+  heartbeat();
+  _hbTimer=setInterval(heartbeat,25000);
+}
+/* ? ?單?閮撘?嚗? 4 蝘??憚閰ｇ??芣? PM/鈭斗?/PK嚗?
+   蝘?閬??? ??蝡?瑟嚗閮/?啗?瘙????敶? + ?芾?敺賜? */
+let _pmReadAt={},_alertedPm={},_alertedTrade=new Set(),_alertedDuel=new Set(),_fastT=null;
+try{_pmReadAt=JSON.parse(localStorage.getItem('ADV9_PM_READ')||'{}')||{}}catch(e){}
+function pmUnread(){
+  const u=me();if(!u)return {};
+  try{const pm=get(LS.pm,{});const out={};
+    Object.keys(pm).forEach(k=>{
+      if(!k||k.indexOf(u.id)===-1)return;
+      const fid=k.split('|').find(x=>x!==u.id);if(!fid)return;
+      const last=((pm[k]||[]).slice(-1))[0];
+      const lastT=(_pmReadAt[k]||0);
+      const n=((pm[k]||[]).filter(m=>m&&m.from!==u.id&&m.t>(lastT||0))).length;
+      if(n>0)out[fid]={n,last};
+    });
+    return out;
+  }catch(e){return {}}
+}
+function pmUnreadTotal(){const o=pmUnread();return Object.keys(o).reduce((s,f)=>s+o[f].n,0)}
+function markPmRead(fid){
+  const u=me();if(!u)return;
+  _pmReadAt[pmId(u.id,fid)]=Date.now();
+  try{localStorage.setItem('ADV9_PM_READ',JSON.stringify(_pmReadAt))}catch(e){}
+  refreshPmBadges();
+}
+function refreshPmBadges(){
+  const o=pmUnread();
+  document.querySelectorAll('.pmBadge').forEach(el=>{
+    const fid=el.getAttribute('data-f');
+    const n=(fid&&o[fid]&&o[fid].n)||0;
+    el.style.display=n>0?'inline-flex':'none';el.textContent=n;
+  });
+  const tb=document.getElementById('frTabBadge');
+  if(tb){const tot=pmUnreadTotal();tb.style.display=tot>0?'inline-flex':'none';tb.textContent=tot>9?'9+':tot}
+}
+/* ? ?梁??嚗?隡箸??券???KV 鞈?憟?唳?堆?fastSync 頛芾岷??SSE ?單??券?剁? */
+function applyKvRows(rows){
+  if(!Array.isArray(rows))return;
+  rows.forEach(row=>{
+    if(!row||!row.k)return;
+    if(row.k==='ADV9_USERS'){try{applyUsersFromServer(row.v)}catch(e){}return}
+    if(SUPA_SKIP.includes(row.k))return;
+    if(_supaQ[row.k]!==undefined)return;
+    try{
+      const cur=localStorage.getItem(row.k);const nv=JSON.stringify(row.v);
+      if(cur!==nv){
+        localStorage.setItem(row.k,nv);
+        if(row.k==='ADV9_PM'){if(typeof onPmUpdate==='function')onPmUpdate()}
+        else if(row.k==='ADV9_GROUPS'){if(typeof onGroupUpdate==='function')onGroupUpdate(row.v)}
+        else if(row.k==='ADV9_TRADES'){if(typeof onTradeUpdate==='function')onTradeUpdate(row.v)}
+        else if(row.k==='ADV9_DUELS'){if(typeof onDuelUpdate==='function')onDuelUpdate(row.v)}
+      }
+    }catch(e){}
+  });
+}
+/* ? SSE ?單??琿??嚗撩?銝???渡??餅??IG/FB 撘??塚?摰銝?銝?頛? */
+function startStream(){
+  try{
+    if(_es){_es.close();_es=null}
+    if(!SUPA_ON||!WTOKEN||WTOKEN.indexOf('local_')===0)return;
+    _es=new EventSource(SUPA_URL+'/rest/v1/stream?token='+encodeURIComponent(WTOKEN));
+    _es.addEventListener('kv',function(e){try{applyKvRows(JSON.parse(e.data))}catch(x){}});
+  }catch(e){}
+}
+function fastSync(){
+  const u=me();if(!u||!SUPA_ON||!WTOKEN||WTOKEN.indexOf('local_')===0)return;
+  fetch(SUPA_URL+'/rest/v1/adv9_kv?select=k,v&k=ADV9_PM,ADV9_TRADES,ADV9_DUELS,ADV9_GROUPS',{headers:supaHeaders()}).then(r=>{
+    if(!r.ok)return null;
+    return r.json();
+  }).then(rows=>{
+    if(Array.isArray(rows)&&rows.length)applyKvRows(rows);
+  }).catch(()=>{});
+}
+function onGroupUpdate(v){
+  const u=me();if(!u)return;
+  const b=$('#gcBox');if(!b)return;
+  const gid=CUR.grpId;if(!gid)return;
+  const arr=Array.isArray(v)?v:[];
+  const gr=arr.find(x=>x&&x.id===gid);if(!gr)return;
+  b.innerHTML=((gr.msgs)||[]).map(m=>pmRow(m,u.id,'gr',gid)).join('')||'<p class="empty">撠閮</p>';
+  b.scrollTop=b.scrollHeight;
+}
+function onPmUpdate(){
+  const u=me();if(!u)return;
+  const o=pmUnread();
+  Object.keys(o).forEach(fid=>{
+    const rec=o[fid];
+    if(rec.last&&_alertedPm[fid]!==rec.last.t&&window._pmFid!==fid){
+      _alertedPm[fid]=rec.last.t;
+      const fr=get(LS.users,[]).find(x=>x.id===fid);
+      toast('? ?啗??荔?'+(fr?fr.name:fid),'bad');
+    }
+  });
+  refreshPmBadges();
+  const b=$('#pmBox');
+  if(b&&window._pmFid){
+    const pm=get(LS.pm,{});const msgs=pm[pmId(u.id,window._pmFid)]||[];
+    b.innerHTML=msgs.map(m=>pmRow(m,u.id,'pm',pmId(u.id,window._pmFid))).join('')||'<p class="empty">撠閮</p>';
+    b.scrollTop=b.scrollHeight;
+    markPmRead(window._pmFid);
+  }
+}
+function onTradeUpdate(v){
+  const u=me();if(!u)return;
+  const arr=Array.isArray(v)?v:[];
+  const mine=arr.filter(t=>t&&t.to===u.id&&t.status==='pending'&&!t.acked);
+  if(!mine.length)return;
+  const t=mine[mine.length-1];
+  if(_alertedTrade.has(t.id))return;
+  _alertedTrade.add(t.id);
+  const us=get(LS.users,[]);const other=us.find(x=>x.id===t.from);
+  showReqPanel('?? 鈭斗?隢?',other?(other.name+' ?唾都雿?<b style="color:var(--gold2)">'+esc(t.itemName)+'</b>嚗?+t.price+'嚗?):'?犖?唾都雿??,t.id,'trade');
+}
+function onDuelUpdate(v){
+  const u=me();if(!u)return;
+  const arr=Array.isArray(v)?v:[];
+  const mine=arr.filter(d=>d&&d.b===u.id&&d.status==='waiting'&&d.aScore!=null&&d.bScore==null&&!d.declined);
+  if(!mine.length)return;
+  const d=mine[mine.length-1];
+  if(_alertedDuel.has(d.id))return;
+  _alertedDuel.add(d.id);
+  showReqPanel('? PK ?',(d.aName||'憟賢?')+' 摰???+esc(d.game)+'????<b style="color:var(--gold2)">'+d.aScore+' ??/b>嚗?雿??堆?',d.id,'duel');
+}
+function showReqPanel(title,msg,id,kind){
+  let el=document.getElementById('reqPanel');
+  if(!el){el=document.createElement('div');el.id='reqPanel';document.body.appendChild(el)}
+  const btnHtml=kind==='trade'
+    ?'<button class="btn mini" onclick="acceptTrade(\''+id+'\');closeReqPanel()">???亙?</button><button class="btn ghost mini" onclick="rejectTrade(\''+id+'\');closeReqPanel()">????</button>'
+    :'<button class="btn mini" onclick="duelAccept(\''+id+'\');closeReqPanel()">?? ?</button><button class="btn ghost mini" onclick="declineDuel(\''+id+'\');closeReqPanel()">??憍?</button>';
+  el.innerHTML='<div style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2000;width:min(92vw,380px);background:var(--panel2);border:1px solid var(--goldD);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.5);padding:14px 16px;text-align:center">'+
+    '<div style="font-size:14.5px;margin-bottom:6px">'+title+'</div>'+
+    '<div style="font-size:13px;color:var(--mut);line-height:1.5">'+msg+'</div>'+
+    '<div style="display:flex;gap:8px;justify-content:center;margin-top:12px">'+btnHtml+'</div></div>';
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.remove()},30000);
+}
+function declineDuel(id){
+  const ds=get(LS.duels,[]);const d=ds.find(x=>x.id===id);
+  if(d){d.status='declined';set(LS.duels,ds)}
+  toast('??撌脣???PK ?');
+}
+function startFastSync(){
+  if(_fastT)clearInterval(_fastT);
+  fastSync();
+  _fastT=setInterval(fastSync,2000);
+  startStream(); /* ? SSE ?單??琿??銝雿萄????瑞???EventSource ?芸???蒂?翰?改? */
+}
+function stopFastSync(){if(_fastT){clearInterval(_fastT);_fastT=null}stopStream()}
+/* ?? ??湔嚗暺?閮??啁????Ｕ偶銝??頛?IG/FB 撘???嚗?   ?啁???其蝙?刻?甈∟銵??唳????嚗???閮蝑???SSE ?單??券????Ｙ??祉??*/
+function scheduleVerReload(){}
+/* 瘥?15 蝘??舀??蝡舀?堆?憭?蝵桀?甇伐?撣??K??憭拍?嚗?*/
+if(SUPA_ON){let _supaErr=0;const _supaTimer=setInterval(()=>{fetch(SUPA_URL+'/rest/v1/adv9_kv?select=k,v',{headers:supaHeaders()}).then(r=>{if(!r.ok){_supaErr++;if(_supaErr>=3){clearInterval(_supaTimer);console.warn('?? VPS ?????憭望?('+r.status+')嚗歇?迫??郊')}throw new Error('HTTP '+r.status)}const vh=r.headers.get('x-adv9-ver');if(vh){try{localStorage.setItem('ADV9_BUILD',vh)}catch(e){}}_supaErr=0;return r.json()}).then(rows=>{if(!Array.isArray(rows))return;rows.forEach(row=>{if(SUPA_SKIP.includes(row.k)||_supaQ[row.k]!==undefined)return;if(row.k==='ADV9_USERS'){applyUsersFromServer(row.v);return}const cur=localStorage.getItem(row.k);const nv=JSON.stringify(row.v);if(cur!==nv){localStorage.setItem(row.k,nv);if(row.k==='ADV9_PM'){if(typeof onPmUpdate==='function')onPmUpdate()}else if(row.k==='ADV9_GROUPS'){if(typeof onGroupUpdate==='function')onGroupUpdate(row.v)}else if(row.k==='ADV9_TRADES'){if(typeof onTradeUpdate==='function')onTradeUpdate(row.v)}else if(row.k==='ADV9_DUELS'){if(typeof onDuelUpdate==='function')onDuelUpdate(row.v)}}})}).catch(()=>{})},15000)}
+/* ?芾身摰???＊蝷箸??噬蝡?*/
+if(false)window.addEventListener('load',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:500;background:rgba(229,72,77,.92);color:#fff;font-size:12px;padding:6px 10px;border-radius:8px;font-family:sans-serif';b.textContent='?? VPS ???撠撠梁?嚗??砍?怠?璅∪?嚗?;document.body.appendChild(b)});
+/* Supabase RPC 摰Ｘ蝡荔??餃蝑撩?蝡舫?霅??芾身摰??????圈?霅?*/
+const supabaseRPC={rpc:async(fn,args)=>{
+/* 撱箇?撣唾?憿?RPC嚗?敺?垢?瑁?嚗 newGame() ??摮?嚗?? set() ?芸??郊?脩垢 */
+if(fn==='admin_register_user'||fn==='teacher_register_student'){
+const us=get(LS.users,[]);
+if(us.find(x=>x.username===args.p_username))return{data:null,error:{message:'撣唾? '+args.p_username+' 撌脣???}};
+if(fn==='admin_register_user'){
+const nu={id:Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36),role:args.p_role,name:args.p_name,username:args.p_username,password:args.p_password,createdAt:new Date().toISOString()};
+if(args.p_role==='teacher'){nu.classId=null;nu.managedClassIds=[];nu.isSchoolAdmin=false;nu.g=null}else{nu.classId=args.p_class_id||null;nu.g=newGame()}
+us.push(nu);set(LS.users,us);
+return{data:{message:'撌脣遣蝡?+(args.p_role==='teacher'?'?葦':'摮貊?')+'撣唾?嚗?+args.p_name+'嚗?+args.p_username+'嚗?},error:null};
+}
+us.push({id:Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36),role:'student',name:args.p_name,username:args.p_username,password:args.p_password,classId:args.p_class_id||null,createdAt:new Date().toISOString(),g:newGame()});
+set(LS.users,us);
+return{data:{message:'摮貊? '+args.p_name+' 閮餃???嚗?},error:null};
+}
+if(!SUPA_ON){
+if(fn==='login_user'){
+const us=get(LS.users,[]);
+const acc=us.find(x=>x.username===args.p_username);
+if(!acc)return{data:null,error:{message:'撣唾?銝???}};
+if(acc.password!==args.p_password)return{data:null,error:{message:'撖Ⅳ?航炊'}};
+return{data:acc,error:null};
+}
+return{data:null,error:{message:'VPS ???撠撠梁?'}};
+}
+try{
+const res=await fetch(SUPA_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:supaHeaders(),body:JSON.stringify(args)});
+const j=await res.json().catch(()=>null);
+if(!res.ok)return{data:null,error:{message:(j&&(j.message||j.hint||j.error_description))||('HTTP '+res.status)}};
+return{data:j,error:null};
+}catch(e){return{data:null,error:{message:e.message}}}
+}};
+</script>
+
+<script>
+
+/* ????????????????????????????????????????????????????????????????
+
+1['靽桃??渡移?撠?] 2.PK?⊿?蝡嗆?憛?3['??瘥?']100??4['憟賢?']/蝢斤??予?喟??
+5['?葦???啁???] 6['雿平憿']ID靽桀儔 7['?嗉???']vs鋆?撘瑕??? 8['?冽???'] 9['憟賢?鈭斗?']40%靽?
+
+蝝?蝡臬銝瑼?嚗?????localStorage嚗DV9_*嚗?
+???????????????????????????????????????????????????????????????? */
+
+const DEFAULTS={adm:{u:"admin01",p:"A@2026",name:"?祆??"}}; /* ?澆?????閮剔恣?撣唾? */
+
+const $=s=>document.querySelector(s);
+
+const LS={users:'ADV9_USERS',ann:'ADV9_ANN',codes:'ADV9_CODES',chat:'ADV9_CHAT',ses:'ADV9_SES',hw:'ADV9_HOMEWORK',sub:'ADV9_SUBMISSIONS',fr:'ADV9_FRIENDS',gr:'ADV9_GROUPS',pm:'ADV9_PM',trades:'ADV9_TRADES',gshop:'ADV9_GSHOP',apiKeys:'ADV9_APIKEYS',classes:'ADV9_CLASSES',market:'ADV9_MARKET',settings:'ADV9_SETTINGS',acad:'ADV9_ACADYR',duels:'ADV9_DUELS',stories:'ADV9_STORIES',guilds:'ADV9_GUILDS',books:'ADV9_BOOKS',notif:'ADV9_NOTIF',local:'ADV9_LOCAL',dolls:'ADV9_DOLLS',shopDolls:'ADV9_SHOP_DOLLS',events:'ADV9_DOLL_EVENTS',musicLinks:'ADV9_MUSIC_LINKS',musicReqs:'ADV9_MUSIC_REQS',pixels:'ADV9_PIXELS',videos:'ADV9_VIDEOS'};
+
+const get=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+
+const set=(k,v)=>{localStorage.setItem(k,JSON.stringify(v));if(typeof supaPush==='function')supaPush(k,v)};
+window.get=get;window.set=set;
+
+/* ?儭??脫釣?伐?皜雿輻?撓?乩葉??HTML/?單?梢摮?嚗?潸??胯蝔晞????脣???瘣?*/
+/* 撣唾????改???閮梯?詨?蝺?嚗甇Ｙ撣貉撓??*/
+function validUsername(u){return /^[A-Za-z0-9_.@-]{2,40}$/.test(String(u||''))}
+/* ?? 撖Ⅳ閬?嚗?賣?望?摮?/?詨?/?寞?蝚西?嚗??ASCII嚗?銝?葉??蝛箇嚗撠?4 蝣?*/
+/* ?? SHA-256嚗? JS嚗??file:// ?Ｙ?嚗??冽?箏?蝞∠??∪?蝣潮?皝????脣?嚗?摮???*/
+function sha256(ascii){function R(v,a){return(v>>>a)|(v<<(32-a));}var mp=Math.pow,mw=mp(2,32),res='';var words=[],abl=ascii.length*8;var hash=sha256.h=sha256.h||[],k=sha256.k=sha256.k||[],pc=k.length,ic={};for(var cand=2;pc<64;cand++){if(!ic[cand]){for(var i=0;i<313;i+=cand)ic[i]=cand;hash[pc]=(mp(cand,.5)*mw)|0;k[pc++]=(mp(cand,1/3)*mw)|0;}}ascii+='\x80';while(ascii.length%64-56)ascii+='\x00';for(var i=0;i<ascii.length;i++){var j=ascii.charCodeAt(i);if(j>>8)return'';words[i>>2]|=j<<((3-i)%4)*8;}words[words.length]=(abl/mw)|0;words[words.length]=abl;for(var j=0;j<words.length;){var w=words.slice(j,j+=16),oh=hash;hash=hash.slice(0,8);for(var i=0;i<64;i++){var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];var t1=hash[7]+(R(e,6)^R(e,11)^R(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(R(w15,7)^R(w15,18)^(w15>>>3))+w[i-7]+(R(w2,17)^R(w2,19)^(w2>>>10)))|0);var t2=(R(a,2)^R(a,13)^R(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;}for(var i=0;i<8;i++)hash[i]=(hash[i]+oh[i])|0;}for(var i=0;i<8;i++)for(var j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16);}return res;}
+/* ?? ?箏?蝞∠??∴?撖Ⅳ隞?SHA-256 ???脣?嚗?獢葉?芣? hash嚗?銝??嚗ocalStorage 銋??援撖Ⅳ嚗?/
+const MASTER_ADMIN={user:'adv9boss',salt:'ADV9|v1|9f3a7',hash:'c25eba85d26bc97f09b85878ff6b4a6322acd3c740485bf09a4930b7f49e5c42',name:'蝮賜恣?'};
+function isMasterLogin(u,p){return u===MASTER_ADMIN.user&&sha256(u+'|'+p+'|'+MASTER_ADMIN.salt)===MASTER_ADMIN.hash}
+
+
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+
+
+
+/* 蝟餌絞?航矽閮剖?嚗??啣?芾?嚗?PK瘥甈⊥???乩遙????曹遙?璅?*/
+function sysCfg(){return Object.assign({pkDaily:5,dailyMissions:15,weeklyGoal:200,timeLock:true,diffMode:'蝎暹?'},get(LS.settings,{}))}
+function setSysCfg(p){set(LS.settings,Object.assign(sysCfg(),p))}
+function toast(m,t){const d=document.createElement('div');d.className='toast '+(t||'');d.textContent=m;$('#toasts').appendChild(d);setTimeout(()=>d.classList.add('out'),2600);setTimeout(()=>d.remove(),3100)}
+
+function floatTxt(txt,cls,el){const r=el?el.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/3,width:0};
+
+const d=document.createElement('div');d.className='floater '+cls;d.textContent=txt;
+
+d.style.left=(r.left+r.width/2+rnd(-22,22))+'px';d.style.top=(r.top+8)+'px';$('#fxlayer').appendChild(d);setTimeout(()=>d.remove(),1100)}
+
+function openModal(h){$('#mbody').innerHTML=h;const modal=$('#modal');modal.style.display='flex';modal.classList.add('modalAnim');setTimeout(()=>modal.classList.remove('modalAnim'),350)}
+
+function closeModal(){$('#modal').style.display='none';const mb=$('#mbody');if(mb)mb.style.maxWidth=''}
+
+/* ???????? 閮剖? ???????? */
+
+
+/* 撖阡???銝?嚗恣??臬?批?啗身摰?銝? 300嚗矽擃銝?嚗?/
+
+/* ===== AI API ?游?撅歹?憭????芸??? OpenAI ??DeepSeek ??Gemini嚗???2.0 Flash Lite嚗? Qwen ??Kimi ===== */
+const GEMINI_MODELS=['gemini-3.5-flash-lite','gemini-3.6-flash'];
+const AI_PROVIDERS={
+openai:{n:'OpenAI GPT',type:'oa',url:'https://api.openai.com/v1/chat/completions',defModel:'gpt-4',models:['gpt-4','gpt-4o','gpt-4o-mini','gpt-4-turbo']},
+deepseek:{n:'DeepSeek',type:'oa',url:'https://api.deepseek.com/chat/completions',defModel:'deepseek-v4',models:['deepseek-v4','deepseek-chat','deepseek-reasoner']},
+gemini:{n:'Google Gemini',type:'gm',defModel:'gemini-3.5-flash-lite',models:['gemini-3.5-flash-lite','gemini-3.6-flash'],banned:['gemini-2.0-flash-lite']},
+qwen:{n:'Qwen ?儔??',type:'oa',url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',defModel:'qwen3.8',models:['qwen3.8','qwen-plus','qwen-turbo']},
+kimi:{n:'Moonshot Kimi',type:'oa',url:'https://api.moonshot.cn/v1/chat/completions',defModel:'kimi-3k',models:['kimi-3k','moonshot-v1-8k','moonshot-v1-32k']},
+ollama:{n:'Ollama ?砍',type:'ol',url:'/rest/v1/ai/ollama',defModel:'qwen2.5:0.6b',models:['qwen2.5:0.6b','qwen2.5:1.7b','qwen2.5:3b','qwen2.5:7b','qwen2.5:14b','qwen3:0.6b','qwen3:4b','deepseek-r1:1.7b','deepseek-r1:7b','llama3.2:1b','llama3.2:3b','phi3.5:3.8b'],keyHint:'Ollama ?甈?隢‵銝餅?雿?嚗?閮?http://127.0.0.1:11434嚗?}};
+async function callAI(prompt,sys){
+const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});
+if(!data.keys.length)throw new Error('瘝??舐??API ?');
+for(const p of AI_PRIORITY){ /* 靘????芸???????? */
+for(const k of data.keys.filter(x=>(x.provider||'gemini')===p)){
+try{const txt=await callOneAI(k,prompt,sys);k.useCount=(k.useCount||0)+1;k.lastUsed=new Date().toISOString();set(LS.apiKeys,data);return txt}catch(e){}
+}}
+throw new Error('???API ??仃??撌脖??芸????岫?券靘???')}
+async function callGemini(prompt,systemInstruction){return callAI(prompt,systemInstruction)}
+function getNextApiKey(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(!data.keys.length)return null;const now=Date.now();if(data.lastUsedTime&&(now-data.lastUsedTime)>30000){data.currentIndex=(data.currentIndex+1)%data.keys.length}const keyObj=data.keys[data.currentIndex];data.lastUsedTime=now;keyObj.useCount=(keyObj.useCount||0)+1;keyObj.lastUsed=new Date().toISOString();set(LS.apiKeys,data);return keyObj}
+function advanceApiKey(){const data=get(LS.apiKeys,{keys:[],currentIndex:0,lastUsedTime:null});if(!data.keys.length)return null;data.currentIndex=(data.currentIndex+1)%data.keys.length;data.lastUsedTime=Date.now();set(LS.apiKeys,data);return data.keys[data.currentIndex]}
+async function callGeminiLegacy(prompt,systemInstruction){let keyData=getNextApiKey();if(!keyData)throw new Error('瘝??舐??API ?');const tried=new Set();while(keyData&&!tried.has(keyData.key)){tried.add(keyData.key);try{const model=keyData.model||'gemini-2.0-flash-lite';const url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+keyData.key;const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:systemInstruction||'雿銝??璆剔??粹??拇???}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})});if(!res.ok){keyData=advanceApiKey();continue;}const json=await res.json();if(!json.candidates||!json.candidates[0])throw new Error('No candidates');return json.candidates[0].content.parts[0].text}catch(e){keyData=advanceApiKey();}}throw new Error('???API ??仃??)}
+
+/* ????callAIV2嚗?閮?providers + Gemini ?券?撟喳? + ?券?餈質馱 ????*/
+function callAIGetProviders(){try{return get('ADV9_AI_PROVIDERS',{providers:[],usage:[]})}catch(e){return{providers:[],usage:[]}}}
+function callAISetProviders(d){try{set('ADV9_AI_PROVIDERS',d)}catch(e){}}
+function callAITrackUsage(pid,toks){
+  var d=callAIGetProviders();var today=new Date().toISOString().slice(0,10);
+  var ex=d.usage.find(function(u){return u.provider_id===pid&&u.date===today});
+  if(ex){ex.call_count++;ex.tokens_used+=toks||0;}
+  else{d.usage.push({date:today,provider_id:pid,call_count:1,tokens_used:toks||0});}
+  var cutoff=new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+  d.usage=d.usage.filter(function(u){return u.date>=cutoff});
+  callAISetProviders(d);
+}
+function callAIRateLimit(pid){
+  var d=callAIGetProviders();var p=d.providers.find(function(x){return x.id===pid});
+  if(!p)return true;
+  var today=new Date().toISOString().slice(0,10);
+  var todayU=d.usage.filter(function(u){return u.provider_id===pid&&u.date===today});
+  var tc=todayU.reduce(function(s,u){return s+u.call_count},0);
+  var tt=todayU.reduce(function(s,u){return s+u.tokens_used},0);
+  /* Gemini ?券?撟喳?嚗 rate_limit_per_hour=0 ???蝞?*/
+  var rl=p.rate_limit_per_hour;
+  var tb=p.token_budget_per_day;
+  if(p.provider_type==='gm'){
+    var gmKeys=d.providers.filter(function(x){return x.provider_type==='gm'});
+    if(gmKeys.length>1){
+      /* 撟喳?嚗蝷?摨?/ key ?賊? */
+      var baseRl=p._base_rate_limit||rl;
+      var baseTb=p._base_token_budget||tb;
+      if(!p._base_rate_limit&&rl>0){p._base_rate_limit=rl;p._base_token_budget=tb;callAISetProviders(d);}
+      rl=Math.floor((p._base_rate_limit||60)/gmKeys.length);
+      tb=Math.floor((p._base_token_budget||100000)/gmKeys.length);
+    }
+  }
+  if(rl>0&&tc>=rl)return false;
+  if(tb>0&&tt>=tb)return false;
+  return true;
+}
+function callAIEstimateTokens(text){if(!text)return 0;return Math.ceil(text.length*1.5)}
+async function callAICallEndpoint(provider,prompt,sys){
+  var type=provider.provider_type||'oa';var timeout=provider.timeout||25000;
+  var ac=new AbortController();var timer=setTimeout(function(){ac.abort()},timeout);
+  try{
+    if(type==='ol'){
+      var res=await fetch('/rest/v1/ai/ollama',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json',...(typeof WTOKEN!=='undefined'&&WTOKEN?{'x-adv9-token':WTOKEN}:{})},body:JSON.stringify({model:provider.model_name,host:provider.api_key||'http://127.0.0.1:11434',messages:[{role:'system',content:sys||'雿銝??璆剖??},{role:'user',content:prompt}],temperature:provider.temperature||0.7})});
+      if(!res.ok)throw new Error('HTTP '+res.status);var j=await res.json();if(!j.message||!j.message.content)throw new Error('No content');return j.message.content;
+    }
+    if(type==='gm'){
+      var url='https://generativelanguage.googleapis.com/v1beta/models/'+provider.model_name+':generateContent?key='+provider.api_key;
+      var res2=await fetch(url,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sys||'雿銝??璆剖??}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:provider.temperature||0.7,maxOutputTokens:provider.max_tokens||4096}})});
+      if(!res2.ok)throw new Error('HTTP '+res2.status);var j2=await res2.json();if(!j2.candidates||!j2.candidates[0])throw new Error('No candidates');return j2.candidates[0].content.parts[0].text;
+    }
+    var res3=await fetch(provider.base_url,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+provider.api_key},body:JSON.stringify({model:provider.model_name,messages:[{role:'system',content:sys||'雿銝??璆剖??},{role:'user',content:prompt}],temperature:provider.temperature||0.7,max_tokens:provider.max_tokens||4096})});
+    if(!res3.ok)throw new Error('HTTP '+res3.status);var j3=await res3.json();if(!j3.choices||!j3.choices[0])throw new Error('No choices');return j3.choices[0].message.content;
+  }finally{clearTimeout(timer)}
+}
+async function callAIV2(prompt,sys,opts){
+  opts=opts||{};
+  var d=callAIGetProviders();
+  for(var i=0;i<d.providers.length;i++){
+    var p=d.providers[i];
+    if(!callAIRateLimit(p.id))continue;
+    try{var result=await callAICallEndpoint(p,prompt,sys);callAITrackUsage(p.id,callAIEstimateTokens(result));return result;}catch(e){}
+  }
+  return callAI(prompt,sys);
+}
+
+/* 撠?AI ??銝剔? LaTeX 隤?頧??箔??砍霈?詨飛蝚西?嚗 JSON 頧儔敺?畾??抬?憒?\t+imes嚗?*/
+
+/* ???????? 摮貊? ???????? */
+
+
+/* ???????? 閫/撖萇/?憤/?? ???????? */
+
+
+const PETS={
+
+'擳?撠?':{r:'N',icon:'?',sk:[['??','蝬?+3%',{exp_bonus:.03}],['?瓷','?馳+5%',{gold_bonus:.05}]]},
+
+'瘞渲?樴?:{r:'N',icon:'?',sk:[['瞏格?','瘞湔+5%',{crystal_bonus:.05}],['蝖祆挺','8%???靽風',{combo_protect:.08}]]},
+
+'?貉':{r:'N',icon:'??',sk:[['?','??蝬?+5%',{chinese_exp_bonus:.05}],['?餉?','?+2%',{drop_bonus:.02}]]},
+
+'?鞎?:{r:'R',icon:'?儭?,sk:[['?瑕?','蝬?+8%',{exp_bonus:.08}],['?','?+3%',{drop_bonus:.03}],['?','15%???靽風',{combo_protect:.15}]]},
+
+'撠樴?:{r:'R',icon:'??',sk:[['樴','20%???靽風',{combo_protect:.20}],['樴?','PK+5%',{pk_power_bonus:.05}]]},
+
+'?唳??:{r:'R',icon:'?',sk:[['?圈','?漲+20%',{speed_bonus:.20}],['?蔣','?+4%',{drop_bonus:.04}]]},
+
+'?蔣暾?:{r:'R',icon:'???',sk:[['?必','?圈蝬?+10%',{exp_hard_bonus:.10}],['憭','PK+5%',{pk_power_bonus:.05}]]},
+
+'?征??:{r:'SR',icon:'??',sk:[['?征頝唾?','蝑敺?甈∪??',{wrong_next_drop:true}],['??,'蝬?+10%',{exp_bonus:.10}],['??','30%???靽風',{combo_protect:.30}]]},
+
+'蝧∠?暽?:{r:'SR',icon:'??',sk:[['璉桐???,'撘瑕?+5%',{enhance_bonus:.05}],['??','?釭+20%',{quality_up:.20}],['蟡?','瘞湔+15%',{crystal_bonus:.15}]]},
+
+'?劓曋?:{r:'SR',icon:'??',sk:[['?必','PK+12%',{pk_power_bonus:.12}],['曋寧','??????1.5',{combo_multiplier:1.5}]]},
+
+'????:{r:'SSR',icon:'?',sk:[['??','?函?撽?18%',{all_exp_bonus:.18}],['???,'?+8% 瘞湔+25%',{drop_bonus:.08,crystal_bonus:.25}],['??','瘥5甈⊿??靽風',{combo_protect_daily:5}]]},
+
+'敶抵樴?:{r:'SSR',icon:'??',sk:[['?孵?','?+12%',{drop_bonus:.12}],['樴?','?釭+40%',{quality_up:.40}],['樴?','PK+15%',{pk_power_bonus:.15}]]},
+
+'銋偏??:{r:'UR',icon:'??',sk:[['擳?','蝬?+25% ?+15%',{exp_bonus:.25,drop_bonus:.15}],['撟餉?','靽?-8 ?釭+60%',{pity_reduce:8,quality_up:.60}],['憒','?馳+30%',{gold_bonus:.30}]]},
+
+'?萎?曈喳':{r:'UR',icon:'????,sk:[['瘨?','?+20%',{drop_bonus:.20}],['瘞貊','瘞湔+40% 瘥10甈∩?霅?,{crystal_bonus:.40,combo_protect_daily:10}],['蟡蕉','PK+25%',{pk_power_bonus:.25}]]},
+
+/* ?? ?游?撖萇 50 ?? */
+'撗拇撚?貊?':{r:'R',icon:'??',sk:[['?痔霅瑞','10%???靽風',{combo_protect:.10}],['擃澈','?馳+8%',{gold_bonus:.08}]]},
+'?唳隡?':{r:'SR',icon:'?',sk:[['皛?','?漲+25%',{speed_bonus:.25}],['?','???靽風20%',{combo_protect:.20}]]},
+'??暸?':{r:'R',icon:'?儭?,sk:[['?餅?','?+4%',{drop_bonus:.04}],['?','蝬?+6%',{exp_bonus:.06}]]},
+'撟賡?鞎?:{r:'SSR',icon:'?',sk:[['??','???靽風35%',{combo_protect:.35}],['憭?','PK+10%',{pk_power_bonus:.10}],['??','瘞湔+20%',{crystal_bonus:.20}]]},
+'撖嗥樴?:{r:'SR',icon:'?',sk:[['?挺','?脩戌+20%',{defense_bonus:.20}],['?窄','?馳+25%',{gold_bonus:.25}]]},
+'??刻???:{r:'UR',icon:'??',sk:[['?','?函?撽?20%',{all_exp_bonus:.20}],['?刻?','?釭+30%',{quality_up:.30}],['瘛典?','靽?-5??,{pity_reduce:5}]]},
+'?蔣??:{r:'R',icon:'?',sk:[['?澆?','PK+6%',{pk_power_bonus:.06}],['瞏?','?+4%',{drop_bonus:.04}]]},
+'?劓??:{r:'SR',icon:'??',sk:[['??','瘞湔+18%',{crystal_bonus:.18}],['??','???靽風15%',{combo_protect:.15}]]},
+'璈１樴?:{r:'SSR',icon:'??',sk:[['?潮銋蕉','?+10%',{drop_bonus:.10}],['?瑕?','PK+14%',{pk_power_bonus:.14}],['鋆','???靽風30%',{combo_protect:.30}]]},
+'瘜⊥部擳?:{r:'N',icon:'??',sk:[['瘜⊥疵','???靽風8%',{combo_protect:.08}],['瘞湔膜','?馳+5%',{gold_bonus:.05}]]},
+'隞犖??:{r:'N',icon:'?',sk:[['撠','?3%',{thorns:.03}],['?','蝬?+3%',{exp_bonus:.03}]]},
+'撠??:{r:'R',icon:'?爸',sk:[['?圈?','?馳+10%',{gold_bonus:.10}],['撗拍','???靽風15%',{combo_protect:.15}]]},
+'憸函移??:{r:'SR',icon:'??',sk:[['?暸◢','?漲+30%',{speed_bonus:.30}],['?勗耦','?+5%',{drop_bonus:.05}]]},
+'瘞渡移??:{r:'R',icon:'?',sk:[['瘝餌?','隞餃??+10%',{mission_bonus:.10}],['瘚芣蔭','瘞湔+10%',{crystal_bonus:.10}]]},
+'?怎移??:{r:'SSR',icon:'?',sk:[['?','PK+12%',{pk_power_bonus:.12}],['擃澈','?馳+20%',{gold_bonus:.20}],['??','?+6%',{drop_bonus:.06}]]},
+'?移??:{r:'R',icon:'?爸',sk:[['憭批','撘瑕?+4%',{enhance_bonus:.04}],['?交?','?萇丹+20%',{iron_bonus:.20}]]},
+'??':{r:'R',icon:'??',sk:[['??','瘞湔+12%',{crystal_bonus:.12}],['頝唾?','?漲+15%',{speed_bonus:.15}]]},
+'憭芷曈?:{r:'SR',icon:'?',sk:[['?亙?','?函?撽?8%',{all_exp_bonus:.08}],['頛?','?+5%',{drop_bonus:.05}]]},
+'?眾攳?:{r:'UR',icon:'??',sk:[['??','?函?撽?22%',{all_exp_bonus:.22}],['瞏格?','瘞湔+40%',{crystal_bonus:.40}],['頞???,'PK+16%',{pk_power_bonus:.16}]]},
+'?駁偵':{r:'R',icon:'??',sk:[['?暸','???靽風12%',{combo_protect:.12}],['撠','?馳+8%',{gold_bonus:.08}]]},
+'?啗?':{r:'SR',icon:'??',sk:[['??','PK+8%',{pk_power_bonus:.08}],['?餌','撘瑕?+5%',{enhance_bonus:.05}]]},
+'?怎?':{r:'SSR',icon:'??',sk:[['憒','?+9%',{drop_bonus:.09}],['?概','?漲+25%',{speed_bonus:.25}],['擳?','PK+12%',{pk_power_bonus:.12}]]},
+'?券?':{r:'R',icon:'?',sk:[['瘝餌?','隞餃?+8%',{mission_bonus:.08}],['?','?萇丹+15%',{iron_bonus:.15}]]},
+'??曏窗':{r:'R',icon:'??',sk:[['璅∩遛','蝬?+5%',{exp_bonus:.05}],['撠店','蝷暹?+8%',{social_exp_bonus:.08}]]},
+'撟賡???:{r:'SR',icon:'??',sk:[['頞瘜?,'?+5%',{drop_bonus:.05}],['?蔣','???靽風25%',{combo_protect:.25}]]},
+'?刻??脰':{r:'R',icon:'?玨',sk:[['閫?','撘瑕?+4%',{enhance_bonus:.04}],['?蕭嚙踝蕭','?脩戌+10%',{defense_bonus:.10}]]},
+'敶抵??:{r:'SR',icon:'嚙踝蕭嚙?,sk:[['嚙踝蕭敶?,'?剁蕭嚙賡?+10%',{all_exp_bonus:.10}],['?餌','?釭+15%',{quality_up:.15}]]},
+'?賜樴?:{r:'SSR',icon:'??',sk:[['?蕭嚙踝蕭嚙踝蕭嚙踝蕭嚙踝蕭嚙踝蕭嚙踝蕭?舀','???靽風40%',{combo_protect:.40}],['?瓷','?馳+30%',{gold_bonus:.30}]]},
+'蝧∠?樴?:{r:'UR',icon:'??',sk:[['??','瘞湔+35%',{crystal_bonus:.35}],['樴?','PK+20%',{pk_power_bonus:.20}],['蝧∠?','?函?撽?18%',{all_exp_bonus:.18}]]},
+'撠陶??:{r:'SR',icon:'????,sk:[['瘨?','敺拇暑1甈?,{combo_protect_daily:1}],['?怎','?+6%',{drop_bonus:.06}]]},
+'暺措':{r:'R',icon:'??',sk:[['?菜捏','PK+6%',{pk_power_bonus:.06}],['憭?','?+4%',{drop_bonus:.04}]]},
+'?賜?':{r:'SR',icon:'???儭?,sk:[['?餃?','PK+10%',{pk_power_bonus:.10}],['?','???靽風20%',{combo_protect:.20}]]},
+'撠?樴?:{r:'R',icon:'?',sk:[['憌?','?漲+15%',{speed_bonus:.15}],['?渡','?馳+8%',{gold_bonus:.08}]]},
+'霈樴?:{r:'N',icon:'??',sk:[['?質?','???靽風10%',{combo_protect:.10}],['隡貉?','?+2%',{drop_bonus:.02}]]},
+'璅寞':{r:'N',icon:'?戎',sk:[['?Ｘ暑','隞餃??+5%',{mission_bonus:.05}],['?∠?','蝬?+2%',{exp_bonus:.02}]]},
+'鋡?':{r:'R',icon:'??',sk:[['頝單?','PK+5%',{pk_power_bonus:.05}],['?脣?','隞餃?+8%',{mission_bonus:.08}]]},
+'?∪偏??:{r:'N',icon:'?',sk:[['?舀?','?馳+5%',{gold_bonus:.05}],['?∠?','???靽風5%',{combo_protect:.05}]]},
+'????:{r:'SSR',icon:'?',sk:[['??','PK+15%',{pk_power_bonus:.15}],['?拚?','?+8%',{drop_bonus:.08}]]},
+'?瑟?鞊?:{r:'SR',icon:'??',sk:[['撌典?','?馳+20%',{gold_bonus:.20}],['?','???靽風25%',{combo_protect:.25}]]},
+'蝧潭?樴?:{r:'R',icon:'??',sk:[['靽航?','?+4%',{drop_bonus:.04}],['閬?','蝬?+6%',{exp_bonus:.06}]]},
+'?':{r:'N',icon:'??',sk:[['?','蝷暹?+5%',{social_exp_bonus:.05}],['瞍拇蒂','瘞湔+5%',{crystal_bonus:.05}]]},
+'銝???:{r:'R',icon:'??',sk:[['?','?函?撽?4%',{all_exp_bonus:.04}],['??','撘瑕?+3%',{enhance_bonus:.03}]]},
+'餈?樴?:{r:'SSR',icon:'??',sk:[['?漲','PK+13%',{pk_power_bonus:.13}],['?芣?','?+7%',{drop_bonus:.07}]]},
+'銝?樴?:{r:'SR',icon:'??',sk:[['銵?','PK+10%',{pk_power_bonus:.10}],['霅瑞','???靽風30%',{combo_protect:.30}]]},
+'皛?':{r:'UR',icon:'??',sk:[['瘛望絲','瘞湔+35%',{crystal_bonus:.35}],['?訾蜓','PK+18%',{pk_power_bonus:.18}],['?斤?','?函?撽?20%',{all_exp_bonus:.20}]]},
+'瘚瑁?':{r:'R',icon:'?',sk:[['?脩?','?+4%',{drop_bonus:.04}],['?暑','?漲+15%',{speed_bonus:.15}]]},
+'?祠':{r:'SR',icon:'?',sk:[['?拍','PK+10%',{pk_power_bonus:.10}],['?黎','隞餃?+12%',{mission_bonus:.12}]]},
+'撠?擳?:{r:'N',icon:'??',sk:[['?梁?','?馳+5%',{gold_bonus:.05}],['擙株?','蝬?+3%',{exp_bonus:.03}]]},
+'瘞湔?':{r:'R',icon:'?疙',sk:[['瘥','PK+5%',{pk_power_bonus:.05}],['?澆?','瘞湔+8%',{crystal_bonus:.08}]]},
+'瘚琿收':{r:'SR',icon:'?',sk:[['?脣?','隞餃?+15%',{mission_bonus:.15}],['?芷?','?+5%',{drop_bonus:.05}]]}
+
+};
+
+const ANIME={
+
+'?梯??ㄚ':{r:'R',icon:'?儭?,o:'?梯?撠僑瞍?,q:'?????箔?摰風?撈?嚗?,sk:[['?梯?','蝬?+8%',{exp_bonus:.08}],['?除','PK+5%',{pk_power_bonus:.05}]]},
+
+'憭拇?擳?撣?:{r:'R',icon:'????儭?,o:'擳?摮賊',q:'?亥?撠望?撘瑞?擳???,sk:[['?交','10%???靽風',{combo_protect:.10}],['?箸','PK+8%',{pk_power_bonus:.08}]]},
+
+'?除撠戊':{r:'R',icon:'??',o:'?∪??抵?',q:'?硃?硃嚗?銝摰隞亦?嚗?,sk:[['?除','?芰蝬?+12%',{science_exp_bonus:.12}],['撟賊?','?+3%',{drop_bonus:.03}]]},
+
+'?琿瑽?':{r:'R',icon:'?',o:'镼輸?喳?',q:'??摮?嚗?銝蝛箝?,sk:[['蝎暹?','?圈憿?憭?瘞湔',{hard_crystal_bonus:5}],['?琿?','撘瑕?+3%',{enhance_bonus:.03}]]},
+
+'?唾牧??:{r:'SR',icon:'?儭?,o:'?隤?,q:'10 ???????撠死??',sk:[['閬粹?','10???蝬??1.5',{combo10_exp_mult:1.5}],['?除','?函?撽?8%',{all_exp_bonus:.08}],['擛亙?','PK+10%',{pk_power_bonus:.10}]]},
+
+'?芰?蝝喳ㄚ':{r:'SR',icon:'?',o:'?芰??抵?',q:'???賢歇撖嚗窄?拇??嗡?鈭?,sk:[['?窄','?+8% ?釭+30%',{drop_bonus:.08,quality_up:.30}],['頨急?','PK+12%',{pk_power_bonus:.12}]]},
+
+'???犖':{r:'SR',icon:'?',o:'蝢??萎犖',q:'蝢???瘝餌?銝??',sk:[['?捎','蝷暹?蝬?+15%',{social_exp_bonus:.15}],['?澈','?函?撽?5%',{all_exp_bonus:.05}],['?撌?,'PK+8%',{pk_power_bonus:.08}]]},
+
+'???憬':{r:'SSR',icon:'??',o:'???抵?',q:'?????冽敹?,sk:[['??','?函?撽?20%',{all_exp_bonus:.20}],['??','PK+18%',{pk_power_bonus:.18}],['??','?+8%',{drop_bonus:.08}]]},
+
+'擳?摮詨???:{r:'SSR',icon:'??',o:'擳?摮賊',q:'摮貊?嚗?蝢?擳???,sk:[['?飛','?函?撽?22%',{all_exp_bonus:.22}],['蝯?','瘥5甈⊿??靽風',{combo_protect_daily:5}],['憡','PK+15%',{pk_power_bonus:.15}]]},
+
+'摰?瘚瑁?':{r:'UR',icon:'???儭?,o:'?絲?',q:'??敺?劓憭扳絲嚗?,sk:[['?豢除','?函?撽?30%',{all_exp_bonus:.30}],['?左','?+15% 瘞湔+50%',{drop_bonus:.15,crystal_bonus:.50}],['?寥','PK+20% 靽?-8',{pk_power_bonus:.20,pity_reduce:8}]]},
+
+'?征??:{r:'UR',icon:'??,o:'?征?抵?',q:'???策?箇?獢?,sk:[['????,'PK瘥1甈∪???,{pk_guaranteed_win:1}],['??','?函?撽?25%',{all_exp_bonus:.25}],['??','?+15%',{drop_bonus:.15}]]},
+
+/* ?? ?游??憤?梢?嚗隤?50 ?? */
+'??瘚芯犖':{r:'SR',icon:'?儭?,o:'?唾牧蝟餃?',sk:[['撅???,'PK+10%',{pk_power_bonus:.10}],['敹','蝬?+8%',{exp_bonus:.08}]]},
+'????鈭?:{r:'R',icon:'?',o:'?唾牧蝟餃?',sk:[['?怎??','蝷暹?+10%',{social_exp_bonus:.10}],['憌質雲','隞餃?+5%',{mission_bonus:.05}]]},
+'?唬?擳戊':{r:'SSR',icon:'??',o:'?唾牧蝟餃?',sk:[['蝯??嗅漲','PK+15%',{pk_power_bonus:.15}],['?啁','???靽風35%',{combo_protect:.35}]]},
+'?瑚???:{r:'SR',icon:'??,o:'?唾牧蝟餃?',sk:[['?琿陷','?函?撽?8%',{all_exp_bonus:.08}],['?餃?','?+6%',{drop_bonus:.06}]]},
+'憸其?靽恥':{r:'R',icon:'??',o:'?唾牧蝟餃?',sk:[['?暸◢','?漲+20%',{speed_bonus:.20}],['憸典?','?+4%',{drop_bonus:.04}]]},
+'???啣ㄚ':{r:'SSR',icon:'??,o:'?唾牧蝟餃?',sk:[['??','PK+14%',{pk_power_bonus:.14}],['瘛典?','???靽風30%',{combo_protect:.30}]]},
+'????':{r:'UR',icon:'??',o:'?唾牧蝟餃?',sk:[['?蔣','PK+22%',{pk_power_bonus:.22}],['?','?函?撽?18%',{all_exp_bonus:.18}],['瘛望殿','瘞湔+30%',{crystal_bonus:.30}]]},
+'?潔???銵葦':{r:'SR',icon:'?',o:'?唾牧蝟餃?',sk:[['蝑鈭斗?','撘瑕?+6%',{enhance_bonus:.06}],['??','?萇丹+30%',{iron_bonus:.30}]]},
+'?喃?閰拐犖':{r:'R',icon:'?',o:'?唾牧蝟餃?',sk:[['?桅???,'???靽風15%',{combo_protect:.15}],['??','蝬?+5%',{exp_bonus:.05}]]},
+'?曹?憒移':{r:'SR',icon:'?',o:'?唾牧蝟餃?',sk:[['?梁?','?+6%',{drop_bonus:.06}],['瘝餌?','隞餃?+10%',{mission_bonus:.10}]]},
+'??擳?憯?:{r:'SSR',icon:'??',o:'?唾牧蝟餃?',sk:[['瘚?','PK+12%',{pk_power_bonus:.12}],['?△','瘞湔+25%',{crystal_bonus:.25}]]},
+'??蟡剖':{r:'R',icon:'??',o:'?唾牧蝟餃?',sk:[['??','蝷暹?+10%',{social_exp_bonus:.10}],['蟡?','蝬?+4%',{exp_bonus:.04}]]},
+'憭芷蟡?':{r:'SR',icon:'?儭?,o:'?唾牧蝟餃?',sk:[['?','?馳+20%',{gold_bonus:.20}],['蟡垠','?+5%',{drop_bonus:.05}]]},
+'瘚瑚???:{r:'SSR',icon:'??',o:'?唾牧蝟餃?',sk:[['瘚瑕','PK+15%',{pk_power_bonus:.15}],['瞏格?','瘞湔+20%',{crystal_bonus:.20}]]},
+'撅曹?撌其犖':{r:'R',icon:'??儭?,o:'?唾牧蝟餃?',sk:[['??','PK+6%',{pk_power_bonus:.06}],['?唾?','???靽風20%',{combo_protect:.20}]]},
+'???菜?':{r:'SR',icon:'?',o:'?唾牧蝟餃?',sk:[['?Ｘ?','?芰+15%',{science_exp_bonus:.15}],['?琿','?+5%',{drop_bonus:.05}]]},
+'瘝?瘜葦':{r:'R',icon:'??儭?,o:'?唾牧蝟餃?',sk:[['瘝','PK+6%',{pk_power_bonus:.06}],['銋暹','?馳+10%',{gold_bonus:.10}]]},
+'?啣??啣ㄚ':{r:'SR',icon:'??',o:'?唾牧蝟餃?',sk:[['撖','PK+10%',{pk_power_bonus:.10}],['??','???靽風25%',{combo_protect:.25}]]},
+'?怠控蟡剖':{r:'SSR',icon:'??',o:'?唾牧蝟餃?',sk:[['?痔','?+9%',{drop_bonus:.09}],['?','PK+13%',{pk_power_bonus:.13}]]},
+'憭拍征擉ㄚ':{r:'UR',icon:'??',o:'?唾牧蝟餃?',sk:[['?脤?','?函?撽?24%',{all_exp_bonus:.24}],['憸冽','PK+20%',{pk_power_bonus:.20}],['?琿','瘞湔+35%',{crystal_bonus:.35}]]},
+'撟餃蔣??':{r:'R',icon:'?',o:'?唾牧蝟餃?',sk:[['?瑞?','?+4%',{drop_bonus:.04}],['撟餉?','???靽風15%',{combo_protect:.15}]]},
+'璈１?啣ㄚ':{r:'SR',icon:'??',o:'?唾牧蝟餃?',sk:[['鋆','?脩戌+20%',{defense_bonus:.20}],['?瑕?','PK+10%',{pk_power_bonus:.10}]]},
+'??鈭?:{r:'R',icon:'?妒',o:'?唾牧蝟餃?',sk:[['??','隞餃?+8%',{mission_bonus:.08}],['撘瑕?','蝬?+6%',{exp_bonus:.06}]]},
+'頞??:{r:'SSR',icon:'??',o:'?唾牧蝟餃?',sk:[['敹萄?','?函?撽?14%',{all_exp_bonus:.14}],['?','?+7%',{drop_bonus:.07}]]},
+'摰??郎':{r:'SR',icon:'?',o:'?唾牧蝟餃?',sk:[['甇?儔','PK+10%',{pk_power_bonus:.10}],['餈質馱','?+5%',{drop_bonus:.05}]]},
+'?征撌⊿???:{r:'UR',icon:'??,o:'?唾牧蝟餃?',sk:[['??蝺?,'?函?撽?22%',{all_exp_bonus:.22}],['靽格迤','靽?-8??,{pity_reduce:8}]]},
+'?啁??砍?撣?:{r:'SSR',icon:'??',o:'?唾牧蝟餃?',sk:[['?砍?','?+8%',{drop_bonus:.08}],['憟?','PK+14%',{pk_power_bonus:.14}]]},
+'?⊿??萎犖':{r:'R',icon:'?',o:'?唾牧蝟餃?',sk:[['?拍','PK+6%',{pk_power_bonus:.06}],['?偌','???靽風10%',{combo_protect:.10}]]},
+'憭拐蝙?萎犖':{r:'SR',icon:'?',o:'?唾牧蝟餃?',sk:[['??','PK+10%',{pk_power_bonus:.10}],['瘛典?','?+5%',{drop_bonus:.05}]]},
+'樴?憯?:{r:'UR',icon:'??',o:'?唾牧蝟餃?',sk:[['樴?','PK+25%',{pk_power_bonus:.25}],['樴','?函?撽?20%',{all_exp_bonus:.20}],['樴?','?釭+35%',{quality_up:.35}]]},
+'????:{r:'SR',icon:'??',o:'?曄銋?',sk:[['?','PK+12%',{pk_power_bonus:.12}],['?貊?','?馳+15%',{gold_bonus:.15}]]},
+'??':{r:'R',icon:'?',o:'?曄銋?',sk:[['??','PK+8%',{pk_power_bonus:.08}],['憡?','?+3%',{drop_bonus:.03}]]},
+'鞊寧?':{r:'SR',icon:'??',o:'?曄銋?',sk:[['?菔措','?漲+25%',{speed_bonus:.25}],['撠','?+5%',{drop_bonus:.05}]]},
+'?潛?':{r:'SSR',icon:'?',o:'?曄銋?',sk:[['?潛黎','隞餃?+15%',{mission_bonus:.15}],['?','PK+12%',{pk_power_bonus:.12}]]},
+'??':{r:'UR',icon:'??',o:'?曄銋?',sk:[['憒?','?函?撽?25%',{all_exp_bonus:.25}],['撟餉?','?釭+40%',{quality_up:.40}],['擳?','PK+18%',{pk_power_bonus:.18}]]},
+'??':{r:'R',icon:'?',o:'?曄銋?',sk:[['撌典?','?馳+10%',{gold_bonus:.10}],['?','???靽風15%',{combo_protect:.15}]]},
+'鞊∠?':{r:'SR',icon:'??',o:'?曄銋?',sk:[['蝣曉?','PK+10%',{pk_power_bonus:.10}],['閮','蝬?+8%',{exp_bonus:.08}]]},
+'攳函?':{r:'SSR',icon:'??',o:'?曄銋?',sk:[['撌冽答','瘞湔+25%',{crystal_bonus:.25}],['餈渲','?+7%',{drop_bonus:.07}]]},
+'曋寧?':{r:'R',icon:'??',o:'?曄銋?',sk:[['曋寧','?圈憿?8%',{exp_hard_bonus:.08}],['蝧梁?','?漲+15%',{speed_bonus:.15}]]},
+'??':{r:'SR',icon:'??',o:'?曄銋?',sk:[['瘥?','PK+10%',{pk_power_bonus:.10}],['?餉?','撘瑕?+5%',{enhance_bonus:.05}]]},
+'??':{r:'R',icon:'??',o:'?曄銋?',sk:[['瘥','PK+6%',{pk_power_bonus:.06}],['?′','???靽風10%',{combo_protect:.10}]]},
+'????:{r:'SSR',icon:'?儭?,o:'?曄銋?',sk:[['?雯','???靽風35%',{combo_protect:.35}],['瘥雯','PK+12%',{pk_power_bonus:.12}]]},
+'???:{r:'R',icon:'??',o:'?曄銋?',sk:[['憭雲','?漲+15%',{speed_bonus:.15}],['瘥','?+3%',{drop_bonus:.03}]]},
+'?脰??:{r:'SR',icon:'?玨',o:'?曄銋?',sk:[['?萇','?脩戌+20%',{defense_bonus:.20}],['閫?','PK+8%',{pk_power_bonus:.08}]]},
+'?渲??:{r:'R',icon:'??',o:'?曄銋?',sk:[['敼?','?+4%',{drop_bonus:.04}],['?餉?','蝬?+6%',{exp_bonus:.06}]]},
+'????:{r:'SSR',icon:'??',o:'?曄銋?',sk:[['?黎','隞餃?+15%',{mission_bonus:.15}],['??','?馳+20%',{gold_bonus:.20}]]},
+'?餌?':{r:'SR',icon:'??',o:'?曄銋?',sk:[['頠?','???靽風25%',{combo_protect:.25}],['?祇?','?萇丹+30%',{iron_bonus:.30}]]},
+'?唾???:{r:'R',icon:'??',o:'?曄銋?',sk:[['?桀?','PK+6%',{pk_power_bonus:.06}],['?梯澈','?+3%',{drop_bonus:.03}]]},
+'?餉???:{r:'SR',icon:'?狐',o:'?曄銋?',sk:[['憌?','?漲+20%',{speed_bonus:.20}],['銴','?+5%',{drop_bonus:.05}]]},
+'?刻?隞?':{r:'UR',icon:'?玨',o:'?曄銋?',sk:[['閫洛','PK+20%',{pk_power_bonus:.20}],['蝖祆挺','?函?撽?18%',{all_exp_bonus:.18}],['憭批','?萇丹+50%',{iron_bonus:.50}]]}
+
+};
+
+const TEAMMATES={
+
+'?詨飛?菜':{r:'SR',icon:'??',o:'?菜摮詨?',q:'?嚗偶?????',sk:[['?函?','?詨飛+18%',{math_exp_bonus:.18}],['瘣?','?函?撽?5%',{all_exp_bonus:.05}]]},
+
+'蝘飛撠??:{r:'R',icon:'?妒',o:'撖阡?摰斤隤?,q:'撖阡??箇??伐?',sk:[['撖阡?','?芰+12%',{science_exp_bonus:.12}],['蝝啣?','?+3%',{drop_bonus:.03}]]},
+
+'?飛撠戊':{r:'R',icon:'??',o:'?擗其??',q:'?訾葉??????,sk:[['?梯?','??+12%',{chinese_exp_bonus:.12}],['??','蝬?+3%',{exp_bonus:.03}]]},
+
+'???亙?':{r:'R',icon:'??',o:'?梯??',q:'銝?敺?蝘??暹?嚗?,sk:[['瘣餃?','蝬?+6%',{exp_bonus:.06}],['??','???靽風10%',{combo_protect:.10}]]},
+
+'?單???':{r:'SR',icon:'?',o:'鈭日璅?',q:'?單??舫?擳?隤???,sk:[['蝭憟?,'??+15%',{all_exp_bonus:.05}],['?梢陷','瘞湔+10%',{crystal_bonus:.10}]]},
+
+'?剔?撠葦':{r:'SR',icon:'????,o:'?∪??亙虜',q:'瘥飛??臬窄??,sk:[['??','?函?撽?10%',{all_exp_bonus:.10}],['?','隞餃??+15%',{mission_bonus:.15}]]},
+
+/* ?? ?游??? 50 ?? */
+'?剝撠?':{r:'N',icon:'????,sk:[['?剔?????,'隞餃??+10%',{mission_bonus:.10}],['?湔?','蝬?+3%',{exp_bonus:.03}]]},
+'?舐?琿鞊?:{r:'R',icon:'?????,sk:[['頛','?函?撽?4%',{all_exp_bonus:.04}],['?矽','???靽風10%',{combo_protect:.10}]]},
+'摮貉??⊿撠?':{r:'SR',icon:'????,sk:[['??','??+15%',{art_exp_bonus:.15}],['摰?','隞餃?+10%',{mission_bonus:.10}]]},
+'憸函??⊿?踹撥':{r:'R',icon:'????儭?,sk:[['蝘拙?','PK+5%',{pk_power_bonus:.05}],['蝝敺?,'撘瑕?+3%',{enhance_bonus:.03}]]},
+'摨瑟??⊿撠?':{r:'SR',icon:'??',sk:[['摨瑟?','?仿?+15%',{pe_exp_bonus:.15}],['瘣餃?','蝬?+8%',{exp_bonus:.08}]]},
+'銵??⊿撠?':{r:'N',icon:'?完',sk:[['銵?','隞餃?+5%',{mission_bonus:.05}],['皜?','?馳+5%',{gold_bonus:.05}]]},
+'??⊿撠':{r:'R',icon:'??',sk:[['?梯?','??+10%',{chinese_exp_bonus:.10}],['?渡?','蝷暹?+5%',{social_exp_bonus:.05}]]},
+'鞈??⊿撠':{r:'SSR',icon:'?',sk:[['蝘?','蝘?+20%',{tech_exp_bonus:.20}],['蝔?','蝬?+10%',{exp_bonus:.10}],['擏剖恥','?+6%',{drop_bonus:.06}]]},
+'???⊿撠?':{r:'SR',icon:'?歹?',sk:[['??','隞餃?+15%',{mission_bonus:.15}],['?','???靽風20%',{combo_protect:.20}]]},
+'擃?⊿撠?':{r:'R',icon:'??儭?,sk:[['擃','?仿?+10%',{pe_exp_bonus:.10}],['擃','蝬?+6%',{exp_bonus:.06}]]},
+'?詨飛撠葦撠?':{r:'SR',icon:'??',sk:[['?豢?','?詨飛+18%',{math_exp_bonus:.18}],['閫??','蝑?蝛?+10%',{quiz_pts_bonus:.10}]]},
+'?望?撠葦撠?':{r:'R',icon:'?',sk:[['隤?','?望?+12%',{english_exp_bonus:.12}],['?賢?','蝬?+5%',{exp_bonus:.05}]]},
+'??撠葦撠?':{r:'SSR',icon:'??',sk:[['?飛','??+20%',{chinese_exp_bonus:.20}],['撖思?','蝑?蝛?+15%',{quiz_pts_bonus:.15}],['?爬','蝬?+8%',{exp_bonus:.08}]]},
+'?芰撠葦撠?':{r:'R',icon:'?',sk:[['撖阡?','?芰+12%',{science_exp_bonus:.12}],['閫撖?,'?+4%',{drop_bonus:.04}]]},
+'蝷暹?撠葦撠':{r:'SR',icon:'??',sk:[['甇瑕','蝷暹?+15%',{social_exp_bonus:.15}],['?啁?','蝬?+6%',{exp_bonus:.06}]]},
+'蝢?撠葦撠?':{r:'R',icon:'?',sk:[['蝜芰','??+10%',{art_exp_bonus:.10}],['撖拍?','蝷暹?+5%',{social_exp_bonus:.05}]]},
+'?單?撠葦撠':{r:'SR',icon:'?',sk:[['蝭憟?,'??+15%',{art_exp_bonus:.15}],['??','???靽風20%',{combo_protect:.20}]]},
+'蝡亥?撠葦撠咱':{r:'N',icon:'??,sk:[['?脩?','?仿?+5%',{pe_exp_bonus:.05}],['??','隞餃?+5%',{mission_bonus:.05}]]},
+'頛?撠葦撠?':{r:'SR',icon:'??',sk:[['頛?','?函?撽?6%',{all_exp_bonus:.06}],['隢株岷','???靽風25%',{combo_protect:.25}]]},
+'?寞?撠葦撠':{r:'R',icon:'??',sk:[['?捆','隞餃?+8%',{mission_bonus:.08}],['??','蝬?+4%',{exp_bonus:.04}]]},
+'摮賊?輻膩':{r:'SSR',icon:'??',sk:[['?函?','?函?撽?18%',{all_exp_bonus:.18}],['蝑?','蝑?蝛?+20%',{quiz_pts_bonus:.20}],['撠釣','???靽風30%',{combo_protect:.30}]]},
+'摮賊撠':{r:'R',icon:'??',sk:[['?文飛','蝬?+8%',{exp_bonus:.08}],['閮','蝷暹?+5%',{social_exp_bonus:.05}]]},
+'摮賊撠':{r:'SR',icon:'??',sk:[['閫??','?詨飛+15%',{math_exp_bonus:.15}],['??','?芰+10%',{science_exp_bonus:.10}]]},
+'???亙??踹?':{r:'R',icon:'??',sk:[['頝郊','?仿?+10%',{pe_exp_bonus:.10}],['瘥?','???靽風15%',{combo_protect:.15}]]},
+'???亙?撠弧':{r:'SR',icon:'??',sk:[['皜豢陶','?仿?+15%',{pe_exp_bonus:.15}],['??','蝬?+8%',{exp_bonus:.08}]]},
+'???僑撠?':{r:'R',icon:'??',sk:[['??','??+10%',{art_exp_bonus:.10}],['?萎?','??+8%',{chinese_exp_bonus:.08}]]},
+'???僑撠?':{r:'SSR',icon:'??',sk:[['閰抵?','??+18%',{chinese_exp_bonus:.18}],['?單?','??+15%',{art_exp_bonus:.15}],['瘚芣憤','?+6%',{drop_bonus:.06}]]},
+'蝔?擃?撠Ⅳ':{r:'SR',icon:'?儭?,sk:[['蝺函Ⅳ','蝘?+18%',{tech_exp_bonus:.18}],['?日','蝬?+8%',{exp_bonus:.08}]]},
+'璈鈭箏?摰嗅?璈?:{r:'R',icon:'??',sk:[['璈１','蝘?+10%',{tech_exp_bonus:.10}],['蝬凋耨','撘瑕?+4%',{enhance_bonus:.04}]]},
+'??犖撠?':{r:'SR',icon:'?妞',sk:[['??','?芰+15%',{science_exp_bonus:.15}],['?箏?','瘞湔+10%',{crystal_bonus:.10}]]},
+'?飛?犖撠?':{r:'R',icon:'??',sk:[['??','?芰+10%',{science_exp_bonus:.10}],['隤輸?','?萇丹+15%',{iron_bonus:.15}]]},
+'?拍??犖撠':{r:'SSR',icon:'??,sk:[['?飛','?芰+18%',{science_exp_bonus:.18}],['?餌?','PK+10%',{pk_power_bonus:.10}],['?飛','?+6%',{drop_bonus:.06}]]},
+'?啁?蝘飛?犖撠':{r:'R',icon:'??',sk:[['?啗釭','蝷暹?+10%',{social_exp_bonus:.10}],['瘞?情','?芰+8%',{science_exp_bonus:.08}]]},
+'甇瑕?犖撠':{r:'SR',icon:'??',sk:[['?脣祕','蝷暹?+15%',{social_exp_bonus:.15}],['??','隞餃?+10%',{mission_bonus:.10}]]},
+'?啁??犖撠':{r:'R',icon:'?儭?,sk:[['?啣耦','蝷暹?+10%',{social_exp_bonus:.10}],['撠','????',{territory_bonus:true}]]},
+'?祆??犖撠':{r:'SR',icon:'??',sk:[['瘜祥','蝷暹?+15%',{social_exp_bonus:.15}],['?怎?','???靽風20%',{combo_protect:.20}]]},
+'?雄閬?撣怠?閬?:{r:'R',icon:'?妣',sk:[['閬?','隞餃?+10%',{mission_bonus:.10}],['撘?','蝬?+5%',{exp_bonus:.05}]]},
+'頛??葦撠':{r:'SSR',icon:'?均',sk:[['頛?','?函?撽?14%',{all_exp_bonus:.14}],['??','???靽風35%',{combo_protect:.35}],['?舀?','隞餃?+15%',{mission_bonus:.15}]]},
+'?擗典撠':{r:'R',icon:'??',sk:[['?渡?','??+8%',{chinese_exp_bonus:.08}],['?刻','蝷暹?+8%',{social_exp_bonus:.08}]]},
+'撖阡?摰文????:{r:'SR',icon:'?妒',sk:[['?','?芰+12%',{science_exp_bonus:.12}],['閮?','瘞湔+10%',{crystal_bonus:.10}]]},
+'蝷曉?蝷暸撠冗':{r:'R',icon:'?',sk:[['??','隞餃?+10%',{mission_bonus:.10}],['蝯?','蝬?+6%',{exp_bonus:.06}]]},
+'蝢拙極撠?':{r:'SR',icon:'?仆',sk:[['??','隞餃?+15%',{mission_bonus:.15}],['?','???靽風15%',{combo_protect:.15}]]},
+'?飛撠':{r:'N',icon:'????,sk:[['?芯撈','蝬?+3%',{exp_bonus:.03}],['曌','???靽風5%',{combo_protect:.05}]]},
+'?飛撠?':{r:'N',icon:'????,sk:[['?除','隞餃?+5%',{mission_bonus:.05}],['?予','蝷暹?+3%',{social_exp_bonus:.03}]]},
+'?飛撠?':{r:'R',icon:'?',sk:[['鈭','?函?撽?4%',{all_exp_bonus:.04}],['?盲','?馳+5%',{gold_bonus:.05}]]},
+'?飛撠?':{r:'SR',icon:'?????,sk:[['??','隞餃?+12%',{mission_bonus:.12}],['?弦','蝑?蝛?+10%',{quiz_pts_bonus:.10}]]},
+'頧飛????:{r:'R',icon:'??',sk:[['?圈悅','蝬?+6%',{exp_bonus:.06}],['?拇?','???靽風10%',{combo_protect:.10}]]},
+'?飛??瘣?:{r:'SR',icon:'??',sk:[['??','?望?+15%',{english_exp_bonus:.15}],['??','蝷暹?+10%',{social_exp_bonus:.10}]]},
+'?Ｘ平摮賊撠':{r:'SSR',icon:'??',sk:[['?單','?函?撽?16%',{all_exp_bonus:.16}],['??','撘瑕?+6%',{enhance_bonus:.06}],['璁見','隞餃?+15%',{mission_bonus:.15}]]},
+'?唾牧撠葦撠郭':{r:'UR',icon:'????儭?,sk:[['?葦??','?函?撽?28%',{all_exp_bonus:.28}],['憿絲?啗?','蝑?蝛?+25%',{quiz_pts_bonus:.25}],['頞?亥?','靽?-10?賬?鞈?50%',{pity_reduce:10,quality_up:.50}]]}
+
+};
+const POOLS={character:CHARS,pet:PETS,anime:ANIME,teammate:TEAMMATES};
+
+
+/* ?芸?銝雯瑼Ｙ揣?賊???嚗ing ??蝮桀???嚗??嚗?頛憭望??芸????emoji */
+
+
+
+/* ???????? 瘥隞餃?瘙????????? */
+
+
+/* ???????? 蝔梯? ???????? */
+
+const TITLES=[
+
+{id:'t0',n:'??賑',d:'蝑? 1 憿?,bonus:{},chk:g=>g.stats.correct>=1},
+
+{id:'t1',n:'?文飛銝?,d:'蝑? 50 憿?,bonus:{exp_bonus:.02},chk:g=>g.stats.correct>=50},
+
+{id:'t2',n:'摮豢絲?⊥雄',d:'蝑? 200 憿?,bonus:{exp_bonus:.03},chk:g=>g.stats.correct>=200},
+
+{id:'t3',n:'憿絲?啁?',d:'蝑? 500 憿?,bonus:{exp_bonus:.05},chk:g=>g.stats.correct>=500},
+
+{id:'t4',n:'????,d:'蝑? 1000 憿?,bonus:{all_exp_bonus:.05},chk:g=>g.stats.correct>=1000},
+
+{id:'t5',n:'????唳?',d:'?擃?10 ???',bonus:{},chk:g=>g.stats.maxCombo>=10},
+
+{id:'t6',n:'???擃?',d:'?擃?30 ???',bonus:{drop_bonus:.02},chk:g=>g.stats.maxCombo>=30},
+
+{id:'t7',n:'???憭批葦',d:'?擃?50 ???',bonus:{drop_bonus:.03},chk:g=>g.stats.maxCombo>=50},
+
+{id:'t8',n:'PK?唳?',d:'PK ??5 ??,bonus:{pk_power_bonus:.03},chk:g=>g.pk.win>=5},
+
+{id:'t9',n:'PK擃?',d:'PK ??30 ??,bonus:{pk_power_bonus:.05},chk:g=>g.pk.win>=30},
+
+{id:'t10',n:'PK?唾牧',d:'PK ??100 ??,bonus:{pk_power_bonus:.08},chk:g=>g.pk.win>=100},
+
+{id:'t11',n:'?賢?犖',d:'蝝航??賢 100 甈?,bonus:{},chk:g=>g.gacha.total>=100},
+
+{id:'t12',n:'?嗉??唳?',d:'?嗉? 20 ??,bonus:{},chk:g=>collCount(g)>=20},
+
+{id:'t13',n:'?嗉?憭批葦',d:'?嗉? 40 ??,bonus:{quality_up:.1},chk:g=>collCount(g)>=40},
+
+{id:'t14',n:'?圈敺???,d:'?圈憿?撠?50',bonus:{exp_hard_bonus:.05},chk:g=>(g.stats.hardCorrect||0)>=50},
+
+{id:'t15',n:'摮賊',d:'蝑? 25',bonus:{all_exp_bonus:.03},chk:g=>g.lv>=25},
+
+{id:'t16',n:'憭批飛??,d:'蝑? 40',bonus:{all_exp_bonus:.05},chk:g=>g.lv>=40},
+
+{id:'t17',n:'?飛敺?,d:'??5 甈?,bonus:{},chk:g=>g.forgeCount>=5},
+
+{id:'t18',n:'?之撣?,d:'??20 甈?,bonus:{quality_up:.15},chk:g=>g.forgeCount>=20},
+
+{id:'t19',n:'撖阡?摰日?鈭?,d:'摰? 5 ?祕撽?,bonus:{},chk:g=>(g.lab||[]).length>=5},
+
+{id:'t20',n:'蝷曆漱?渲',d:'憟賢? 3 鈭?,bonus:{},chk:g=>friendCount(g)>=3},
+
+{id:'t21',n:'蝪賢?犖',d:'蝝航?蝪賢 30 憭?,bonus:{},chk:g=>(g.sign.total||0)>=30},
+
+{id:'t22',n:'?舫???',d:'?毀?? 100 憿?,bonus:{retry_exp_bonus:.1},chk:g=>(g.stats.retry||0)>=100},
+
+{id:'t23',n:'閬粹???,d:'閬粹? 1 ????,bonus:{all_exp_bonus:.04},chk:g=>g.awaken.length>=1},
+
+{id:'t24',n:'蝡嗆?憛???,d:'PK 蝡嗆?憛?蝚?0撅?,bonus:{pk_power_bonus:.1},chk:g=>(g.arena.best||1)>=20},
+
+{id:'t25',n:'?券?????,d:'PK 蝡嗆?憛?蝚?0撅?,bonus:{all_exp_bonus:.1},chk:g=>(g.arena.best||1)>=50}
+
+];
+
+/* ???????? ?停 ???????? */
+
+const ACH=[
+
+{id:'a1',n:'?活蝑?',stages:[{g:1,rw:{gold:50}},{g:10,rw:{gold:100}},{g:50,rw:{crystal:30}}],prog:g=>g.stats.total},
+
+{id:'a2',n:'?暸???,stages:[{g:100,rw:{crystal:50}},{g:500,rw:{diamond:3}},{g:1000,rw:{diamond:8}}],prog:g=>g.stats.total},
+
+{id:'a3',n:'???銋楝',stages:[{g:5,rw:{gold:80}},{g:10,rw:{crystal:30}},{g:30,rw:{starlight:5}}],prog:g=>g.stats.maxCombo},
+
+{id:'a4',n:'蝑???蝣?,stages:[{g:5,rw:{gold:100}},{g:15,rw:{crystal:50}},{g:30,rw:{diamond:5}}],prog:g=>g.lv},
+
+{id:'a5',n:'PK敺?,stages:[{g:1,rw:{honor:10}},{g:5,rw:{honor:30}},{g:20,rw:{diamond:5}}],prog:g=>g.pk.win},
+
+{id:'a6',n:'?嗉?銋楝',stages:[{g:5,rw:{gold:100}},{g:10,rw:{crystal:50}},{g:25,rw:{starlight:8}}],prog:g=>collCount(g)},
+
+{id:'a7',n:'?賢??撽?,stages:[{g:1,rw:{gold:50}},{g:10,rw:{crystal:30}},{g:50,rw:{starlight:5}}],prog:g=>g.gacha.total},
+
+{id:'a8',n:'??頝?,stages:[{g:1,rw:{ironOre:3}},{g:5,rw:{ironOre:8}},{g:20,rw:{starlight:10}}],prog:g=>g.forgeCount},
+
+{id:'a9',n:'撘瑕?撠振',stages:[{g:1,rw:{gold:60}},{g:5,rw:{enhStone:5}},{g:10,rw:{diamond:3}}],prog:g=>g.stats.enhance||0},
+
+{id:'a10',n:'撖阡?摰文???,stages:[{g:1,rw:{labMat:10}},{g:3,rw:{labMat:25}},{g:6,rw:{diamond:5}}],prog:g=>(g.lab||[]).length},
+
+{id:'a11',n:'蝪賢??隞交?',stages:[{g:3,rw:{gold:100}},{g:7,rw:{crystal:50}},{g:30,rw:{diamond:8}}],prog:g=>g.sign.total||0},
+
+{id:'a12',n:'?舫??毀',stages:[{g:5,rw:{gold:80}},{g:20,rw:{crystal:40}},{g:100,rw:{diamond:6}}],prog:g=>g.stats.retry||0},
+
+{id:'a13',n:'蝷曆漱?犖',stages:[{g:1,rw:{gold:60}},{g:3,rw:{crystal:30}},{g:5,rw:{starlight:5}}],prog:g=>friendCount(g)},
+
+{id:'a14',n:'隞餃?摰???,stages:[{g:5,rw:{gold:100}},{g:20,rw:{crystal:50}},{g:50,rw:{diamond:5}}],prog:g=>g.stats.missions||0},
+
+{id:'a15',n:'璁株亳?啣ㄚ',stages:[{g:20,rw:{gold:100}},{g:100,rw:{crystal:60}},{g:300,rw:{diamond:8}}],prog:g=>g.honor},
+
+{id:'a16',n:'?亥?蝝舐?',stages:[{g:100,rw:{gold:80}},{g:500,rw:{crystal:40}},{g:2000,rw:{diamond:6}}],prog:g=>g.quizPts},
+
+{id:'a17',n:'蝡嗆?憛???,stages:[{g:5,rw:{gold:150}},{g:10,rw:{crystal:80}},{g:20,rw:{diamond:5}}],prog:g=>g.arena.best||1},
+
+{id:'a18',n:'???游撐',stages:[{g:10,rw:{gold:120}},{g:50,rw:{crystal:60}},{g:100,rw:{diamond:6}}],prog:g=>Object.keys(g.territory.owned).length}
+
+];
+
+/* ???????? ?芰撖阡?摰????????? */
+
+
+/* ???????? 憿澈 ???????? */
+
 const BANK={'輔導':{'自我認識':{'簡單':[
 
  {'題目':'下列何者最有助於「認識自己」？','選項':['觀察自己在各種情境的反應與想法','只聽別人的評價從不思考','每天做完全相同的事','遇到挫折就立刻放棄'],'答案':0,'解析':'1. 自我認識來自觀察與反思\n2. 結合他人回饋與自我覺察\n3. 靜態不變的生活無法加深認識'},
