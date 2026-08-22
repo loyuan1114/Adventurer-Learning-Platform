@@ -49,11 +49,11 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Rename (Windows)
-        if: matrix.os == "windows-latest"
+        if: matrix.os == 'windows-latest'
         run: cp installer/target/${{ matrix.target }}/release/adv9-installer.exe ${{ matrix.artifact }}
 
       - name: Rename (non-Windows)
-        if: matrix.os != "windows-latest"
+        if: matrix.os != 'windows-latest'
         run: cp installer/target/${{ matrix.target }}/release/adv9-installer ${{ matrix.artifact }}
 
       - name: Upload artifact
