@@ -10300,7 +10300,7 @@ async function vUsers(){
 
 
 
-function nuRoleChange(sel){const w=$('#nuClsWrap');if(w)w.style.display=sel.value==='student'?'':'none'}
+function nuRoleChange(sel){const w=$('#nuClsWrap');if(w)w.style.display=sel.value==='student'?'':'none';const w2=$('#nuClsWrap2');if(w2)w2.style.display=sel.value==='student'?'':'none'}
 /* 帳號主檔（伺服器 users_index.json）：列出所有帳號（有誰誰誰），並顯示主檔與本機差異 */
 async function showUsersIndex(){
   toast('📡 讀取伺服器帳號主檔…');
@@ -10314,8 +10314,8 @@ async function showUsersIndex(){
     }catch(e){err=e.message}
   }
   const local=get(LS.users,[]);
-  const roleIcon=x=>x.role==='admin'?'👑':x.role==='teacher'?'👩‍🏫':'👤';
-  const roleName=x=>x.role==='admin'?'管理員':x.role==='teacher'?'老師':'學生';
+  const roleIcon=x=>x.role==='admin'?'👑':x.role==='teacher'?'👩‍🏫':x.role==='parent'?'👨‍👩‍👧':'👤';
+  const roleName=x=>x.role==='admin'?'管理員':x.role==='teacher'?'老師':x.role==='parent'?'家長':'學生';
   let html='<h3 class="mt">🗂️ 帳號主檔（伺服器 users_index.json）</h3><p class="msub">所有帳號的備援清單；任何帳號檔遺失/被刪時，伺服器會自動從此檔復原。</p>';
   if(idx===null){
     html+='<div class="panel2" style="color:var(--red)">⚠️ 無法讀取主檔'+(err?('：'+esc(err)):'')+'</div>';
@@ -10336,7 +10336,7 @@ function uRenderRows(){
 const q=(($('#uSearch')||{}).value||'').trim().toLowerCase();
 const us=get(LS.users,[]);
 const classes=get(LS.classes,{ids:[],names:{}});
-const roleLabel=r=>r==='admin'?'👑 管理員':r==='teacher'?'👩‍🏫 老師':'👤 學生';
+const roleLabel=r=>r==='admin'?'👑 管理員':r==='teacher'?'👩‍🏫 老師':r==='parent'?'👨‍👩‍👧 家長':'👤 學生';
 const list=us.filter(x=>{if(!q)return true;const cls=x.classId||x.class_id||'';const clsName=(classes.names&&classes.names[cls])||'';return [x.name,x.username,x.role,roleLabel(x.role),cls,clsName].join(' ').toLowerCase().indexOf(q)>-1});
 let rows=list.map(x=>{const cls=x.classId||x.class_id||'';return '<tr><td>'+roleLabel(x.role)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.username)+'</td><td><code>••••••</code></td><td>'+(cls?esc((classes.names&&classes.names[cls])||cls):'—')+'</td><td>'+fmt(x.createdAt||x.created_at)+'</td>'+
 '<td style="display:flex;gap:6px;flex-wrap:wrap">'+
@@ -10824,7 +10824,7 @@ function openAddUser(isAdmin){
 
 openModal('<h3 class="mt">'+(isAdmin?'👥 建立新帳號':'📝 新增帳號')+'</h3>'+
 
-'<label class="mlab">身份<select id="nuRole">'+
+'<label class="mlab">身份<select id="nuRole" onchange="nuRoleChange(this)">'+
 
 (isAdmin?'<option value="student">👤 學生</option><option value="teacher">👩‍🏫 老師</option><option value="parent">👨‍👩‍👧 家長</option><option value="admin">👑 管理員</option>'
 
@@ -10832,7 +10832,7 @@ openModal('<h3 class="mt">'+(isAdmin?'👥 建立新帳號':'📝 新增帳號')
 
 '<label class="mlab">姓名<input id="nuName" placeholder="例：王小明"></label>'+
 
-'<label class="mlab">班級（學生）<input id="nuClass" placeholder="例：701"></label>'+
+'<label class="mlab" id="nuClsWrap2">班級（學生）<input id="nuClass" placeholder="例：701"></label>'+
 
 '<label class="mlab">帳號<input id="nuUser" placeholder="英文或數字"></label>'+
 
