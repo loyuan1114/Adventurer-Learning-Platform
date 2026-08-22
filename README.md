@@ -29,9 +29,8 @@ Download and double-click:
 | `adv9-installer-mac-arm64` | macOS Apple Silicon |
 | `adv9-installer-mac-x64` | macOS Intel |
 | `adv9-installer-linux-x64` | Linux 64-bit |
-| `adv9-installer-linux-arm64` | Linux ARM |
 
-> Download from [Releases](../../releases/latest). Other platform binaries are built automatically by GitHub Actions.
+> Download from [Releases](../../releases/latest).
 
 Installer does everything: installs Docker → downloads project → builds container → opens browser.
 
