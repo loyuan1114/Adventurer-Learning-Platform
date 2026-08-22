@@ -153,6 +153,56 @@ Then: Admin → **AI Endpoints** → Add → Provider: Ollama → Model: `qwen2.
 
 ---
 
+## 📝 作業檔案匯入 / Homework Import
+
+### 檔案格式 / File Format
+
+推薦使用 `.txt`（Word 請另存新檔為純文字）
+Recommend using `.txt` (in Word: File → Save As → Plain Text)
+
+每題固定 **6 行**：
+Each question requires exactly **6 lines**:
+1. 題目 / Question
+2. 選項 a / Option a
+3. 選項 b / Option b
+4. 選項 c / Option c
+5. 選項 d / Option d
+6. 答案 / Answer（可填 a/b/c/d、1-4 或選項全文 / can be a/b/c/d, 1-2-3-4, or full option text）
+
+### 範例 / Example
+
+```
+題目：下列哪一個是質數？
+a. 4
+b. 6
+c. 7
+d. 9
+答案：c
+
+題目：水的化學式為何？
+a. CO2
+b. H2O
+c. NaCl
+d. O2
+答案：b
+```
+
+### 雙引號格式 / Quoted Format（支援）
+
+也可以每個欄位用雙引號包起來，或者混用：
+You can also wrap each field in quotes, or mix formats:
+
+```
+"題目：下列哪一個是質數？"
+"a. 4"
+"b. 6"
+"c. 7"
+"d. 9"
+"答案：c"
+```
+
+---
+
 ## 📁 資料與備份 / Data & Backup
 
 ```
