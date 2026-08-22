@@ -4,7 +4,7 @@
    ════════════════════════════════════════════ */
 function auditMetrics(g){
 
-const log=(g&&g.answerLog)||[];const n=log.length;
+const log=(g&&Array.isArray(g.answerLog))?g.answerLog:[];const n=log.length;
 
 const done=log.filter(a=>a.sec!=null&&!isNaN(a.sec));
 
@@ -40,7 +40,9 @@ return f}
 
 function vAiAudit(){
 
-const u=me();const cls=u.managedClassIds||[];
+const u=me();if(!u||u.role!=='teacher')return;const cls=u.managedClassIds||[];
+
+if(!cls.length&&!u.isSchoolAdmin){$('#view').innerHTML='<h3 class="vt">🕵️ AI 學情稽核</h3><p class="empty">您尚未管理任何班級，請先到「班級管理」新增班級。</p>';return}
 
 const students=get(LS.users,[]).filter(x=>x.role==='student'&&(cls.length?cls.includes(x.classId):true)&&x.g);
 

@@ -689,7 +689,23 @@ var ext='.docx';
     }catch(e){res.writeHead(500);res.end('parse error')}})
   }
 
-  /* ═══ 作業檔案匯入（docx/txt 解析）：教師上傳 .docx 或 .txt，伺服器提取純文字回傳 ═══ */
+  /* ═══ 作業檔案匯入（docx/txt 解析）：教師上傳 .docx 或 .txt，伺服器提取純文字回傳；另附 6 行一題格式解析結果 ═══ */
+  /* 6 行一題解析：line1=題目, line2-5=四選項, line6=答案(a-d/1-4/選項全文) */
+  function parseQuizTextSrv(text){
+    var lines=[];(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).forEach(function(l,i){if(l.trim())lines.push({n:i+1,s:l.trim()})});
+    var qs=[],errs=[],i=0;
+    function ai(a,o){a=a.trim();if(/^[a-dA-D]$/.test(a))return 'ABCD'.indexOf(a.toUpperCase());if(/^[1-4]$/.test(a))return +a-1;for(var k=0;k<4;k++){if(o[k]===a)return k}return -1}
+    while(i<lines.length){
+      if(lines.length-i<6){errs.push({line:lines[i].n,message:'題目區塊不足 6 行'});break}
+      var b=lines.slice(i,i+6);
+      var idx=ai(b[5].s,[b[1].s,b[2].s,b[3].s,b[4].s]);
+      if(!b[0].s||!b[1].s||!b[2].s||!b[3].s||!b[4].s)errs.push({line:b[0].n,message:'題目或選項為空'});
+      else if(idx<0)errs.push({line:b[5].n,message:'無法辨識答案：'+b[5].s});
+      else qs.push({q:b[0].s,options:[b[1].s,b[2].s,b[3].s,b[4].s],answer:idx});
+      i+=6;
+    }
+    return errs.length?{ok:false,errors:errs}:{ok:true,questions:qs};
+  }
   if(req.method==='POST'&&p==='/rest/v1/homework/parse_file'){
     var hw=checkToken(tok);if(!hw||(hw.role!=='teacher'&&hw.role!=='admin')){res.writeHead(403);return res.end('forbidden')}
     var ct=req.headers['content-type']||'';
@@ -809,7 +825,7 @@ var ext='.docx';
         content=f.data.toString('utf8');
       }
       res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});
-      res.end(JSON.stringify({ok:true,content:content,filename:f.filename}));
+      res.end(JSON.stringify({ok:true,content:content,filename:f.filename,parsed:parseQuizTextSrv(content)}));
     });
     return;
   }

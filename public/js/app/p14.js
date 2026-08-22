@@ -126,7 +126,7 @@ function renderDollAdmin(cat){
         '<div><label>結束時間</label><input id="evEnd'+i+'" type="datetime-local" value="'+(e.endTime?new Date(e.endTime).toISOString().slice(0,16):'')+'"></div>'+
         '<div style="grid-column:span 5"><label>說明</label><input id="evNote'+i+'" value="'+esc(e.note||'')+'"></div>'+
         '<div style="grid-column:span 5;display:flex;gap:6px;margin-top:4px">'+
-          '<button class="btn mini" onclick="saveEvent('+i+')">💾 儲存</button>'+
+          '<button class="btn mini" onclick="doSaveEvent('+i+')">💾 儲存</button>'+
           '<button class="btn teal mini" onclick="addEvent()">\u2795 新增活動</button>'+
         '</div>'+
       '</div>'+

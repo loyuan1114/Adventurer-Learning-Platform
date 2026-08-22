@@ -54,12 +54,13 @@ async function vAdminPanel(){
   html += '</div></div>';
 
   html += '<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:15px">📄 作業檔案匯入</b>';
-  html += '<div style="margin-top:8px;font-size:12px;color:var(--mut)">支援 .docx / .txt 檔案，解析後回傳純文字內容供出題使用。</div>';
+  html += '<div style="margin-top:8px;font-size:12px;color:var(--mut)">推薦使用 <b>.txt</b>（Word 請另存新檔為純文字）。每題固定 6 行：第 1 行題目、第 2-5 行四個選項、第 6 行正確答案（可填 a/b/c/d、1-4 或選項全文）。</div>';
+  html += '<pre style="margin-top:6px;padding:8px;background:#12121f;border:1px solid #333;border-radius:6px;font-size:12px;color:#9fd;line-height:1.5">題目文字\n選項A\n選項B\n選項C\n選項D\n正確答案（a/b/c/d 或 1-4 或選項全文）</pre>';
   html += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">';
   html += '<label class="btn mini teal">📂 選擇作業檔案<input type="file" accept=".docx,.txt" style="display:none" id="hwFileInput" onchange="adminParseHomeworkFile(this)"></label>';
   html += '<span id="hwFileName" style="font-size:12px;color:var(--mut)"></span>';
   html += '</div>';
-  html += '<div id="hwParseResult" style="margin-top:8px;max-height:300px;overflow:auto;display:none"></div>';
+  html += '<div id="hwParseResult" style="margin-top:8px;max-height:360px;overflow:auto;display:none"></div>';
   html += '</div>';
 
   $('#view').innerHTML = html;
@@ -69,6 +70,35 @@ function adminSystemBackup(){
   window.location.href = '/rest/v1/system_backup';
 }
 
+/* 6 行一題格式解析：回傳 {ok,questions:[{q,options,answer,line}]} 或 {ok:false,errors:[{line,message}]} */
+function parseQuizText(text){
+  var lines=[];(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).forEach(function(l,i){if(l.trim())lines.push({n:i+1,s:l.trim()})});
+  var qs=[],errs=[],i=0;
+  function ansIdx(a,opts){a=a.trim();if(/^[a-dA-D]$/.test(a))return 'ABCD'.indexOf(a.toUpperCase());if(/^[1-4]$/.test(a))return +a-1;for(var k=0;k<4;k++){if(opts[k]===a)return k}return -1}
+  while(i+5<lines.length||((lines.length-i)%6&&i<lines.length)){
+    if(lines.length-i<6){errs.push({line:lines[i].n,message:'題目區塊不足 6 行（剩 '+(lines.length-i)+' 行）'});break}
+    var b=lines.slice(i,i+6);
+    if(!b[0].s)errs.push({line:b[0].n,message:'題目為空'});
+    else if(!b[1].s||!b[2].s||!b[3].s||!b[4].s)errs.push({line:b[0].n,message:'選項不可為空'});
+    else{var ai=ansIdx(b[5].s,[b[1].s,b[2].s,b[3].s,b[4].s]);
+      if(ai<0)errs.push({line:b[5].n,message:'無法辨識答案：'+b[5].s+'（可用 a/b/c/d、1-4 或選項全文）'});
+      else qs.push({q:b[0].s,options:[b[1].s,b[2].s,b[3].s,b[4].s],answer:ai,line:b[0].n})}
+    i+=6;
+  }
+  return errs.length?{ok:false,errors:errs}:{ok:true,questions:qs};
+}
+window.parseQuizText=parseQuizText;
+/* 將有效題目加入作業草稿（PUB.qs，同老師「發布作業」格式 {'題目','選項','答案'}）*/
+function adminImportParsedQs(){
+  var res=window._hwParsed;if(!res||!res.ok||!res.questions.length)return toast('⚠️ 沒有可匯入的題目','bad');
+  try{
+    if(typeof PUB==='undefined'||!PUB)PUB={qs:[],pdf:null};
+    res.questions.forEach(function(q){PUB.qs.push({'題目':q.q,'選項':q.options,'答案':q.answer,'解析':'（檔案匯入）',id:(typeof newQid==='function'?newQid():'q'+Date.now()+Math.random().toString(36).slice(2,7))})});
+    if(typeof renderPubQs==='function')try{renderPubQs()}catch(e){}
+    toast('✅ 已匯入 '+res.questions.length+' 題至作業草稿');
+    if(typeof tGo==='function')try{tGo('pub')}catch(e){}
+  }catch(e){toast('⚠️ 匯入失敗：'+e.message,'bad')}
+}
 async function adminParseHomeworkFile(input){
   var file=input.files[0];
   if(!file)return;
@@ -80,12 +110,22 @@ async function adminParseHomeworkFile(input){
   try{
     var fd=new FormData();
     fd.append('file',file);
-    var r=await fetch(SUPA_URL+'/rest/v1/homework/parse_file',{method:'POST',headers:{'x-adv9-token':getToken()},body:fd});
+    var r=await fetch(SUPA_URL+'/rest/v1/homework/parse_file',{method:'POST',headers:{'x-adv9-token':WTOKEN||''},body:fd});
     var j=await r.json();
     if(j.ok){
-      resultEl.innerHTML='<div style="margin-bottom:6px;font-size:12px;color:var(--gold2)">✅ 解析成功 ('+j.content.length+' 字元)</div>'
-        +'<textarea readonly style="width:100%;height:250px;font-size:13px;padding:8px;border:1px solid #444;border-radius:6px;background:#1a1a2e;color:#eee;resize:vertical">'+esc(j.content)+'</textarea>'
-        +'<div style="margin-top:6px"><button class="btn mini teal" onclick="navigator.clipboard.writeText(document.querySelector(\'#hwParseResult textarea\').value);toast(\'✅ 已複製\')">📋 複製內容</button></div>';
+      var res=parseQuizText(j.content);window._hwParsed=res;
+      var h='<div style="margin-bottom:6px;font-size:12px;color:var(--gold2)">✅ 解析成功 ('+j.content.length+' 字元)</div>';
+      if(res.ok){
+        h+='<div style="font-size:12px;margin-bottom:6px">共 '+res.questions.length+' 題</div>';
+        h+=res.questions.map(function(q,i){return '<div class="panel2" style="margin-bottom:4px;padding:6px;font-size:12.5px"><b>'+(i+1)+'.</b> '+esc(q.q)+'<br><span style="color:var(--mut)">A. '+esc(q.options[0])+'　B. '+esc(q.options[1])+'　C. '+esc(q.options[2])+'　D. '+esc(q.options[3])+'</span><br><span style="color:var(--teal)">✔ 答案：'+esc(q.options[q.answer])+'</span></div>'}).join('');
+        h+='<button class="btn mini teal" onclick="adminImportParsedQs()">📥 匯入 '+res.questions.length+' 題</button> ';
+      }else{
+        h+='<div style="color:#e74c3c;font-size:12.5px">'+res.errors.map(function(e){return '第 '+e.line+' 行：'+esc(e.message)}).join('<br>')+'</div>';
+      }
+      h+='<details style="margin-top:6px"><summary style="font-size:12px;color:var(--mut);cursor:pointer">原始文字</summary><textarea readonly style="width:100%;height:180px;font-size:13px;padding:8px;border:1px solid #444;border-radius:6px;background:#1a1a2e;color:#eee;resize:vertical">'+esc(j.content)+'</textarea></details>';
+      h+='<button class="btn mini ghost" style="margin-top:6px" onclick="navigator.clipboard.writeText(window._hwRawText);toast(\'✅ 已複製\')">📋 複製內容</button>';
+      window._hwRawText=j.content;
+      resultEl.innerHTML=h;
     }else{
       resultEl.innerHTML='<span style="color:#e74c3c">❌ '+esc(j.msg||'解析失敗')+'</span>';
     }
