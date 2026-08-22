@@ -19,12 +19,12 @@ Download and double-click:
 
 | File / 檔案 | Platform / 平台 | Download / 下載 |
 |------------|----------------|----------------|
-| `adv9-installer-windows-x64.exe` | Windows 64-bit | [Releases](../../releases/latest) |
-| `adv9-installer-windows-x86.exe` | Windows 32-bit | [Releases](../../releases/latest) |
-| `adv9-installer-windows-arm64.exe` | Windows ARM | [Releases](../../releases/latest) |
-| `adv9-installer-mac-arm64` | macOS Apple Silicon | [Releases](../../releases/latest) |
-| `adv9-installer-mac-x64` | macOS Intel | [Releases](../../releases/latest) |
-| `adv9-installer-linux-x64` | Linux 64-bit | [Releases](../../releases/latest) |
+| `adv9-installer-windows-x64.exe` | Windows 64-bit | [Download ⬇️](https://github.com/loyuan1114/Adventurer-Learning-Platform/releases/download/v1.1.0/adv9-installer-windows-x64.exe) |
+| `adv9-installer-windows-x86.exe` | Windows 32-bit | [Download ⬇️](https://github.com/loyuan1114/Adventurer-Learning-Platform/releases/download/v1.1.0/adv9-installer-windows-x86.exe) |
+| `adv9-installer-windows-arm64.exe` | Windows ARM | [Download ⬇️](https://github.com/loyuan1114/Adventurer-Learning-Platform/releases/download/v1.1.0/adv9-installer-windows-arm64.exe) |
+| `adv9-installer-mac-arm64` | macOS Apple Silicon | [Download ⬇️](https://github.com/loyuan1114/Adventurer-Learning-Platform/releases/download/v1.1.0/adv9-installer-mac-arm64) |
+| `adv9-installer-mac-x64` | macOS Intel | [Download ⬇️](https://github.com/loyuan1114/Adventurer-Learning-Platform/releases/download/v1.1.0/adv9-installer-mac-x64) |
+| `adv9-installer-linux-x64` | Linux 64-bit | [Download ⬇️](https://github.com/loyuan1114/Adventurer-Learning-Platform/releases/download/v1.1.0/adv9-installer-linux-x64) |
 
 > The installer will auto-install Docker → download project → build container → open browser.
 > 安裝器會自動安裝 Docker → 下載專案 → 建置容器 → 開啟瀏覽器
