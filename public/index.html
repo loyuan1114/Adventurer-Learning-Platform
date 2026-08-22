@@ -9193,7 +9193,7 @@ var users=get(LS.users,[]);
 var myReqs=consents.requests.filter(function(r){return r.parent===u.username;});
 var granted=myReqs.filter(function(r){return r.status==='granted';});
 var pending=myReqs.filter(function(r){return r.status==='pending';});
-var denied=myReqs.filter(function(r){return r.status==='denied'||r.status==='revoked';});
+var denied=myReqs.filter(function(r){return r.status==='denied'||r.status==='revoked'||r.status==='revoked_by_admin';});
 
 var h='<h3 class="vt">👨‍👩‍👧 家長觀察面板</h3>';
 h+='<p class="vsub">查看孩子的學習狀態與進度</p>';
@@ -9205,7 +9205,7 @@ if(granted.length){
     var child=users.find(function(x){return x.username===r.child;});
     if(!child)return;
     var g=child.g||{};
-    h+='<div class="panel2" style="margin-bottom:10px;padding:14px;cursor:pointer;border-left:4px solid var(--teal)" onclick="parentViewDashboard(\''+esc(child.username)+'\')">';
+    h+='<div class="panel2" style="margin-bottom:10px;padding:14px;cursor:pointer;border-left:4px solid var(--teal)" onclick="parentViewDashboard(\''+jsA(child.username)+'\')">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center">';
     h+='<div><b style="font-size:15px">'+esc(child.name||child.username)+'</b>';
     h+='<span style="font-size:12px;color:var(--mut);margin-left:8px">@'+esc(child.username)+'</span></div>';
@@ -9232,7 +9232,7 @@ if(denied.length){
   h+='<h4 style="margin:16px 0 8px;color:var(--mut)">❌ 未通過</h4>';
   denied.forEach(function(r){
     h+='<div class="panel2" style="margin-bottom:6px;padding:8px;opacity:.6">';
-    h+='<span>'+esc(r.child)+'</span> <span style="font-size:11px;color:var(--mut)">（'+(r.status==='denied'?'已拒絕':'已撤銷')+'）</span>';
+    h+='<span>'+esc(r.child)+'</span> <span style="font-size:11px;color:var(--mut)">（'+(r.status==='denied'?'已拒絕':r.status==='revoked_by_admin'?'管理員已撤銷':'已撤銷')+'）</span>';
     h+='</div>';
   });
 }
@@ -9362,8 +9362,7 @@ weekSessions.forEach(function(s){h+='<div>• '+new Date(s.date).toLocaleDateStr
 if(!weekSessions.length)h+='<div>本週無活動紀錄</div>';
 h+='</div>';
 
-h+='<div class="mBtns" style="margin-top:16px"><button class="btn ghost" onclick="closeModal();parentDashboard()">返回</button>';
-h+='<button class="btn danger" onclick="if(confirm(\'確定要撤銷查看權限嗎？\')){parentRevokeAccess(\''+childUsername+'\');parentDashboard();}">撤銷權限</button></div>';
+h+='<div class="mBtns" style="margin-top:16px"><button class="btn ghost" onclick="closeModal();parentDashboard()">返回</button></div>';
 
 openModal(h);
 }
@@ -9391,8 +9390,8 @@ if(pending.length){
   pending.forEach(function(r){
     h+='<div class="rwRow" style="justify-content:space-between">';
     h+='<span>'+esc(r.parent)+'</span>';
-    h+='<div><button class="btn mini" onclick="childApproveRequest(\''+r.id+'\');childConsentPanel()">同意</button> ';
-    h+='<button class="btn mini danger" onclick="childDenyRequest(\''+r.id+'\');childConsentPanel()">拒絕</button></div>';
+    h+='<div><button class="btn mini" onclick="childApproveRequest(\''+jsA(r.id)+'\');childConsentPanel()">同意</button> ';
+    h+='<button class="btn mini danger" onclick="childDenyRequest(\''+jsA(r.id)+'\');childConsentPanel()">拒絕</button></div>';
     h+='</div>';
   });
 }
@@ -9402,7 +9401,7 @@ if(granted.length){
   granted.forEach(function(r){
     h+='<div class="rwRow" style="justify-content:space-between">';
     h+='<span>'+esc(r.parent)+'</span>';
-    h+='<button class="btn mini danger" onclick="if(confirm(\'確定撤銷？\')){childRevokeAccess(\''+r.id+'\');childConsentPanel()}">撤銷</button>';
+    h+='<button class="btn mini danger" onclick="if(confirm(\'確定撤銷？\')){childRevokeAccess(\''+jsA(r.id)+'\');childConsentPanel()}">撤銷</button>';
     h+='</div>';
   });
 }
@@ -10347,6 +10346,7 @@ async function showUsersIndex(){
   html+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
   openModal(html);
 }
+function jsA(s){return esc(String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}
 function uRenderRows(){
 const q=(($('#uSearch')||{}).value||'').trim().toLowerCase();
 const us=get(LS.users,[]);
@@ -10355,9 +10355,10 @@ const roleLabel=r=>r==='admin'?'👑 管理員':r==='teacher'?'👩‍🏫 老�
 const list=us.filter(x=>{if(!q)return true;const cls=x.classId||x.class_id||'';const clsName=(classes.names&&classes.names[cls])||'';return [x.name,x.username,x.role,roleLabel(x.role),cls,clsName].join(' ').toLowerCase().indexOf(q)>-1});
 let rows=list.map(x=>{const cls=x.classId||x.class_id||'';return '<tr><td>'+roleLabel(x.role)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.username)+'</td><td><code>••••••</code></td><td>'+(cls?esc((classes.names&&classes.names[cls])||cls):'—')+'</td><td>'+fmt(x.createdAt||x.created_at)+'</td>'+
 '<td style="display:flex;gap:6px;flex-wrap:wrap">'+
-(x.role!=='admin'?'<button class="btn mini" title="模擬登入" onclick="impersonate(\'' + esc(x.username) + '\')">🎭</button>':'')+
-'<button class="btn ghost mini" title="重設密碼" onclick="adminResetPw(\'' + esc(x.username) + '\')">🔑</button>'+
-(x.role!=='admin'?'<button class="btn danger mini" title="刪除" onclick="delUser(\'' + esc(x.username) + '\')">🗑</button>':'')+
+(x.role!=='admin'?'<button class="btn mini" title="模擬登入" onclick="impersonate(\'' + jsA(x.username) + '\')">🎭</button>':'')+
+(x.role==='parent'?'<button class="btn mini" title="連結管理" onclick="adminConsentManage(\'' + jsA(x.username) + '\')">🔗</button>':'')+
+'<button class="btn ghost mini" title="重設密碼" onclick="adminResetPw(\'' + jsA(x.username) + '\')">🔑</button>'+
+(x.role!=='admin'?'<button class="btn danger mini" title="刪除" onclick="delUser(\'' + jsA(x.username) + '\')">🗑</button>':'')+
 '</td></tr>'}).join('');
 if(!rows)rows='<tr><td colspan="7" style="text-align:center;color:var(--mut);padding:14px">找不到符合的用戶</td></tr>';
 const tb=$('#uTbody');if(tb)tb.innerHTML=rows;
@@ -10371,7 +10372,47 @@ if(np===null)return;
 const p=(np||'').trim();
 if(p.length<4)return toast('⚠️ 密碼至少 4 碼','bad');
 u.password=p;set(LS.users,us);
-toast('🔑 已重設「'+u.name+'」的密碼為：'+p);
+ toast('🔑 已重設「'+u.name+'」的密碼為：'+p);
+}
+function adminConsentManage(username){
+const consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+const reqs=consents.requests.filter(r=>r.parent===username);
+let h='<h3 class="mt">🔗 連結管理（家長：'+esc(username)+'）</h3>';
+if(!reqs.length){
+  h+='<p class="empty">此家長沒有任何連結要求</p>';
+}else{
+  h+='<div class="panel2" style="max-height:340px;overflow-y:auto">';
+  reqs.forEach(function(r){
+    const st=r.status==='pending'?'📨 待處理':r.status==='granted'?'✅ 已授權':r.status==='denied'?'❌ 已拒絕':r.status==='revoked_by_admin'?'🛡️ 管理員已撤銷':'🚫 已撤銷';
+    h+='<div class="rwRow" style="justify-content:space-between;margin-bottom:6px">';
+    h+='<span>👶 '+esc(r.child)+' <code style="font-size:11px">'+esc(r.id)+'</code></span>';
+    h+='<div style="display:flex;gap:6px;align-items:center"><span style="font-size:12px;color:var(--mut)">'+st+'</span>';
+    if(r.status==='pending'||r.status==='granted')h+='<button class="btn danger mini" title="強制撤銷" onclick="adminConsentRevoke(\''+jsA(r.id)+'\',\''+jsA(username)+'\')">🚫</button>';
+    h+='<button class="btn ghost mini" title="強制解除連結（刪除紀錄）" onclick="adminConsentUnlink(\''+jsA(r.id)+'\',\''+jsA(username)+'\')">🗑</button>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+}
+h+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</button></div>';
+openModal(h);
+}
+function adminConsentRevoke(id,parentUsername){
+const consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+const req=consents.requests.find(r=>r.id===id);
+if(!req)return toast('找不到紀錄','bad');
+req.status='revoked_by_admin';
+req.revokedAt=new Date().toISOString();
+set('ADV9_PARENT_CONSENTS',consents);
+toast('🛡️ 已由管理員撤銷此連結');
+adminConsentManage(parentUsername);
+}
+function adminConsentUnlink(id,parentUsername){
+if(!confirm('確定刪除此連結紀錄？此操作無法復原！'))return;
+const consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
+consents.requests=consents.requests.filter(r=>r.id!==id);
+set('ADV9_PARENT_CONSENTS',consents);
+toast('🗑 已刪除連結紀錄');
+adminConsentManage(parentUsername);
 }
 async function delUser(username){
 if(!confirm('確定刪除用戶「'+username+'」？此操作無法復原！'))return;
