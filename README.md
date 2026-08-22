@@ -51,49 +51,32 @@ A gamified learning platform: quiz adventures, card-based character development,
 
 ---
 
-## 🤖 AI Reviews / AI 綜合評價
+## 📊 Platform Comparison / 平台比較
 
-Multiple AI models (DeepSeek, Qwen, Claude) independently evaluated this platform against PaGamO, Cool English (酷英網), and 均一教育平台. Below is an integrated summary.
-多家 AI 模型（DeepSeek、Qwen、Claude）分別將本平台與 PaGamO、酷英網、均一教育平台進行了獨立評估。以下為整合摘要。
+| | Adventurer | PaGamO | 均一教育平台 | Cool English 酷英網 |
+|---|-----------|--------|-----------|-------------------|
+| **Type / 類型** | Open-source self-hosted / 開源自架 | Commercial SaaS / 商業 SaaS | Non-profit SaaS / 非營利 SaaS | Government SaaS / 政府 SaaS |
+| **Cost / 費用** | Free (self-host server) / 免費（自備主機） | Free + premium / 免費＋課金 | Free / 完全免費 | Free / 完全免費 |
+| **Subjects / 學科** | All subjects + code + 211 languages / 全科 + 程式 + 211 語言 | K-12 five domains / 國小到高中五大領域 | K-12 math, science, languages / 國小到高中數理語文 | English only / 僅英語 |
+| **Gamification / 遊戲化** | RPG gacha + guild wars + territory + forge / 抽卡養成 + 公會戰 + 領土 + 鍛造 | Territory conquest + PK / 領土攻佔 + PK | Badges + points / 徽章 + 點數 | Mini-games / 小遊戲 |
+| **AI Features / AI 功能** | 6+ providers, local Ollama / 6+ 供應商，支援本機 | Basic analytics / 基本分析 | Content recommendation / 內容推薦 | AI pronunciation + chatbot / AI 發音 + 聊天機器人 |
+| **Code Sandbox / 程式沙盒** | Python, C++, Java / ✗ | ✗ | Computer science courses / 電腦科學課程 | ✗ |
+| **Social / 社群** | Friends, guilds, mail, posts / 好友、公會、郵件、貼文 | Team PK, leaderboards / 團隊 PK、排行榜 | Limited / 有限 | Limited / 有限 |
+| **Deployment / 部署** | Docker / Codespaces / VPS / 本機 | Cloud only / 雲端 | Cloud only / 雲端 | Cloud only / 雲端 |
+| **Data Control / 資料控制** | Full ownership on your server / 完全自控 | Vendor managed / 廠商代管 | Vendor managed / 廠商代管 | Government managed / 政府代管 |
+| **Customizable / 可客製** | Full (open source) / 完全（開源） | No / 否 | No / 否 | No / 否 |
+| **Setup / 安裝門檻** | Requires basic tech skills / 需基本技術能力 | Zero / 零 | Zero / 零 | Zero / 零 |
 
-### Comparison with Traditional Platforms / 與傳統平台比較
+### Summary / 總結
 
-| Dimension / 維度 | Adventurer | PaGamO | 均一 | Cool English |
-|-----------------|-----------|--------|------|-------------|
-| Gamification / 遊戲化強度 | ★★★★★ | ★★★★ | ★★ | ★★★ |
-| AI Integration / AI 整合度 | ★★★★★ 多模型 | ★ | ★ | ★★★★ 語音強 |
-| Customizability / 客製化 | ★★★★★ 開源 | ★ 封閉 | ★ 封閉 | ★ 封閉 |
-| Data Ownership / 資料主權 | ★★★★★ 自管 | ★★★ 代管 | ★★★ 代管 | ★★★★ 政府 |
-| Social Features / 社群互動 | ★★★★★ | ★★★★ | ★ | ★ |
-| Code Learning / 程式學習 | ★★★★★ 沙盒 | ✗ | ★★★ | ✗ |
-
-### Key Strengths Identified by AI / AI 識別的核心優勢
-
-1. **Open-source & self-hosted / 開源自架** — Unlike all three SaaS competitors, you own your data and can modify anything.
-   不同於三個 SaaS 競品，你完全擁有資料並可修改任何功能。
-
-2. **Deepest gamification / 最深度遊戲化** — Card gacha + guild wars + territory conquest + forge crafting goes far beyond PaGamO's territory mechanic.
-   抽卡 + 公會戰 + 領土征服 + 鍛造系統，遠超 PaGamO 的領土機制。
-
-3. **Multi-model AI / 多模型 AI** — Supports 6+ providers (Gemini/OpenAI/DeepSeek/Qwen/Kimi/Ollama) with local Ollama option for privacy.
-   支援 6+ 供應商，支援 Ollama 本機部署保障隱私。
-
-4. **Built-in code sandbox / 內建程式沙盒** — Only platform combining gamified learning with Python/C++/Java execution.
-   唯一結合遊戲化學習與 Python/C++/Java 執行環境的平台。
-
-5. **211 languages / 211 種語言** — Language coverage far exceeds Cool English (English-only) and 均一 (mainly Chinese/English/Math).
-   語言覆蓋範圍遠超酷英（僅英語）與均一（主要中英數理）。
-
-### Best Use Cases / 最適合的使用場景
-
-| Who / 對象 | Recommended / 推薦 | Why / 原因 |
-|-----------|-------------------|-----------|
-| Tech-savvy teachers & developers / 技術型教師與開發者 | **Adventurer** ⭐⭐⭐⭐⭐ | Full control, maximum customization, AI + code sandbox |
-| Innovation schools & CS educators / 創新學校與資訊科教師 | **Adventurer** ⭐⭐⭐⭐⭐ | Privacy-first AI, code sandbox for maker courses |
-| Self-learners & gamers / 自學者與遊戲愛好者 | **Adventurer** ⭐⭐⭐⭐ | Offline demo, deepest gamification, open-source learning |
-| General K-12 teachers / 一般中小學教師 | **均一 + PaGamO** ⭐⭐⭐⭐⭐ | Zero setup, curriculum-aligned, stable long-term |
-| English-focused students / 英語專攻學生 | **Cool English** ⭐⭐⭐⭐⭐ | Best AI pronunciation, official government content |
-| Classroom motivation / 班級動機提升 | **PaGamO** ⭐⭐⭐⭐ | Territory battles drive team-based motivation |
+| Scenario / 情境 | Best Pick / 推薦 |
+|----------------|-----------------|
+| Full control, max customization / 完全掌控、最大客製化 | **Adventurer** |
+| Zero setup, curriculum-aligned / 零安裝、符合課綱 | **均一** |
+English-only, AI pronunciation practice / 英語專攻、AI 口說練習 | **Cool English** |
+| High gamification motivation / 高遊戲化動機 | **PaGamO** |
+| Code learning + gamification / 程式學習 + 遊戲化 | **Adventurer** |
+| Privacy-first AI / 隱私優先 AI | **Adventurer** (Ollama local) |
 
 ---
 
