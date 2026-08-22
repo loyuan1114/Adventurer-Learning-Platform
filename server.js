@@ -1481,15 +1481,34 @@ if(cluster.isMaster){
   },60000);
   var N=Math.min(Math.max(os.cpus().length||1,1),4);
   for(var i=0;i<N;i++)forkWorker();
-  console.log('[cluster] master 啟動，fork '+N+' 個 worker（node '+process.version+'）');
+  console.log('');console.log('  🎮 master 啟動，fork '+N+' 個 worker（node '+process.version+'）PORT:'+PORT);console.log('');
 }else{
   /* worker：等待 master 的 boot 快照 → 開始監聽；之後以廣播同步狀態 */
   var booted=false;
+  var _urlPrinted=false;
   process.on('message',function(m){
     if(!m||m.__adv9!==1)return;
     if(m.t==='boot'){
       BUILD=m.build;KV=m.kv||{};ACC=m.acc||{};ONLINE=m.online||{};DOLL=m.doll||{};SHOP=m.shop||[];EVENTS=m.events||[];SYSSET=m.sysset||SYSSET;
-      if(!booted){booted=true;server.listen(PORT,'0.0.0.0',function(){console.log('[cluster] worker #'+process.pid+' on :'+PORT)})}
+      if(!booted){booted=true;server.listen(PORT,'0.0.0.0',function(){
+        var url='http://127.0.0.1:'+PORT;
+        console.log('');
+        console.log('  ╔══════════════════════════════════════════╗');
+        console.log('  ║  🎮 Adventurer Learning Platform        ║');
+        console.log('  ║  冒險者學習平台 v8.0.1                  ║');
+        console.log('  ╠══════════════════════════════════════════╣');
+        console.log('  ║  🌐 '+url+'               ║');
+        console.log('  ║  👤 admin: adv9boss / admin123          ║');
+        console.log('  ╚══════════════════════════════════════════╝');
+        console.log('');
+        if(!_urlPrinted){_urlPrinted=true;
+          try{var cp=require('child_process');
+            if(process.platform==='win32')cp.exec('start "" "'+url+'"');
+            else if(process.platform==='darwin')cp.exec('open "'+url+'"');
+            else cp.exec('xdg-open "'+url+'"');
+          }catch(e){}
+        }
+      })}
     }
     else if(m.t==='kv'){Object.keys(m.d||{}).forEach(function(k){KV[k]=m.d[k]})}
     else if(m.t==='kv-del'){(m.keys||[]).forEach(function(k){delete KV[k]})}

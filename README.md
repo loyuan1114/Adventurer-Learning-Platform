@@ -84,38 +84,75 @@ English-only, AI pronunciation practice / 英語專攻、AI 口說練習 | **Coo
 
 ### Option 1: GitHub Codespaces (Free / 免費)
 
-前往儲存庫 → **Code → Codespaces → Create codespace on main**，然後貼上:
+1. Go to repo → **Code → Codespaces → Create codespace on main**
+   前往儲存庫 → **Code → Codespaces → Create codespace on main**
 
+2. Paste in terminal / 貼上：
 ```bash
 [ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
 ```
 
-Then: **Ports** panel → 8080 → Right-click → **Port Visibility → Public** → Open 🌐
+3. **Ports** panel → 8080 → Right-click → **Port Visibility → Public** → Open 🌐
+   **Ports** 面板 → 8080 → 右鍵 → **Port Visibility → Public** → 開啟 🌐
 
-### Option 2: VPS (Ubuntu/Debian)
+---
+
+### Option 2: VPS / Docker (Ubuntu/Debian)
 
 ```bash
-command -v docker >/dev/null 2>&1 || curl -fsSL https://get.docker.com | sh; docker compose version >/dev/null 2>&1 || sudo apt-get install -y docker-compose-plugin; [ -f adv9_public.tgz ] || curl -sL https://raw.githubusercontent.com/loyuan1114/Adventurer-Learning-Platform/main/adv9_public.tgz -o adv9_public.tgz; mkdir -p adv9 && tar xzf adv9_public.tgz -C adv9 && cd adv9 && docker compose up -d --build
+command -v docker >/dev/null 2>&1 || curl -fsSL https://get.docker.com | sh
+docker compose version >/dev/null 2>&1 || sudo apt-get install -y docker-compose-plugin
+
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+docker compose up -d --build
 ```
 
-Open `http://your-ip:8080` (allow port 8080 in firewall/security group).
+Then open / 開啟：`http://your-server-ip:8080`
+(Allow port 8080 in firewall / 請在防火牆放行 8080 埠)
 
-### Option 3: Direct Node.js (No Docker)
+---
+
+### Option 3: Direct Node.js (Recommended / 推薦)
 
 ```bash
 git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
 cd Adventurer-Learning-Platform
-npm install          # installs argon2 (optional: falls back to scrypt)
-g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox   # compile C++ black box (simulation/loot)
+npm install
+g++ -O2 -std=c++17 calc_blackbox.cpp -o calc_blackbox
 node server.js
 ```
 
-Requires **Node.js 18+** (Node 20+ recommended for Argon2) and **g++** (for the C++ black box). Python 3 optional (for document import).
+After startup, the terminal will display:
+啟動後終端機會顯示：
 
-### Option 4: macOS / Windows
+```
+  ╔══════════════════════════════════════════╗
+  ║  🎮 Adventurer Learning Platform        ║
+  ║  冒險者學習平台 v8.0.1                  ║
+  ╠══════════════════════════════════════════╣
+  ║  🌐 http://127.0.0.1:8080               ║
+  ║  👤 admin: adv9boss / admin123          ║
+  ╚══════════════════════════════════════════╝
+```
 
-- **macOS**: `brew install --cask docker` → Docker Desktop → run Option 1 command
-- **Windows**: `winget install Docker.DockerDesktop` → Docker Desktop → run Option 1 command
+**Browser opens automatically** / 瀏覽器會自動開啟。Default account / 預設帳號：`adv9boss` / `admin123`
+
+Requires **Node.js 18+** and **g++**. Python 3 optional.
+需要 **Node.js 18+** 與 **g++**。Python 3 為選用。
+
+---
+
+### Option 4: macOS / Windows (Docker)
+
+- **macOS**: `brew install --cask docker` → Docker Desktop → run Option 2 command
+- **Windows**: `winget install Docker.DockerDesktop` → Docker Desktop → run Option 2 command
+
+### Change Port / 更改端口
+
+```bash
+PORT=3000 node server.js
+```
 
 ---
 
