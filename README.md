@@ -1,229 +1,220 @@
-# 🎮 Adventurer Learning Platform / 冒險者學習平台
+<p align="center">
+  <img src="docs/screenshots/banner.png" width="600" alt="ADV9 Banner">
+</p>
 
-A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction. **Single Node.js server + Argon2 password hashing.**
+<h1 align="center">ADV9 Adventurer Learning Platform</h1>
 
-把課業變成冒險遊戲的學習平台：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動。**單一 Node.js 伺服器、Argon2 密碼雜湊**。
+<p align="center">
+  <strong>Open-source gamified learning platform with AI, code sandbox, and RPG progression</strong><br>
+  <sub>Open-source self-hosted | Docker one-click deploy | 7 platform installers</sub>
+</p>
 
-- **Password security / 密碼安全**: Argon2id hashing (falls back to scrypt if `argon2` is unavailable)
-- **Docker one-click deploy / Docker 一鍵部署**: Any Linux / macOS / Windows
-- **All data stays local / 資料皆留在本機**: Accounts, settings, AI keys in `data/`, `media/`
-- **Default admin / 預設管理員**: `adv9boss` / `admin123` (**change password on first login** / 首次登入請改密碼)
-
----
-
-## 📸 Screenshots / 畫面截圖
-
-### 管理員後台 / Admin Panel
-![管理員後台](docs/screenshots/admin.png)
-
-### 學生主頁 / Student Home
-![學生主頁](docs/screenshots/student-home.png)
-
-### 學生功能總覽 / Student Features
-![學生功能](docs/screenshots/student-features.png)
-
-### 老師工作台 / Teacher Dashboard
-![老師工作台](docs/screenshots/teacher.png)
+<p align="center">
+  <a href="#installation">Installation</a> •
+  <a href="#features">Features</a> •
+  <a href="#demo">Live Demo</a> •
+  <a href="#documentation">Docs</a> •
+  <a href="#license">License</a>
+</p>
 
 ---
 
-## ✨ Features / 功能特色
+## Quick Start
 
-| Feature | Description / 說明 |
-|---------|-------------|
-| 🎯 Quiz Adventure / 問答冒險 | Answer questions to progress through dungeons, earn XP and loot |
-| 🃏 Card Collection / 卡牌收藏 | Character, pet, and anime card gacha system |
-| ⚔️ Guild Wars / 公會戰 | Team battles, territory control, class competitions |
-| 📝 Homework / 作業 | Teachers assign work, AI-powered weak point analysis |
-| 🤖 AI Assistant / AI 助手 | Multi-provider (Gemini/OpenAI/DeepSeek/Qwen/Kimi/Ollama) |
-| 🌍 Language Learning / 語言學習 | 211 languages with AI-generated vocabulary quizzes |
-| 💻 Code Sandbox / 程式沙盒 | Python, C++, Java, CaoMang, BingZhengZheng execution |
-| ⚙️ C++ Black Box / C++ 黑盒 | Cultivation battle simulation & loot generation computed by a compiled C++ black box |
-| 🎨 Pixel Art / 像素畫 | Collaborative pixel art gallery |
-| 🎵 Background Music / 背景音樂 | Admin-managed MP3/YouTube music player |
-| 💬 Chat & Social / 聊天與社交 | Friends, groups, mail, story posting |
-| 📊 AI 學情稽核 / AI Audit | Teacher dashboard with AI-powered student behavior analysis |
-| 🗡️ Rogue-like / 個人冒險 | Each player's adventure path is unique |
-| 📝 Notes & Flashcards / 筆記寶庫 | Note-taking, flashcards, spaced repetition, exam planning |
-| 🧪 Forge & Equipment / 鍛造裝備 | Crafting system with quality tiers and material gathering |
-| 🏰 Territory / 領土征服 | Cross-subject conquest battles with reward multipliers |
-| 🗣️ AI 導師 / AI Tutor | Personalized tutoring based on your notes and progress |
+### Option A: Desktop Installer (Recommended)
 
----
+Download the installer for your platform and double-click to run:
 
-## 📊 Platform Comparison / 平台比較
+| Platform | Architecture | Download |
+|----------|-------------|----------|
+| **Windows** | x64 | [`adv9-installer-windows-x64.exe`](../../releases/latest/download/adv9-installer-windows-x64.exe) |
+| **Windows** | x86 (32-bit) | [`adv9-installer-windows-x86.exe`](../../releases/latest/download/adv9-installer-windows-x86.exe) |
+| **Windows** | ARM64 | [`adv9-installer-windows-arm64.exe`](../../releases/latest/download/adv9-installer-windows-arm64.exe) |
+| **macOS** | Apple Silicon (M1+) | [`adv9-installer-mac-arm64`](../../releases/latest/download/adv9-installer-mac-arm64) |
+| **macOS** | Intel | [`adv9-installer-mac-x64`](../../releases/latest/download/adv9-installer-mac-x64) |
+| **Linux** | x64 | [`adv9-installer-linux-x64`](../../releases/latest/download/adv9-installer-linux-x64) |
+| **Linux** | ARM64 | [`adv9-installer-linux-arm64`](../../releases/latest/download/adv9-installer-linux-arm64) |
 
-| | Adventurer | PaGamO | 均一教育平台 | Cool English 酷英網 |
-|---|-----------|--------|-----------|-------------------|
-| **Type / 類型** | Open-source self-hosted / 開源自架 | Commercial SaaS / 商業 SaaS | Non-profit SaaS / 非營利 SaaS | Government SaaS / 政府 SaaS |
-| **Cost / 費用** | Free (self-host server) / 免費（自備主機） | Free + premium / 免費＋課金 | Free / 完全免費 | Free / 完全免費 |
-| **Subjects / 學科** | All subjects + code + 211 languages / 全科 + 程式 + 211 語言 | K-12 five domains / 國小到高中五大領域 | K-12 math, science, languages / 國小到高中數理語文 | English only / 僅英語 |
-| **Gamification / 遊戲化** | RPG gacha + guild wars + territory + forge / 抽卡養成 + 公會戰 + 領土 + 鍛造 | Territory conquest + PK / 領土攻佔 + PK | Badges + points / 徽章 + 點數 | Mini-games / 小遊戲 |
-| **AI Features / AI 功能** | 6+ providers, local Ollama / 6+ 供應商，支援本機 | Basic analytics / 基本分析 | Content recommendation / 內容推薦 | AI pronunciation + chatbot / AI 發音 + 聊天機器人 |
-| **Code Sandbox / 程式沙盒** | Python, C++, Java / ✗ | ✗ | Computer science courses / 電腦科學課程 | ✗ |
-| **Social / 社群** | Friends, guilds, mail, posts / 好友、公會、郵件、貼文 | Team PK, leaderboards / 團隊 PK、排行榜 | Limited / 有限 | Limited / 有限 |
-| **Deployment / 部署** | Docker / Codespaces / VPS / 本機 | Cloud only / 雲端 | Cloud only / 雲端 | Cloud only / 雲端 |
-| **Data Control / 資料控制** | Full ownership on your server / 完全自控 | Vendor managed / 廠商代管 | Vendor managed / 廠商代管 | Government managed / 政府代管 |
-| **Customizable / 可客製** | Full (open source) / 完全（開源） | No / 否 | No / 否 | No / 否 |
-| **Setup / 安裝門檻** | Requires basic tech skills / 需基本技術能力 | Zero / 零 | Zero / 零 | Zero / 零 |
+The installer will:
+1. Auto-install Docker (if not present)
+2. Download the project from GitHub
+3. Build and start the Docker container
+4. Open your browser to `http://127.0.0.1:8080`
 
-### Summary / 總結
+> Default credentials: `adv9boss` / `admin123` — change password on first login.
 
-| Scenario / 情境 | Best Pick / 推薦 |
-|----------------|-----------------|
-| Full control, max customization / 完全掌控、最大客製化 | **Adventurer** |
-| Zero setup, curriculum-aligned / 零安裝、符合課綱 | **均一** |
-English-only, AI pronunciation practice / 英語專攻、AI 口說練習 | **Cool English** |
-| High gamification motivation / 高遊戲化動機 | **PaGamO** |
-| Code learning + gamification / 程式學習 + 遊戲化 | **Adventurer** |
-| Privacy-first AI / 隱私優先 AI | **Adventurer** (Ollama local) |
-
----
-
-## 🚀 安裝方法（Windows 一鍵部署）
-
-### 第一步：下載程式
-
-1. 打開 https://github.com/loyuan1114/Adventurer-Learning-Platform
-2. 點綠色按鈕 **<> Code**
-3. 點 **Download ZIP**
-4. 解壓縮到桌面
-
-### 第二步：雙擊執行
-
-1. 打開解壓縮後的資料夾
-2. 找到 **deploy.bat**
-3. **雙擊它**
-4. 跳出視窗問你 → 按 **是**
-5. 等它跑完（第一次會自動裝 Docker，約 5 分鐘）
-6. 裝完後**重開機**
-7. 重開後再雙擊一次 **deploy.bat**
-8. 瀏覽器自動打開 → 完成！
-
-> 預設帳號：`adv9boss` / `admin123`
-
----
-
-### 其他平台
-
-- **Mac**：打開終端機，輸入 `./deploy.sh`
-- **Linux**：打開終端機，輸入 `./deploy.sh`
-- **有 Docker 的 VPS**：`docker compose up -d`
-
-### Change Port / 更改端口
+### Option B: Docker Compose
 
 ```bash
-PORT=3000 node server.js
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+docker compose up -d
 ```
+
+### Option C: GitHub Codespaces
+
+1. Fork this repo → **Code → Codespaces → Create codespace**
+2. Run in terminal:
+```bash
+docker compose up -d --build
+```
+3. **Ports** panel → 8080 → **Port Visibility → Public**
 
 ---
 
-## 🌐 GitHub Pages (Static Full-Game Demo)
+## Features
 
-GitHub Pages serves the **entire `public/` folder** as a fully static site. Because the frontend stores everything in `localStorage`, the **complete game runs offline in single-admin mode** without any backend.
+### Core Learning
+| Module | Description |
+|--------|-------------|
+| **Quiz Adventure** | AI-generated questions, dungeon progression, XP & loot rewards |
+| **Homework System** | Teacher assignment, auto-grading, AI weak-point analysis |
+| **Flashcards (SM-2)** | Spaced repetition algorithm for long-term retention |
+| **Notes & Mindmaps** | Rich note-taking with AI-generated visual mindmaps |
+| **Exam Planning** | Countdown, AI-generated study plans, progress tracking |
 
-**Live demo**: `https://loyuan1114.github.io/Adventurer-Learning-Platform/`
+### RPG Systems
+| Module | Description |
+|--------|-------------|
+| **Card Gacha** | Character, pet, and anime card collection with rarity tiers |
+| **Forge & Equipment** | Crafting with quality tiers, enhancement, material gathering |
+| **Territory** | Cross-subject conquest battles with reward multipliers |
+| **Guild Wars** | Team battles, territory control, class competitions |
+| **Rogue-like** | Unique adventure paths per player |
 
-**GitHub Pages account**:
+### AI Integration
+| Module | Description |
+|--------|-------------|
+| **Multi-Provider AI** | Gemini, OpenAI, DeepSeek, Qwen, Kimi, Ollama (local) |
+| **AI Tutor** | Personalized tutoring based on notes and progress |
+| **AI Audit** | Teacher dashboard with AI-powered student behavior analysis |
+| **AI Podcast** | Auto-generated audio study materials |
+| **AI Learning Path** | Personalized curriculum based on performance data |
+
+### Social & Admin
+| Module | Description |
+|--------|-------------|
+| **Chat & Social** | Friends, groups, mail, story posting |
+| **Code Sandbox** | Python, C++, Java execution in isolated containers |
+| **Parent Dashboard** | Real-time progress monitoring, consent management |
+| **Admin Panel** | User management, system backup/restore, API key management |
+
+---
+
+## Platform Comparison
+
+| | **ADV9** | PaGamO | 均一教育平台 | Cool English |
+|---|---------|--------|-----------|-------------|
+| **Type** | Open-source self-hosted | Commercial SaaS | Non-profit SaaS | Government SaaS |
+| **Cost** | Free (self-host) | Free + premium | Free | Free |
+| **Subjects** | All + code + 211 languages | K-12 five domains | K-12 math/science/lang | English only |
+| **Gamification** | RPG gacha + guild + territory + forge | Territory + PK | Badges + points | Mini-games |
+| **AI** | 6+ providers, local Ollama | Basic analytics | Content recommendation | AI pronunciation |
+| **Code Sandbox** | Python, C++, Java | ✗ | CS courses | ✗ |
+| **Social** | Friends, guilds, mail, posts | Team PK, leaderboards | Limited | Limited |
+| **Deployment** | Docker / Codespaces / VPS | Cloud only | Cloud only | Cloud only |
+| **Data Control** | Full ownership | Vendor managed | Vendor managed | Government managed |
+| **Customizable** | Full (AGPL-3.0) | No | No | No |
+
+---
+
+## Live Demo
+
+**GitHub Pages**: [https://loyuan1114.github.io/Adventurer-Learning-Platform/](https://loyuan1114.github.io/Adventurer-Learning-Platform/)
 
 | Role | Username | Password |
 |------|----------|----------|
-| 管理員 / Master admin | `adv9boss` | `admin123` |
+| Admin | `adv9boss` | `admin123` |
 
-> ⚠️ 請在第一次登入後立即變更密碼（帳號頁）。Pages 版資料只存於該瀏覽器的 `localStorage`，清除瀏覽器資料會清空進度。
-
-How it works:
-
-1. The `index.html` on GitHub Pages auto-detects `github.io` and runs in **offline single-admin mode** (`SUPA_ON = false`).
-2. All data is stored in the browser's `localStorage`.
-3. Optionally, you can set an **API server address** (設定 → API 伺服器位址) to connect to your VPS for shared data.
-4. Deployment is automatic via GitHub Actions (`deploy-pages`) on every push to `main`.
-
-Deploy to your own Pages:
-
-1. Fork this repository
-2. Keep the built-in GitHub Actions workflow (`.github/workflows/pages.yml`) — it deploys on every push to `main`
-3. Your demo is live at `https://your-username.github.io/Adventurer-Learning-Platform/`
-
-> ⚠️ GitHub Pages only serves static files. Multi-user shared data requires a VPS backend.
+> Pages version runs entirely in browser `localStorage`. Multi-user requires VPS backend.
 
 ---
 
-## 🛠️ Admin Settings / 管理員設定
+## Admin Settings
 
-| Setting | Description |
-|---------|-------------|
+| Setting | Location |
+|---------|----------|
 | Default account | `adv9boss` / `admin123` |
-| Password hashing | Argon2id (or scrypt fallback) |
-| Change password | Login → Account page |
-| AI keys | Login → Admin → **API 金鑰管理** |
-| AI Provider | Login → Admin → **AI 端點** (Gemini/OpenAI/DeepSeek/Qwen/Kimi/Ollama) |
-| Music upload | Login → Settings → **背景音樂** → Admin upload block |
-| Socratic prompts | Login → Admin → **蘇格拉底設定** |
+| Password hashing | Argon2id (scrypt fallback) |
+| AI providers | Admin → API Keys / AI Endpoints |
+| Music upload | Settings → Background Music |
+| Socratic prompts | Admin → Socratic Settings |
 
----
-
-## 🤖 Local AI (Ollama, Free / 免費本機 AI)
-
-Run AI entirely on your server with no API keys:
+### Local AI (Ollama — Free, No API Keys)
 
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh && ollama pull huihui_ai/qwen2.5-vl-abliterated:7b
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull huihui_ai/qwen2.5-vl-abliterated:7b
 ```
 
-Then: Admin → **AI 端點** → Add → Provider: Ollama → Model: `qwen2.5-vl-abliterated:7b` → Key: `http://127.0.0.1:11434`
+Then: Admin → AI Endpoints → Add → Provider: Ollama → Model: `qwen2.5-vl-abliterated:7b` → Key: `http://127.0.0.1:11434`
 
 ---
 
-## 📁 Data & Backup / 資料與備份
+## Data & Backup
 
 ```
-data/    Accounts, settings, AI keys, homework, chat logs (JSON files)
+data/    Accounts, settings, AI keys, homework, chat logs (JSON)
 media/   Uploaded photos, videos, music
 ```
 
-- **Upgrade without losing data**: `docker compose down` then `up -d --build`
-- **Full backup**: `tar czf backup.tgz data media`
-- **Restore**: Extract backup → `docker compose restart`
+| Action | Command |
+|--------|---------|
+| Upgrade | `docker compose down && docker compose up -d --build` |
+| Backup | `tar czf backup.tgz data media` |
+| Restore | Extract backup → `docker compose restart` |
+| Uninstall | Use installer's "Uninstall" button, or `docker compose down && rm -rf adv9` |
 
 ---
 
-## 🗑️ Uninstall / 刪除與卸載
+## Architecture
 
-- **Stop (keep data)**: `cd adv9 && docker compose down`
-- **Delete everything**: `docker compose down; cd ..; rm -rf adv9 adv9_public.tgz`
-- **Backup first**: `tar czf backup.tgz data media` before deleting
-
----
-
-## 📜 License / 開源授權
-
-**AGPL-3.0-or-later** (see `LICENSE`). If you modify and run this software as a network service, you must provide the source code to users.
-
----
-
-## 🔍 AI / Tool Call Disclosure / AI 呼叫揭露
-
-| Function | Provider | Data Flow |
-|----------|----------|-----------|
-| 🤖 Auto Quiz | Your configured provider | Question request → Provider → Quiz returned |
-| 📊 Weak Analysis | Same (default: Ollama local) | Error stats → Provider → Teaching suggestions |
-| 💬 AI Comments | Same | Student name, grades → Provider |
-| 🔤 Fonts | Google Fonts | Browser loads font files |
-| 🖼 Thumbnails | Bing | Search thumbnails loaded |
-
-> See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for full list. **Only Ollama local mode** keeps data entirely on your server.
+```
+adv9/
+├── server.js          # Node.js HTTP server (auth, KV store, WebSocket PK, sandbox)
+├── public/
+│   ├── index.html     # Main entry (CSS + loader + SW unregister)
+│   ├── js/
+│   │   ├── app/       # 19 app modules (p00-p15, q00-q01, api-layer)
+│   │   └── views/     # 84 lazy-loaded view modules
+│   ├── sw.js          # Service Worker (network-first)
+│   └── manifest.json  # PWA manifest
+├── data/              # Persistent storage (JSON files)
+├── installer/         # Rust desktop installer source
+│   └── src/           # main.rs, docker.rs, deploy.rs, platform.rs
+├── Dockerfile         # Node 20 Alpine
+└── docker-compose.yml
+```
 
 ---
 
-## 📸 Photo Policy (CC0 / 圖片授權)
+## Development
 
-All photos are **CC0 Public Domain**. Uploading photos implies consent to CC0 licensing. Use CC0 sources (Pixabay/Unsplash/Wikimedia Commons) for built-in backgrounds.
+```bash
+git clone https://github.com/loyuan1114/Adventurer-Learning-Platform.git
+cd Adventurer-Learning-Platform
+npm install
+node server.js
+```
+
+Requires **Node.js 18+**. Browser opens at `http://127.0.0.1:8080`.
+
+### Building the Installer
+
+```bash
+cd installer
+cargo build --release
+# Binary: target/release/adv9-installer
+```
 
 ---
 
-## ❓ FAQ / 常見問題
+## License
 
-- **Port 8080 not accessible?** Allow port 8080 in your firewall/security group.
-- **How to update?** Download latest release, extract over old (keep `data/` and `media/`), run `docker compose up -d --build`.
-- **No Docker?** Run `node server.js` directly (Node.js 18+ required, `npm install` first for Argon2).
+**AGPL-3.0-or-later** — If you modify and run this software as a network service, you must provide the source code to users.
+
+---
+
+<p align="center">
+  <sub>Built with ❤️ for learners everywhere</sub>
+</p>
