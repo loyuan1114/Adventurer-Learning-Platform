@@ -779,6 +779,26 @@ var ext='.docx';
       }catch(e){res.writeHead(400);res.end('bad json');}
     });
   }
+  /* 管理員：寫入目標用戶的 reroll 屬性資料 */
+  if(req.method==='POST'&&p==='/rest/v1/admin/reroll_grant'){
+    var w=checkToken(tok); if(!w){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入');}
+    if(w.role!=='admin'){res.writeHead(403,{'Content-Type':'text/plain; charset=utf-8'});return res.end('forbidden');}
+    return readBody(req,function(b){
+      try{
+        var j=JSON.parse(b.toString('utf8')||'{}');
+        var target=j.target,attr=j.attr,value=j.value;
+        if(!target||!attr){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:'缺少 target 或 attr'}));}
+        if(!ACC[target]){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:'找不到用戶 '+target}));}
+        var rkey=target+'|reroll';
+        var rd=typeof KV[rkey]==='object'&&KV[rkey]?KV[rkey]:{attr:{}};
+        if(typeof rd.attr!=='object')rd.attr={};
+        rd.attr[attr]=value||'∞';
+        KV[rkey]=rd;
+        saveKV();
+        res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+      }catch(e){res.writeHead(400);res.end('bad json');}
+    });
+  }
   /* 管理員/教師：發放裝備（寫入目標學生的隔離 ADV9_EQUIP，client 雲端同步後可見）*/
   if(req.method==='POST'&&p==='/rest/v1/grant_equip'){
     var w=checkToken(tok); if(!w){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入');}
