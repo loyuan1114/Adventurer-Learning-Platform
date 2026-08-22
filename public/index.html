@@ -3247,8 +3247,9 @@ const FEAT_CATS=[
   ['🏆 成就兌換',['vRank','vTitleV','vExch','vMiss','vShopV','vGShop','vGames','vCodes','vClassWar']],
   ['🎨 創作分享',['vPixel','vVideo']],
   ['💻 虛擬終端',['vTerminal']],
-  ['🤖 AI 學習',['vFindError','vSandbox','vNotes','vCreate','vTutor','vJourney']],
-  ['🛡️ 信任守護',['vConsent','vTrust','vThinkingReport']],
+  ['🤖 AI 學習',['vFindError','vSandbox','vNotes','vCreate','vTutor','vJourney','generateLearningPathUI']],
+  ['🏟️ 班級競賽',['startClassCompetitionUI','vClassWar']],
+  ['🛡️ 信任守護',['vConsent','vTrust','vThinkingReport','childConsentPanel']],
   ['⚙️ 系統',['vSet','vAdminPanel']]
 ];
 function featCatsHtml(){
@@ -3451,6 +3452,18 @@ function analyzeLearningPath(subj){
   });
 
   return path;
+}
+
+function generateLearningPathUI(){
+  var subj=prompt('選擇科目（數學/英文/自然/社會）：');
+  if(subj)generateLearningPath(subj);
+}
+
+function startClassCompetitionUI(){
+  if(me().role!=='teacher'&&me().role!=='admin')return toast('⚠️ 僅教師/管理員可發起競賽','bad');
+  var subj=prompt('科目（數學/英文/自然/社會）：')||'數學';
+  var dur=parseInt(prompt('時間（秒）：','300'))||300;
+  startClassCompetition();
 }
 
 function generateLearningPath(subj){
@@ -13182,7 +13195,10 @@ FEATS.push(
   ['♾️','∞ 神階換取','七階段考驗・神級學科換取','#7e57c2','vInfinityExchange()'],
   ['🧪','雙倍增益與商店','星辰幣・4種雙倍・7種時長','#ffa726','vBuffStore()'],
   ['💻','虛擬終端','AI 驅動・模擬真實指令列','#00e676','vTerminal()'],
-  ['👑','管理員系統控制台','等級上限・單項上限・備份還原・禮包碼','#e53935','vAdminPanel()', true]
+  ['👑','管理員系統控制台','等級上限・單項上限・備份還原・禮包碼','#e53935','vAdminPanel()', true],
+  ['🗺️','AI 學習路徑','弱點分析・個人化推薦','#00bcd4','generateLearningPathUI()'],
+  ['🏟️','班級即時競賽','全班同步答題・即時排名','#ff5722','startClassCompetitionUI()'],
+  ['📝','作業檔案匯入','.docx/.txt 自動解析','#8bc34a','vAdminPanel()']
 );
 
 /* ════════════════════════════════════════════
