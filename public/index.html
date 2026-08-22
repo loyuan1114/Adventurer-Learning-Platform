@@ -2841,7 +2841,9 @@ async function doLogin() {
       console.error('[LOGIN] All methods failed. SUPA_ON=' + SUPA_ON + ', SUPA_URL=' + SUPA_URL + ', supaFailed=' + supaFailed);
       return;
     }
-    if(acc&&acc.token){WTOKEN=acc.token;try{localStorage.setItem('ADV9_WTOKEN',acc.token)}catch(e){};await loadVpsPrivateData()} /* 🎫 存登入 token 供後續寫入授權 */
+    if(acc&&acc.token){WTOKEN=acc.token;try{localStorage.setItem('ADV9_WTOKEN',acc.token)}catch(e){};
+      if(acc.must_change_pw===true){toast('首次登入請先修改密碼','bad');try{openChangePw()}catch(e){}}
+      await loadVpsPrivateData()} /* 🎫 存登入 token 供後續寫入授權 */
 
     // ⭐ 終極防護：確保 g 永遠完整
     if (acc.game_data) {
@@ -13215,7 +13217,7 @@ var _pkWs=null;
 function pkWsConnect(room,user){
   if(_pkWs){try{_pkWs.close()}catch(e){}}
   var proto=location.protocol==='https:'?'wss:':'ws:';
-  _pkWs=new WebSocket(proto+'//'+location.host+'/ws/pk');
+  _pkWs=new WebSocket(proto+'//'+location.host+'/ws/pk?token='+encodeURIComponent(WTOKEN||''));
   _pkWs.onopen=function(){_pkWs.send(JSON.stringify({type:'join',room:room,user:user}))};
   _pkWs.onmessage=function(e){try{var m=JSON.parse(e.data);handlePkWsMsg(m)}catch(e){}};
   _pkWs.onclose=function(){_pkWs=null};
@@ -13251,7 +13253,7 @@ function startClassCompetition(){
 
 function joinCompetition(compId){
   var ws=location.protocol==='https:'?'wss:':'ws:';
-  _compWs=new WebSocket(ws+'//'+location.host+'/ws/pk');
+  _compWs=new WebSocket(ws+'//'+location.host+'/ws/pk?token='+encodeURIComponent(WTOKEN||''));
   _compId=compId;
   _compWs.onopen=function(){
     _compWs.send(JSON.stringify({type:'join',room:'comp_'+compId,user:me().username}));

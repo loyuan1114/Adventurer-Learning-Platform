@@ -27,33 +27,28 @@ const USERS_KEY='ADV9_USERS';
    其餘 key 視為個人資料，寫入時自動加 username: 前綴，避免所有學生共用同一份。 */
 const GLOBAL_KEYS=new Set(['ADV9_USERS','ADV9_ANN','ADV9_CODES','ADV9_CHAT','ADV9_SES','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_FRIENDS','ADV9_GROUPS','ADV9_PM','ADV9_TRADES','ADV9_GSHOP','ADV9_APIKEYS','ADV9_CLASSES','ADV9_MARKET','ADV9_SETTINGS','ADV9_ACADYR','ADV9_DUELS','ADV9_STORIES','ADV9_GUILDS','ADV9_BOOKS','ADV9_NOTIF','ADV9_LOCAL','ADV9_DOLLS','ADV9_SHOP_DOLLS','ADV9_DOLL_EVENTS','ADV9_SYS_SETTINGS','ADV9_ADMIN_OP_LOGS','ADV9_TEACHERQ','ADV9_EXAMDATE','ADV9_ARENA_MAIL','ADV9_AI_RECENT','ADV9_MUSIC_LINKS','ADV9_MUSIC_REQS','ADV9_PIXELS','ADV9_SUDOKU','ADV9_CLASSWAR','ADV9_VIDEOS','ADV9_AI_PROVIDERS','ADV9_QBANK','ADV9_TRUST','ADV9_PARENT_CONSENTS']);
 const MASTER={user:'adv9boss',salt:'ADV9|v1|9f3a7',hash:'c25eba85d26bc97f09b85878ff6b4a6322acd3c740485bf09a4930b7f49e5c42',name:'總管理員'};
-/* 伺服器專用 pepper：可用環境變數 ADV9_PEPPER 覆寫（建議部署時設定為隨機長字串）*/
-const SERVER_PEPPER=process.env.ADV9_PEPPER||'adv9-server-pepper-v1';
+/* 伺服器專用 pepper：環境變數 ADV9_PEPPER 優先，否則存於 data/pepper.json，無則自動產生 */
+const PEPPERFILE=path.join(DATA,'pepper.json');
+let SERVER_PEPPER=process.env.ADV9_PEPPER;
+if(!SERVER_PEPPER){
+  try{
+    if(fs.existsSync(PEPPERFILE)){var _pj=JSON.parse(fs.readFileSync(PEPPERFILE,'utf8'));SERVER_PEPPER=_pj&&_pj.pepper}
+  }catch(e){}
+}
+/* 僅 master 同步產生並寫入 pepper 檔（寫入後驗證存在）；worker 只從 env 或檔案載入 */
+if(!SERVER_PEPPER&&cluster.isMaster){
+  SERVER_PEPPER=crypto.randomBytes(48).toString('hex');
+  try{fs.writeFileSync(PEPPERFILE,JSON.stringify({pepper:SERVER_PEPPER},null,2))}catch(e){}
+}
+if(!SERVER_PEPPER){
+  console.error('[FATAL] 無法取得伺服器 pepper（env ADV9_PEPPER 或 '+PEPPERFILE+' 皆失敗），拒絕啟動');
+  process.exit(1);
+}
+if(cluster.isMaster){try{fs.accessSync(PEPPERFILE)}catch(e){console.error('[FATAL] master 啟動時找不到 pepper 檔 '+PEPPERFILE);process.exit(1)}}
 
 /* ── SHA-256 雜湊函數 ── */
-function sha256(ascii){
-  function R(v,a){return(v>>>a)|(v<<(32-a));}
-  var mp=Math.pow,mw=mp(2,32),res='';
-  var words=[],abl=ascii.length*8;
-  var hash=sha256.h=sha256.h||[],k=sha256.k=sha256.k||[],pc=k.length,ic={};
-  for(var cand=2;pc<64;cand++){if(!ic[cand]){for(var i=0;i<313;i+=cand)ic[i]=cand;hash[pc]=(mp(cand,.5)*mw)|0;k[pc++]=(mp(cand,1/3)*mw)|0;}}
-  ascii+='\x80';
-  while(ascii.length%64-56)ascii+='\x00';
-  for(var i=0;i<ascii.length;i++){var j=ascii.charCodeAt(i);if(j>>8)return'';words[i>>2]|=j<<((3-i)%4)*8;}
-  words[words.length]=(abl/mw)|0;words[words.length]=abl;
-  for(var j=0;j<words.length;){
-    var w=words.slice(j,j+=16),oh=hash;
-    hash=hash.slice(0,8);
-    for(var i=0;i<64;i++){
-      var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];
-      var t1=hash[7]+(R(e,6)^R(e,11)^R(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(R(w15,7)^R(w15,18)^(w15>>>3))+w[i-7]+(R(w2,17)^R(w2,19)^(w2>>>10)))|0);
-      var t2=(R(a,2)^R(a,13)^R(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
-      hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;
-    }
-    for(var i=0;i<8;i++)hash[i]=(hash[i]+oh[i])|0;
-  }
-  for(var i=0;i<8;i++)for(var j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16);}
-  return res;
+function sha256(input){
+  return crypto.createHash('sha256').update(input).digest('hex');
 }
 
 /* ── Argon2id 雜湊驗證（fallback: scrypt）── */
@@ -156,7 +151,7 @@ function deleteUserFile(username){
 function indexOfACC(){
   return Object.keys(ACC).filter(function(un){return !(ACC[un]&&ACC[un].hidden)}).map(function(un){
     var u=ACC[un]||{};
-    return {id:u.id||un,username:un,name:u.name||un,role:u.role||'student',classId:u.classId||null,managedClassIds:u.managedClassIds||[],isSchoolAdmin:!!u.isSchoolAdmin,pwHash:u.pwHash||'',salt:u.salt||'',master:!!u.master,createdAt:u.createdAt||new Date().toISOString()};
+    return {id:u.id||un,username:un,name:u.name||un,role:u.role||'student',classId:u.classId||null,managedClassIds:u.managedClassIds||[],isSchoolAdmin:!!u.isSchoolAdmin,pwHash:u.pwHash||'',salt:u.salt||'',tokenVer:u.tokenVer||0,master:!!u.master,createdAt:u.createdAt||new Date().toISOString()};
   });
 }
 function saveIndex(){ /* 同步寫入（檔案小），建立/刪除帳號後立即呼叫 */
@@ -176,7 +171,7 @@ function reconcileIndex(){ /* 從主檔復原遺失帳號（含檔名清單）�
     var restored=[];
     idx.forEach(function(ir){
       if(!ir||!ir.username||ACC[ir.username]||ir.hidden)return;
-      ACC[ir.username]={id:ir.id||ir.username,username:ir.username,name:ir.name||ir.username,role:ir.role||'student',classId:ir.classId||null,managedClassIds:ir.managedClassIds||[],isSchoolAdmin:!!ir.isSchoolAdmin,pwHash:ir.pwHash||'',salt:ir.salt||'',master:!!ir.master,password:'',g:null,createdAt:ir.createdAt||new Date().toISOString()};
+      ACC[ir.username]={id:ir.id||ir.username,username:ir.username,name:ir.name||ir.username,role:ir.role||'student',classId:ir.classId||null,managedClassIds:ir.managedClassIds||[],isSchoolAdmin:!!ir.isSchoolAdmin,pwHash:ir.pwHash||'',salt:ir.salt||'',tokenVer:ir.tokenVer||0,master:!!ir.master,password:'',g:null,createdAt:ir.createdAt||new Date().toISOString()};
       saveUserFile(ir.username);
       restored.push(ir.username);
     });
@@ -223,7 +218,7 @@ if(KV[USERS_KEY]){
 
 /* 種子：主管理員（只存雜湊，不存明文）*/
 if(!ACC[MASTER.user]){
-  ACC[MASTER.user]={id:MASTER.user,username:MASTER.user,name:MASTER.name,role:'admin',password:'',pwHash:MASTER.hash,master:true,isSchoolAdmin:true,classId:null,createdAt:new Date().toISOString(),g:null};
+  ACC[MASTER.user]={id:MASTER.user,username:MASTER.user,name:MASTER.name,role:'admin',password:'',pwHash:MASTER.hash,master:true,isSchoolAdmin:true,mustChangePw:true,tokenVer:0,classId:null,createdAt:new Date().toISOString(),g:null};
   saveUserFile(MASTER.user);
 }
 
@@ -240,14 +235,15 @@ function saveOnline(){try{var now=Date.now();if(now-_onlineSaveT<15000)return;_o
 
 /* token：無狀態 HMAC（任何 worker 皆可驗證，不需共享 token 表）*/
 function tokenSig(p){return crypto.createHmac('sha256',SERVER_PEPPER).update(p).digest('base64')}
-function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,exp:Date.now()+30*864e5})).toString('base64');return p+'.'+tokenSig(p)}
+function accTokenVer(un){return (ACC[un]&&ACC[un].tokenVer)||0}
+function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,tv:accTokenVer(un),exp:Date.now()+30*864e5})).toString('base64');return p+'.'+tokenSig(p)}
 function checkToken(t){
   if(!t)return null;
   var i=t.lastIndexOf('.');if(i<1)return null;
   var p=t.slice(0,i),s=t.slice(i+1);
   if(s.length!==44)return null;
   if(!crypto.timingSafeEqual(Buffer.from(s),Buffer.from(tokenSig(p))))return null;
-  try{var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(e.exp&&e.exp<Date.now())return null;return{username:e.u,role:e.r,exp:e.exp}}catch(x){return null}
+  try{var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if(e.exp&&e.exp<Date.now())return null;if((e.tv||0)!==accTokenVer(e.u))return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student',exp:e.exp}}catch(x){return null}
 }
 /* 抹除憑證欄位，避免任何 GET 回應外洩密碼/雜湊/鹽 */
 function sanitize(u){var c={};for(var k in u)if(k!=='password'&&k!=='pwHash'&&k!=='salt')c[k]=u[k];return c}
@@ -281,6 +277,7 @@ async function mergeUsers(incoming,w){
         if(!created.createdAt)created.createdAt=new Date().toISOString();
         if(!created.id)created.id=un;
         if(!created.role)created.role='student';
+        if(created.tokenVer==null)created.tokenVer=0;
         ACC[un]=created;
         saveUserFile(un);
       }
@@ -295,7 +292,9 @@ async function mergeUsers(incoming,w){
       var salt=crypto.randomBytes(16).toString('hex');
       ex.salt=salt;
       ex.pwHash=await hashPassword(iu.password,salt);
+      ex.tokenVer=(ex.tokenVer||0)+1;
       ex.password='';
+      ex.mustChangePw=false;
     }
     if(isAdmin && iu.role) ex.role=iu.role;                      /* 身分：僅 admin */
     ACC[un]=ex;
@@ -304,7 +303,17 @@ async function mergeUsers(incoming,w){
   /* 不因前端清單暫時不完整而刪除教師/學生帳號；帳號只能由明確刪除流程移除。 */
 }
 var MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.webp':'image/webp','.mp4':'video/mp4','.webm':'video/webm','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8','.ico':'image/x-icon'};
-function cors(res,req){var origin=req&&req.headers&&req.headers.origin;var allow=process.env.ADV9_ALLOWED_ORIGIN||origin||'*';res.setHeader('Access-Control-Allow-Origin',allow);res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');}
+function corsOrigin(req){
+  var o=req&&req.headers&&req.headers.origin||'';
+  if(!o)return null;
+  try{var h=new URL(o).hostname}catch(e){return null}
+  /* 允許清單：localhost/127.0.0.1 任意 port + env ADV9_ALLOWED_ORIGINS（完整 origin 精確比對）*/
+  if(h==='localhost'||h==='127.0.0.1')return o;
+  var extra=process.env.ADV9_ALLOWED_ORIGINS||'';
+  if(extra){var list=extra.split(',').map(function(s){return s.trim()}).filter(Boolean);if(list.indexOf(o)>=0)return o;}
+  return null;
+}
+function cors(res,req){var origin=corsOrigin(req);if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');}res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');}
 /* 輸入清洗：所有寫入 KV 的資料都過此函式——字串截斷、陣列/物件深度與數量設上限，防超長輸入塞爆記憶體 */
 function sanitizeInput(v,depth){
   if(depth>6)return undefined;
@@ -316,17 +325,31 @@ function sanitizeInput(v,depth){
   return undefined;
 }
 function readBody(req,cb){var ch=[],len=0,max=60*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy()}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
+var _logBuf=[];var _logTimer=null;
+function flushLogs(){_logTimer=null;if(!_logBuf.length)return;var chunk=_logBuf.join('\n')+'\n';_logBuf=[];fs.appendFile(ACCESSLOG,chunk,function(){})}
+function accessLog(line){
+  line=String(line).replace(/\?[^ ]*/g,''); /* 不記錄 query string（避免 SSE ?token= 外洩）*/
+  _logBuf.push(line);
+  if(_logBuf.length>=50&&!_logTimer)flushLogs();
+  else if(!_logTimer)_logTimer=setTimeout(flushLogs,5000);
+}
 var BUILD='v'+Date.now().toString(36); /* 每次部署/重啟皆異，前端 poll 偵測到版本變化即自動重新整理 */
 var server=http.createServer(function(req,res){
   cors(res,req);
   var u,p;try{u=new URL(req.url,'http://x');p=decodeURIComponent(u.pathname)}catch(e){res.writeHead(400);return res.end('bad url')}
   if(req.method==='OPTIONS'){res.writeHead(204);return res.end()}
   var tok=req.headers['x-adv9-token']||'';
+  /* 首次登入強制改密碼：未改密碼前封鎖所有端點，僅放行帳號同步（改密碼）與登入 */
+  try{var _mtw=checkToken(tok);
+    if(_mtw&&ACC[_mtw.username]&&ACC[_mtw.username].mustChangePw===true&&!(req.method==='POST'&&p==='/rest/v1/adv9_kv')){
+      res.writeHead(403,{'Content-Type':'application/json; charset=utf-8'});
+      return res.end(JSON.stringify({error:'must_change_pw',message:'首次登入請先修改密碼'}));
+    }
+  }catch(_me){}
   var _reqStart=Date.now();
   res.on('finish',function(){try{
-    var line=new Date().toISOString()+' '+req.method+' '+req.url+' '+res.statusCode+' '+((req.socket&&req.socket.remoteAddress)||'?')+' '+String(req.headers['user-agent']||'').slice(0,60);
-    fs.appendFileSync(ACCESSLOG,line+'\n');
-    try{if(fs.statSync(ACCESSLOG).size>2*1024*1024){fs.copyFileSync(ACCESSLOG,ACCESSLOG+'.old');fs.writeFileSync(ACCESSLOG,'')}}catch(e2){}
+    accessLog(new Date().toISOString()+' '+req.method+' '+req.url+' '+res.statusCode+' '+((req.socket&&req.socket.remoteAddress)||'?')+' '+String(req.headers['user-agent']||'').slice(0,60));
+    try{if(fs.statSync(ACCESSLOG).size>2*1024*1024){flushLogs();fs.copyFileSync(ACCESSLOG,ACCESSLOG+'.old');fs.writeFileSync(ACCESSLOG,'')}}catch(e2){}
   }catch(e){}});
 
   /* 管理資料的權威寫入端點：帳號/API 不再依賴前端 localStorage 或延遲佇列 */
@@ -807,7 +830,7 @@ var ext='.docx';
             ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
           } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為 Argon2id 雜湊 */
             ok=String(ex.password)===(pw==null?'':pw);
-            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.password='';saveACC();}
+            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.password='';saveACC();}
           }
         }
         if(ok)break;
@@ -824,7 +847,7 @@ var ext='.docx';
       if(!ok){loginFail(un,ip);res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('帳號或密碼錯誤')}
       loginOk(un,ip);
       var t=newToken(un,ex.role);
-      var out={id:ex.id||ex.username,username:ex.username,name:ex.name,role:ex.role,class_id:ex.classId||null,managedClassIds:Array.isArray(ex.managedClassIds)?ex.managedClassIds:[],isSchoolAdmin:!!ex.isSchoolAdmin,prof:ex.prof||null,created_at:ex.createdAt||null,game_data:ex.g||null,token:t};
+      var out={id:ex.id||ex.username,username:ex.username,name:ex.name,role:ex.role,class_id:ex.classId||null,managedClassIds:Array.isArray(ex.managedClassIds)?ex.managedClassIds:[],isSchoolAdmin:!!ex.isSchoolAdmin,prof:ex.prof||null,created_at:ex.createdAt||null,game_data:ex.g||null,token:t,must_change_pw:ex.mustChangePw===true};
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(out));
     });
   }
@@ -1163,48 +1186,68 @@ var ext='.docx';
     }catch(e){res.writeHead(400);res.end('bad json')}});
   }
 
+  /* ── 沙盒執行安全輔助 ──
+     SB_ENV：最小環境變數（PATH/SYSTEMROOT/TEMP/TMP），不洩漏 ADV9_PEPPER 等機密
+     SB_PATTERNS：靜態黑名單（best-effort，非完整沙箱；僅擋明顯攻擊主機的模式） */
+  var SB_ENV={PATH:process.env.PATH||'',SYSTEMROOT:process.env.SYSTEMROOT||'C:\\Windows',TEMP:process.env.TEMP||'C:\\Windows\\Temp',TMP:process.env.TMP||'C:\\Windows\\Temp'};
+  var SB_PATTERNS=[/child_process/,/require\s*\(/,/os\.system/,/subprocess/,/\bsocket\b/i,/Runtime\.getRuntime\(\)\.exec/,/popen\s*\(/i,/ctypes/i,/processbuilder/i,/rmtree/i,/eval\s*\(/i,/exec\(base64/i];
+  function sbRateLimit(username){
+    var now=Date.now(),w=Math.floor(now/60000);
+    if(!sbRateLimit._gc||now-sbRateLimit._gc>300000){ /* 定期清掉過期視窗，防 map 無限成長 */
+      sbRateLimit._gc=now;
+      Object.keys(SB_RATE).forEach(function(k){if(SB_RATE[k].win!==w)delete SB_RATE[k]});
+    }
+    var e=SB_RATE[username];
+    if(!e||e.win!==w){e={win:w,n:0};SB_RATE[username]=e;}
+    e.n++;return e.n<=10;
+  }
+  function sbScan(code){
+    for(var i=0;i<SB_PATTERNS.length;i++){if(SB_PATTERNS[i].test(code))return false;}
+    return true;
+  }
+  var SB_RATE={};
   /* 程式碼沙盒執行 */
   if(req.method==='POST'&&p==='/rest/v1/sandbox/run'){
     var cw9=checkToken(tok);if(!cw9){res.writeHead(401);return res.end('need login')}
     return readBody(req,function(b){try{
+      if(!sbRateLimit(cw9.username)){res.writeHead(429);return res.end('rate limit: max 10 executions/min')}
       var j=JSON.parse(b.toString('utf8'));
       var lang=String(j.lang||'python').slice(0,10);
-      var code=String(j.code||'').slice(0,50000);
+      var code=String(j.code||'');
       if(!code){res.writeHead(400);return res.end('no code')}
-      var fn=path.join(TMPDIR,'adv9_sb_'+crypto.randomBytes(4).toString('hex'));
+      if(Buffer.byteLength(code,'utf8')>50*1024){res.writeHead(413);return res.end('submission too large (max 50KB)')}
+      if(!sbScan(code)){res.writeHead(400);return res.end('blocked: dangerous pattern detected')}
+      /* 每次執行使用獨立暫存目錄，結束後遞迴清除 */
+      var sbDir=fs.mkdtempSync(path.join(os.tmpdir(),'adv9sb-'));
       var result={stdout:'',stderr:'',exit_code:1,time_ms:0,error:null};
       var t0=Date.now();
       try{
         if(lang==='python'){
-          fs.writeFileSync(fn+'.py',code);
-          var r2=child_process.spawnSync(PYTHON,[fn+'.py'],{encoding:'utf8',timeout:10000});
+          var fn=path.join(sbDir,'main.py');fs.writeFileSync(fn,code);
+          var r2=child_process.spawnSync(PYTHON,['-I',fn],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:3000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
           result.stdout=r2.stdout||'';result.stderr=r2.stderr||'';result.exit_code=r2.status;
-          try{fs.unlinkSync(fn+'.py')}catch(e2){}
         }else if(lang==='cpp'){
-          fs.writeFileSync(fn+'.cpp',code);
-          var outFn=fn+'.out'+(process.platform==='win32'?'.exe':'');
-          var rc=child_process.spawnSync('g++',[fn+'.cpp','-o',outFn,'-std=c++17','-pthread'],{encoding:'utf8',timeout:15000});
+          var src=path.join(sbDir,'main.cpp'),outFn=path.join(sbDir,'prog'+(process.platform==='win32'?'.exe':''));
+          fs.writeFileSync(src,code);
+          var rc=child_process.spawnSync('g++',[src,'-o',outFn,'-std=c++17','-pthread'],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:5000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
           if(rc.status===0){
-            var r3=child_process.spawnSync(outFn,{encoding:'utf8',timeout:10000});
+            var r3=child_process.spawnSync(outFn,[],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:3000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
             result.stdout=r3.stdout||'';result.stderr=r3.stderr||'';result.exit_code=r3.status;
           }else{result.stderr=(rc.stderr||'')+'\n編譯失敗';result.exit_code=rc.status;}
-          try{fs.unlinkSync(outFn)}catch(e3){}
-          try{fs.unlinkSync(fn+'.cpp')}catch(e3b){}
         }else if(lang==='java'){
           /* Java：寫入對應 class 的 .java 檔案 */
           var clsMatch=code.match(/public\s+class\s+(\w+)/);
           var clsName=clsMatch?clsMatch[1]:'Main';
-          var javaFile=path.join(TMPDIR,clsName+'.java');
+          var javaFile=path.join(sbDir,clsName+'.java');
           fs.writeFileSync(javaFile,code);
-          var rc2=child_process.spawnSync('javac',[javaFile],{encoding:'utf8',timeout:15000});
+          var rc2=child_process.spawnSync('javac',[javaFile],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:5000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
           if(rc2.status===0){
-            var r4=child_process.spawnSync('java',['-cp',TMPDIR,clsName],{encoding:'utf8',timeout:10000,cwd:TMPDIR});
+            var r4=child_process.spawnSync('java',['-cp',sbDir,clsName],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:3000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
             result.stdout=r4.stdout||'';result.stderr=r4.stderr||'';result.exit_code=r4.status;
           }else{result.stderr=(rc2.stderr||'')+'\n編譯失敗';result.exit_code=rc2.status;}
-          try{fs.unlinkSync(javaFile)}catch(e4){}
-          try{fs.unlinkSync(path.join(TMPDIR,clsName+'.class'))}catch(e4b){}
         }else{result.error='不支援的語言：'+lang+'。支援：python/cpp/java';}
       }catch(e5){result.error=e5.message;}
+      finally{try{fs.rmSync(sbDir,{recursive:true,force:true})}catch(ec){}}
       result.time_ms=Date.now()-t0;
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));
     }catch(e6){res.writeHead(400);res.end('bad json')}});
@@ -1521,8 +1564,17 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
 /* ═══ WebSocket Real-time PK ═══ */
 function createWebSocketServer(server) {
   server.on('upgrade', function(req, socket, head) {
-    if (req.url !== '/ws/pk') { socket.destroy(); return; }
-    
+    if (req.url !== '/ws/pk' && req.url.indexOf('/ws/pk?') !== 0) { socket.destroy(); return; }
+    /* 升級前驗 token：sec-websocket-protocol 或 ?token= */
+    var wsTok = '';
+    try {
+      var proto = req.headers['sec-websocket-protocol'];
+      if (proto) wsTok = String(proto).split(',')[0].trim();
+      if (!wsTok) wsTok = new URL(req.url, 'http://x').searchParams.get('token') || '';
+    } catch(e) {}
+    var wsAuth = checkToken(wsTok);
+    if (!wsAuth) { socket.destroy(); return; }
+
     var key = req.headers['sec-websocket-key'];
     var accept = crypto.createHash('sha1')
       .update(key + '258EAFA5-E914-47DA-95CA-5AB5DC65C740')
@@ -1536,7 +1588,7 @@ function createWebSocketServer(server) {
     );
     
     socket._pkRoom = null;
-    socket._pkUser = null;
+    socket._pkUser = wsAuth.username; /* 身分來自升級時驗證的 token，不信任客戶端訊息 */
     socket._pkAlive = true;
     
     socket.on('data', function(data) {
@@ -1632,7 +1684,6 @@ function handleClassCompMessage(socket, msg) {
 
 function handlePkMessage(socket, msg) {
   if (msg.type === 'join') {
-    socket._pkUser = msg.user;
     socket._pkRoom = msg.room || 'lobby';
     if (!PK_ROOMS[socket._pkRoom]) PK_ROOMS[socket._pkRoom] = {};
     PK_ROOMS[socket._pkRoom][socket._pkUser] = socket;
@@ -1830,7 +1881,6 @@ if(cluster.isMaster){
         console.log('  ║  冒險者學習平台 v8.0.1                  ║');
         console.log('  ╠══════════════════════════════════════════╣');
         console.log('  ║  🌐 '+url+'               ║');
-        console.log('  ║  👤 admin: adv9boss / admin123          ║');
         console.log('  ╚══════════════════════════════════════════╝');
         console.log('');
         if(!_urlPrinted){_urlPrinted=true;
