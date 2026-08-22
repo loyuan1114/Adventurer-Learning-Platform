@@ -21,27 +21,25 @@
 
 ## Quick Start
 
-### Option A: Desktop Installer (Recommended)
+### Desktop Installer
 
-Download the installer for your platform and double-click to run:
+Download and double-click:
 
-| Platform | Architecture | Download |
-|----------|-------------|----------|
-| **Windows** | x64 | [`adv9-installer-windows-x64.exe`](../../releases/latest/download/adv9-installer-windows-x64.exe) |
-| **Windows** | x86 (32-bit) | [`adv9-installer-windows-x86.exe`](../../releases/latest/download/adv9-installer-windows-x86.exe) |
-| **Windows** | ARM64 | [`adv9-installer-windows-arm64.exe`](../../releases/latest/download/adv9-installer-windows-arm64.exe) |
-| **macOS** | Apple Silicon (M1+) | [`adv9-installer-mac-arm64`](../../releases/latest/download/adv9-installer-mac-arm64) |
-| **macOS** | Intel | [`adv9-installer-mac-x64`](../../releases/latest/download/adv9-installer-mac-x64) |
-| **Linux** | x64 | [`adv9-installer-linux-x64`](../../releases/latest/download/adv9-installer-linux-x64) |
-| **Linux** | ARM64 | [`adv9-installer-linux-arm64`](../../releases/latest/download/adv9-installer-linux-arm64) |
+| File | Platform |
+|------|----------|
+| `adv9-installer-windows-x64.exe` | Windows 64-bit |
+| `adv9-installer-windows-x86.exe` | Windows 32-bit |
+| `adv9-installer-windows-arm64.exe` | Windows ARM |
+| `adv9-installer-mac-arm64` | macOS Apple Silicon |
+| `adv9-installer-mac-x64` | macOS Intel |
+| `adv9-installer-linux-x64` | Linux 64-bit |
+| `adv9-installer-linux-arm64` | Linux ARM |
 
-The installer will:
-1. Auto-install Docker (if not present)
-2. Download the project from GitHub
-3. Build and start the Docker container
-4. Open your browser to `http://127.0.0.1:8080`
+> Download from [Releases](../../releases/latest). Other platform binaries are built automatically by GitHub Actions.
 
-> Default credentials: `adv9boss` / `admin123` — change password on first login.
+Installer does everything: installs Docker → downloads project → builds container → opens browser.
+
+Default login: `adv9boss` / `admin123`
 
 ### Option B: Docker Compose
 
