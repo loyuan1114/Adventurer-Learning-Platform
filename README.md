@@ -51,42 +51,49 @@ A gamified learning platform: quiz adventures, card-based character development,
 
 ---
 
-## 🤖 AI Reviews / AI 評價
+## 🤖 AI Reviews / AI 綜合評價
 
-Multiple AI models have independently evaluated this platform against major education platforms (PaGamO, Cool English, 均一教育平台). Below is a summary.
+Multiple AI models (DeepSeek, Qwen, Claude) independently evaluated this platform against PaGamO, Cool English (酷英網), and 均一教育平台. Below is an integrated summary.
+多家 AI 模型（DeepSeek、Qwen、Claude）分別將本平台與 PaGamO、酷英網、均一教育平台進行了獨立評估。以下為整合摘要。
 
-### DeepSeek 評價
+### Comparison with Traditional Platforms / 與傳統平台比較
 
-> **5 大核心差異**
-> 1. **開源可自架** — 不同於 PaGamO/酷英/均一的雲端 SaaS，可完全自主部署、掌握資料
-> 2. **遊戲化深度** — 抽卡養成 + 公會戰 + 職業競賽，遊戲機制比 PaGamO 更豐富多元
-> 3. **多模型 AI 整合** — 支援 6 種以上 AI 提供商，遠超酷英的單一 AI 方案
-> 4. **程式碼沙盒** — 內建 Python/C++/Java 執行環境，是唯一同時具備遊戲化 + 程式實作的平台
-> 5. **211 種語言學習** — 語言覆蓋範圍遠超酷英（僅英語）與均一（主要中英數理）
+| Dimension / 維度 | Adventurer | PaGamO | 均一 | Cool English |
+|-----------------|-----------|--------|------|-------------|
+| Gamification / 遊戲化強度 | ★★★★★ | ★★★★ | ★★ | ★★★ |
+| AI Integration / AI 整合度 | ★★★★★ 多模型 | ★ | ★ | ★★★★ 語音強 |
+| Customizability / 客製化 | ★★★★★ 開源 | ★ 封閉 | ★ 封閉 | ★ 封閉 |
+| Data Ownership / 資料主權 | ★★★★★ 自管 | ★★★ 代管 | ★★★ 代管 | ★★★★ 政府 |
+| Social Features / 社群互動 | ★★★★★ | ★★★★ | ★ | ★ |
+| Code Learning / 程式學習 | ★★★★★ 沙盒 | ✗ | ★★★ | ✗ |
 
-> ⭐⭐⭐⭐⭐ **推薦給技術玩家、自架愛好者**：開源、可完全掌控資料與功能；遊戲化機制最完整；支援多種 AI 模型；內建程式沙盒。
+### Key Strengths Identified by AI / AI 識別的核心優勢
 
-### Qwen 評價
+1. **Open-source & self-hosted / 開源自架** — Unlike all three SaaS competitors, you own your data and can modify anything.
+   不同於三個 SaaS 競品，你完全擁有資料並可修改任何功能。
 
-> | 目標受眾 | 推薦平台 | 推薦程度 |
-> |---------|---------|---------|
-> | 創新實驗教育機構 / 資訊科教師 / 教學研究團隊 | Adventurer-Learning-Platform | ⭐⭐⭐⭐⭐ 極高 |
-> | 自學者 / 程式開發者 / 重度遊戲愛好者 | Adventurer-Learning-Platform | ⭐⭐⭐⭐ 高 |
+2. **Deepest gamification / 最深度遊戲化** — Card gacha + guild wars + territory conquest + forge crafting goes far beyond PaGamO's territory mechanic.
+   抽卡 + 公會戰 + 領土征服 + 鍛造系統，遠超 PaGamO 的領土機制。
 
-> **優勢**：極致客製化、隱私與 AI 整合（支援 Ollama 本地部署）、跨領域整合（內建程式沙盒非常適合資訊科或創客課程）。
+3. **Multi-model AI / 多模型 AI** — Supports 6+ providers (Gemini/OpenAI/DeepSeek/Qwen/Kimi/Ollama) with local Ollama option for privacy.
+   支援 6+ 供應商，支援 Ollama 本機部署保障隱私。
 
-### Claude 評價
+4. **Built-in code sandbox / 內建程式沙盒** — Only platform combining gamified learning with Python/C++/Java execution.
+   唯一結合遊戲化學習與 Python/C++/Java 執行環境的平台。
 
-> **與 PaGamO / 均一 / 酷英網完整比較**
->
-> | 維度 | 冒險者學習平台 | PaGamO | 均一 | 酷英網 |
-> |------|------------|--------|------|-------|
-> | 遊戲化強度 | ★★★★★ 極高 | ★★★★ 高 | ★★ 中等 | ★★★ 中等 |
-> | AI 功能 | ★★★★★ 多模型 | ★ 無 | ★ 無 | ★★★★ 語音強 |
-> | 客製化彈性 | ★★★★★ 極高 | ★ 低 | ★ 低 | ★ 低 |
-> | 資料主權 | ★★★★★ 自管 | ★★★ 代管 | ★★★ 代管 | ★★★★ 政府 |
-> | 社群互動 | ★★★★★ 強 | ★★★★ 中 | ★ 弱 | ★ 弱 |
-> | 程式學習 | ★★★★★ 沙盒 | ✗ 無 | ★★★ 電腦課 | ✗ 無 |
+5. **211 languages / 211 種語言** — Language coverage far exceeds Cool English (English-only) and 均一 (mainly Chinese/English/Math).
+   語言覆蓋範圍遠超酷英（僅英語）與均一（主要中英數理）。
+
+### Best Use Cases / 最適合的使用場景
+
+| Who / 對象 | Recommended / 推薦 | Why / 原因 |
+|-----------|-------------------|-----------|
+| Tech-savvy teachers & developers / 技術型教師與開發者 | **Adventurer** ⭐⭐⭐⭐⭐ | Full control, maximum customization, AI + code sandbox |
+| Innovation schools & CS educators / 創新學校與資訊科教師 | **Adventurer** ⭐⭐⭐⭐⭐ | Privacy-first AI, code sandbox for maker courses |
+| Self-learners & gamers / 自學者與遊戲愛好者 | **Adventurer** ⭐⭐⭐⭐ | Offline demo, deepest gamification, open-source learning |
+| General K-12 teachers / 一般中小學教師 | **均一 + PaGamO** ⭐⭐⭐⭐⭐ | Zero setup, curriculum-aligned, stable long-term |
+| English-focused students / 英語專攻學生 | **Cool English** ⭐⭐⭐⭐⭐ | Best AI pronunciation, official government content |
+| Classroom motivation / 班級動機提升 | **PaGamO** ⭐⭐⭐⭐ | Territory battles drive team-based motivation |
 
 ---
 
