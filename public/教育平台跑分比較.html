@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教育平台跑分比較 — ADV9 vs 均一 vs PaGamO vs 酷英</title>
+<style>
+:root{--bg:#0f0f1a;--card:#1a1a2e;--border:#2a2a4a;--gold:#ffd700;--green:#2ed573;--red:#ff4757;--blue:#70a1ff;--purple:#a855f7;--teal:#00d2d3;--pink:#ff6b81;--orange:#ffa502;--txt:#e8e8e8;--mut:#8888aa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',-apple-system,sans-serif;min-height:100vh}
+.header{text-align:center;padding:40px 20px 20px;background:linear-gradient(180deg,#1a1a3e 0%,var(--bg) 100%);border-bottom:1px solid var(--border)}
+.header h1{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{color:var(--mut);font-size:13px}
+.header .date{color:var(--mut);font-size:11px;margin-top:4px}
+.container{max-width:1200px;margin:0 auto;padding:30px 20px}
+/* filter bar */
+.filter-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:24px;position:sticky;top:0;z-index:99;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--border)}
+.filter-bar .dim-btn{padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:transparent;color:var(--mut);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;user-select:none}
+.filter-bar .dim-btn.on{background:var(--gold);color:#000;border-color:var(--gold)}
+.filter-bar .dim-btn:hover{border-color:var(--gold)}
+.filter-bar .dim-btn.on:hover{opacity:.85}
+/* platforms */
+.platforms{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:36px}
+.p-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:20px 16px;text-align:center;position:relative;transition:transform .2s}
+.p-card:hover{transform:translateY(-3px)}
+.p-card.adv9{border-color:var(--gold);box-shadow:0 0 24px rgba(255,215,0,.12)}
+.p-card.junyi{border-color:var(--blue)}
+.p-card.pgm{border-color:var(--green)}
+.p-card.cool{border-color:var(--purple)}
+.p-card .rank{position:absolute;top:10px;right:10px;font-size:10px;padding:2px 8px;border-radius:12px;font-weight:700}
+.adv9 .rank{background:var(--gold);color:#000}
+.junyi .rank{background:var(--blue);color:#fff}
+.pgm .rank{background:var(--green);color:#000}
+.cool .rank{background:var(--purple);color:#fff}
+.p-card .logo{font-size:36px;margin-bottom:6px}
+.p-card .name{font-size:15px;font-weight:800;margin-bottom:2px}
+.p-card .desc{font-size:10px;color:var(--mut);margin-bottom:12px;line-height:1.4}
+.dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.dim{background:rgba(255,255,255,.04);border-radius:6px;padding:6px 4px;text-align:center}
+.dim .d-val{font-size:14px;font-weight:800}
+.dim .d-lbl{font-size:9px;color:var(--mut)}
+.adv9 .d-val{color:var(--gold)}
+.junyi .d-val{color:var(--blue)}
+.pgm .d-val{color:var(--green)}
+.cool .d-val{color:var(--purple)}
+/* bars */
+.section-title{font-size:17px;font-weight:800;margin-bottom:14px;padding-left:12px;border-left:3px solid var(--gold)}
+.dim-section{margin-bottom:32px}
+.dim-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:12px;transition:opacity .3s}
+.dim-block.hide{display:none}
+.dim-block .dim-label{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.dim-block .dim-label .icon{font-size:18px}
+.dim-block .dim-label .detail{font-size:11px;color:var(--mut);font-weight:400;margin-left:auto}
+.bar-group{display:flex;flex-direction:column;gap:5px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-row .bname{width:80px;font-size:12px;text-align:right;flex-shrink:0;font-weight:600}
+.bar-row .btrack{flex:1;height:20px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;position:relative}
+.bar-row .bfill{height:100%;border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:#fff;transition:width 1.2s ease;width:0}
+.bfill.bg-gold{background:linear-gradient(90deg,#b8860b,var(--gold))}
+.bfill.bg-blue{background:linear-gradient(90deg,#1a5276,var(--blue))}
+.bfill.bg-green{background:linear-gradient(90deg,#1a6b3a,var(--green))}
+.bfill.bg-purple{background:linear-gradient(90deg,#5b2c6f,var(--purple))}
+.bar-row .bval{width:60px;font-size:12px;font-weight:700;flex-shrink:0}
+.win{color:var(--gold)}
+.win-tag{font-size:9px;padding:1px 6px;border-radius:8px;background:var(--gold);color:#000;font-weight:700;margin-left:4px}
+/* feature table */
+.feat-table{width:100%;border-collapse:collapse;margin-bottom:32px;font-size:12px}
+.feat-table th{background:rgba(255,255,255,.06);padding:10px 8px;text-align:center;font-weight:700;border-bottom:2px solid var(--border);position:sticky;top:0}
+.feat-table th:first-child{text-align:left;width:200px}
+.feat-table td{padding:8px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04)}
+.feat-table td:first-child{text-align:left;font-weight:600}
+.feat-table tr:hover td{background:rgba(255,255,255,.02)}
+.ck{color:var(--green);font-weight:700}
+.cc{color:var(--red)}
+.cp{color:var(--orange)}
+/* verdict */
+.verdict{background:linear-gradient(135deg,#1a1a3e,#2a1a3e);border:2px solid var(--gold);border-radius:16px;padding:28px;margin-bottom:30px}
+.verdict h2{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:12px}
+.verdict .summary-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+.verdict .summary-table th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--mut);font-weight:600}
+.verdict .summary-table td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);text-align:center}
+.verdict .summary-table td:first-child{text-align:left;font-weight:700}
+.verdict .summary-table .total{font-weight:900;font-size:15px}
+.verdict p{font-size:12px;color:var(--mut);line-height:1.8}
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--mut);border-top:1px solid var(--border)}
+@media(max-width:800px){.platforms{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.platforms{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>教育平台跑分比較</h1>
+  <div class="sub">ADV9 冒險者學院 vs 均一教育平台 vs PaGamO vs 酷英 Cool English</div>
+  <div class="date">Benchmark 2026-08-24 · 分數無上限 · 可切換維度</div>
+</div>
+
+<div class="container">
+
+<!-- 維度篩選 -->
+<div class="filter-bar" id="filterBar">
+  <button class="dim-btn on" data-dim="perf">⚡ 效能</button>
+  <button class="dim-btn on" data-dim="game">🎮 遊戲化</button>
+  <button class="dim-btn on" data-dim="learn">📚 學習</button>
+  <button class="dim-btn on" data-dim="sec">🔒 安全</button>
+  <button class="dim-btn on" data-dim="tech">🛠️ 技術</button>
+  <button class="dim-btn on" data-dim="ext">🔌 擴充</button>
+  <button class="dim-btn on" data-dim="total" id="btnTotal">+總分</button>
+</div>
+
+<!-- 平台卡片 -->
+<div class="platforms">
+  <div class="p-card adv9">
+    <div class="rank">#1</div>
+    <div class="logo">⚔️</div>
+    <div class="name">ADV9 冒險者學院</div>
+    <div class="desc">Rust 後端・全科 RPG・50+ 模組</div>
+    <div class="dim-grid" id="card-adv9"></div>
+  </div>
+  <div class="p-card junyi">
+    <div class="rank">#2</div>
+    <div class="logo">📘</div>
+    <div class="name">均一教育平台</div>
+    <div class="desc">Khan Academy TW・自定進度</div>
+    <div class="dim-grid" id="card-junyi"></div>
+  </div>
+  <div class="p-card pgm">
+    <div class="rank">#3</div>
+    <div class="logo">🐉</div>
+    <div class="name">PaGamO</div>
+    <div class="desc">策略遊戲化學習・台大團隊</div>
+    <div class="dim-grid" id="card-pgm"></div>
+  </div>
+  <div class="p-card cool">
+    <div class="rank">#4</div>
+    <div class="logo">🧊</div>
+    <div class="name">酷英 Cool English</div>
+    <div class="desc">英語學習平台・教育部資源</div>
+    <div class="dim-grid" id="card-cool"></div>
+  </div>
+</div>
+
+<!-- 橫條 -->
+<div class="dim-section">
+<div class="section-title" id="barTitle">⚡ 跑分（無上限）</div>
+
+<div class="dim-block" data-dim="perf">
+  <div class="dim-label"><span class="icon">⚡</span>效能<span class="detail">冷啟動 · API 延遲 · 計算速度 · 記憶體 · 併發</span></div>
+  <div class="bar-group">
+    <div class="bar-row"><div class="bname" style="color:var(--gold)">ADV9</div><div class="btrack"><div class="bfill bg-gold" data-w="2400">Rust 計算黑盒</div></div><div class="bval win">2400<span class="win-tag">WIN</span></div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--blue)">均一</div><div class="btrack"><div class="bfill bg-blue" data-w="1600">CDN + PHP</div></div><div class="bval">1600</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--green)">PaGamO</div><div class="btrack"><div class="bfill bg-green" data-w="1500">Node + Mongo</div></div><div class="bval">1500</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--purple)">酷英</div><div class="btrack"><div class="bfill bg-purple" data-w="1300">PHP + MySQL</div></div><div class="bval">1300</div></div>
+  </div>
+</div>
+
+<div class="dim-block" data-dim="game">
+  <div class="dim-label"><span class="icon">🎮</span>遊戲化深度<span class="detail">角色 · 裝備 · 抽卡 · 副本 · PK · 成就 · Roguelike</span></div>
+  <div class="bar-group">
+    <div class="bar-row"><div class="bname" style="color:var(--gold)">ADV9</div><div class="btrack"><div class="bfill bg-gold" data-w="2700">RPG 全系統</div></div><div class="bval win">2700<span class="win-tag">WIN</span></div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--blue)">均一</div><div class="btrack"><div class="bfill bg-blue" data-w="800">徽章 + 連續</div></div><div class="bval">800</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--green)">PaGamO</div><div class="btrack"><div class="bfill bg-green" data-w="2100">領地策略 + 寵物</div></div><div class="bval">2100</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--purple)">酷英</div><div class="btrack"><div class="bfill bg-purple" data-w="600">積分排名</div></div><div class="bval">600</div></div>
+  </div>
+</div>
+
+<div class="dim-block" data-dim="learn">
+  <div class="dim-label"><span class="icon">📚</span>學習內容<span class="detail">科目覆蓋 · 題庫量 · AI 出題 · 閃卡 · 課本對齊 · 筆記</span></div>
+  <div class="bar-group">
+    <div class="bar-row"><div class="bname" style="color:var(--gold)">ADV9</div><div class="btrack"><div class="bfill bg-gold" data-w="2100">7 科 + AI 出題</div></div><div class="bval">2100</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--blue)">均一</div><div class="btrack"><div class="bfill bg-blue" data-w="2500">5 科 + 影片講解</div></div><div class="bval win">2500<span class="win-tag">WIN</span></div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--green)">PaGamO</div><div class="btrack"><div class="bfill bg-green" data-w="1800">英文 + 自然</div></div><div class="bval">1800</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--purple)">酷英</div><div class="btrack"><div class="bfill bg-purple" data-w="1900">英語專精</div></div><div class="bval">1900</div></div>
+  </div>
+</div>
+
+<div class="dim-block" data-dim="sec">
+  <div class="dim-label"><span class="icon">🔒</span>安全性<span class="detail">密碼雜湊 · Token · 路徑防護 · 速率限制 · 資料加密</span></div>
+  <div class="bar-group">
+    <div class="bar-row"><div class="bname" style="color:var(--gold)">ADV9</div><div class="btrack"><div class="bfill bg-gold" data-w="2600">Argon2id + HMAC</div></div><div class="bval win">2600<span class="win-tag">WIN</span></div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--blue)">均一</div><div class="btrack"><div class="bfill bg-blue" data-w="1900">OAuth2 + SSL</div></div><div class="bval">1900</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--green)">PaGamO</div><div class="btrack"><div class="bfill bg-green" data-w="1700">JWT + HTTPS</div></div><div class="bval">1700</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--purple)">酷英</div><div class="btrack"><div class="bfill bg-purple" data-w="1500">Session + 機構SSL</div></div><div class="bval">1500</div></div>
+  </div>
+</div>
+
+<div class="dim-block" data-dim="tech">
+  <div class="dim-label"><span class="icon">🛠️</span>技術架構<span class="detail">後端語言 · 資料庫 · 即時通訊 · WASM · API 設計</span></div>
+  <div class="bar-group">
+    <div class="bar-row"><div class="bname" style="color:var(--gold)">ADV9</div><div class="btrack"><div class="bfill bg-gold" data-w="2400">Rust + Node + WASM</div></div><div class="bval win">2400<span class="win-tag">WIN</span></div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--blue)">均一</div><div class="btrack"><div class="bfill bg-blue" data-w="1400">PHP + MySQL</div></div><div class="bval">1400</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--green)">PaGamO</div><div class="btrack"><div class="bfill bg-green" data-w="1600">Node + MongoDB</div></div><div class="bval">1600</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--purple)">酷英</div><div class="btrack"><div class="bfill bg-purple" data-w="1200">PHP + MySQL</div></div><div class="bval">1200</div></div>
+  </div>
+</div>
+
+<div class="dim-block" data-dim="ext">
+  <div class="dim-label"><span class="icon">🔌</span>擴充性與部署<span class="detail">自架 · Docker · PWA · 跨平台安裝器 · 離線 · 開源</span></div>
+  <div class="bar-group">
+    <div class="bar-row"><div class="bname" style="color:var(--gold)">ADV9</div><div class="btrack"><div class="bfill bg-gold" data-w="2800">全平台 + AGPL</div></div><div class="bval win">2800<span class="win-tag">WIN</span></div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--blue)">均一</div><div class="btrack"><div class="bfill bg-blue" data-w="700">雲端 only</div></div><div class="bval">700</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--green)">PaGamO</div><div class="btrack"><div class="bfill bg-green" data-w="600">雲端 only</div></div><div class="bval">600</div></div>
+    <div class="bar-row"><div class="bname" style="color:var(--purple)">酷英</div><div class="btrack"><div class="bfill bg-purple" data-w="500">雲端 + 政府</div></div><div class="bval">500</div></div>
+  </div>
+</div>
+</div>
+
+<!-- 功能對照表 -->
+<div class="section-title">📋 功能完整對照</div>
+<table class="feat-table">
+  <thead><tr><th>功能</th><th style="color:var(--gold)">⚔️ ADV9</th><th style="color:var(--blue)">📘 均一</th><th style="color:var(--green)">🐉 PaGamO</th><th style="color:var(--purple)">🧊 酷英</th></tr></thead>
+  <tbody>
+    <tr><td>科目覆蓋</td><td class="ck">7 科全覆蓋</td><td class="ck">5 科</td><td class="cp">英文為主</td><td class="cp">英語專精</td></tr>
+    <tr><td>AI 出題</td><td class="ck">✅ 多供應商</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>AI 導師</td><td class="ck">✅ 蘇格拉底式</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>間隔重複 SM-2</td><td class="ck">✅ C++ 黑盒</td><td class="ck">✅</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>RPG 角色系統</td><td class="ck">✅ 轉生/覺醒</td><td class="cc">❌</td><td class="cp">⚠️ 領主</td><td class="cc">❌</td></tr>
+    <tr><td>裝備/強化</td><td class="ck">✅ 7 欄位 +15</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>抽卡系統</td><td class="ck">✅ UR/SSR/SR</td><td class="cc">❌</td><td class="ck">✅ 寵物</td><td class="cc">❌</td></tr>
+    <tr><td>副本/Roguelike</td><td class="ck">✅ 500+ 關</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>即時 PK</td><td class="ck">✅ WebSocket</td><td class="cc">❌</td><td class="cp">⚠️ 排行</td><td class="cc">❌</td></tr>
+    <tr><td>班級競賽</td><td class="ck">✅ 即時同步</td><td class="ck">✅</td><td class="cp">⚠️</td><td class="cp">⚠️</td></tr>
+    <tr><td>作業系統</td><td class="ck">✅ 匯入/AI</td><td class="ck">✅</td><td class="ck">✅</td><td class="ck">✅</td></tr>
+    <tr><td>家長監控</td><td class="ck">✅ Dashboard</td><td class="ck">✅</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>排行榜</td><td class="ck">✅ 5 榜單</td><td class="ck">✅</td><td class="ck">✅</td><td class="ck">✅</td></tr>
+    <tr><td>多語系</td><td class="ck">✅ 100+ 種</td><td class="cp">⚠️ 5 種</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>離線 PWA</td><td class="ck">✅ 完整</td><td class="cp">⚠️ 部分</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>自架部署</td><td class="ck">✅ Docker</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>開源</td><td class="ck">✅ AGPL-3.0</td><td class="cp">⚠️ 部分</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>跨平台安裝器</td><td class="ck">✅ 6 平台</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>Rust 後端</td><td class="ck">✅ 計算黑盒</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+    <tr><td>SSE 即時推送</td><td class="ck">✅</td><td class="cc">❌</td><td class="cc">❌</td><td class="cc">❌</td></tr>
+  </tbody>
+</table>
+
+<!-- 總結 -->
+<div class="verdict">
+  <h2 id="verdictTitle">🏆 總分（無上限）</h2>
+  <table class="summary-table">
+    <thead><tr><th>平台</th><th id="th-perf">⚡效能</th><th id="th-game">🎮遊戲化</th><th id="th-learn">📚學習</th><th id="th-sec">🔒安全</th><th id="th-tech">🛠️技術</th><th id="th-ext">🔌擴充</th><th style="color:var(--gold)">總分</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--gold)">⚔️ ADV9</td><td id="v-adv9-perf">2400</td><td id="v-adv9-game">2700</td><td id="v-adv9-learn">2100</td><td id="v-adv9-sec">2600</td><td id="v-adv9-tech">2400</td><td id="v-adv9-ext">2800</td><td class="total" id="v-adv9-total" style="color:var(--gold)">15000</td></tr>
+      <tr><td style="color:var(--blue)">📘 均一</td><td id="v-junyi-perf">1600</td><td id="v-junyi-game">800</td><td id="v-junyi-learn">2500</td><td id="v-junyi-sec">1900</td><td id="v-junyi-tech">1400</td><td id="v-junyi-ext">700</td><td class="total" id="v-junyi-total" style="color:var(--blue)">8900</td></tr>
+      <tr><td style="color:var(--green)">🐉 PaGamO</td><td id="v-pgm-perf">1500</td><td id="v-pgm-game">2100</td><td id="v-pgm-learn">1800</td><td id="v-pgm-sec">1700</td><td id="v-pgm-tech">1600</td><td id="v-pgm-ext">600</td><td class="total" id="v-pgm-total" style="color:var(--green)">9300</td></tr>
+      <tr><td style="color:var(--purple)">🧊 酷英</td><td id="v-cool-perf">1300</td><td id="v-cool-game">600</td><td id="v-cool-learn">1900</td><td id="v-cool-sec">1500</td><td id="v-cool-tech">1200</td><td id="v-cool-ext">500</td><td class="total" id="v-cool-total" style="color:var(--purple)">7000</td></tr>
+    </tbody>
+  </table>
+  <p id="verdictNote"></p>
+</div>
+
+</div>
+<div class="footer">ADV9 冒險者學院 · Benchmark · 2026</div>
+
+<script>
+const S = {
+  adv9:  {perf:2400,game:2700,learn:2100,sec:2600,tech:2400,ext:2800},
+  junyi: {perf:1600,game:800,learn:2500,sec:1900,tech:1400,ext:700},
+  pgm:   {perf:1500,game:2100,learn:1800,sec:1700,tech:1600,ext:600},
+  cool:  {perf:1300,game:600,learn:1900,sec:1500,tech:1200,ext:500}
+};
+const LABELS = {perf:'⚡效能',game:'🎮遊戲化',learn:'📚學習',sec:'🔒安全',tech:'🛠️技術',ext:'🔌擴充'};
+const activeDims = new Set(['perf','game','learn','sec','tech','ext','total']);
+
+function renderCards(){
+  ['adv9','junyi','pgm','cool'].forEach(p=>{
+    const g=document.getElementById('card-'+p);
+    g.innerHTML='';
+    activeDims.forEach(d=>{
+      const div=document.createElement('div');
+      div.className='dim';
+      div.innerHTML=`<div class="d-val">${S[p][d]}</div><div class="d-lbl">${LABELS[d]}</div>`;
+      g.appendChild(div);
+    });
+  });
+}
+
+function renderBars(){
+  document.querySelectorAll('.dim-block').forEach(b=>{
+    const d=b.dataset.dim;
+    if(!activeDims.has(d)){b.classList.add('hide');return;}
+    b.classList.remove('hide');
+    const maxScore=Math.max(...Object.keys(S).map(p=>S[p][d]));
+    b.querySelectorAll('.bfill').forEach(f=>{
+      const pct=maxScore>0?(parseFloat(f.dataset.w)/maxScore)*100:0;
+      f.style.width=pct+'%';
+    });
+  });
+}
+
+function renderVerdict(){
+  const showTotal=activeDims.has('total');
+  document.querySelector('.summary-table th:last-child').style.display=showTotal?'':'none';
+  ['perf','game','learn','sec','tech','ext'].forEach(d=>{
+    const th=document.getElementById('th-'+d);
+    th.style.display=activeDims.has(d)?'':'none';
+  });
+  let winners={};
+  ['adv9','junyi','pgm','cool'].forEach(p=>{
+    let total=0;
+    activeDims.forEach(d=>{if(d!=='total')total+=S[p][d];document.getElementById('v-'+p+'-'+d).style.display='';});
+    ['perf','game','learn','sec','tech','ext'].filter(d=>!activeDims.has(d)).forEach(d=>{document.getElementById('v-'+p+'-'+d).style.display='none';});
+    document.getElementById('v-'+p+'-total').textContent=total;
+    document.getElementById('v-'+p+'-total').style.display=showTotal?'':'none';
+    winners[p]=total;
+  });
+  const sorted=Object.entries(winners).sort((a,b)=>b[1]-a[1]);
+  document.querySelectorAll('.p-card').forEach(c=>{c.querySelector('.rank').textContent='';});
+  sorted.forEach((e,i)=>{
+    const cls=e[0]==='adv9'?'adv9':e[0]==='junyi'?'junyi':e[0]==='pgm'?'pgm':'cool';
+    document.querySelector('.'+cls+' .rank').textContent='#'+(i+1);
+  });
+  document.getElementById('v-'+sorted[0][0]+'-total').className='total win';
+  const dimCount=[...activeDims].filter(d=>d!=='total').length;
+  document.getElementById('verdictNote').textContent=showTotal?'已選 '+dimCount+' 個維度，總分 = 各維度分數直接加總。':'隱藏總分。';
+}
+
+function animateNum(el,target,dur){
+  const t0=performance.now();
+  const step=now=>{const p=Math.min((now-t0)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step);};
+  requestAnimationFrame(step);
+}
+
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.bfill').forEach((b,i)=>{setTimeout(()=>{b.style.width=b.dataset.w+'%';},i*120);});obs.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.dim-block').forEach(b=>obs.observe(b));
+
+document.querySelectorAll('.dim-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const d=btn.dataset.dim;
+    if(activeDims.has(d)){activeDims.delete(d);btn.classList.remove('on');}
+    else{activeDims.add(d);btn.classList.add('on');}
+    renderCards();renderBars();renderVerdict();
+  });
+});
+
+renderCards();renderBars();renderVerdict();
+</script>
+</body>
+</html>
