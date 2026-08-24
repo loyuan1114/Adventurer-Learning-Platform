@@ -257,6 +257,8 @@ function loginKey(un,ip){return String(un||'')+'|'+String(ip||'')}
 function loginLocked(un,ip){var f=loginFails[loginKey(un,ip)];return !!(f&&f.until&&Date.now()<f.until)}
 function loginFail(un,ip){var k=loginKey(un,ip),f=loginFails[k]||{n:0,until:0};f.n++;if(f.n>=5)f.until=Date.now()+5*60*1000;loginFails[k]=f}
 function loginOk(un,ip){loginFails[loginKey(un,ip)]={n:0,until:0}}
+/* 清理過期 loginFails 項目，防止記憶體無限增長 */
+setInterval(function(){var now=Date.now();Object.keys(loginFails).forEach(function(k){var f=loginFails[k];if(f&&f.until&&now>f.until)delete loginFails[k]})},60000);
 
 /* ADV9_USERS 智能合併：依寫入者身分授權 */
 async function mergeUsers(incoming,w){
@@ -504,6 +506,7 @@ var server=http.createServer(function(req,res){
       for(const row of list){
         if(!row||row.k==null)continue;
         row.v=sanitizeInput(row.v,0);
+        if(row.v===undefined)row.v=null;
         if(row.k===USERS_KEY){await mergeUsers(row.v,w);pushRows.push({k:USERS_KEY,v:usersArray()})}
         else if(GLOBAL_KEYS.has(row.k)){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
         else {KV[w.username+':'+row.k]=row.v}
@@ -521,6 +524,7 @@ var server=http.createServer(function(req,res){
     res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache','Connection':'keep-alive'});
     res.write('retry: 3000\n\n');
     var sid=Date.now()+'-'+Math.random();
+    if(SSE_CLIENTS.length>=500){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('連線數已滿')}
     SSE_CLIENTS.push({id:sid,res:res,user:w.username});
     var snap=[];
     ['ADV9_PM','ADV9_TRADES','ADV9_DUELS','ADV9_GROUPS','ADV9_USERS','ADV9_FRIENDS','ADV9_CHAT','ADV9_ANN','ADV9_NOTIF'].forEach(function(k){if(KV[k]!==undefined)snap.push({k:k,v:KV[k]})});

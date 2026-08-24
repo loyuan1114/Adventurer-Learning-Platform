@@ -2,6 +2,7 @@
    vPixel — 像素畫板 v2 (makebead.com 風格)
    256色調色盤・多工具・撤銷重做・PNG匯出・鏡像
    ════════════════════════════════════════════ */
+var PX_CHARS='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 var PX={size:32,data:[],pal:[],cur:1,lock:false,tool:'pen',title:'',uid:'',idx:-1,
   showGrid:true,mirror:false,undo:[],redo:[],maxUndo:50};
@@ -438,5 +439,3 @@ document.addEventListener('keydown',function(e){
   if(e.ctrlKey&&e.key==='z'){e.preventDefault();pxUndo()}
   if(e.ctrlKey&&e.key==='y'){e.preventDefault();pxRedo()}
 });
-
-var PX_CHARS='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

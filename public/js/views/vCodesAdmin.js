@@ -6,7 +6,7 @@ function vCodesAdmin(){
 
 const cs=get(LS.codes,[]);
 
-const allChars=Object.keys(CHARS);
+const allChars=typeof CHARS!=='undefined'?Object.keys(CHARS):[];
 
 $('#view').innerHTML='<h3 class="vt">🎁 禮包碼生成器 <span class="vsub">支援送角色・加戰鬥次數</span></h3>'+
 

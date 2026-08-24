@@ -167,7 +167,7 @@ function crMangaShow(id){
     '<div style="font-size:11px;color:var(--teal)">'+esc(p.scene||'')+'</div>'+
     '<div style="font-size:13px;margin-top:4px">'+esc(p.text||'')+'</div>'+
     '<div style="font-size:11px;margin-top:4px">👤 '+(p.character||'旁白')+'</div></div>').join('')+'</div>'+
-    '<div style="margin-top:10px"><button class="btn ghost" onclick="crMangaGen(\''+m.noteId+'\')">🔄 重新編劇</button></div>';
+    '<div style="margin-top:10px">'+(m.noteId?'<button class="btn ghost" onclick="crMangaGen(\''+m.noteId+'\')">🔄 重新編劇</button>':'')+'</div>';
   });
 }
 

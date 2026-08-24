@@ -1293,16 +1293,16 @@ document.body.appendChild(pop);
 
 }
 
-function add2048(){const s=CUR.g2048;const em=[];s.b.forEach((v,i)=>{if(!v)em.push(i)});if(!em.length)return;s.b[em[(Math.random()*em.length)|0]]=Math.random()<.9?2:4}
+function add2048(){const s=CUR.g2048;if(!s||!s.b)return;const em=[];s.b.forEach((v,i)=>{if(!v)em.push(i)});if(!em.length)return;s.b[em[(Math.random()*em.length)|0]]=Math.random()<.9?2:4}
 
-function can2048(){const b=CUR.g2048.b;for(let i=0;i<16;i++){if(!b[i])return true;const r=i%4;if(r<3&&b[i]===b[i+1])return true;if(i<12&&b[i]===b[i+4])return true}return false}
+function can2048(){const s=CUR.g2048;if(!s||!s.b)return false;const b=s.b;for(let i=0;i<16;i++){if(!b[i])return true;const r=i%4;if(r<3&&b[i]===b[i+1])return true;if(i<12&&b[i]===b[i+4])return true}return false}
 
-function snakeFood(){const st=CUR.snake;let p;do{p=[(Math.random()*20)|0,(Math.random()*20)|0]}while(st.s.some(q=>q[0]===p[0]&&q[1]===p[1]));st.f=p}
+function snakeFood(){const st=CUR.snake;if(!st||!st.s)return;let p;do{p=[(Math.random()*20)|0,(Math.random()*20)|0]}while(st.s.some(q=>q[0]===p[0]&&q[1]===p[1]));st.f=p}
 
 function snakeDir(dx,dy){const st=CUR.snake;if(!st||st.over)return;if(dx!==-st.d[0]||dy!==-st.d[1])st.nd=[dx,dy]}
 
 function gmkWin(p){
-const b=CUR.gmk.b;
+const s=CUR.gmk;if(!s||!s.b)return false;const b=s.b;
 for(let y=0;y<15;y++)for(let x=0;x<15;x++){
 if(b[y*15+x]!==p)continue;
 for(const d of [[1,0],[0,1],[1,1],[1,-1]]){
@@ -1311,7 +1311,7 @@ if(k>=5)return true}}
 return false}
 
 function gmkAI(){
-const b=CUR.gmk.b;let best=-1,bs=-1;
+const s=CUR.gmk;if(!s||!s.b)return -1;const b=s.b;let best=-1,bs=-1;
 for(let i=0;i<225;i++){
 if(b[i])continue;
 const x=i%15,y=(i/15)|0;
@@ -1327,14 +1327,14 @@ sc+=Math.random();
 if(sc>bs){bs=sc;best=i}}
 return best}
 
-function tetHit(m,px,py){const s=CUR.tet;
+function tetHit(m,px,py){const s=CUR.tet;if(!s||!s.b)return true;
 for(let y=0;y<m.length;y++)for(let x=0;x<m[0].length;x++){
 if(!m[y][x])continue;const nx=px+x,ny=py+y;
 if(nx<0||nx>=10||ny>=20)return true;
 if(ny>=0&&s.b[ny][nx])return true}
 return false}
 
-function tetRot(){const s=CUR.tet;const m=s.cur[0].map((_,i)=>s.cur.map(r=>r[i]).reverse());if(!tetHit(m,s.x,s.y))s.cur=m}
+function tetRot(){const s=CUR.tet;if(!s||!s.cur)return;const m=s.cur[0].map((_,i)=>s.cur.map(r=>r[i]).reverse());if(!tetHit(m,s.x,s.y))s.cur=m}
 
 function dollPersonaPreview(){
   const pv=document.getElementById('dPersonaPrev');if(!pv)return;
@@ -1347,7 +1347,7 @@ function dollPersonaPreview(){
 
 function selDollElement(e,el){
   document.querySelectorAll('.mbtiBtn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');document.getElementById('dNewElement').value=e;
+  el.classList.add('sel');var inp=document.getElementById('dNewElement');if(inp)inp.value=e;
   dollPersonaPreview();
 }
 

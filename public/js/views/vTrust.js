@@ -227,7 +227,7 @@ function acceptTrustAgreement(){
       accepted_at:now,
       suspension_status:null,
       suspended_until:null,
-      sponsorship_reason:null
+      suspension_reason:null
     });
   }
 

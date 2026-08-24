@@ -6,7 +6,7 @@ function vColl(){
 
 const g=me().g,tab=CUR.collTab,filter=CUR.collFilter,sort=CUR.collSort;
 
-const src=POOLS[tab],owned=g.owned[tab];
+const src=POOLS[tab]||{},owned=(g.owned[tab]||[]);
 
 let items=owned.map(n=>({n,...src[n]}));
 
