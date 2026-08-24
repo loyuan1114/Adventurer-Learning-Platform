@@ -122,8 +122,9 @@ if(IS_WORKER){
 
 /* 個別帳號檔案儲存機制 (data/users/<username>.json) */
 var userSaveTimers={};
+function isValidUsername(un){return typeof un==='string'&&un.length>=1&&un.length<=64&&/^[a-zA-Z0-9_\u4e00-\u9fff]+$/.test(un)}
 function saveUserFile(username){
-  if(!username)return;
+  if(!username||!isValidUsername(username))return;
   if(userSaveTimers[username])return;
   userSaveTimers[username]=setTimeout(function(){
     delete userSaveTimers[username];
@@ -242,8 +243,10 @@ function checkToken(t){
   var i=t.lastIndexOf('.');if(i<1)return null;
   var p=t.slice(0,i),s=t.slice(i+1);
   if(s.length!==44)return null;
-  if(!crypto.timingSafeEqual(Buffer.from(s),Buffer.from(tokenSig(p))))return null;
-  try{var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if(e.exp&&e.exp<Date.now())return null;if((e.tv||0)!==accTokenVer(e.u))return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student',exp:e.exp}}catch(x){return null}
+  try{
+    if(!crypto.timingSafeEqual(Buffer.from(s),Buffer.from(tokenSig(p))))return null;
+    var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if(e.exp&&e.exp<Date.now())return null;if((e.tv||0)!==accTokenVer(e.u))return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student',exp:e.exp}
+  }catch(x){return null}
 }
 /* 抹除憑證欄位，避免任何 GET 回應外洩密碼/雜湊/鹽 */
 function sanitize(u){var c={};for(var k in u)if(k!=='password'&&k!=='pwHash'&&k!=='salt')c[k]=u[k];return c}
@@ -334,6 +337,14 @@ function accessLog(line){
   else if(!_logTimer)_logTimer=setTimeout(flushLogs,5000);
 }
 var BUILD='v'+Date.now().toString(36); /* 每次部署/重啟皆異，前端 poll 偵測到版本變化即自動重新整理 */
+/* 📡 SSE 長連線客戶端列表（模組範圍，所有請求共用） */
+var SSE_CLIENTS=[]; /* {id,res,user} */
+function sseBroadcast(rows){
+  var payload='event: kv\ndata: '+JSON.stringify(rows)+'\n\n';
+  for(var i=SSE_CLIENTS.length-1;i>=0;i--){
+    try{SSE_CLIENTS[i].res.write(payload)}catch(e){SSE_CLIENTS.splice(i,1)}
+  }
+}
 var server=http.createServer(function(req,res){
   cors(res,req);
   var u,p;try{u=new URL(req.url,'http://x');p=decodeURIComponent(u.pathname)}catch(e){res.writeHead(400);return res.end('bad url')}
@@ -353,7 +364,7 @@ var server=http.createServer(function(req,res){
   }catch(e){}});
 
   /* 管理資料的權威寫入端點：帳號/API 不再依賴前端 localStorage 或延遲佇列 */
-  if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}if(!nu.createdAt)nu.createdAt=new Date().toISOString();if(!nu.role)nu.role='student';mergeUsers([nu],cw);saveKV();saveIndex(); /* 立即寫入主檔，防建立後崩潰/被刪遺失 */res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
+  if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(!isValidUsername(nu.username)){res.writeHead(400);return res.end('invalid username')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}if(!nu.createdAt)nu.createdAt=new Date().toISOString();if(!nu.role)nu.role='student';mergeUsers([nu],cw);saveKV();saveIndex(); /* 立即寫入主檔，防建立後崩潰/被刪遺失 */res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
   /* 刪除帳號（僅管理員；主管理員不可刪；同步移除獨立帳號檔與其私有 KV 資料）*/
   if(req.method==='POST'&&p==='/rest/v1/admin/users/delete'){
     var dw=checkToken(tok); if(!dw || dw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
@@ -464,15 +475,6 @@ var server=http.createServer(function(req,res){
   if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/admin/api_keys'){
     var ak=checkToken(tok); if(!ak || ak.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
     return readBody(req,function(b){try{var j=JSON.parse(b.toString('utf8'));KV['ADV9_APIKEYS']=j;saveKV();res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}))}catch(e){res.writeHead(400);res.end('bad api keys')}})
-  }
-
-  /* 📡 即時推送（SSE 長連線）：KV 一變更立即廣播給所有在線客戶端（IG/FB 式秒收，不需輪詢等待） */
-  var SSE_CLIENTS=[]; /* {id,res,user} */
-  function sseBroadcast(rows){
-    var payload='event: kv\ndata: '+JSON.stringify(rows)+'\n\n';
-    for(var i=SSE_CLIENTS.length-1;i>=0;i--){
-      try{SSE_CLIENTS[i].res.write(payload)}catch(e){SSE_CLIENTS.splice(i,1)}
-    }
   }
 
   /* KV 讀取（含抹除密碼後的帳號清單）；支援 ?k=KEY1,KEY2 只回傳指定 key（輕量快速輪詢）*/
@@ -1161,7 +1163,7 @@ var ext='.docx';
   }
   if(req.method==='POST'&&p.startsWith('/rest/v1/trust/invitations/')&&(p.endsWith('/accept')||p.endsWith('/decline'))){
     var cw7=checkToken(tok);if(!cw7||cw7.role!=='student'){res.writeHead(403);return res.end('forbidden')}
-    var invId=p.split('/')[4];
+    var invId=p.split('/')[5];
     var status=p.endsWith('/accept')?'accepted':'declined';
     return readBody(req,function(b){try{
       var trust3=KV['ADV9_TRUST']||{parents:[],students:[],invitations:[],violation_logs:[]};

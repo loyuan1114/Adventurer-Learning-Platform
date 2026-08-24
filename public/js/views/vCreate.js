@@ -28,13 +28,14 @@ async function crApi(method,path,body){
   }catch(e){toast('伺服器連線失敗','bad');return null}
 }
 
-async function crNotePicker(cb){
+async function crNotePicker(cb,backFn){
   const arr=await crApi('GET','/rest/v1/lib/notes')||[];
   if(!arr.length){toast('請先在「📝 筆記寶庫」建立筆記','bad');return}
   const box=document.getElementById('crBody');if(!box)return;
+  const backAction=backFn||'crMangas()';
   const html='<div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto">'+arr.map(n=>'<button onclick="window._crPickNote(\''+n.id+'\')" style="text-align:left;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--txt);font-size:13px">📒 '+esc(n.title)+'</button>').join('')+'</div>'+
-  '<div style="margin-top:8px"><button class="btn ghost" onclick="crMangas()">← 返回</button></div>';
-  box.innerHTML=back('vCreate()')+'<h3 class="vt">📒 選擇筆記</h3>'+html;
+  '<div style="margin-top:8px"><button class="btn ghost" onclick="'+backAction+'">← 返回</button></div>';
+  box.innerHTML=back(backAction)+'<h3 class="vt">📒 選擇筆記</h3>'+html;
   window._crPickNote=function(id){cb(id)};
 }
 
@@ -46,7 +47,7 @@ async function crMinds(){
   (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMindShow(\''+m.id+'\')"><b>🗺️ '+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有心智圖。從筆記生成第一個吧！</p>');
 }
 
-function crMindNew(){crNotePicker(crMindGen)}
+function crMindNew(){crNotePicker(crMindGen,'crMinds()')}
 
 async function crMindGen(noteId){
   const notes=await crApi('GET','/rest/v1/lib/notes')||[];
@@ -73,7 +74,8 @@ function crMindShow(id){
     const maxD=Math.max(0,...nodes.map(n=>depthMap[n.id]||0));
     const W=900,H=Math.max(300,maxD*110+60);
     let svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;background:rgba(0,0,0,.15);border-radius:8px">';
-    const pos={};nodes.forEach(n=>{const d=depthMap[n.id]||0;const x=80+d*220;const sib=children[d]||[];const idx=sib.indexOf(n);const span=sib.length||1;const y=(idx+0.5)*(H/span);pos[n.id]={x:x,y:y}});
+    const byDepth={};nodes.forEach(n=>{const d=depthMap[n.id]||0;(byDepth[d]=byDepth[d]||[]).push(n)});
+    const pos={};nodes.forEach(n=>{const d=depthMap[n.id]||0;const x=80+d*220;const sib=byDepth[d]||[];const idx=sib.indexOf(n);const span=sib.length||1;const y=(idx+0.5)*(H/span);pos[n.id]={x:x,y:y}});
     nodes.forEach(n=>{if(n.parent){const p=pos[n.parent];if(p){pos[n.id].y=(pos[n.id].y+p.y)/2;svg+='<line x1="'+p.x+'" y1="'+p.y+'" x2="'+pos[n.id].x+'" y2="'+pos[n.id].y+'" stroke="#8b6ce0" stroke-width="1.5"/>'}}});
     nodes.forEach(n=>{const p=pos[n.id];const t=(n.text||'').slice(0,40);svg+='<circle cx="'+p.x+'" cy="'+p.y+'" r="16" fill="'+(n.parent?'#3d5afe':'#ffd700')+'" opacity=".9"/>';svg+='<text x="'+(p.x+22)+'" y="'+(p.y+4)+'" fill="#fff" font-size="12">'+esc(t)+'</text>'});
     svg+='</svg>';
@@ -84,7 +86,7 @@ function crMindShow(id){
 
 async function crMindDel(id){
   const r=await crApi('DELETE','/rest/v1/cr/minds/'+id);
-  toast('已刪除','ok');vCreate();
+  if(r!==null){toast('已刪除','ok');vCreate()}else{toast('刪除失敗','bad')}
 }
 
 /* ── 教材漫畫：四格漫畫館 / 直接輸入 / 選筆記 → AI 生成分鏡 ── */
@@ -175,7 +177,7 @@ function crIcon(scene){const s=(scene||'');if(s.indexOf('教室')>=0||s.indexOf(
 async function crPodcasts(){
   const arr=await crApi('GET','/rest/v1/cr/podcasts')||[];
   const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crPodcastGen)">＋ 從筆記生成 AI 播客</button></div>'+
+  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crPodcastGen,\'crPodcasts()\')">＋ 從筆記生成 AI 播客</button></div>'+
   (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crPodcastShow(\''+m.id+'\')">🎧 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.script||'').length+' 字</div></div>').join('')+'</div>':'<p class="empty">還沒有播客。把筆記變成「用聽的」吧！</p>');
 }
 
@@ -217,7 +219,7 @@ function crSpeak(){
 async function crInfos(){
   const arr=await crApi('GET','/rest/v1/cr/infos')||[];
   const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crInfoGen)">＋ 從筆記生成資訊圖</button></div>'+
+  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crInfoGen,\'crInfos()\')">＋ 從筆記生成資訊圖</button></div>'+
   (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crInfoShow(\''+m.id+'\')">📊 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.sections||[]).length+' 段・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有資訊圖。把筆記變成一眼看懂的視覺摘要吧！</p>');
 }
 
@@ -252,15 +254,15 @@ function crInfoShow(id){
 
 async function crInfoDel(id){
   const r=await crApi('DELETE','/rest/v1/cr/infos/'+id);
-  toast('已刪除','ok');vCreate();
+  if(r!==null){toast('已刪除','ok');vCreate()}else{toast('刪除失敗','bad')}
 }
 
 function crInfoExport(id){
   const el=document.querySelector('#view .panel2');
   if(!el){toast('請先開啟資訊圖','bad');return}
   try{
-    import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js').then(()=>{
-      html2canvas(el,{backgroundColor:'#121212',scale:2}).then(canvas=>{
+    import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js').then(function(mod){
+      (mod.default||mod.html2canvas||window.html2canvas)(el,{backgroundColor:'#121212',scale:2}).then(function(canvas){
         const a=document.createElement('a');a.download=(id||'infographic')+'.png';a.href=canvas.toDataURL('image/png');a.click();
         toast('已匯出 PNG','ok');
       });
@@ -342,7 +344,8 @@ let crTutorCtxNote='';
 function crTutorCtx(){const s=document.getElementById('crTutorNote');crTutorCtxNote=s?s.value:'';try{localStorage.setItem('ADV9_TUTOR_NOTE',crTutorCtxNote)}catch(e){}}
 
 async function crTutorAsk(){
-  const q=document.getElementById('crTutorQ').value.trim();if(!q)return;
+  const el=document.getElementById('crTutorQ');
+  const q=(el?el.value:'').trim();if(!q)return;
   const chat=document.getElementById('crTutorChat');if(!chat)return;
   chat.innerHTML+='<div style="max-width:85%;align-self:flex-end;background:rgba(0,230,118,.15);padding:8px 10px;border-radius:8px 8px 2px 8px">'+esc(q)+'</div>';
   document.getElementById('crTutorQ').value='';
@@ -356,7 +359,7 @@ async function crTutorAsk(){
   try{
     const a=await callAI((ctx?'根據以下筆記內容回答問題，引用筆記內容佐證：\n筆記：'+ctx.slice(0,8000)+'\n\n問題：':'請以教學者的口吻回答國中生：')+q,'你是一個親切耐心的 AI 導師，善用比喻與生活例子');
     chat.innerHTML+='<div style="max-width:85%;background:rgba(0,0,0,.25);padding:8px 10px;border-radius:8px 2px 8px 8px;white-space:pre-wrap">'+esc(a)+'</div>';
-    crApi('POST','/rest/v1/cr/tutors',{msg:{q:q,a:a}});
+    crApi('POST','/rest/v1/cr/tutors',{q:q,a:a,t:new Date().toISOString()});
     chat.scrollTop=chat.scrollHeight;
   }catch(e){toast('AI 失敗：'+e.message,'bad')}
 }

@@ -22,7 +22,7 @@
   .shelf-h{display:flex;align-items:center;gap:8px;margin:18px 2px 10px;font-weight:900;font-size:1rem;letter-spacing:.1em;}
   .shelf-h .ln{flex:1;height:2px;background:linear-gradient(90deg,var(--sc,#f3a8c6),transparent);}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-  .card{text-align:left;border:none;background:#fffdfa;cursor:pointer;border-radius:14px;border:3px solid #fff;
+  .card{text-align:left;border:none;background:#fffdfa;cursor:pointer;border-radius:14px;border:3px solid #fff;position:relative;
     box-shadow:0 4px 12px rgba(200,150,170,.2);overflow:hidden;transition:transform .12s;font-family:inherit;padding:0;}
   .card:hover{transform:translateY(-3px);}
   .cc{height:54px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;}
@@ -151,10 +151,10 @@ window.onerror=function(m,s,l){var b=document.getElementById('errBox');if(b){b.s
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-let save=JSON.parse(localStorage.getItem('adv9k4')||'{}');
+let save;try{save=JSON.parse(localStorage.getItem('adv9k4')||'{}')}catch(e){save={}}
 save.stars=save.stars||0;save.done=save.done||{};save.cards=save.cards||[];
-const persist=()=>localStorage.setItem('adv9k4',JSON.stringify(save));
-const ALL=[...(window.K4_MATH||[]),...(window.K4_OTHER||[])];
+const persist=()=>{try{localStorage.setItem('adv9k4',JSON.stringify(save))}catch(e){}};
+const ALL=[...(window.K4_MATH||[]),...(window.K4_OTHER||[]),...(window.K4_ENG||[]),...(window.K4_SCI||[]),...(window.K4_CHI||[]),...(window.K4_HIS||[]),...(window.K4_GEO||[]),...(window.K4_CIT||[]),...(window.K4_MATH_ENG_9||[]),...(window.K4_HIS_GEO_9||[]),...(window.K4_CHI_CIT_SCI_9||[]),...(window.K4_CHI_SCI_ENG_CIT_7||[]),...(window.K4_GEO_SCI_ENG_CIT_8||[])];
 const CARDS=[
  {r:"N",i:"📝",n:"見習生筆記本",f:"寫滿算錯的過程，也是成長。"},
  {r:"R",i:"🏹",n:"十字交乘之弓",f:"一箭雙根。"},
@@ -282,9 +282,11 @@ function renderReader(e){
   st.panels.forEach(p=>h+=koma(p));
   h+='</div></div>';
  });
- h+='<div class="quiz"><h4>🎯 通關小試：'+e.quiz.q+'</h4>';
- e.quiz.opts.forEach((o,i)=>h+='<div class="opt" data-i="'+i+'">'+o+'</div>');
- h+='<div class="ex">💡 '+e.quiz.ex+'</div></div>';
+  if(e.quiz){
+  h+='<div class="quiz"><h4>🎯 通關小試：'+e.quiz.q+'</h4>';
+  e.quiz.opts.forEach((o,i)=>h+='<div class="opt" data-i="'+i+'">'+o+'</div>');
+  h+='<div class="ex">💡 '+e.quiz.ex+'</div></div>';
+  }
  $('reader').innerHTML=h;
  let ans=0;
  r.querySelectorAll('.quiz .opt').forEach(b=>b.addEventListener('click',function(){
@@ -302,7 +304,7 @@ function renderReader(e){
 function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:70;background:#fff;color:#e0558e;font-weight:900;border-radius:99px;padding:8px 20px;box-shadow:0 6px 18px rgba(220,120,160,.35);transition:opacity .5s';document.body.appendChild(t);setTimeout(()=>t.style.opacity='0',900);setTimeout(()=>t.remove(),1500);}
 $('gachaBtn').addEventListener('click',function(){
  if(save.stars<5)return;save.stars-=5;persist();
- $('starNum').textContent=save.stars;this.disabled=true;this.textContent='抽卡 🔒';
+  $('starNum').textContent=save.stars;updateHud();
  $('gachaModal').classList.add('show');const gc=$('gcard');gc.className='gcard r-N';$('gIco').textContent='🎴';$('gName').textContent='？？？';$('gFlav').textContent='';gc.onclick=()=>{const roll=Math.random()*100;let c;if(roll<8)c=CARDS[5];else if(roll<28)c=Math.random()<.5?CARDS[3]:CARDS[4];else if(roll<60)c=CARDS[Math.floor(Math.random()*2)+1];else c=CARDS[0];gc.className='gcard r-'+c.r;$('gIco').textContent=c.i;$('gName').textContent=c.n;$('gFlav').textContent=c.f;save.cards.push(c.n);persist();$('mHint').textContent='收藏：'+save.cards.length+' 張';try{const ac=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,c.r==='SSR'?1047:784].forEach((f,i)=>{const t=ac.currentTime+i*.09,o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.22);});}catch(e){}};
 });
 renderGradeView();

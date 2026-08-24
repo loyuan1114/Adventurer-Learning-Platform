@@ -1,0 +1,72 @@
+[
+ {
+  "id": "adv9boss",
+  "username": "adv9boss",
+  "name": "總管理員",
+  "role": "admin",
+  "classId": null,
+  "managedClassIds": [],
+  "isSchoolAdmin": true,
+  "pwHash": "c25eba85d26bc97f09b85878ff6b4a6322acd3c740485bf09a4930b7f49e5c42",
+  "salt": "",
+  "tokenVer": 0,
+  "master": true,
+  "createdAt": "2026-08-24T04:01:38.787Z"
+ },
+ {
+  "id": "parent1",
+  "username": "parent1",
+  "name": "家長",
+  "role": "parent",
+  "classId": null,
+  "managedClassIds": [],
+  "isSchoolAdmin": false,
+  "pwHash": "953b3b1b4196f5b08866ccdbe2565dddd6b395fc9748db3a5d8a4fa849f1a0512145c467771697733c10cc448baeeb982a05733bba87735c81e3850287db6a59",
+  "salt": "ac73678bd8ca3a1cd2803ad57869c23f",
+  "tokenVer": 0,
+  "master": false,
+  "createdAt": "2026-08-24T04:47:12.813Z"
+ },
+ {
+  "id": "student",
+  "username": "student",
+  "name": "學生",
+  "role": "student",
+  "classId": null,
+  "managedClassIds": [],
+  "isSchoolAdmin": false,
+  "pwHash": "36f9acd7bd718b62f7a3d90d9f942c210f1bdea9ea4542946049c2676b98de63586c2c9761b61d66da5a4fae43a09d4c7a0cb285f4655931792325397451874f",
+  "salt": "e106b25ec0d40d0742335bb3a838d0ee",
+  "tokenVer": 0,
+  "master": false,
+  "createdAt": "2026-08-24T04:47:12.797Z"
+ },
+ {
+  "id": "teacher",
+  "username": "teacher",
+  "name": "老師",
+  "role": "teacher",
+  "classId": null,
+  "managedClassIds": [],
+  "isSchoolAdmin": false,
+  "pwHash": "34f40e0a4a59970d3453e5a61629e93023d17b8ce5b5986a3c299245c1da29edf45d7696b3aa1f31008f896d3aa3a6fa75f2fe46325e2f49f96316eb788b6e5b",
+  "salt": "9c14a3160680bcaee60b91bc8f3913fd",
+  "tokenVer": 0,
+  "master": false,
+  "createdAt": "2026-08-24T04:47:12.809Z"
+ },
+ {
+  "id": "yuan",
+  "username": "yuan",
+  "name": "yuan",
+  "role": "admin",
+  "classId": null,
+  "managedClassIds": [],
+  "isSchoolAdmin": false,
+  "pwHash": "6c69270129ecdd15fa3534bef68f20a7eca2f8f8a142056b3148e2abf5100a8d68df8ccb31cc97f1c43bfcddced6880ed98684944591fc9f17b6ee731d0cea3e",
+  "salt": "9ecaaf5d39464b72c5c4118c29164fc9",
+  "tokenVer": 0,
+  "master": false,
+  "createdAt": "2026-08-24T04:47:12.818Z"
+ }
+]
