@@ -9,3 +9,4 @@ data/settings/
 tools/adv9ctl/adv9ctl.exe
 tools/adv9ctl/adv9ctl.zip
 calc_blackbox
+calc_blackbox_rs/target/
