@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADV9 四格漫畫館</title>
+<style>
+  :root{--pink:#ff8fb8;--ink:#6b5876;--star:#ffd166;--blue:#7ab0ea;--lav:#c3a8ee;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:linear-gradient(180deg,#ffeef6,#eef3ff);
+    font-family:"Microsoft JhengHei","PingFang TC",sans-serif;color:var(--ink);min-height:100vh;}
+  .app{max-width:820px;margin:0 auto;padding:14px 10px 80px;}
+  @media(min-width:1000px){.app{max-width:1000px;}}
+  .hud{position:sticky;top:0;z-index:40;background:#fffefbE8;backdrop-filter:blur(8px);
+    border-radius:0 0 18px 18px;border:2px solid #fff;box-shadow:0 4px 14px rgba(200,150,180,.18);
+    padding:9px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .hud .logo{font-weight:900;color:var(--pink);}
+  .hud .stars{margin-left:auto;font-weight:bold;color:#c99b52;}
+  .gb{border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:.76rem;
+    background:linear-gradient(180deg,#ffe08a,var(--star));color:#7a5b13;border-radius:99px;padding:6px 14px;box-shadow:0 3px 0 #d9ab3f;}
+  .gb:disabled{filter:grayscale(.8);opacity:.55;cursor:default;}
+  .shelf-h{display:flex;align-items:center;gap:8px;margin:18px 2px 10px;font-weight:900;font-size:1rem;letter-spacing:.1em;}
+  .shelf-h .ln{flex:1;height:2px;background:linear-gradient(90deg,var(--sc,#f3a8c6),transparent);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .card{text-align:left;border:none;background:#fffdfa;cursor:pointer;border-radius:14px;border:3px solid #fff;
+    box-shadow:0 4px 12px rgba(200,150,170,.2);overflow:hidden;transition:transform .12s;font-family:inherit;padding:0;}
+  .card:hover{transform:translateY(-3px);}
+  .cc{height:54px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;}
+  .cb{padding:7px 9px 9px;}
+  .ct{font-weight:900;font-size:.8rem;line-height:1.35;}
+  .cs{font-size:.65rem;color:#b39ab0;margin-top:2px;}
+  .tag{position:absolute;top:6px;right:6px;font-size:.55rem;font-weight:900;padding:2px 7px;border-radius:99px;background:#fff;color:#e0558e;}
+  .reader{display:none;}
+  .rp-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .bkbtn{border:none;cursor:pointer;font-family:inherit;font-weight:bold;font-size:.8rem;background:#fff;color:#a98cba;
+    border-radius:99px;padding:7px 16px;box-shadow:0 2px 8px rgba(200,150,180,.2);}
+  .rp-title{font-weight:900;font-size:1.05rem;}
+  .rp-sub{font-size:.68rem;color:#b39ab0;}
+  .cover{background:linear-gradient(155deg,#ffd9e8,#eadfff);border-radius:22px;padding:26px 18px 20px;text-align:center;
+    box-shadow:0 10px 26px rgba(180,140,170,.3);position:relative;overflow:hidden;margin-bottom:18px;}
+  .cover .dots{position:absolute;inset:0;background-image:radial-gradient(#ffffff66 1.6px,transparent 1.9px);background-size:16px 16px;}
+  .cover .badge{position:relative;display:inline-block;font-size:.68rem;letter-spacing:.25em;background:#fff;padding:4px 15px;border-radius:99px;font-weight:bold;color:#e0558e;}
+  .cover h1{position:relative;margin-top:10px;font-size:1.8rem;font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.12);}
+  .cover .sub{position:relative;margin-top:4px;font-size:.85rem;color:#8a7aa8;font-weight:bold;}
+  .strip{background:#fff;border:3px solid #fff;border-radius:20px;padding:12px;margin:16px 0;box-shadow:0 6px 18px rgba(190,150,180,.2);}
+  .strip .st{font-size:.78rem;font-weight:900;color:var(--pink);letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .strip .st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pink);}
+  .row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  @media(max-width:560px){.row{grid-template-columns:repeat(2,1fr);}}
+  .koma{background:#fffdfa;border:2px solid #f0e2ec;border-radius:14px;padding:8px;display:flex;flex-direction:column;align-items:center;min-height:150px;}
+  .koma svg{width:60px;height:60px;flex-shrink:0;}
+  .koma .sp{font-size:.58rem;color:#b39ab0;letter-spacing:.1em;margin:2px 0 4px;font-weight:bold;}
+  .koma .bub{background:#fff;border:2px solid var(--pink);border-radius:12px;padding:7px 9px;font-size:.76rem;font-weight:600;line-height:1.5;width:100%;}
+  .koma .bub.r{border-color:var(--blue);}
+  .koma .board{background:linear-gradient(165deg,#fffdf6,#fff3d6);border:2px solid #f3dca0;border-radius:12px;padding:7px 9px;font-family:Consolas,monospace;font-weight:bold;color:#7a6540;font-size:.74rem;line-height:1.7;width:100%;}
+  .koma .board b{color:#e0558e;}
+  .koma .aha{background:linear-gradient(160deg,#fff8fb,#fdeaf3);border:2px dashed var(--pink);border-radius:12px;padding:7px 9px;font-size:.7rem;font-weight:bold;color:#e0558e;line-height:1.6;width:100%;}
+  .quiz{background:#fff;border:3px solid #fff;border-radius:18px;padding:14px;margin:18px 0;box-shadow:0 6px 18px rgba(190,150,180,.2);}
+  .quiz h4{font-size:.9rem;margin-bottom:8px;color:var(--pink);}
+  .quiz .opt{cursor:pointer;border:2px solid #eadfef;background:#fbf7fc;border-radius:11px;padding:9px 10px;font-weight:bold;margin:6px 0;font-size:.84rem;font-family:inherit;}
+  .quiz .ex{display:none;margin-top:8px;font-size:.78rem;color:#8a7695;border-top:1.5px dashed #e8dbe6;padding-top:8px;}
+  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(30,20,45,.55);}
+  .modal.show{display:flex;}
+  .mbox{background:radial-gradient(120% 120% at 50% 0%,#3a2a5e,#1c1533);border:3px solid var(--star);border-radius:22px;padding:24px 20px;width:min(86vw,320px);text-align:center;color:#f0ebff;}
+  .gcard{margin:16px auto;width:min(58vw,180px);aspect-ratio:3/4.1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:3px solid #888;background:#241d47;position:relative;overflow:hidden;cursor:pointer;}
+  .gcard .gi{font-size:3rem;}.gcard .gn{font-weight:900;font-size:.92rem;}.gcard .gf{font-size:.64rem;color:#bdb3d9;padding:0 10px;line-height:1.5;}
+  .r-N{border-color:#8a8aa0;}.r-R{border-color:#4da3ff;box-shadow:0 0 18px #4da3ff66;}.r-SR{border-color:#b06bff;box-shadow:0 0 24px #b06bff88;}.r-SSR{border-color:var(--star);box-shadow:0 0 34px #ffd166aa;}
+  .mhint{font-size:.72rem;color:#bdb3d9;margin-top:10px;}
+  .closem{margin-top:14px;border:none;cursor:pointer;font-family:inherit;font-weight:bold;background:rgba(255,255,255,.12);color:#fff;border-radius:99px;padding:9px 24px;}
+  #errBox{display:none;background:#fff0f3;border:2px solid #ff8fb8;color:#d64550;border-radius:12px;padding:9px 13px;font-size:.78rem;margin-bottom:10px;}
+  .grade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:16px 0;}
+  .grade-btn{border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:1rem;
+    background:#fff;color:var(--ink);border-radius:16px;padding:18px 10px;text-align:center;
+    box-shadow:0 4px 12px rgba(200,150,170,.2);transition:transform .12s;border:3px solid #fff;}
+  .grade-btn:hover{transform:translateY(-3px);border-color:var(--pink);}
+  .grade-btn .gi{font-size:1.8rem;display:block;margin-bottom:4px;}
+  .grade-btn .gn{font-size:.8rem;color:#b39ab0;}
+  .subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin:16px 0;}
+  .subject-btn{border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:.9rem;
+    background:#fff;color:var(--ink);border-radius:14px;padding:14px 8px;text-align:center;
+    box-shadow:0 4px 12px rgba(200,150,170,.2);transition:transform .12s;border:3px solid #fff;}
+  .subject-btn:hover{transform:translateY(-3px);}
+  .subject-btn .si{font-size:1.5rem;display:block;margin-bottom:3px;}
+  .subject-btn .sn{font-size:.75rem;color:#b39ab0;}
+  .breadcrumb{font-size:.75rem;color:#b39ab0;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .breadcrumb span{cursor:pointer;color:var(--pink);font-weight:bold;}
+  .breadcrumb span:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hud">
+    <span class="logo">📚 ADV9 四格館</span>
+    <span class="stars">⭐ <span id="starNum">0</span>/5</span>
+    <button class="gb" id="gachaBtn" disabled>抽卡 🔒</button>
+  </div>
+  <div id="errBox"></div>
+  <div id="shelfView"></div>
+  <div class="reader" id="reader"></div>
+</div>
+<div class="modal" id="gachaModal"><div class="mbox">
+  <h3 style="letter-spacing:.2em;color:var(--star)">✦ 知識抽卡所 ✦</h3>
+  <div class="gcard r-N" id="gcard"><div class="gi" id="gIco">🎴</div><div class="gn" id="gName">點擊揭曉！</div><div class="gf" id="gFlav"></div></div>
+  <div class="mhint" id="mHint">集滿 5⭐ 可抽一次</div>
+  <button class="closem" onclick="document.getElementById('gachaModal').classList.remove('show')">收下 ✦</button>
+</div></div>
+<script>
+window.onerror=function(m,s,l){var b=document.getElementById('errBox');if(b){b.style.display='block';b.textContent='⚠️ 錯誤：'+m+'（第'+l+'行）';}};
+</script>
+<script src="4koma-char.js"></script>
+<script src="4koma-math.js"></script>
+<script src="4koma-math2.js"></script>
+<script src="4koma-math3.js"></script>
+<script src="4koma-math-g7a.js"></script>
+<script src="4koma-math-g7b.js"></script>
+<script src="4koma-math-g8a.js"></script>
+<script src="4koma-math-g8b.js"></script>
+<script src="4koma-other.js"></script>
+<script src="4koma-other2.js"></script>
+<script src="4koma-other3.js"></script>
+<script src="4koma-other4.js"></script>
+<script src="4koma-other5.js"></script>
+<script src="4koma-other6.js"></script>
+<script src="4koma-other7.js"></script>
+<script src="4koma-eng-g7a.js"></script>
+<script src="4koma-eng-g7b.js"></script>
+<script src="4koma-eng-g8a.js"></script>
+<script src="4koma-eng-g9a.js"></script>
+<script src="4koma-sci-g7a.js"></script>
+<script src="4koma-chi-g7a.js"></script>
+<script src="4koma-chi-g7b.js"></script>
+<script src="4koma-chi-g8a.js"></script>
+<script src="4koma-chi-g8b.js"></script>
+<script src="4koma-his-g7a.js"></script>
+<script src="4koma-his-g7b.js"></script>
+<script src="4koma-his-g8a.js"></script>
+<script src="4koma-his-g8b-part1.js"></script>
+<script src="4koma-his-g8b-part2.js"></script>
+<script src="4koma-geo-g7a.js"></script>
+<script src="4koma-geo-g7b.js"></script>
+<script src="4koma-cit-g7a.js"></script>
+<script src="4koma-cit-g7b.js"></script>
+<script src="4koma-cit-g8a.js"></script>
+<script src="4koma-cit-g8b.js"></script>
+<script src="4koma-math-eng-9.js"></script>
+<script src="4koma-his-geo-9.js"></script>
+<script src="4koma-chi-cit-sci-9.js"></script>
+<script src="4koma-chi-sci-eng-cit-7.js"></script>
+<script src="4koma-geo-sci-eng-cit-8.js"></script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+let save=JSON.parse(localStorage.getItem('adv9k4')||'{}');
+save.stars=save.stars||0;save.done=save.done||{};save.cards=save.cards||[];
+const persist=()=>localStorage.setItem('adv9k4',JSON.stringify(save));
+const ALL=[...(window.K4_MATH||[]),...(window.K4_OTHER||[])];
+const CARDS=[
+ {r:"N",i:"📝",n:"見習生筆記本",f:"寫滿算錯的過程，也是成長。"},
+ {r:"R",i:"🏹",n:"十字交乘之弓",f:"一箭雙根。"},
+ {r:"R",i:"🛡️",n:"配方方陣盾",f:"補上那一格，防禦成形。"},
+ {r:"SR",i:"⚔️",n:"完全平方聖劍",f:"出鞘必見方根。"},
+ {r:"SR",i:"🧚",n:"小七牌精靈",f:"36 種相遇裡的必然。"},
+ {r:"SSR",i:"👑",n:"公式解・終焉奧義",f:"斬斷一切二次魔物的一式。"}
+];
+const GRADES=[
+ {id:"七上",label:"七上",icon:"1️⃣"},{id:"七下",label:"七下",icon:"2️⃣"},
+ {id:"八上",label:"八上",icon:"3️⃣"},{id:"八下",label:"八下",icon:"4️⃣"},
+ {id:"九上",label:"九上",icon:"5️⃣"},{id:"九下",label:"九下",icon:"6️⃣"}
+];
+const SUBJECTS={
+ '數學':{icon:'🎲',color:'#f3a8c6'},
+ '英語':{icon:'⏰',color:'#7ab0ea'},
+ '自然':{icon:'🔬',color:'#5fc493'},
+ '國文':{icon:'🍵',color:'#e8944a'},
+ '歷史':{icon:'🏯',color:'#c99b52'},
+ '地理':{icon:'🗺️',color:'#6da3e8'},
+ '公民':{icon:'⚖️',color:'#b48ae0'}
+};
+let viewState='grade';
+let selectedGrade=null;
+let selectedSubject=null;
+
+function grid8(){const a=[['正正反','h'],['正反正','h'],['正反反','h'],['反正正','h'],['反正反','h'],['反反正','h'],['反反反','h'],['正正正','m']];
+ let g='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:3px;width:100%">';
+ a.forEach(p=>g+='<div style="text-align:center;font-size:.58rem;font-weight:bold;border-radius:6px;padding:5px 1px;border:1.5px solid #f0dcec;'+(p[1]==='h'?'background:#eafaf2;color:#2e8f63;border-color:#5dd39e':'background:#ffeff0;color:#d64550;border-color:#ff9aa0')+'">'+p[0]+'</div>');
+ return g+'</div>';}
+function koma(p){
+ if(p.g8)return '<div class="koma"><div style="font-size:1.4rem">🎲</div>'+grid8()+'</div>';
+ let s='';
+ if(p.who){s+=(window.CHAR&&window.CHAR[p.ch]?window.CHAR[p.ch]:(p.ch||''));s+='<div class="sp">'+p.who+'</div>';}
+ if(p.t)s+='<div class="bub'+(p.side==='r'?' r':'')+'">'+p.t+'</div>';
+ if(p.board)s+='<div class="board">'+p.board+'</div>';
+ if(p.aha)s+='<div class="aha">'+p.aha+'</div>';
+ return '<div class="koma">'+s+'</div>';
+}
+
+function renderGradeView(){
+ viewState='grade';selectedGrade=null;selectedSubject=null;
+ $('reader').style.display='none';$('shelfView').style.display='block';
+ let h='<div class="shelf-h" style="--sc:#f3a8c6"><span>📚</span>選擇年級<span class="ln"></span></div>';
+ h+='<div class="grade-grid">';
+ GRADES.forEach(g=>{
+  const eps=ALL.filter(e=>e.grade===g.id);
+  const done=eps.filter(e=>save.done[e.id]).length;
+  h+='<button class="grade-btn" onclick="window._selectGrade(\''+g.id+'\')"><span class="gi">'+g.icon+'</span>'+g.label+'<span class="gn">'+done+'/'+eps.length+'</span></button>';
+ });
+ h+='</div>';
+ $('shelfView').innerHTML=h;
+ updateHud();
+}
+
+function renderSubjectView(grade){
+ viewState='subject';selectedGrade=grade;selectedSubject=null;
+ $('reader').style.display='none';$('shelfView').style.display='block';
+ const eps=ALL.filter(e=>e.grade===grade);
+ const bySubject={};
+ eps.forEach(e=>{(bySubject[e.series]=bySubject[e.series]||[]).push(e);});
+ let h='<div class="breadcrumb"><span onclick="window._goGrade()">📚 年級</span> ▸ '+grade+'</div>';
+ h+='<div class="shelf-h" style="--sc:#f3a8c6"><span>📖</span>選擇學科<span class="ln"></span></div>';
+ h+='<div class="subject-grid">';
+ Object.keys(SUBJECTS).forEach(s=>{
+  if(!bySubject[s])return;
+  const info=SUBJECTS[s];
+  const done=bySubject[s].filter(e=>save.done[e.id]).length;
+  h+='<button class="subject-btn" style="border-color:'+info.color+'" onclick="window._selectSubject(\''+s+'\')"><span class="si">'+info.icon+'</span>'+s+'<span class="sn">'+done+'/'+bySubject[s].length+'</span></button>';
+ });
+ h+='</div>';
+ $('shelfView').innerHTML=h;
+ updateHud();
+}
+
+function renderEpisodeView(grade,subject){
+ viewState='episode';selectedGrade=grade;selectedSubject=subject;
+ $('reader').style.display='none';$('shelfView').style.display='block';
+ const eps=ALL.filter(e=>e.grade===grade&&e.series===subject);
+ const info=SUBJECTS[subject]||{icon:'📖',color:'#c9aec0'};
+ let h='<div class="breadcrumb"><span onclick="window._goGrade()">📚 年級</span> ▸ <span onclick="window._goSubject(\''+grade+'\')">'+grade+'</span> ▸ '+subject+'</div>';
+ h+='<div class="shelf-h" style="--sc:'+info.color+'"><span>'+info.icon+'</span>'+subject+'<span class="ln"></span><span style="font-size:.6rem;color:#c9aec0">'+eps.filter(e=>save.done[e.id]).length+'/'+eps.length+'</span></div>';
+ h+='<div class="grid">';
+ eps.forEach(e=>{
+  const ok=save.done[e.id];
+  h+='<button class="card" onclick="window._openEpisode(\''+e.id+'\')"><span class="tag">▶ '+e.grade+'</span><div class="cc" style="background:linear-gradient(150deg,'+e.c1+','+e.c2+')">'+e.icon+(ok?' ✅':'')+'</div><div class="cb"><div class="ct">'+e.title+'</div><div class="cs">'+e.sub+'</div></div></button>';
+ });
+ h+='</div>';
+ $('shelfView').innerHTML=h;
+ updateHud();
+}
+
+function updateHud(){
+ $('starNum').textContent=save.stars;
+ $('gachaBtn').disabled=save.stars<5;
+ $('gachaBtn').textContent=save.stars>=5?('抽卡 ▶ ('+Math.floor(save.stars/5)+')'):'抽卡 🔒';
+}
+
+window._selectGrade=function(grade){renderSubjectView(grade);};
+window._goGrade=function(){renderGradeView();};
+window._goSubject=function(grade){renderSubjectView(grade);};
+window._selectSubject=function(subject){renderEpisodeView(selectedGrade,subject);};
+window._openEpisode=function(id){
+ const e=ALL.find(x=>x.id===id);
+ if(!e)return;
+ renderReader(e);
+};
+window.renderShelf=function(){
+ if(viewState==='episode'&&selectedGrade&&selectedSubject){
+  renderEpisodeView(selectedGrade,selectedSubject);
+ }else if(viewState==='episode'&&selectedGrade){
+  renderSubjectView(selectedGrade);
+ }else{
+  renderGradeView();
+ }
+ window.scrollTo({top:0});
+};
+
+function renderReader(e){
+ const r=$('reader');$('shelfView').style.display='none';r.style.display='block';window.scrollTo({top:0});
+ let h='<div class="rp-head"><button class="bkbtn" onclick="window.renderShelf()">◀ 返回</button><div><div class="rp-title">'+e.title+'</div><div class="rp-sub">'+e.series+' ・ '+e.grade+' ・ '+e.strips.length+' 則四格</div></div></div>';
+ h+='<div class="cover" style="background:linear-gradient(155deg,'+e.c1+','+e.c2+')"><div class="dots"></div><span class="badge">'+e.series+' ・ '+e.grade+'</span><h1>'+e.title+'</h1><div class="sub">〜 '+e.sub+' 〜</div></div>';
+ e.strips.forEach(st=>{
+  h+='<div class="strip"><div class="st">'+st.title+'</div><div class="row">';
+  st.panels.forEach(p=>h+=koma(p));
+  h+='</div></div>';
+ });
+ h+='<div class="quiz"><h4>🎯 通關小試：'+e.quiz.q+'</h4>';
+ e.quiz.opts.forEach((o,i)=>h+='<div class="opt" data-i="'+i+'">'+o+'</div>');
+ h+='<div class="ex">💡 '+e.quiz.ex+'</div></div>';
+ $('reader').innerHTML=h;
+ let ans=0;
+ r.querySelectorAll('.quiz .opt').forEach(b=>b.addEventListener('click',function(){
+  if(this.dataset.done)return;this.dataset.done=1;
+  r.querySelectorAll('.quiz .opt').forEach(x=>x.style.pointerEvents='none');
+  if(+this.dataset.i===e.quiz.a){this.style.borderColor='#5dd39e';this.style.background='#eafaf2';ans++;}
+  else{this.style.borderColor='#ff6b6b';this.style.background='#ffeff0';}
+  r.querySelector('.quiz .ex').style.display='block';
+  if(!save.done[e.id]){save.done[e.id]=true;save.stars++;persist();
+   $('starNum').textContent=save.stars;$('gachaBtn').disabled=save.stars<5;
+   $('gachaBtn').textContent=save.stars>=5?'抽卡 ▶':'抽卡 🔒';
+   toast('讀完一話 +1⭐');}
+ }));
+}
+function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:70;background:#fff;color:#e0558e;font-weight:900;border-radius:99px;padding:8px 20px;box-shadow:0 6px 18px rgba(220,120,160,.35);transition:opacity .5s';document.body.appendChild(t);setTimeout(()=>t.style.opacity='0',900);setTimeout(()=>t.remove(),1500);}
+$('gachaBtn').addEventListener('click',function(){
+ if(save.stars<5)return;save.stars-=5;persist();
+ $('starNum').textContent=save.stars;this.disabled=true;this.textContent='抽卡 🔒';
+ $('gachaModal').classList.add('show');const gc=$('gcard');gc.className='gcard r-N';$('gIco').textContent='🎴';$('gName').textContent='？？？';$('gFlav').textContent='';gc.onclick=()=>{const roll=Math.random()*100;let c;if(roll<8)c=CARDS[5];else if(roll<28)c=Math.random()<.5?CARDS[3]:CARDS[4];else if(roll<60)c=CARDS[Math.floor(Math.random()*2)+1];else c=CARDS[0];gc.className='gcard r-'+c.r;$('gIco').textContent=c.i;$('gName').textContent=c.n;$('gFlav').textContent=c.f;save.cards.push(c.n);persist();$('mHint').textContent='收藏：'+save.cards.length+' 張';try{const ac=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,c.r==='SSR'?1047:784].forEach((f,i)=>{const t=ac.currentTime+i*.09,o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.22);});}catch(e){}};
+});
+renderGradeView();
+})();
+</script>
+</body>
+</html>

@@ -87,14 +87,23 @@ async function crMindDel(id){
   toast('已刪除','ok');vCreate();
 }
 
-/* ── 教材漫畫：直接輸入 / 選筆記 → AI 生成分鏡 → 多格漫畫 ── */
+/* ── 教材漫畫：四格漫畫館 / 直接輸入 / 選筆記 → AI 生成分鏡 ── */
 async function crMangas(){
   const arr=await crApi('GET','/rest/v1/cr/mangas')||[];
   const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap">'+
+  box.innerHTML=back('vCreate()')+'<h3 class="vt">📖 教材漫畫 <span class="vsub">四格漫畫館・AI 生成漫畫</span></h3>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
+  '<button class="btn gold" onclick="cr4koma()">📚 四格漫畫館（預製）</button>'+
   '<button class="btn teal" onclick="crMangaDirect()">✏️ 直接輸入主題生成漫畫</button>'+
   '<button class="btn ghost" onclick="crNotePicker(crMangaGen)">📒 從筆記生成漫畫</button></div>'+
-  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMangaShow(\''+m.id+'\')">📖 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.panels||[]).length+' 格・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有漫畫。輸入任何主題，AI 幫你變成 6 格漫畫！</p>');
+  '<div id="crMangaList">'+
+  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMangaShow(\''+m.id+'\')">📖 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.panels||[]).length+' 格・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有 AI 生成的漫畫。輸入任何主題，AI 幫你變成漫畫！</p>')+'</div>';
+}
+
+function cr4koma(){
+  const box=document.getElementById('crBody');if(!box)return;
+  box.innerHTML=back('crMangas()')+'<h3 class="vt">📚 四格漫畫館</h3>'+
+  '<iframe src="/4koma/4koma-player.html" style="width:100%;height:calc(100vh - 180px);border:none;border-radius:12px;background:#fff"></iframe>';
 }
 
 function crMangaDirect(){

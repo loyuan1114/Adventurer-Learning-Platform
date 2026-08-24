@@ -1,0 +1,12 @@
+/* ADV9 四格漫畫・角色 SVG 庫 */
+window.CHAR={
+  a1:'<svg viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" rx="14" fill="#ffd9e8" stroke="#e0558e" stroke-width="3"/><circle cx="36" cy="38" r="3.5" fill="#e0558e"/><circle cx="64" cy="38" r="3.5" fill="#e0558e"/><circle cx="50" cy="50" r="3.5" fill="#e0558e"/><circle cx="36" cy="62" r="3.5" fill="#e0558e"/><circle cx="64" cy="62" r="3.5" fill="#e0558e"/><circle cx="43" cy="50" r="2.6" fill="#3a2e44"/><circle cx="57" cy="50" r="2.6" fill="#3a2e44"/><path d="M45 57 Q50 62 55 57" stroke="#3a2e44" stroke-width="2" fill="none"/></svg>',
+  a1sad:'<svg viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" rx="14" fill="#ffd9e8" stroke="#e0558e" stroke-width="3"/><circle cx="36" cy="38" r="3.5" fill="#e0558e"/><circle cx="64" cy="38" r="3.5" fill="#e0558e"/><circle cx="50" cy="50" r="3.5" fill="#e0558e"/><circle cx="36" cy="62" r="3.5" fill="#e0558e"/><circle cx="64" cy="62" r="3.5" fill="#e0558e"/><circle cx="43" cy="52" r="2.6" fill="#3a2e44"/><circle cx="57" cy="52" r="2.6" fill="#3a2e44"/><path d="M45 60 Q50 55 55 60" stroke="#3a2e44" stroke-width="2" fill="none"/></svg>',
+  x7:'<svg viewBox="0 0 100 100"><path d="M28 50 Q12 38 21 62 Q31 63 30 51Z" fill="#cdeaff" stroke="#7ab0ea" stroke-width="2"/><path d="M72 50 Q88 38 79 62 Q69 63 70 51Z" fill="#cdeaff" stroke="#7ab0ea" stroke-width="2"/><ellipse cx="50" cy="55" rx="20" ry="24" fill="#eadfff" stroke="#c3a8ee" stroke-width="3"/><circle cx="42" cy="52" r="2.8" fill="#3a2e44"/><circle cx="58" cy="52" r="2.8" fill="#3a2e44"/><path d="M44 60 Q50 65 56 60" stroke="#3a2e44" stroke-width="2" fill="none"/><line x1="70" y1="42" x2="84" y2="28" stroke="#c3a8ee" stroke-width="2"/><path d="M84 20 l2 6 6 1 -5 4 1 6 -4 -3 -4 3 1 -6 -5 -4 6 -1Z" fill="#ffd166"/></svg>',
+  x6:'<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="28" fill="#fff0d6" stroke="#e8944a" stroke-width="3"/><circle cx="42" cy="48" r="2.8" fill="#3a2e44"/><circle cx="58" cy="48" r="2.8" fill="#3a2e44"/><path d="M44 58 Q50 63 56 58" stroke="#3a2e44" stroke-width="2" fill="none"/><path d="M40 40 l-6 -6 M60 40 l6 -6" stroke="#e8944a" stroke-width="2"/><text x="50" y="34" font-size="18" text-anchor="middle" fill="#e8944a" font-weight="bold">6</text></svg>'
+};
+/* 把角色 key 轉成 svg 注入到 panels 的 ch 欄 */
+window.fillChar=function(p){
+  if(p.ch && window.CHAR[p.ch]) p._ch=window.CHAR[p.ch]; else if(p.ch) p._ch=p.ch;
+  return p;
+};
