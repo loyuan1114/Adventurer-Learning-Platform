@@ -93,7 +93,7 @@ async function crMindDel(id){
 async function crMangas(){
   const arr=await crApi('GET','/rest/v1/cr/mangas')||[];
   const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML=back('vCreate()')+'<h3 class="vt">📖 教材漫畫 <span class="vsub">四格漫畫館・AI 生成漫畫</span></h3>'+
+  box.innerHTML='<h3 class="vt">📖 教材漫畫 <span class="vsub">四格漫畫館・AI 生成漫畫</span></h3>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
   '<button class="btn gold" onclick="cr4koma()">📚 四格漫畫館（預製）</button>'+
   '<button class="btn teal" onclick="crMangaDirect()">✏️ 直接輸入主題生成漫畫</button>'+

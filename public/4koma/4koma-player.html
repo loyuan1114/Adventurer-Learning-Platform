@@ -11,14 +11,10 @@
     font-family:"Microsoft JhengHei","PingFang TC",sans-serif;color:var(--ink);min-height:100vh;}
   .app{max-width:820px;margin:0 auto;padding:14px 10px 80px;}
   @media(min-width:1000px){.app{max-width:1000px;}}
-  .hud{position:sticky;top:0;z-index:40;background:#fffefbE8;backdrop-filter:blur(8px);
+  .hud{position:sticky;top:0;z-index:40;background:rgba(255,254,251,.91);backdrop-filter:blur(8px);
     border-radius:0 0 18px 18px;border:2px solid #fff;box-shadow:0 4px 14px rgba(200,150,180,.18);
     padding:9px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
   .hud .logo{font-weight:900;color:var(--pink);}
-  .hud .stars{margin-left:auto;font-weight:bold;color:#c99b52;}
-  .gb{border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:.76rem;
-    background:linear-gradient(180deg,#ffe08a,var(--star));color:#7a5b13;border-radius:99px;padding:6px 14px;box-shadow:0 3px 0 #d9ab3f;}
-  .gb:disabled{filter:grayscale(.8);opacity:.55;cursor:default;}
   .shelf-h{display:flex;align-items:center;gap:8px;margin:18px 2px 10px;font-weight:900;font-size:1rem;letter-spacing:.1em;}
   .shelf-h .ln{flex:1;height:2px;background:linear-gradient(90deg,var(--sc,#f3a8c6),transparent);}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
@@ -59,14 +55,6 @@
   .quiz h4{font-size:.9rem;margin-bottom:8px;color:var(--pink);}
   .quiz .opt{cursor:pointer;border:2px solid #eadfef;background:#fbf7fc;border-radius:11px;padding:9px 10px;font-weight:bold;margin:6px 0;font-size:.84rem;font-family:inherit;}
   .quiz .ex{display:none;margin-top:8px;font-size:.78rem;color:#8a7695;border-top:1.5px dashed #e8dbe6;padding-top:8px;}
-  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(30,20,45,.55);}
-  .modal.show{display:flex;}
-  .mbox{background:radial-gradient(120% 120% at 50% 0%,#3a2a5e,#1c1533);border:3px solid var(--star);border-radius:22px;padding:24px 20px;width:min(86vw,320px);text-align:center;color:#f0ebff;}
-  .gcard{margin:16px auto;width:min(58vw,180px);aspect-ratio:3/4.1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:3px solid #888;background:#241d47;position:relative;overflow:hidden;cursor:pointer;}
-  .gcard .gi{font-size:3rem;}.gcard .gn{font-weight:900;font-size:.92rem;}.gcard .gf{font-size:.64rem;color:#bdb3d9;padding:0 10px;line-height:1.5;}
-  .r-N{border-color:#8a8aa0;}.r-R{border-color:#4da3ff;box-shadow:0 0 18px #4da3ff66;}.r-SR{border-color:#b06bff;box-shadow:0 0 24px #b06bff88;}.r-SSR{border-color:var(--star);box-shadow:0 0 34px #ffd166aa;}
-  .mhint{font-size:.72rem;color:#bdb3d9;margin-top:10px;}
-  .closem{margin-top:14px;border:none;cursor:pointer;font-family:inherit;font-weight:bold;background:rgba(255,255,255,.12);color:#fff;border-radius:99px;padding:9px 24px;}
   #errBox{display:none;background:#fff0f3;border:2px solid #ff8fb8;color:#d64550;border-radius:12px;padding:9px 13px;font-size:.78rem;margin-bottom:10px;}
   .grade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:16px 0;}
   .grade-btn{border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:1rem;
@@ -91,19 +79,11 @@
 <div class="app">
   <div class="hud">
     <span class="logo">📚 ADV9 四格館</span>
-    <span class="stars">⭐ <span id="starNum">0</span>/5</span>
-    <button class="gb" id="gachaBtn" disabled>抽卡 🔒</button>
   </div>
   <div id="errBox"></div>
   <div id="shelfView"></div>
   <div class="reader" id="reader"></div>
 </div>
-<div class="modal" id="gachaModal"><div class="mbox">
-  <h3 style="letter-spacing:.2em;color:var(--star)">✦ 知識抽卡所 ✦</h3>
-  <div class="gcard r-N" id="gcard"><div class="gi" id="gIco">🎴</div><div class="gn" id="gName">點擊揭曉！</div><div class="gf" id="gFlav"></div></div>
-  <div class="mhint" id="mHint">集滿 5⭐ 可抽一次</div>
-  <button class="closem" onclick="document.getElementById('gachaModal').classList.remove('show')">收下 ✦</button>
-</div></div>
 <script>
 window.onerror=function(m,s,l){var b=document.getElementById('errBox');if(b){b.style.display='block';b.textContent='⚠️ 錯誤：'+m+'（第'+l+'行）';}};
 </script>
@@ -152,17 +132,9 @@ window.onerror=function(m,s,l){var b=document.getElementById('errBox');if(b){b.s
 "use strict";
 const $=id=>document.getElementById(id);
 let save;try{save=JSON.parse(localStorage.getItem('adv9k4')||'{}')}catch(e){save={}}
-save.stars=save.stars||0;save.done=save.done||{};save.cards=save.cards||[];
+save.done=save.done||{};
 const persist=()=>{try{localStorage.setItem('adv9k4',JSON.stringify(save))}catch(e){}};
 const ALL=[...(window.K4_MATH||[]),...(window.K4_OTHER||[]),...(window.K4_ENG||[]),...(window.K4_SCI||[]),...(window.K4_CHI||[]),...(window.K4_HIS||[]),...(window.K4_GEO||[]),...(window.K4_CIT||[]),...(window.K4_MATH_ENG_9||[]),...(window.K4_HIS_GEO_9||[]),...(window.K4_CHI_CIT_SCI_9||[]),...(window.K4_CHI_SCI_ENG_CIT_7||[]),...(window.K4_GEO_SCI_ENG_CIT_8||[])];
-const CARDS=[
- {r:"N",i:"📝",n:"見習生筆記本",f:"寫滿算錯的過程，也是成長。"},
- {r:"R",i:"🏹",n:"十字交乘之弓",f:"一箭雙根。"},
- {r:"R",i:"🛡️",n:"配方方陣盾",f:"補上那一格，防禦成形。"},
- {r:"SR",i:"⚔️",n:"完全平方聖劍",f:"出鞘必見方根。"},
- {r:"SR",i:"🧚",n:"小七牌精靈",f:"36 種相遇裡的必然。"},
- {r:"SSR",i:"👑",n:"公式解・終焉奧義",f:"斬斷一切二次魔物的一式。"}
-];
 const GRADES=[
  {id:"七上",label:"七上",icon:"1️⃣"},{id:"七下",label:"七下",icon:"2️⃣"},
  {id:"八上",label:"八上",icon:"3️⃣"},{id:"八下",label:"八下",icon:"4️⃣"},
@@ -206,8 +178,7 @@ function renderGradeView(){
   h+='<button class="grade-btn" onclick="window._selectGrade(\''+g.id+'\')"><span class="gi">'+g.icon+'</span>'+g.label+'<span class="gn">'+done+'/'+eps.length+'</span></button>';
  });
  h+='</div>';
- $('shelfView').innerHTML=h;
- updateHud();
+  $('shelfView').innerHTML=h;
 }
 
 function renderSubjectView(grade){
@@ -226,8 +197,7 @@ function renderSubjectView(grade){
   h+='<button class="subject-btn" style="border-color:'+info.color+'" onclick="window._selectSubject(\''+s+'\')"><span class="si">'+info.icon+'</span>'+s+'<span class="sn">'+done+'/'+bySubject[s].length+'</span></button>';
  });
  h+='</div>';
- $('shelfView').innerHTML=h;
- updateHud();
+  $('shelfView').innerHTML=h;
 }
 
 function renderEpisodeView(grade,subject){
@@ -244,13 +214,6 @@ function renderEpisodeView(grade,subject){
  });
  h+='</div>';
  $('shelfView').innerHTML=h;
- updateHud();
-}
-
-function updateHud(){
- $('starNum').textContent=save.stars;
- $('gachaBtn').disabled=save.stars<5;
- $('gachaBtn').textContent=save.stars>=5?('抽卡 ▶ ('+Math.floor(save.stars/5)+')'):'抽卡 🔒';
 }
 
 window._selectGrade=function(grade){renderSubjectView(grade);};
@@ -288,25 +251,16 @@ function renderReader(e){
   h+='<div class="ex">💡 '+e.quiz.ex+'</div></div>';
   }
  $('reader').innerHTML=h;
- let ans=0;
  r.querySelectorAll('.quiz .opt').forEach(b=>b.addEventListener('click',function(){
   if(this.dataset.done)return;this.dataset.done=1;
   r.querySelectorAll('.quiz .opt').forEach(x=>x.style.pointerEvents='none');
-  if(+this.dataset.i===e.quiz.a){this.style.borderColor='#5dd39e';this.style.background='#eafaf2';ans++;}
+   if(+this.dataset.i===e.quiz.a){this.style.borderColor='#5dd39e';this.style.background='#eafaf2';}
   else{this.style.borderColor='#ff6b6b';this.style.background='#ffeff0';}
   r.querySelector('.quiz .ex').style.display='block';
-  if(!save.done[e.id]){save.done[e.id]=true;save.stars++;persist();
-   $('starNum').textContent=save.stars;$('gachaBtn').disabled=save.stars<5;
-   $('gachaBtn').textContent=save.stars>=5?'抽卡 ▶':'抽卡 🔒';
-   toast('讀完一話 +1⭐');}
- }));
+   if(!save.done[e.id]){save.done[e.id]=true;persist();toast('✅ 已完成！');}
+  }));
 }
 function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:70;background:#fff;color:#e0558e;font-weight:900;border-radius:99px;padding:8px 20px;box-shadow:0 6px 18px rgba(220,120,160,.35);transition:opacity .5s';document.body.appendChild(t);setTimeout(()=>t.style.opacity='0',900);setTimeout(()=>t.remove(),1500);}
-$('gachaBtn').addEventListener('click',function(){
- if(save.stars<5)return;save.stars-=5;persist();
-  $('starNum').textContent=save.stars;updateHud();
- $('gachaModal').classList.add('show');const gc=$('gcard');gc.className='gcard r-N';$('gIco').textContent='🎴';$('gName').textContent='？？？';$('gFlav').textContent='';gc.onclick=()=>{const roll=Math.random()*100;let c;if(roll<8)c=CARDS[5];else if(roll<28)c=Math.random()<.5?CARDS[3]:CARDS[4];else if(roll<60)c=CARDS[Math.floor(Math.random()*2)+1];else c=CARDS[0];gc.className='gcard r-'+c.r;$('gIco').textContent=c.i;$('gName').textContent=c.n;$('gFlav').textContent=c.f;save.cards.push(c.n);persist();$('mHint').textContent='收藏：'+save.cards.length+' 張';try{const ac=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,c.r==='SSR'?1047:784].forEach((f,i)=>{const t=ac.currentTime+i*.09,o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.22);});}catch(e){}};
-});
 renderGradeView();
 })();
 </script>
