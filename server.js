@@ -218,7 +218,7 @@ if(KV[USERS_KEY]){
 
 /* 種子：主管理員（只存雜湊，不存明文）*/
 if(!ACC[MASTER.user]){
-  ACC[MASTER.user]={id:MASTER.user,username:MASTER.user,name:MASTER.name,role:'admin',password:'',pwHash:MASTER.hash,master:true,isSchoolAdmin:true,mustChangePw:true,tokenVer:0,classId:null,createdAt:new Date().toISOString(),g:null};
+  ACC[MASTER.user]={id:MASTER.user,username:MASTER.user,name:MASTER.name,role:'admin',password:'',pwHash:MASTER.hash,master:true,isSchoolAdmin:true,mustChangePw:false,tokenVer:0,classId:null,createdAt:new Date().toISOString(),g:null};
   saveUserFile(MASTER.user);
 }
 
