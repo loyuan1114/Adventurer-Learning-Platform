@@ -6,7 +6,7 @@ function vHome(){
 
 const u=me(),g=u.g;
 
-const eq=g.equip.character?CHARS[g.equip.character].icon:'🧑‍🎓';
+const eq=(g.equip.character&&CHARS&&CHARS[g.equip.character])?CHARS[g.equip.character].icon:'🧑‍🎓';
 
 const tt=TITLES.find(t=>t.id===g.equippedTitle);
 

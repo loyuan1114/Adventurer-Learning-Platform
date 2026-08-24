@@ -4,7 +4,7 @@
    ════════════════════════════════════════════ */
 let CR={tab:'mind',gen:0};
 function vCreate(){
-  $('#view').innerHTML=back()+'<h3 class="vt">🎨 創作中心 <span class="vsub">心智圖・教材漫畫・AI 播客・AI 導師</span></h3>'+
+  $('#view').innerHTML=back('vCreate()')+'<h3 class="vt">🎨 創作中心 <span class="vsub">心智圖・教材漫畫・AI 播客・AI 導師</span></h3>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
   '<button class="btn '+(CR.tab==='mind'?'gold':'ghost')+'" onclick="CR.tab=\'mind\';vCreate()">🗺️ 心智圖</button>'+
   '<button class="btn '+(CR.tab==='manga'?'gold':'ghost')+'" onclick="CR.tab=\'manga\';vCreate()">📖 教材漫畫</button>'+
