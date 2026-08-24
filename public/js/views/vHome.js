@@ -54,7 +54,8 @@ function homeLangSwitch(){
     '</button>';
   });
   h+='</div>';
-  showModal('🌍 切換語言（'+allLangs.length+' 種）',h);
+  h='<div style="font-size:16px;font-weight:900;font-family:var(--serif);color:var(--gold2);margin-bottom:10px">🌍 切換語言（'+allLangs.length+' 種）</div>'+h;
+  openModal(h);
 }
 function homeLangFilter(q){
   q=(q||'').trim().toLowerCase();

@@ -241,7 +241,7 @@ async function nbProgress(){
   box.innerHTML='<div class="panel2"><b>📊 學習進度</b>'+
   '<div style="margin-top:8px;display:flex;gap:16px;flex-wrap:wrap">'+
   '<span>總答題 <b style="color:var(--teal)">'+(prog.answered||0)+'</b></span>'+
-  '<span>答對 <b style="color:var(--gold2)">'+(prog.correct||0)+'</span>'+
+  '<span>答對 <b style="color:var(--gold2)">'+(prog.correct||0)+'</b></span>'+
   '<span>正確率 <b style="color:'+((prog.answered?prog.correct/prog.answered:0)>=0.7?'#4caf50':'#ff5252')+'">'+Math.round((prog.answered?prog.correct/prog.answered:0)*100)+'%</b></span></div>'+
   (weak.length?'<div style="margin-top:10px;color:#ff5252"><b>⚠️ 弱項單元（答對率&lt;60%）：</b>'+weak.map(esc).join('、')+'<button class="btn gold mini" style="margin-left:8px" onclick="nbWeakPractice(\''+weak.join(',')+'\')">🎯 針對練習</button></div>':'')+'</div>'+
   '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">'+keys.map(k=>{const uu=units[k];const rate=uu.attempts?uu.correct/uu.attempts:0;return '<div class="panel2" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>📚 '+esc(k)+'</span><span style="font-size:12px;color:var(--mut)">'+uu.attempts+' 次・'+(Math.round(rate*100))+'%</span><div style="width:100px;height:8px;background:var(--line);border-radius:4px;overflow:hidden"><div style="width:'+(rate*100)+'%;height:100%;background:'+(rate>=0.6?'#4caf50':'#ff5252')+'"></div></div></div>'}).join('')+'</div>';

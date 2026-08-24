@@ -3,7 +3,7 @@
    10 段位 × 5 階段，Solo（9×9 / 16×16），PK（12×12 真人）
    ════════════════════════════════════════════ */
 
-var SUDOKU_SERVER = 'http://10.67.50.212:8083';
+var SUDOKU_SERVER = (function(){try{var s=localStorage.getItem('SUDOKU_SERVER');if(s)return s}catch(e){}return location.origin})();
 
 var SUDOKU_TIERS = [
   {name:'銅板',en:'Bronze',   color:'#cd7f32'},

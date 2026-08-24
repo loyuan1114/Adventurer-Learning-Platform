@@ -13,7 +13,7 @@ function vReroll(){
   REROLL_ATTRS.forEach(a=>{
     const r=d.attr[a.id]||'R';const b=REROLL_BONUS[r]||{flat:2,mult:1};
     const multStr=r==='∞'?'×2.5（乘法）':b.mult>1?'×'+b.mult:'+'+b.flat;
-    html+='<div class="rerollAttrRow">'; html+='<input class="rerollPick" type="checkbox" value="'+a.id+'" checked>'; html+='<input class="rerollPick" type="checkbox" value="'+a.id+'" checked>';
+    html+='<div class="rerollAttrRow">'; html+='<input class="rerollPick" type="checkbox" value="'+a.id+'" checked>';
     html+='<span class="rerollAttrIcon">'+a.icon+'</span>';
     html+='<span class="rerollAttrName">'+a.name+'<br><span style="font-size:11px;color:var(--mut)">→ '+a.stat+'</span></span>';
     html+='<span class="rerollBadge '+EQ_BADGE_CSS(r)+'">'+r+'</span>';

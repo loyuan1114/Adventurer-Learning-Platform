@@ -19,9 +19,6 @@ $('#view').innerHTML=back()+'<h3 class="vt">🎁 召喚抽卡 <span class="vsub"
 '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn big" style="background:linear-gradient(180deg,#b39ddb,#7c4dff);border-color:#4527a0;color:#fff" onclick="pull(1)">單抽<br>💠30</button>'+
 
 '<button class="btn big" onclick="pull(10)">十連抽<br>💠270（必得SR+）</button>'+
-
-''+
-
 '<div id="gRes"></div>'+
 
 '<div class="panel2" style="margin-top:12px;font-size:12px;color:var(--mut)">機率隨卡池等級提升：Lv1 原始 N 100% → Lv100 UR 10%（升級所需抽數＝等級×2，免費升級）｜10抽保底SR・50抽保底SSR・100抽保底UR</div>';

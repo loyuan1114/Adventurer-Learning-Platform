@@ -14,7 +14,7 @@ function vInfinityExchange(){
 
   const pkTower = get('ADV9_PK_TOWER_FLOOR', 0);
   const subStages = get('ADV9_SUBJECT_STAGES', { chinese:0, math:0, english:0, science:0, social:0, will:0, luck:0 });
-  const charLvl = me().level || 1;
+  const charLvl = (me().g && me().g.lv) || 1;
   const eqData = eqGet();
   const equippedList = Object.values(eqData.equipped||{}).map(id => (eqData.owned||[]).find(x => x.id === id)).filter(Boolean);
   const all7GearLv100 = equippedList.length >= 7 && equippedList.every(g => (g.level||1) >= 100);

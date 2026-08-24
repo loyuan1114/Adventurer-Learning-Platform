@@ -152,7 +152,7 @@ function deleteUserFile(username){
 function indexOfACC(){
   return Object.keys(ACC).filter(function(un){return !(ACC[un]&&ACC[un].hidden)}).map(function(un){
     var u=ACC[un]||{};
-    return {id:u.id||un,username:un,name:u.name||un,role:u.role||'student',classId:u.classId||null,managedClassIds:u.managedClassIds||[],isSchoolAdmin:!!u.isSchoolAdmin,pwHash:u.pwHash||'',salt:u.salt||'',tokenVer:u.tokenVer||0,master:!!u.master,createdAt:u.createdAt||new Date().toISOString()};
+    return {id:u.id||un,username:un,name:u.name||un,role:u.role||'student',classId:u.classId||null,managedClassIds:u.managedClassIds||[],isSchoolAdmin:!!u.isSchoolAdmin,tokenVer:u.tokenVer||0,master:!!u.master,createdAt:u.createdAt||new Date().toISOString()};
   });
 }
 function saveIndex(){ /* 同步寫入（檔案小），建立/刪除帳號後立即呼叫 */
@@ -531,6 +531,11 @@ var server=http.createServer(function(req,res){
   /* 系統設定 (system.json) 讀寫 */
   if(p==='/rest/v1/system_settings'){
     if(req.method==='GET'){
+      var w=checkToken(tok);
+      if(!w || w.role!=='admin'){
+        res.writeHead(403,{'Content-Type':'text/plain; charset=utf-8'});
+        return res.end('僅限管理員操作');
+      }
       res.writeHead(200,{'Content-Type':'application/json'});
       return res.end(JSON.stringify(SYSSET));
     }
@@ -585,9 +590,26 @@ var server=http.createServer(function(req,res){
         if(!j || !j.username){
           res.writeHead(400);return res.end('缺少 username 欄位');
         }
-        var un=j.username;
-        ACC[un]=j;
+        var un=String(j.username).replace(/[^a-zA-Z0-9_\-]/g,'').slice(0,64);
+        if(!un){res.writeHead(400);return res.end('username 不合法')}
+        if(un===MASTER.user){res.writeHead(403);return res.end('不可覆蓋 master 帳號')}
+        var safe={};
+        safe.id=un;
+        safe.username=un;
+        safe.name=String(j.name||un).slice(0,128);
+        safe.role=['student','teacher','admin'].includes(j.role)?j.role:'student';
+        safe.classId=j.classId||null;
+        safe.prof=j.prof||null;
+        safe.g=j.g||{};
+        safe.master=!!j.master;
+        safe.isSchoolAdmin=!!j.isSchoolAdmin;
+        safe.tokenVer=typeof j.tokenVer==='number'?j.tokenVer:0;
+        safe.createdAt=j.createdAt||new Date().toISOString();
+        if(j.pwHash) safe.pwHash=String(j.pwHash).slice(0,512);
+        if(j.salt) safe.salt=String(j.salt).slice(0,256);
+        ACC[un]=safe;
         saveUserFile(un);
+        saveIndex();
         res.writeHead(200,{'Content-Type':'application/json'});
         res.end(JSON.stringify({ok:true,username:un}));
       }catch(e){res.writeHead(400);res.end('bad json')}
@@ -872,7 +894,10 @@ var ext='.docx';
   /* 媒體 */
   var m=p.match(/^\/storage\/v1\/object\/(?:public\/)?media\/(.+)$/);
   if(m){
-    var name=path.basename(m[1]),file=path.join(MEDIA,name);
+    var rawName=path.basename(m[1]);
+    var name=rawName.replace(/[^a-zA-Z0-9_\-\.]/g,'_').slice(0,128);
+    if(!name||name.startsWith('.')){res.writeHead(400);return res.end('invalid filename')}
+    var file=path.join(MEDIA,name);
     if(req.method==='GET'){return fs.readFile(file,function(e,d){if(e){res.writeHead(404);return res.end('not found')}var ext=path.extname(name).toLowerCase();res.writeHead(200,{'Content-Type':MIME[ext]||'application/octet-stream','Cache-Control':'public,max-age=31536000'});res.end(d)});}
     if(req.method==='POST'||req.method==='PUT'){ if(!checkToken(tok)){res.writeHead(401);return res.end('need login')} return readBody(req,function(b){if(!b){res.writeHead(400);return res.end('no body')}fs.writeFile(file,b,function(e){if(e){res.writeHead(500);return res.end('write err')}res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({Key:'media/'+name}))})});}
     if(req.method==='DELETE'){ if(!checkToken(tok)){res.writeHead(401);return res.end('need login')} fs.unlink(file,function(){});res.writeHead(200);return res.end('[]');}
