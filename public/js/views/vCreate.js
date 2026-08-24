@@ -31,9 +31,11 @@ async function crApi(method,path,body){
 async function crNotePicker(cb){
   const arr=await crApi('GET','/rest/v1/lib/notes')||[];
   if(!arr.length){toast('請先在「📝 筆記寶庫」建立筆記','bad');return}
-  const h='<div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto">'+arr.map(n=>'<button onclick="crPickNote(\''+n.id+'\')" style="text-align:left;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--txt);font-size:13px">📒 '+esc(n.title)+'</button>').join('')+'</div>';
-  window.crPickNote=function(id){closeModal();cb(id)};
-  showModal('選擇筆記',h);
+  const box=document.getElementById('crBody');if(!box)return;
+  const html='<div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto">'+arr.map(n=>'<button onclick="window._crPickNote(\''+n.id+'\')" style="text-align:left;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--txt);font-size:13px">📒 '+esc(n.title)+'</button>').join('')+'</div>'+
+  '<div style="margin-top:8px"><button class="btn ghost" onclick="crMangas()">← 返回</button></div>';
+  box.innerHTML=back('vCreate()')+'<h3 class="vt">📒 選擇筆記</h3>'+html;
+  window._crPickNote=function(id){cb(id)};
 }
 
 /* ── 心智圖：選筆記 → AI 生成節點樹 → SVG 呈現 ── */
@@ -85,12 +87,46 @@ async function crMindDel(id){
   toast('已刪除','ok');vCreate();
 }
 
-/* ── 教材漫畫：選筆記 → AI 生成分鏡 → SVG 多格漫畫 ── */
+/* ── 教材漫畫：直接輸入 / 選筆記 → AI 生成分鏡 → 多格漫畫 ── */
 async function crMangas(){
   const arr=await crApi('GET','/rest/v1/cr/mangas')||[];
   const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crMangaGen)">＋ 從筆記生成教材漫畫</button></div>'+
-  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMangaShow(\''+m.id+'\')">📖 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.panels||[]).length+' 格・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有漫畫。把筆記變成漫畫吧！</p>');
+  box.innerHTML='<div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap">'+
+  '<button class="btn teal" onclick="crMangaDirect()">✏️ 直接輸入主題生成漫畫</button>'+
+  '<button class="btn ghost" onclick="crNotePicker(crMangaGen)">📒 從筆記生成漫畫</button></div>'+
+  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMangaShow(\''+m.id+'\')">📖 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.panels||[]).length+' 格・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有漫畫。輸入任何主題，AI 幫你變成 6 格漫畫！</p>');
+}
+
+function crMangaDirect(){
+  const box=document.getElementById('crBody');if(!box)return;
+  box.innerHTML=back('vCreate()')+'<h3 class="vt">✏️ 建立教材漫畫</h3>'+
+  '<div class="panel2" style="max-width:700px">'+
+  '<label style="font-size:13px;color:var(--mut)">輸入主題或內容（例如：光合作用、三國演義、二次方程式）</label>'+
+  '<textarea id="crMangaInput" class="inp" rows="5" style="margin-top:6px" placeholder="例如：光合作用是植物利用陽光、水和二氧化碳製造葡萄糖和氧氣的過程..."></textarea>'+
+  '<div style="display:flex;gap:10px;margin-top:8px;align-items:center">'+
+  '<label style="font-size:13px;color:var(--mut)">格數</label>'+
+  '<input id="crMangaPanels" class="inp" type="number" min="3" max="12" value="6" style="width:70px">'+
+  '</div>'+
+  '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn teal" onclick="crMangaDirectGo()">🎨 生成漫畫</button>'+
+  '<button class="btn ghost" onclick="crMangas()">← 返回</button></div></div>';
+}
+
+async function crMangaDirectGo(){
+  const input=document.getElementById('crMangaInput');
+  const panelsEl=document.getElementById('crMangaPanels');
+  const text=(input?input.value:'').trim();
+  const numPanels=Math.min(12,Math.max(3,parseInt(panelsEl?panelsEl.value:'6')||6));
+  if(!text){toast('請輸入主題內容','bad');return}
+  toast('AI 編劇中...');
+  try{
+    const out=await callAI('把以下內容改編成 '+numPanels+' 格教學漫畫（適合國中生，每格要有場景、角色、對白）。輸出 JSON 陣列：[{"scene":"場景描述","character":"出現角色","text":"對白或旁白"}] 共 '+numPanels+' 格。只輸出 JSON 陣列。\n\n內容：\n'+text.slice(0,8000));
+    const m=out.match(/\[[\s\S]*\]/);if(!m)throw new Error('no json');
+    const panels=JSON.parse(m[0]);
+    if(!Array.isArray(panels)||!panels.length)throw new Error('empty');
+    const title=text.slice(0,30)+(text.length>30?'...':'');
+    const manga=await crApi('POST','/rest/v1/cr/mangas',{title:title,panels:panels});
+    if(manga){toast('漫畫已生成','ok');crMangaShow(manga.id)}
+  }catch(e){toast('AI 失敗：'+e.message,'bad')}
 }
 
 async function crMangaGen(noteId){
