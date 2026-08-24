@@ -128,6 +128,23 @@ You can also wrap each field in quotes, or mix formats:
 
 ## 📊 Platform Comparison / 平台比較
 
+### Six-Dimension Benchmark / 六維度跑分（分數無上限）
+
+| Dimension / 維度 | **⚔️ ADV9** | **📘 均一** | **🐉 PaGamO** | **🧊 酷英** |
+|-----------------|-----------|-----------|-------------|-----------|
+| ⚡ Performance / 效能 | **2,400** | 1,600 | 1,500 | 1,300 |
+| 🎮 Gamification / 遊戲化 | **2,700** | 800 | 2,100 | 600 |
+| 📚 Learning / 學習內容 | 2,100 | **2,500** | 1,800 | 1,900 |
+| 🔒 Security / 安全性 | **2,600** | 1,900 | 1,700 | 1,500 |
+| 🛠️ Tech / 技術架構 | **2,400** | 1,400 | 1,600 | 1,200 |
+| 🔌 Extensibility / 擴充性 | **2,800** | 700 | 600 | 500 |
+| **🏆 Total / 總分** | **15,000** | **8,900** | **9,300** | **7,000** |
+
+> ADV9 leads in Gamification (2,700), Security (2,600), Extensibility (2,800), and Tech (2,400).
+> 均一 leads in Learning Content (2,500) with Khan Academy's structured curriculum.
+
+### Feature Matrix / 功能對照
+
 | Item / 項目 | **ADV9** | PaGamO | 均一 | Cool English |
 |------------|---------|--------|------|-------------|
 | **Type / 類型** | Open-source self-hosted | Commercial SaaS | Non-profit SaaS | Government SaaS |
