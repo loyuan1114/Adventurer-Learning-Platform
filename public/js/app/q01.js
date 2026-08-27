@@ -980,7 +980,8 @@ function openGiftBoxModal(buffIndex){
   const b = buffGet();
   const item = b.inventory[buffIndex];
   if (!item) return;
-  const friends = get(LS.users, []).filter(u => u.id !== me().id);
+  var _u=me();
+  const friends = get(LS.users, []).filter(u => _u && u.id !== _u.id);
 
   let html = '<h3 class="mt">🎁 包裝禮物盒並贈送</h3>';
   html += '<p class="msub">將『' + item.name + '』包裝為禮物盒發送給好友</p>';
@@ -1006,10 +1007,11 @@ function sendGiftBox(buffIndex){
   if (!item || !friendId) return;
 
   const logs = get('ADV9_GIFT_LOGS', []);
+  var _gu=me();
   logs.push({
     id: 'gift_' + Date.now(),
-    from: me().id,
-    fromName: me().name,
+    from: _gu?_gu.id:'',
+    fromName: _gu?_gu.name:'',
     to: friendId,
     item: item,
     boxColor: color,
@@ -1093,7 +1095,7 @@ function adminGrantInfinity(){
   }).then(r=>r.json()).then(j=>{
     if(j.ok){
       const logs = get('ADV9_ADMIN_OP_LOGS', []);
-      logs.push({time:Date.now(),op:'GRANT_INFINITY',target:uid,attr:attrId,reason,operator:me().username});
+      logs.push({time:Date.now(),op:'GRANT_INFINITY',target:uid,attr:attrId,reason,operator:me()?me().username:'?'});
       set('ADV9_ADMIN_OP_LOGS', logs);
       toast('👑 已贈送 ∞ 給 '+uid+' 並寫入管理員日誌！');
     } else { toast('⚠️ 發送失敗：'+(j.error||'未知錯誤'),'bad'); }
@@ -1220,7 +1222,8 @@ function startClassCompetition(){
   var ws=location.protocol==='https:'?'wss:':'ws:';
   _compWs=new WebSocket(ws+'//'+location.host+'/ws/pk');
   _compWs.onopen=function(){
-    _compWs.send(JSON.stringify({type:'join',room:'comp',user:me().username}));
+    var _cu=me();if(!_cu)return;
+    _compWs.send(JSON.stringify({type:'join',room:'comp',user:_cu.username}));
     _compWs.send(JSON.stringify({type:'comp_start',subject:subj,duration:dur*1000}));
   };
   _compWs.onmessage=function(e){
@@ -1234,7 +1237,8 @@ function joinCompetition(compId){
   _compWs=new WebSocket(ws+'//'+location.host+'/ws/pk?token='+encodeURIComponent(WTOKEN||''));
   _compId=compId;
   _compWs.onopen=function(){
-    _compWs.send(JSON.stringify({type:'join',room:'comp_'+compId,user:me().username}));
+    var _ju=me();if(!_ju)return;
+    _compWs.send(JSON.stringify({type:'join',room:'comp_'+compId,user:_ju.username}));
     _compWs.send(JSON.stringify({type:'comp_join',compId:compId}));
   };
   _compWs.onmessage=function(e){

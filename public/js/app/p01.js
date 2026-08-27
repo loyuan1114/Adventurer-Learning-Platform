@@ -512,7 +512,7 @@ return fallbackQ(subj,unit,tier);
 function isoToday(){return new Date().toISOString().slice(0,10)}
 function isoYesterday(d){const dt=new Date(d+"T12:00:00");dt.setDate(dt.getDate()-1);return dt.toISOString().slice(0,10)}
 
-function friendCount(g){return get(LS.fr,[]).filter(f=>f.status==='accepted'&&(f.a===me().id||f.b===me().id)).length}
+function friendCount(g){var _u=me();if(!_u)return 0;return get(LS.fr,[]).filter(f=>f.status==='accepted'&&(f.a===_u.id||f.b===_u.id)).length}
 
 
 /* 收藏等級（無上限）：每級技能效果 +2%；舊存檔無 collLv 時預設 Lv.1 */

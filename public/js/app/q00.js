@@ -523,7 +523,8 @@ function dollListHtml(owned,shopDolls,u,g,d,mult){
 
 function openDoll(id){
   const d=_dGet();
-  const doll=d.owned.find(x=>x.id===id&&x.owner===me().id);
+  var _u=me();
+  const doll=d.owned.find(x=>x.id===id&&_u&&x.owner===_u.id);
   if(!doll)return toast('娃娃不存在','bad');
   _dCur=doll;
   /* 重開後仍顯示之前的對話紀錄（連續聊天）*/

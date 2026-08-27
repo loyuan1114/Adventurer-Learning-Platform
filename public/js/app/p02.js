@@ -527,7 +527,7 @@ function generateLearningPathUI(){
 }
 
 function startClassCompetitionUI(){
-  if(me().role!=='teacher'&&me().role!=='admin')return toast('⚠️ 僅教師/管理員可發起競賽','bad');
+  var _u=me();if(!_u||(_u.role!=='teacher'&&_u.role!=='admin'))return toast('⚠️ 僅教師/管理員可發起競賽','bad');
   var subj=prompt('科目（數學/英文/自然/社會）：')||'數學';
   var dur=parseInt(prompt('時間（秒）：','300'))||300;
   startClassCompetition();

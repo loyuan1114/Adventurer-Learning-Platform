@@ -13,11 +13,14 @@ const DEFAULTS={adm:{u:"admin01",p:"A@2026",name:"公會會長"}}; /* 發布版�
 
 const $=s=>document.querySelector(s);
 
+/* 全域狀態變數（避免 ReferenceError） */
+var WTOKEN='';var _onlineSet=new Set();var _es=null;var _hbTimer=null;var _fastT=null;
+
 const LS={users:'ADV9_USERS',ann:'ADV9_ANN',codes:'ADV9_CODES',chat:'ADV9_CHAT',ses:'ADV9_SES',hw:'ADV9_HOMEWORK',sub:'ADV9_SUBMISSIONS',fr:'ADV9_FRIENDS',gr:'ADV9_GROUPS',pm:'ADV9_PM',trades:'ADV9_TRADES',gshop:'ADV9_GSHOP',apiKeys:'ADV9_APIKEYS',classes:'ADV9_CLASSES',market:'ADV9_MARKET',settings:'ADV9_SETTINGS',acad:'ADV9_ACADYR',duels:'ADV9_DUELS',stories:'ADV9_STORIES',guilds:'ADV9_GUILDS',books:'ADV9_BOOKS',notif:'ADV9_NOTIF',local:'ADV9_LOCAL',dolls:'ADV9_DOLLS',shopDolls:'ADV9_SHOP_DOLLS',events:'ADV9_DOLL_EVENTS',musicLinks:'ADV9_MUSIC_LINKS',musicReqs:'ADV9_MUSIC_REQS',pixels:'ADV9_PIXELS',videos:'ADV9_VIDEOS'};
 
 const get=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
 
-const set=(k,v)=>{localStorage.setItem(k,JSON.stringify(v));if(typeof supaPush==='function')supaPush(k,v)};
+const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){if(e.name==='QuotaExceededError'){try{toast&&toast('⚠️ 儲存空間已滿，請清理瀏覽器資料','bad')}catch(e2){}}}if(typeof supaPush==='function')supaPush(k,v)};
 window.get=get;window.set=set;
 
 /* 🛡️ 防注入：清除使用者輸入中的 HTML/腳本危險字元（用於訊息、昵稱、動態等儲存前清洗）*/

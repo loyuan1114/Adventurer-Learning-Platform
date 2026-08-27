@@ -328,7 +328,8 @@ const gg=x.g;
 
 const v=board==='等級'?gg.lv:board==='連擊'?gg.stats.maxCombo:board==='收藏'?collCount(gg):board==='戰力'?power(gg):gg.stats.correct;
 
-return{n:x.name,v:Number(v)||0,me:x.id===me().id,title:TITLES.find(t=>t.id===gg.equippedTitle)};
+var _me=me();
+return{n:x.name,v:Number(v)||0,me:_me&&x.id===_me.id,title:TITLES.find(t=>t.id===gg.equippedTitle)};
 
 });
 

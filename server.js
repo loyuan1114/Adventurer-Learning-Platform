@@ -329,7 +329,7 @@ function corsOrigin(req){
   if(extra){var list=extra.split(',').map(function(s){return s.trim()}).filter(Boolean);if(list.indexOf(o)>=0)return o;}
   return null;
 }
-function cors(res,req){var origin=corsOrigin(req);if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');}res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'");res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');}
+function cors(res,req){var origin=corsOrigin(req);if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');}res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'");res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');}
 /* 輸入清洗：所有寫入 KV 的資料都過此函式——字串截斷、陣列/物件深度與數量設上限，防超長輸入塞爆記憶體 */
 function sanitizeInput(v,depth){
   if(depth>6)return undefined;
@@ -340,7 +340,7 @@ function sanitizeInput(v,depth){
   if(typeof v==='object'){var keys=Object.keys(v);if(keys.length>2000)return undefined;var o={};for(var j=0;j<keys.length;j++){var s2=sanitizeInput(v[keys[j]],depth+1);if(s2!==undefined)o[keys[j]]=s2}return o;}
   return undefined;
 }
-function readBody(req,cb){var ch=[],len=0,max=5*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy(new Error('body too large'))}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
+function readBody(req,cb){var ch=[],len=0,max=5*1024*1024,done=false;req.on('data',function(c){len+=c.length;if(len>max&&!done){done=true;try{req.destroy(new Error('body too large'))}catch(e){}cb(null);return}if(!done)ch.push(c)});req.on('end',function(){if(!done){done=true;cb(Buffer.concat(ch))}});req.on('error',function(){if(!done){done=true;cb(null)}});}
 var _logBuf=[];var _logTimer=null;
 function flushLogs(){_logTimer=null;if(!_logBuf.length)return;var chunk=_logBuf.join('\n')+'\n';_logBuf=[];fs.appendFile(ACCESSLOG,chunk,function(){})}
 function accessLog(line){
@@ -384,7 +384,7 @@ var server=http.createServer(function(req,res){
   var tok=req.headers['x-adv9-token']||'';
   /* 首次登入強制改密碼：未改密碼前封鎖所有端點，僅放行帳號同步（改密碼）與登入 */
   try{var _mtw=checkToken(tok);
-    if(_mtw&&ACC[_mtw.username]&&ACC[_mtw.username].mustChangePw===true&&!(req.method==='POST'&&p==='/rest/v1/adv9_kv')){
+    if(_mtw&&ACC[_mtw.username]&&ACC[_mtw.username].mustChangePw===true&&req.method!=='GET'&&!(req.method==='POST'&&p==='/rest/v1/adv9_kv')){
       res.writeHead(403,{'Content-Type':'application/json; charset=utf-8'});
       return res.end(JSON.stringify({error:'must_change_pw',message:'首次登入請先修改密碼'}));
     }
@@ -466,7 +466,10 @@ var server=http.createServer(function(req,res){
     var sk=sudokuGet(),now=Date.now(),cur=sk.current;
     var force=(new URL(req.url,'http://x')).searchParams.get('force')==='1'&&sw.role==='admin';
     if(!cur||force||(cur.ts&&now-cur.ts>4*3600*1000)){ /* 題目每 4 小時輪換；管理員可 ?force=1 立即換新 */
+      if(sk._generating){res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'題目產生中，請稍後'}))}
+      sk._generating=true;
       sudokuRun().then(function(g){
+        sk._generating=false;
         if(!g){res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,msg:'題目生成失敗'}))}
         sk.current={id:Date.now().toString(36),board:g.board,answer:g.answer,ts:now,done:{}};
         saveKV();
@@ -512,6 +515,7 @@ var server=http.createServer(function(req,res){
   /* KV 讀取（含抹除密碼後的帳號清單）；支援 ?k=KEY1,KEY2 只回傳指定 key（輕量快速輪詢）*/
   if(req.method==='GET'&&p==='/rest/v1/adv9_kv'){
     var w=checkToken(tok);
+    if(!w){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入')}
     reconcileIndex(); /* 定期從主檔復原遺失帳號 */
     res.setHeader('X-ADV9-VER',BUILD);
     var only=null;
@@ -539,7 +543,12 @@ var server=http.createServer(function(req,res){
         if(row.v===undefined)row.v=null;
         if(row.k===USERS_KEY){await mergeUsers(row.v,w);pushRows.push({k:USERS_KEY,v:usersArray()})}
         else if(GLOBAL_KEYS.has(row.k)){
-          if(w.role==='admin'||w.role==='teacher'){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
+          if(w.role==='admin'){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
+          else if(w.role==='teacher'){
+            var TEACHER_KV_ALLOW=new Set(['ADV9_CHAT','ADV9_ANN','ADV9_HOMEWORK','ADV9_SUBMISSIONS','ADV9_CLASSES']);
+            if(TEACHER_KV_ALLOW.has(row.k)){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
+            else{continue;}
+          }
           else{continue;}
         }
         else {KV[w.username+':'+row.k]=row.v}
@@ -556,7 +565,7 @@ var server=http.createServer(function(req,res){
     if(SSE_CLIENTS.length>=500){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('連線數已滿')}
     res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache','Connection':'keep-alive'});
     res.write('retry: 3000\n\n');
-    var sid=Date.now()+'-'+Math.random();
+    var sid=crypto.randomUUID();
     SSE_CLIENTS.push({id:sid,res:res,user:w.username});
     var snap=[];
     ['ADV9_PM','ADV9_TRADES','ADV9_DUELS','ADV9_GROUPS','ADV9_USERS','ADV9_FRIENDS','ADV9_CHAT','ADV9_ANN','ADV9_NOTIF'].forEach(function(k){if(KV[k]!==undefined)snap.push({k:k,v:KV[k]})});
@@ -715,7 +724,7 @@ var server=http.createServer(function(req,res){
       var host=String(j.host||'http://127.0.0.1:11434').slice(0,256);
       var allowedOllamaHosts=['http://127.0.0.1:11434','http://localhost:11434','https://127.0.0.1:11434','https://localhost:11434'];
       if(allowedOllamaHosts.indexOf(host)<0){res.writeHead(403);return res.end('host not allowed');}
-      var payload=JSON.stringify({model:model,messages:Array.isArray(j.messages)?j.messages:[],stream:false,temperature:typeof j.temperature==='number'?j.temperature:0.7});
+      var payload=JSON.stringify({model:model,messages:(Array.isArray(j.messages)?j.messages:[]).slice(-100),stream:false,temperature:typeof j.temperature==='number'?j.temperature:0.7});
       var ureq=http.request(host+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(payload)},timeout:120000},function(ures){
         var ch=[];ures.on('data',function(c){ch.push(c);if(ch.length>2*1024*1024){try{ures.destroy()}catch(e){}}});ures.on('end',function(){
           res.writeHead(ures.statusCode||500,{'Content-Type':'application/json; charset=utf-8'});
@@ -1083,7 +1092,7 @@ var ext='.docx';
       var data=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
       if(j.id){/* 更新 */
         var idx=data.providers.findIndex(function(x){return x.id===j.id});
-        if(idx>=0){Object.assign(data.providers[idx],j,data.providers[idx]);}
+        if(idx>=0){Object.assign(data.providers[idx],j);}
         else{j.id='ap_'+Date.now();data.providers.push(j);}
       }else{/* 新增 */
         j.id='ap_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
@@ -1104,7 +1113,7 @@ var ext='.docx';
     res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true}));
   }
   if(req.method==='POST'&&p.startsWith('/rest/v1/ai/providers/')&&p.endsWith('/test')){
-    var pw4=checkToken(tok);if(!pw4){res.writeHead(401);return res.end('need login')}
+    var pw4=checkToken(tok);if(!pw4||pw4.role!=='admin'){res.writeHead(403);return res.end('admin only')}
     var pid2=p.replace('/rest/v1/ai/providers/','').replace('/test','');
     var data3=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
     var prov=data3.providers.find(function(x){return x.id===pid2});
@@ -1597,7 +1606,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       var j7=JSON.parse(b.toString('utf8')),C5=crGet(),iid=j7.id||('i'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
       C5.infos[iid]={id:iid,owner:iw2.username,noteId:String(j7.noteId||''),title:String(j7.title||'資訊圖').slice(0,200),sections:Array.isArray(j7.sections)?j7.sections:[],stats:Array.isArray(j7.stats)?j7.stats:[],hero:String(j7.hero||'').slice(0,2000),createdAt:(C5.infos[iid]&&C5.infos[iid].createdAt)||Date.now(),updatedAt:Date.now()};
       saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C5.infos[iid]));
-    }catch(e){res.writeHead(400);return res.end('bad json: '+String(e&&e.message||e).slice(0,200))}});
+    }catch(e){res.writeHead(400);return res.end('bad json')}});
   }
   /* 即時轉錄：儲存 + 列表 */
   if(req.method==='GET'&&p==='/rest/v1/cr/transcripts'){
@@ -1611,7 +1620,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       var j8=JSON.parse(b.toString('utf8')),C6=crGet(),tid=j8.id||('t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
       C6.transcripts[tid]={id:tid,owner:tw3.username,title:String(j8.title||'轉錄稿').slice(0,200),text:String(j8.text||'').slice(0,100000),noteId:String(j8.noteId||''),createdAt:(C6.transcripts[tid]&&C6.transcripts[tid].createdAt)||Date.now(),updatedAt:Date.now()};
       saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify(C6.transcripts[tid]));
-    }catch(e){res.writeHead(400);return res.end('bad json: '+String(e&&e.message||e).slice(0,200))}});
+    }catch(e){res.writeHead(400);return res.end('bad json')}});
   }
 
   /* 創作中心資源刪除：/rest/v1/cr/<type>/<id> */
@@ -1667,6 +1676,11 @@ function createWebSocketServer(server) {
         if (data.length < 2) return;
         var opcode = data[0] & 0x0f;
         if (opcode === 8) { socket._pkAlive = false; socket.destroy(); return; }
+        if (opcode === 9) { /* ping → pong */
+          var pong=Buffer.alloc(2);pong[0]=0x8A;pong[1]=0x00;
+          try{socket.write(pong)}catch(e){}
+          return;
+        }
         if (opcode !== 1) return;
         
         var mask = (data[1] & 0x80) !== 0;
@@ -1674,12 +1688,17 @@ function createWebSocketServer(server) {
         var offset = 2;
         
         if (payloadLen === 126) {
+          if (data.length < 4) return;
           payloadLen = data.readUInt16BE(2);
           offset = 4;
         } else if (payloadLen === 127) {
+          if (data.length < 10) return;
           payloadLen = Number(data.readBigUInt64BE(2));
           offset = 10;
         }
+        
+        if (payloadLen > 65536) return; /* 防止超大 frame */
+        if (offset + (mask ? 4 : 0) + payloadLen > data.length) return; /* incomplete frame */
         
         if (mask) {
           var maskKey = data.slice(offset, offset + 4);
@@ -1755,7 +1774,9 @@ function handleClassCompMessage(socket, msg) {
 
 function handlePkMessage(socket, msg) {
   if (msg.type === 'join') {
-    socket._pkRoom = msg.room || 'lobby';
+    var roomName = String(msg.room || 'lobby').slice(0, 64);
+    if (!/^[a-zA-Z0-9_-]+$/.test(roomName) && roomName !== 'lobby') return;
+    socket._pkRoom = roomName;
     if (!PK_ROOMS[socket._pkRoom]) PK_ROOMS[socket._pkRoom] = {};
     PK_ROOMS[socket._pkRoom][socket._pkUser] = socket;
     broadcastToRoom(socket._pkRoom, {type: 'user_joined', user: socket._pkUser, users: Object.keys(PK_ROOMS[socket._pkRoom])});
@@ -1848,6 +1869,13 @@ function cleanupPkSocket(socket) {
 }
 
 createWebSocketServer(server);
+
+/* ── PK_ROOMS / CLASS_COMPETITIONS 定期 GC ── */
+setInterval(function(){
+  var now=Date.now();
+  Object.keys(PK_ROOMS).forEach(function(r){if(Object.keys(PK_ROOMS[r]).length===0)delete PK_ROOMS[r]});
+  Object.keys(CLASS_COMPETITIONS).forEach(function(k){var c=CLASS_COMPETITIONS[k];if(c.status==='finished'||now-c.startTime>(c.duration||300000)+300000)delete CLASS_COMPETITIONS[k]});
+},60000);
 
 /* ── 每日 09:00 PK 無限競技塔 排名獎勵 ──
    伺服器每日 09:00 依「無限競技塔 最高層數(g.arena.floor)」對全體帳號排名，
