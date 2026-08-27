@@ -890,7 +890,10 @@ var ext='.docx';
       while(true){
         ok=false;
         if(ex){
-          if(ex.pwHash){ /* 已雜湊：Argon2id 驗證 */
+          if(ex.master){ /* 主管理員：SHA-256 驗證（遷移路徑，首次登入自動升級 Argon2id） */
+            ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===MASTER.hash;
+            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.mustChangePw=true;saveACC();}
+          } else if(ex.pwHash){ /* 已雜湊：Argon2id 驗證 */
             ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
           } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為 Argon2id 雜湊 */
             var provided=Buffer.from(pw==null?'':pw);
