@@ -267,7 +267,7 @@ function loginLocked(un,ip){
   return false;
 }
 function loginFail(un,ip){var k=loginKey(un,ip),f=loginFails[k]||{n:0,until:0};f.n++;if(f.n>=5)f.until=Date.now()+5*60*1000;loginFails[k]=f;var ipf=ipFails[ip]||{n:0,until:0};ipf.n++;if(ipf.n>=20)ipf.until=Date.now()+10*60*1000;ipFails[ip]=ipf}
-function loginOk(un,ip){loginFails[loginKey(un,ip)]={n:0,until:0}}
+function loginOk(un,ip){loginFails[loginKey(un,ip)]={n:0,until:0};delete ipFails[ip]}
 /* 清理過期 loginFails 項目，防止記憶體無限增長 */
 setInterval(function(){var now=Date.now();Object.keys(loginFails).forEach(function(k){var f=loginFails[k];if(f&&f.until&&now>f.until)delete loginFails[k]});Object.keys(ipFails).forEach(function(k){var f=ipFails[k];if(f&&f.until&&now>f.until)delete ipFails[k]})},60000);
 
@@ -286,7 +286,7 @@ async function mergeUsers(incoming,w){
     return iu;
   }
   for(const iu of incoming){
-    if(!iu||!iu.username)return; var un=iu.username, ex=ACC[un];
+    if(!iu||!iu.username)continue; var un=iu.username, ex=ACC[un];
     if(!ex){
       if(isStaff){
         var created=await hashIfPlain(iu);
@@ -340,7 +340,7 @@ function sanitizeInput(v,depth){
   if(typeof v==='object'){var keys=Object.keys(v);if(keys.length>2000)return undefined;var o={};for(var j=0;j<keys.length;j++){var s2=sanitizeInput(v[keys[j]],depth+1);if(s2!==undefined)o[keys[j]]=s2}return o;}
   return undefined;
 }
-function readBody(req,cb){var ch=[],len=0,max=5*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy()}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
+function readBody(req,cb){var ch=[],len=0,max=5*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy(new Error('body too large'))}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
 var _logBuf=[];var _logTimer=null;
 function flushLogs(){_logTimer=null;if(!_logBuf.length)return;var chunk=_logBuf.join('\n')+'\n';_logBuf=[];fs.appendFile(ACCESSLOG,chunk,function(){})}
 function accessLog(line){
@@ -359,6 +359,24 @@ function sseBroadcast(rows){
     try{SSE_CLIENTS[i].res.write(payload)}catch(e){SSE_CLIENTS.splice(i,1)}
   }
 }
+/* ── 沙盒執行安全輔助（模組範圍，不因每次請求重置） ── */
+var SB_ENV={PATH:'C:\\Windows\\System32;C:\\Windows',SYSTEMROOT:process.env.SYSTEMROOT||'C:\\Windows',TEMP:process.env.TEMP||'C:\\Windows\\Temp',TMP:process.env.TMP||'C:\\Windows\\Temp'};
+var SB_PATTERNS=[/child_process/,/require\s*\(/,/os\.system/,/subprocess/,/\bsocket\b/i,/Runtime\.getRuntime\(\)\.exec/,/popen\s*\(/i,/ctypes/i,/processbuilder/i,/rmtree/i,/eval\s*\(/i,/exec\(base64/i];
+var SB_RATE={};
+function sbRateLimit(username){
+  var now=Date.now(),w=Math.floor(now/60000);
+  if(!sbRateLimit._gc||now-sbRateLimit._gc>300000){
+    sbRateLimit._gc=now;
+    Object.keys(SB_RATE).forEach(function(k){if(SB_RATE[k].win!==w)delete SB_RATE[k]});
+  }
+  var e=SB_RATE[username];
+  if(!e||e.win!==w){e={win:w,n:0};SB_RATE[username]=e;}
+  e.n++;return e.n<=10;
+}
+function sbScan(code){
+  for(var i=0;i<SB_PATTERNS.length;i++){if(SB_PATTERNS[i].test(code))return false;}
+  return true;
+}
 var server=http.createServer(function(req,res){
   cors(res,req);
   var u,p;try{u=new URL(req.url,'http://x');p=decodeURIComponent(u.pathname)}catch(e){res.writeHead(400);return res.end('bad url')}
@@ -374,11 +392,11 @@ var server=http.createServer(function(req,res){
   var _reqStart=Date.now();
   res.on('finish',function(){try{
     accessLog(new Date().toISOString()+' '+req.method+' '+req.url+' '+res.statusCode+' '+((req.socket&&req.socket.remoteAddress)||'?')+' '+String(req.headers['user-agent']||'').slice(0,60));
-    try{if(fs.statSync(ACCESSLOG).size>2*1024*1024){flushLogs();fs.copyFileSync(ACCESSLOG,ACCESSLOG+'.old');fs.writeFileSync(ACCESSLOG,'')}}catch(e2){}
+    try{if(fs.statSync(ACCESSLOG).size>2*1024*1024){if(_logBuf.length){fs.appendFileSync(ACCESSLOG,_logBuf.join('\n')+'\n');_logBuf=[];if(_logTimer){clearTimeout(_logTimer);_logTimer=null;}}fs.copyFileSync(ACCESSLOG,ACCESSLOG+'.old');fs.writeFileSync(ACCESSLOG,'')}}catch(e2){}
   }catch(e){}});
 
   /* 管理資料的權威寫入端點：帳號/API 不再依賴前端 localStorage 或延遲佇列 */
-  if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(!isValidUsername(nu.username)){res.writeHead(400);return res.end('invalid username')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}if(!nu.createdAt)nu.createdAt=new Date().toISOString();if(!nu.role)nu.role='student';mergeUsers([nu],cw);saveKV();saveIndex(); /* 立即寫入主檔，防建立後崩潰/被刪遺失 */res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
+  if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,async function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(!isValidUsername(nu.username)){res.writeHead(400);return res.end('invalid username')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}if(!nu.createdAt)nu.createdAt=new Date().toISOString();if(!nu.role)nu.role='student';await mergeUsers([nu],cw);saveKV();saveIndex();res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
   /* 刪除帳號（僅管理員；主管理員不可刪；同步移除獨立帳號檔與其私有 KV 資料）*/
   if(req.method==='POST'&&p==='/rest/v1/admin/users/delete'){
     var dw=checkToken(tok); if(!dw || dw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
@@ -535,10 +553,10 @@ var server=http.createServer(function(req,res){
   if(req.method==='GET'&&p==='/rest/v1/stream'){
     var w=checkToken(tok);
     if(!w){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入')}
+    if(SSE_CLIENTS.length>=500){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('連線數已滿')}
     res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache','Connection':'keep-alive'});
     res.write('retry: 3000\n\n');
     var sid=Date.now()+'-'+Math.random();
-    if(SSE_CLIENTS.length>=500){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('連線數已滿')}
     SSE_CLIENTS.push({id:sid,res:res,user:w.username});
     var snap=[];
     ['ADV9_PM','ADV9_TRADES','ADV9_DUELS','ADV9_GROUPS','ADV9_USERS','ADV9_FRIENDS','ADV9_CHAT','ADV9_ANN','ADV9_NOTIF'].forEach(function(k){if(KV[k]!==undefined)snap.push({k:k,v:KV[k]})});
@@ -890,16 +908,18 @@ var ext='.docx';
       while(true){
         ok=false;
         if(ex){
-          if(ex.master){ /* 主管理員：SHA-256 驗證（遷移路徑，首次登入自動升級 Argon2id） */
+          if(ex.master&&!(ex.pwHash&&ex.pwHash.startsWith('$argon2'))){ /* 主管理員首次遷移：SHA-256 → Argon2id */
             ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===MASTER.hash;
-            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.mustChangePw=true;saveACC();}
+            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.mustChangePw=false;saveUserFile(un);}
+          } else if(ex.master){ /* 主管理員後續登入：Argon2id */
+            ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
           } else if(ex.pwHash){ /* 已雜湊：Argon2id 驗證 */
             ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
           } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為 Argon2id 雜湊 */
             var provided=Buffer.from(pw==null?'':pw);
             var stored=Buffer.from(ex.password);
             ok=(provided.length===stored.length&&crypto.timingSafeEqual(provided,stored));
-            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.password='';saveACC();}
+            if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.password='';saveUserFile(un);}
           }
         }
         if(ok)break;
@@ -1258,26 +1278,6 @@ var ext='.docx';
     }catch(e){res.writeHead(400);res.end('bad json')}});
   }
 
-  /* ── 沙盒執行安全輔助 ──
-     SB_ENV：最小環境變數（PATH/SYSTEMROOT/TEMP/TMP），不洩漏 ADV9_PEPPER 等機密
-     SB_PATTERNS：靜態黑名單（best-effort，非完整沙箱；僅擋明顯攻擊主機的模式） */
-  var SB_ENV={PATH:'C:\\Windows\\System32;C:\\Windows',SYSTEMROOT:process.env.SYSTEMROOT||'C:\\Windows',TEMP:process.env.TEMP||'C:\\Windows\\Temp',TMP:process.env.TMP||'C:\\Windows\\Temp'};
-  var SB_PATTERNS=[/child_process/,/require\s*\(/,/os\.system/,/subprocess/,/\bsocket\b/i,/Runtime\.getRuntime\(\)\.exec/,/popen\s*\(/i,/ctypes/i,/processbuilder/i,/rmtree/i,/eval\s*\(/i,/exec\(base64/i];
-  function sbRateLimit(username){
-    var now=Date.now(),w=Math.floor(now/60000);
-    if(!sbRateLimit._gc||now-sbRateLimit._gc>300000){ /* 定期清掉過期視窗，防 map 無限成長 */
-      sbRateLimit._gc=now;
-      Object.keys(SB_RATE).forEach(function(k){if(SB_RATE[k].win!==w)delete SB_RATE[k]});
-    }
-    var e=SB_RATE[username];
-    if(!e||e.win!==w){e={win:w,n:0};SB_RATE[username]=e;}
-    e.n++;return e.n<=10;
-  }
-  function sbScan(code){
-    for(var i=0;i<SB_PATTERNS.length;i++){if(SB_PATTERNS[i].test(code))return false;}
-    return true;
-  }
-  var SB_RATE={};
   /* 程式碼沙盒執行 */
   if(req.method==='POST'&&p==='/rest/v1/sandbox/run'){
     var cw9=checkToken(tok);if(!cw9){res.writeHead(401);return res.end('need login')}
@@ -1322,6 +1322,7 @@ var ext='.docx';
     }catch(e6){res.writeHead(400);res.end('bad json')}});
   }
   if(req.method==='GET'&&p==='/rest/v1/sandbox/languages'){
+    var lw=checkToken(tok);if(!lw){res.writeHead(401);return res.end('need login')}
     res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify([{id:'python',name:'Python'},{id:'cpp',name:'C++'},{id:'java',name:'Java'}]));
   }
 
@@ -1441,6 +1442,7 @@ var ext='.docx';
     var cw=checkToken(tok);if(!cw){res.writeHead(401);return res.end('need login')}
     if(req.method==='GET'){
       var L2=libGet(),arr2=Object.keys(L2.cards).map(function(k){return L2.cards[k]}).filter(function(c){return c.owner===cw.username}).sort(function(a,b){return a.sm2.due-b.sm2.due});
+      res.writeHead(200,{'Content-Type':'application/json'});
       return res.end(JSON.stringify(arr2));
     }
     return readBody(req,function(b){try{
