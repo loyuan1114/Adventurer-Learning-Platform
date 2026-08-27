@@ -117,7 +117,7 @@ function startHeartbeat(){
 }
 /* 📨 即時訊息引擎：每 4 秒輕量輪詢（只抓 PM/交易/PK），
    私聊視窗開著 → 立刻刷新；新訊息/新請求 → 通知彈窗 + 未讀徽章 */
-let _pmReadAt={},_alertedPm={},_alertedTrade=new Set(),_alertedDuel=new Set(),_fastT=null;
+let _pmReadAt={},_alertedPm={},_alertedTrade=new Set(),_alertedDuel=new Set();
 try{_pmReadAt=JSON.parse(localStorage.getItem('ADV9_PM_READ')||'{}')||{}}catch(e){}
 function pmUnread(){
   const u=me();if(!u)return {};

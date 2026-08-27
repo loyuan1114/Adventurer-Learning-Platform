@@ -611,53 +611,17 @@ const _existingKeys=get(LS.apiKeys,null);if(!_existingKeys||!_existingKeys.keys|
 
 if(!get(LS.users))seed();
 
-const me=()=>{const s=get(LS.ses);if(!s)return null;if(s.local)return get(LS.local,[]).find(x=>x.username===s.u)||null;return get(LS.users,[]).find(x=>x.username===s.u)};
+/* me, saveU, enter, doLogin, logout, fail, loadVpsPrivateData 已搬到 login.js */
 
-function saveU(u){if(u.localOnly){const arr=get(LS.local,[]);const i=arr.findIndex(x=>x.id===u.id);if(i>-1)arr[i]=u;else arr.push(u);set(LS.local,arr);return} /* 📴 本機帳號只存本地不上雲 */ const us=get(LS.users,[]);const i=us.findIndex(x=>x.id===u.id);if(i>-1){us[i]=u;set(LS.users,us)}}
+/* saveU 已搬到 login.js */
 
 /* 補齊學生遊戲資料：以 newGame() 為範本深層合併，保留玩家既有數值、補上所有缺失欄位（避免舊存檔缺欄位導致 renderStudent 拋錯、UI 空白） */
 
-function enter(){
+/* enter 已搬到 login.js */
 
-expireVideos(); /* 影片訊息 3 天自動過期清除，釋放儲存空間 */
+/* loadVpsPrivateData 已搬到 login.js */
 
-autoPromote(); /* 跨學年度自動升級檢查 */
-
-const u=me();
-
-if(!u){$('#app').style.display='none';$('#login').style.display='grid';return}
-
-$('#login').style.display='none';const _app=$('#app');_app.style.display='block';_app.classList.remove('appIn');void _app.offsetWidth;_app.classList.add('appIn'); /* 進入主畫面動畫 */
-
-startHeartbeat(); /* 👁 重新整理/恢復登入時也要啟動（否則心跳與即時輪詢不會跑） */
-startFastSync(); /* 📨 開始即時訊息輪詢 */
-
-if(u.role==='admin')renderAdmin(u);else if(u.role==='teacher')renderTeacher(u);else if(u.role==='parent')renderParent(u);else renderStudent(u);
-
-/* 🔄 版本更新重新整理後：自動還原上次看的私聊與滾動位置（滑到哪就回到哪） */
-try{if(localStorage.getItem('ADV9_UPDATE_RESTORE')){
-  localStorage.removeItem('ADV9_UPDATE_RESTORE');
-  const l=JSON.parse(localStorage.getItem('ADV9_LASTPM')||'{}')||{};
-  if(l.fid&&l.fid!==u.id)setTimeout(()=>{try{openPm(l.fid);setTimeout(()=>{const pb=$('#pmBox');if(pb&&typeof l.top==='number'&&l.top>0)pb.scrollTop=l.top},450)}catch(e){}},700);
-}}catch(e){}
-
-if(u.role==='student'){try{deliverRankMail();checkArenaDailyMail();const n=unreadNotifs();if(n)setTimeout(()=>toast('🔔 你有 '+n+' 則新通知（到限時動態頁面查看）'),900);const um=unreadMail(u.g);if(um)setTimeout(()=>toast('📩 信箱有 '+um+' 封未領獎勵（社群中心→信箱）'),1600)}catch(e){}} /* 登入：發放排行榜信件、提醒通知與信箱 */
-
-if(u.role==='student'&&isGrade9(u)){try{refreshExamDateAI(false).then(()=>{if(me()&&me().id===u.id&&$('#view'))vHome&&vHome()})}catch(e){}} /* 9 年級登入自動讓 AI 查一次會考日期（後台靜默） */
-
-if(u.role==='student'&&u.graduated&&!u.gradSeen){ /* 畢業後首次登入→自動彈畢業典禮 */
-
-const us=get(LS.users,[]);const x=us.find(v=>v.id===u.id);if(x){x.gradSeen=true;set(LS.users,us)}
-
-setTimeout(()=>{try{gradCeremony()}catch(e){}},1200);
-
-}
-
-}
-
-async function loadVpsPrivateData(){if(!WTOKEN)return;try{const r=await fetch(SUPA_URL+'/rest/v1/adv9_kv?select=k,v',{headers:{'x-adv9-token':WTOKEN}});if(!r.ok)return;const rows=await r.json();(Array.isArray(rows)?rows:[]).forEach(x=>{if(x&&x.k&&x.k!=='ADV9_USERS')localStorage.setItem(x.k,JSON.stringify(x.v))});}catch(e){}}
-
-function logout(){localStorage.removeItem(LS.ses);WTOKEN='';stopHeartbeat();stopFastSync();_onlineSet=new Set();try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}enter()}
+/* logout 已搬到 login.js */
 
 /* 影片訊息 3 天過期：移除影片資料、保留一條「已過期」標記（適用於私聊、群組、公會）*/
 
@@ -949,9 +913,7 @@ r.readAsText(f);
 
 }
 
-/* 登入入口：不選身分，完全依帳號密碼自動辨識；?portal=admin 為管理員專用入口、?portal=staff 為師生入口 */
-
-const PORTAL=(new URLSearchParams(location.search).get('portal')||'').toLowerCase();
+/* PORTAL 已在 p00.js 宣告 */
 
 /* 從登入器（?portal=xxx）首次進入本分頁時清除舊登入，強制顯示登入畫面；登入後由 doLogin 重新建立 session，重新整理也不再被登出 */
 if(PORTAL && !sessionStorage.getItem('ADV9_PORTAL_ENTERED')){sessionStorage.setItem('ADV9_PORTAL_ENTERED','1');set(LS.ses,null);}
@@ -968,170 +930,6 @@ else if(PORTAL==='staff'){if(s)s.textContent='👩‍🏫👤 老師／學生入
 
 else{if(n)n.textContent='系統會依帳號自動判定您是學生、老師還是管理員'}})();
 
-async function doLogin() {
-  const un = $('#lgUser').value.trim();
-  const pw = $('#lgPass').value;
-  if(!validUsername(un)){fail('⚠️ 帳號格式不正確（僅限英數底線點，2～40 字）');return} /* 🛡️ 防注入：帳號格式驗證 */
-  if(!pw||pw.length>100){fail('⚠️ 請輸入密碼');return}
-  const _loc=get(LS.local,[]).find(x=>x.username===un); /* 📴 本機畢業帳號：直接本地登入，不靠雲端 */
-  if(_loc){set(LS.ses,{u:un,local:true});enter();return}
-  if(isMasterLogin(un,pw)&&(SUPA_ON===false||location.hostname.indexOf('github.io')>=0)){ /* 👑 本機主管登入（GitHub Pages 單管理員 / 離線模式）：先驗證，成功即本機登入，不靠雲端 */
-    const us=get(LS.users,[]);let a=us.find(x=>x.username===MASTER_ADMIN.user);
-    if(!a){a={id:MASTER_ADMIN.user,username:MASTER_ADMIN.user,name:MASTER_ADMIN.name,role:'admin',password:'',pwHash:MASTER_ADMIN.hash,master:true,isSchoolAdmin:true,createdAt:new Date().toISOString(),g:null};us.push(a)}
-    else{a.role='admin';a.master=true;a.password='';a.pwHash=MASTER_ADMIN.hash;a.isSchoolAdmin=true}
-    set(LS.users,us);set(LS.ses,{u:MASTER_ADMIN.user});enter();return;
-  }
+/* doLogin, enter, logout, me, saveU, loadVpsPrivateData, fail, resetFromLogin → login.js */
 
-  try {
-    // 先嘗試本地伺服器 API（更可靠）
-    let acc = null;
-    let supaFailed = false;
-
-    // 方法 1：呼叫本地伺服器 API
-    try {
-      const srvRes = await fetch(SUPA_URL + '/rest/v1/rpc/login_user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_username: un, p_password: pw })
-      });
-      console.log('[LOGIN] Server response:', srvRes.status, srvRes.statusText);
-      if (srvRes.ok) {
-        const srvData = await srvRes.json();
-        console.log('[LOGIN] Server data:', srvData);
-        if (srvData && srvData.token) {
-          acc = srvData;
-        }
-      } else {
-        const errText = await srvRes.text();
-        console.error('[LOGIN] Server error:', errText);
-      }
-    } catch(e) {
-      console.error('[LOGIN] Fetch failed:', e.message);
-      supaFailed = true;
-    }
-
-    // 方法 2：如果本地 API 失敗，嘗試 Supabase
-    if (!acc) {
-      try {
-        const response = await fetch(
-          SUPA_URL + '/rest/v1/rpc/login_user',
-          {
-            method: 'POST',
-            headers: supaHeaders(),
-            body: JSON.stringify({ p_username: un, p_password: pw })
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.token) acc = data;
-        }
-      } catch(e) { supaFailed = true; }
-    }
-
-    // 方法 3：完全離線模式 - 使用 localStorage
-    if (!acc) {
-      const localUser = get(LS.users, []).find(x => x.username === un);
-      if (localUser && localUser.password === pw) {
-        acc = { ...localUser, token: 'local_' + Date.now() };
-      }
-    }
-
-    if (!acc) {
-      const errMsg = supaFailed ? '伺服器無法連線（' + SUPA_URL + '）' : '帳號或密碼錯誤';
-      fail('⚠️ 登入失敗：' + errMsg);
-      console.error('[LOGIN] All methods failed. SUPA_ON=' + SUPA_ON + ', SUPA_URL=' + SUPA_URL + ', supaFailed=' + supaFailed);
-      return;
-    }
-    if(acc&&acc.token){WTOKEN=acc.token;try{localStorage.setItem('ADV9_WTOKEN',acc.token)}catch(e){};
-      if(acc.must_change_pw===true){toast('首次登入請先修改密碼','bad');try{openChangePw()}catch(e){}}
-      await loadVpsPrivateData()} /* 🎫 存登入 token 供後續寫入授權 */
-
-    // ⭐ 終極防護：確保 g 永遠完整
-    if (acc.game_data) {
-      acc.g = acc.game_data;
-      // 補齊所有可能缺失的關鍵欄位
-      if (!acc.g.weapons) acc.g.weapons = [];
-      if (!acc.g.stats) acc.g.stats = { total: 0, correct: 0, maxCombo: 0, hardCorrect: 0, retry: 0, enhance: 0, missions: 0, subj: {}, milestones: [] };
-      if (!acc.g.owned) acc.g.owned = { character: [], pet: [], anime: [], teammate: [] };
-      if (!acc.g.equip) acc.g.equip = { character: null, pet: null, anime: null, teammate: null };
-      if (!acc.g.gacha) acc.g.gacha = { total: 0, sinceSR: 0, sinceSSR: 0, sinceUR: 0, hist: [] };
-      // 其他欄���可以繼���補，���至��� weapons 是必須的
-    } else if (acc.role === 'student') {
-      acc.g = newGame(); // 如果完全沒有遊戲資料，直接給新的
-    } else {
-      acc.g = null;
-    }
-    delete acc.game_data;
-
-    // 身份檢查
-    if (PORTAL === 'admin' && acc.role !== 'admin') {
-      fail('⚠️ 此入口僅供管理員登入，請改用老師或學生登入器');
-      return;
-    }
-    if (PORTAL === 'teacher' && acc.role !== 'teacher') {
-      fail('⚠️ 此入口僅供老師登入，請改用正確的登入器');
-      return;
-    }
-    if (PORTAL === 'student' && acc.role !== 'student') {
-      fail('⚠️ 此入口僅供學生登入，請改用正確的登入器');
-      return;
-    }
-    if (PORTAL === 'staff' && acc.role === 'admin') {
-      fail('⚠️ 管理員請使用管理員登入器');
-      return;
-    }
-
-    // ⭐ 強制同步到本機（覆蓋）
-    let localUsers = get(LS.users, []);
-    const priorUser = localUsers.find(x => x.username === acc.username) || {};
-    const newUser = {
-      ...priorUser,
-      id: acc.id || acc.username,
-      username: acc.username,
-      name: acc.name || priorUser.name || acc.username,
-      role: acc.role,
-      password: acc.password || priorUser.password || '',
-      classId: acc.class_id || priorUser.classId || null,
-      managedClassIds: Array.isArray(acc.managedClassIds) ? acc.managedClassIds : (priorUser.managedClassIds || []),
-      isSchoolAdmin: acc.isSchoolAdmin !== undefined ? !!acc.isSchoolAdmin : !!priorUser.isSchoolAdmin,
-      prof: acc.prof || priorUser.prof || null,
-      g: acc.g,
-      createdAt: acc.created_at || priorUser.createdAt || new Date().toISOString()
-    };
-    const existingIndex = localUsers.findIndex(x => x.username === acc.username);
-    if (existingIndex !== -1) {
-      localUsers[existingIndex] = newUser;
-    } else {
-      localUsers.push(newUser);
-    }
-    set(LS.users, localUsers);
-
-    // ⭐ 設置 session（這是關鍵）
-    set(LS.ses, { u: acc.username, imp: false });
-    startHeartbeat(); /* 👁 開始上線狀態心跳 */
-    startFastSync(); /* 📨 開始即時訊息輪詢 */
-
-    // 登入成功後續
-    $('#lgPass').value = '';
-    loginFX(acc.name);
-    setTimeout(() => {
-      enter();
-      toast('⚔️ 歡迎回來，' + acc.name + '！');
-      if (acc.role === 'student') {
-        const sr = checkSign(acc.g);
-        saveU(acc);
-        if (sr) openModal('...');
-      }
-    }, 750);
-  } catch (error) {
-    fail('⚠️ ' + error.message);
-  }
-}
-
-window.doLogin=doLogin;
-
-
-function fail(m){toast(m,'bad');const c=document.querySelector('.lgCard');c.classList.add('shake');setTimeout(()=>c.classList.remove('shake'),420)}
-
-function resetFromLogin(){if(!confirm('重置為預設資料？（清除所有變更）'))return;seed();toast('🔄 已重置為預設資料')}
 

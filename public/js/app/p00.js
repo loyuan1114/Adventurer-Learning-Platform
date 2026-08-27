@@ -15,6 +15,7 @@ const $=s=>document.querySelector(s);
 
 /* 全域狀態變數（避免 ReferenceError） */
 var WTOKEN=localStorage.getItem('ADV9_WTOKEN')||'';var _onlineSet=new Set();var _es=null;var _hbTimer=null;var _fastT=null;
+const PORTAL=(new URLSearchParams(location.search).get('portal')||'').toLowerCase();
 
 const LS={users:'ADV9_USERS',ann:'ADV9_ANN',codes:'ADV9_CODES',chat:'ADV9_CHAT',ses:'ADV9_SES',hw:'ADV9_HOMEWORK',sub:'ADV9_SUBMISSIONS',fr:'ADV9_FRIENDS',gr:'ADV9_GROUPS',pm:'ADV9_PM',trades:'ADV9_TRADES',gshop:'ADV9_GSHOP',apiKeys:'ADV9_APIKEYS',classes:'ADV9_CLASSES',market:'ADV9_MARKET',settings:'ADV9_SETTINGS',acad:'ADV9_ACADYR',duels:'ADV9_DUELS',stories:'ADV9_STORIES',guilds:'ADV9_GUILDS',books:'ADV9_BOOKS',notif:'ADV9_NOTIF',local:'ADV9_LOCAL',dolls:'ADV9_DOLLS',shopDolls:'ADV9_SHOP_DOLLS',events:'ADV9_DOLL_EVENTS',musicLinks:'ADV9_MUSIC_LINKS',musicReqs:'ADV9_MUSIC_REQS',pixels:'ADV9_PIXELS',videos:'ADV9_VIDEOS'};
 
