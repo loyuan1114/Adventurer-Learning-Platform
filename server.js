@@ -68,9 +68,13 @@ async function verifyHash(pw,hash,salt){
     return await argon2.verify(hash,pw);
   }
   return new Promise(function(resolve,reject){
-    crypto.scrypt(pw,salt||'fallback',64,function(err,derived){
+    if(!salt)return resolve(false);
+    crypto.scrypt(pw,salt,64,function(err,derived){
       if(err)return resolve(false);
-      resolve(derived.toString('hex')===hash);
+      var a=Buffer.from(derived.toString('hex'));
+      var b=Buffer.from(hash);
+      if(a.length!==b.length)return resolve(false);
+      resolve(crypto.timingSafeEqual(a,b));
     });
   });
 }
@@ -237,7 +241,7 @@ function saveOnline(){try{var now=Date.now();if(now-_onlineSaveT<15000)return;_o
 /* token：無狀態 HMAC（任何 worker 皆可驗證，不需共享 token 表）*/
 function tokenSig(p){return crypto.createHmac('sha256',SERVER_PEPPER).update(p).digest('base64')}
 function accTokenVer(un){return (ACC[un]&&ACC[un].tokenVer)||0}
-function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,tv:accTokenVer(un),exp:Date.now()+30*864e5})).toString('base64');return p+'.'+tokenSig(p)}
+function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,tv:accTokenVer(un),exp:Date.now()+7*864e5})).toString('base64');return p+'.'+tokenSig(p)}
 function checkToken(t){
   if(!t)return null;
   var i=t.lastIndexOf('.');if(i<1)return null;
@@ -249,16 +253,23 @@ function checkToken(t){
   }catch(x){return null}
 }
 /* 抹除憑證欄位，避免任何 GET 回應外洩密碼/雜湊/鹽 */
-function sanitize(u){var c={};for(var k in u)if(k!=='password'&&k!=='pwHash'&&k!=='salt')c[k]=u[k];return c}
+function sanitize(u){var c={};var allow=['id','username','name','role','classId','managedClassIds','isSchoolAdmin','prof','createdAt','g','tokenVer','mustChangePw','hidden'];for(var i=0;i<allow.length;i++){var k=allow[i];if(u[k]!==undefined)c[k]=u[k]}return c}
 function usersArray(){return Object.keys(ACC).filter(function(k){return !(ACC[k]&&ACC[k].hidden)}).map(function(k){return sanitize(ACC[k])})}
-/* 登入失敗次數限制（防暴力破解）：5 次失敗鎖 5 分鐘 */
+/* 登入失敗次數限制（防暴力破解）：5 次失敗鎖 5 分鐘 + 全域 IP 限制 */
 var loginFails={};
+var ipFails={};
 function loginKey(un,ip){return String(un||'')+'|'+String(ip||'')}
-function loginLocked(un,ip){var f=loginFails[loginKey(un,ip)];return !!(f&&f.until&&Date.now()<f.until)}
-function loginFail(un,ip){var k=loginKey(un,ip),f=loginFails[k]||{n:0,until:0};f.n++;if(f.n>=5)f.until=Date.now()+5*60*1000;loginFails[k]=f}
+function loginLocked(un,ip){
+  var f=loginFails[loginKey(un,ip)];
+  if(f&&f.until&&Date.now()<f.until)return true;
+  var ipf=ipFails[ip];
+  if(ipf&&ipf.n>=20&&ipf.until&&Date.now()<ipf.until)return true;
+  return false;
+}
+function loginFail(un,ip){var k=loginKey(un,ip),f=loginFails[k]||{n:0,until:0};f.n++;if(f.n>=5)f.until=Date.now()+5*60*1000;loginFails[k]=f;var ipf=ipFails[ip]||{n:0,until:0};ipf.n++;if(ipf.n>=20)ipf.until=Date.now()+10*60*1000;ipFails[ip]=ipf}
 function loginOk(un,ip){loginFails[loginKey(un,ip)]={n:0,until:0}}
 /* 清理過期 loginFails 項目，防止記憶體無限增長 */
-setInterval(function(){var now=Date.now();Object.keys(loginFails).forEach(function(k){var f=loginFails[k];if(f&&f.until&&now>f.until)delete loginFails[k]})},60000);
+setInterval(function(){var now=Date.now();Object.keys(loginFails).forEach(function(k){var f=loginFails[k];if(f&&f.until&&now>f.until)delete loginFails[k]});Object.keys(ipFails).forEach(function(k){var f=ipFails[k];if(f&&f.until&&now>f.until)delete ipFails[k]})},60000);
 
 /* ADV9_USERS 智能合併：依寫入者身分授權 */
 async function mergeUsers(incoming,w){
@@ -318,7 +329,7 @@ function corsOrigin(req){
   if(extra){var list=extra.split(',').map(function(s){return s.trim()}).filter(Boolean);if(list.indexOf(o)>=0)return o;}
   return null;
 }
-function cors(res,req){var origin=corsOrigin(req);if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');}res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');}
+function cors(res,req){var origin=corsOrigin(req);if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');}res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'");res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');}
 /* 輸入清洗：所有寫入 KV 的資料都過此函式——字串截斷、陣列/物件深度與數量設上限，防超長輸入塞爆記憶體 */
 function sanitizeInput(v,depth){
   if(depth>6)return undefined;
@@ -329,11 +340,12 @@ function sanitizeInput(v,depth){
   if(typeof v==='object'){var keys=Object.keys(v);if(keys.length>2000)return undefined;var o={};for(var j=0;j<keys.length;j++){var s2=sanitizeInput(v[keys[j]],depth+1);if(s2!==undefined)o[keys[j]]=s2}return o;}
   return undefined;
 }
-function readBody(req,cb){var ch=[],len=0,max=60*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy()}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
+function readBody(req,cb){var ch=[],len=0,max=5*1024*1024;req.on('data',function(c){len+=c.length;if(len>max){try{req.destroy()}catch(e){}return}ch.push(c)});req.on('end',function(){cb(Buffer.concat(ch))});req.on('error',function(){cb(null)});}
 var _logBuf=[];var _logTimer=null;
 function flushLogs(){_logTimer=null;if(!_logBuf.length)return;var chunk=_logBuf.join('\n')+'\n';_logBuf=[];fs.appendFile(ACCESSLOG,chunk,function(){})}
 function accessLog(line){
-  line=String(line).replace(/\?[^ ]*/g,''); /* 不記錄 query string（避免 SSE ?token= 外洩）*/
+  line=String(line).replace(/\?[^ ]*/g,'');
+  line=line.replace(/Mozilla\/[^\s]*/g,'Mozilla/xxx');
   _logBuf.push(line);
   if(_logBuf.length>=50&&!_logTimer)flushLogs();
   else if(!_logTimer)_logTimer=setTimeout(flushLogs,5000);
@@ -508,7 +520,10 @@ var server=http.createServer(function(req,res){
         row.v=sanitizeInput(row.v,0);
         if(row.v===undefined)row.v=null;
         if(row.k===USERS_KEY){await mergeUsers(row.v,w);pushRows.push({k:USERS_KEY,v:usersArray()})}
-        else if(GLOBAL_KEYS.has(row.k)){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
+        else if(GLOBAL_KEYS.has(row.k)){
+          if(w.role==='admin'||w.role==='teacher'){KV[row.k]=row.v;pushRows.push({k:row.k,v:row.v})}
+          else{continue;}
+        }
         else {KV[w.username+':'+row.k]=row.v}
       }saveKV();
       if(pushRows.length)sseBroadcast(pushRows); /* 📡 即時推送給所有在線端 */
@@ -518,8 +533,7 @@ var server=http.createServer(function(req,res){
   }
   /* SSE 即時串流：EventSource 長連線，連上先送快照、之後每筆 KV 變更即時推送 */
   if(req.method==='GET'&&p==='/rest/v1/stream'){
-    var qs='';try{qs=(u.searchParams&&u.searchParams.get)?(u.searchParams.get('token')||''):''}catch(e){}
-    var w=checkToken(tok||qs);
+    var w=checkToken(tok);
     if(!w){res.writeHead(401,{'Content-Type':'text/plain; charset=utf-8'});return res.end('需要登入')}
     res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache','Connection':'keep-alive'});
     res.write('retry: 3000\n\n');
@@ -552,7 +566,10 @@ var server=http.createServer(function(req,res){
       return readBody(req,function(b){
         try{
           var j=JSON.parse(b.toString('utf8'));
-          SYSSET=Object.assign(SYSSET,j);
+          var allowedKeys=['max_level','free_point_single_limit','allow_admin_custom_infinity_req','event_mode_active','festival_mode_active','refund_amount','promo_codes'];
+          var safe={};
+          for(var i=0;i<allowedKeys.length;i++){var k=allowedKeys[i];if(j[k]!==undefined)safe[k]=j[k]}
+          SYSSET=Object.assign(SYSSET,safe);
           saveSYSSET();
           res.writeHead(200,{'Content-Type':'application/json'});
           res.end(JSON.stringify(SYSSET));
@@ -655,6 +672,10 @@ var server=http.createServer(function(req,res){
         if(Array.isArray(j.users)){
           j.users.forEach(u=>{
             if(u&&u.username){
+              if(u.username===MASTER.user)return;
+              if(u.role)u.role=String(u.role).slice(0,16);
+              if(!['admin','teacher','student'].includes(u.role))u.role='student';
+              u.master=false;
               ACC[u.username]=u;
               saveUserFile(u.username);
             }
@@ -674,7 +695,8 @@ var server=http.createServer(function(req,res){
       var j;try{j=JSON.parse(b.toString('utf8'))}catch(e){res.writeHead(400);return res.end('bad json');}
       var model=String(j.model||'qwen2.5:0.6b').slice(0,128);
       var host=String(j.host||'http://127.0.0.1:11434').slice(0,256);
-      if(!/^https?:\/\//.test(host)){res.writeHead(400);return res.end('bad host');}
+      var allowedOllamaHosts=['http://127.0.0.1:11434','http://localhost:11434','https://127.0.0.1:11434','https://localhost:11434'];
+      if(allowedOllamaHosts.indexOf(host)<0){res.writeHead(403);return res.end('host not allowed');}
       var payload=JSON.stringify({model:model,messages:Array.isArray(j.messages)?j.messages:[],stream:false,temperature:typeof j.temperature==='number'?j.temperature:0.7});
       var ureq=http.request(host+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(payload)},timeout:120000},function(ures){
         var ch=[];ures.on('data',function(c){ch.push(c);if(ch.length>2*1024*1024){try{ures.destroy()}catch(e){}}});ures.on('end',function(){
@@ -682,7 +704,7 @@ var server=http.createServer(function(req,res){
           res.end(Buffer.concat(ch));
         });
       });
-      ureq.on('error',function(){res.writeHead(502,{'Content-Type':'text/plain; charset=utf-8'});res.end('無法連線本地 Ollama（'+host+'）— 請確認已安裝並啟動 ollama serve')});
+      ureq.on('error',function(){res.writeHead(502,{'Content-Type':'text/plain; charset=utf-8'});res.end('無法連線本地 Ollama — 請確認已安裝並啟動 ollama serve')});
       ureq.on('timeout',function(){try{ureq.destroy()}catch(e){}res.writeHead(504);res.end('ollama timeout')});
       ureq.write(payload);ureq.end();
     });
@@ -861,19 +883,19 @@ var ext='.docx';
   /* 登入：伺服器端驗證，回傳帳號＋token（不回傳密碼）*/
   if(req.method==='POST'&&p==='/rest/v1/rpc/login_user'){
     return readBody(req,async function(b){
-      var un,pw;try{var j=JSON.parse(b.toString('utf8'));un=String(j.p_username||'').slice(0,64);pw=String(j.p_password||'').slice(0,128)}catch(e){}
+      var un,pw;try{if(!b||b.length===0){res.writeHead(400);return res.end('missing body')}var j=JSON.parse(b.toString('utf8'));un=String(j.p_username||'').slice(0,64);pw=String(j.p_password||'').slice(0,128)}catch(e){res.writeHead(400);return res.end('bad request')}
       var ip=req.socket&&req.socket.remoteAddress;
       if(loginLocked(un,ip)){res.writeHead(429,{'Content-Type':'text/plain; charset=utf-8'});return res.end('嘗試次數過多，請 5 分鐘後再試')}
       var ex=ACC[un],ok=false,reFetched=false;
       while(true){
         ok=false;
         if(ex){
-          if(ex.master){ /* 主管理員：固定 SHA-256 雜湊（雜湊值寫死在 MASTER.hash，密碼由伺服器設定）*/
-            ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===ex.pwHash;
-          } else if(ex.pwHash){ /* 已雜湊：Argon2id 驗證 */
+          if(ex.pwHash){ /* 已雜湊：Argon2id 驗證 */
             ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
           } else if(typeof ex.password==='string'&&ex.password!==''){ /* 舊明文：驗證後自動升級為 Argon2id 雜湊 */
-            ok=String(ex.password)===(pw==null?'':pw);
+            var provided=Buffer.from(pw==null?'':pw);
+            var stored=Buffer.from(ex.password);
+            ok=(provided.length===stored.length&&crypto.timingSafeEqual(provided,stored));
             if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.password='';saveACC();}
           }
         }
@@ -903,8 +925,8 @@ var ext='.docx';
     if(!name||name.startsWith('.')){res.writeHead(400);return res.end('invalid filename')}
     var file=path.join(MEDIA,name);
     if(req.method==='GET'){return fs.readFile(file,function(e,d){if(e){res.writeHead(404);return res.end('not found')}var ext=path.extname(name).toLowerCase();res.writeHead(200,{'Content-Type':MIME[ext]||'application/octet-stream','Cache-Control':'public,max-age=31536000'});res.end(d)});}
-    if(req.method==='POST'||req.method==='PUT'){ if(!checkToken(tok)){res.writeHead(401);return res.end('need login')} return readBody(req,function(b){if(!b){res.writeHead(400);return res.end('no body')}fs.writeFile(file,b,function(e){if(e){res.writeHead(500);return res.end('write err')}res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({Key:'media/'+name}))})});}
-    if(req.method==='DELETE'){ if(!checkToken(tok)){res.writeHead(401);return res.end('need login')} fs.unlink(file,function(){});res.writeHead(200);return res.end('[]');}
+    if(req.method==='POST'||req.method==='PUT'){ var _muw=checkToken(tok); if(!_muw){res.writeHead(401);return res.end('need login')} if(_muw.role!=='admin'&&_muw.role!=='teacher'){res.writeHead(403);return res.end('forbidden')} return readBody(req,function(b){if(!b){res.writeHead(400);return res.end('no body')}if(b.length>5*1024*1024){res.writeHead(413);return res.end('file too large')}fs.writeFile(file,b,function(e){if(e){res.writeHead(500);return res.end('write err')}res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({Key:'media/'+name}))})});}
+    if(req.method==='DELETE'){ var _mdw=checkToken(tok); if(!_mdw){res.writeHead(401);return res.end('need login')} if(_mdw.role!=='admin'&&_mdw.role!=='teacher'){res.writeHead(403);return res.end('forbidden')} fs.unlink(file,function(){});res.writeHead(200);return res.end('[]');}
   }
   /* 娃娃 API（依擁有者 / admin 授權）*/
   var dm=p.match(/^\/rest\/v1\/doll\/(.+)$/);
@@ -1236,7 +1258,7 @@ var ext='.docx';
   /* ── 沙盒執行安全輔助 ──
      SB_ENV：最小環境變數（PATH/SYSTEMROOT/TEMP/TMP），不洩漏 ADV9_PEPPER 等機密
      SB_PATTERNS：靜態黑名單（best-effort，非完整沙箱；僅擋明顯攻擊主機的模式） */
-  var SB_ENV={PATH:process.env.PATH||'',SYSTEMROOT:process.env.SYSTEMROOT||'C:\\Windows',TEMP:process.env.TEMP||'C:\\Windows\\Temp',TMP:process.env.TMP||'C:\\Windows\\Temp'};
+  var SB_ENV={PATH:'C:\\Windows\\System32;C:\\Windows',SYSTEMROOT:process.env.SYSTEMROOT||'C:\\Windows',TEMP:process.env.TEMP||'C:\\Windows\\Temp',TMP:process.env.TMP||'C:\\Windows\\Temp'};
   var SB_PATTERNS=[/child_process/,/require\s*\(/,/os\.system/,/subprocess/,/\bsocket\b/i,/Runtime\.getRuntime\(\)\.exec/,/popen\s*\(/i,/ctypes/i,/processbuilder/i,/rmtree/i,/eval\s*\(/i,/exec\(base64/i];
   function sbRateLimit(username){
     var now=Date.now(),w=Math.floor(now/60000);
@@ -1282,14 +1304,11 @@ var ext='.docx';
             result.stdout=r3.stdout||'';result.stderr=r3.stderr||'';result.exit_code=r3.status;
           }else{result.stderr=(rc.stderr||'')+'\n編譯失敗';result.exit_code=rc.status;}
         }else if(lang==='java'){
-          /* Java：寫入對應 class 的 .java 檔案 */
-          var clsMatch=code.match(/public\s+class\s+(\w+)/);
-          var clsName=clsMatch?clsMatch[1]:'Main';
-          var javaFile=path.join(sbDir,clsName+'.java');
+          var javaFile=path.join(sbDir,'Main.java');
           fs.writeFileSync(javaFile,code);
           var rc2=child_process.spawnSync('javac',[javaFile],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:5000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
           if(rc2.status===0){
-            var r4=child_process.spawnSync('java',['-cp',sbDir,clsName],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:3000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
+            var r4=child_process.spawnSync('java',['-cp',sbDir,'Main'],{encoding:'utf8',cwd:sbDir,env:SB_ENV,timeout:3000,killSignal:'SIGKILL',maxBuffer:1024*1024,windowsHide:true});
             result.stdout=r4.stdout||'';result.stderr=r4.stderr||'';result.exit_code=r4.status;
           }else{result.stderr=(rc2.stderr||'')+'\n編譯失敗';result.exit_code=rc2.status;}
         }else{result.error='不支援的語言：'+lang+'。支援：python/cpp/java';}
@@ -1617,7 +1636,6 @@ function createWebSocketServer(server) {
     try {
       var proto = req.headers['sec-websocket-protocol'];
       if (proto) wsTok = String(proto).split(',')[0].trim();
-      if (!wsTok) wsTok = new URL(req.url, 'http://x').searchParams.get('token') || '';
     } catch(e) {}
     var wsAuth = checkToken(wsTok);
     if (!wsAuth) { socket.destroy(); return; }
@@ -1635,7 +1653,8 @@ function createWebSocketServer(server) {
     );
     
     socket._pkRoom = null;
-    socket._pkUser = wsAuth.username; /* 身分來自升級時驗證的 token，不信任客戶端訊息 */
+    socket._pkUser = wsAuth.username;
+    socket._pkToken = wsTok;
     socket._pkAlive = true;
     
     socket.on('data', function(data) {
@@ -1766,6 +1785,8 @@ function handlePkMessage(socket, msg) {
     }
   }
   else if (msg.type === 'comp_start') {
+    var _compW=checkToken(socket._pkToken);
+    if(!_compW||(_compW.role!=='admin'&&_compW.role!=='teacher'))return;
     var compId = startClassCompetition(msg.classId || 'default', socket._pkUser, msg.subject || '數學', msg.duration || 300000);
     socket._pkRoom = 'comp_' + compId;
     if (!PK_ROOMS['comp_' + compId]) PK_ROOMS['comp_' + compId] = {};
