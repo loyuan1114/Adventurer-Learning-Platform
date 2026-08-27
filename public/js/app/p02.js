@@ -395,7 +395,7 @@ const b=document.getElementById('hudXpBar');if(b)b.style.width=(g.xp/g.needXp*10
    vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 47 個單位：SUPA_KEY, WTOKEN, mediaHeaders, upProg, GDRIVE_URL, gdDelete, _hbTimer, stopHeartbeat, updateOnlBadges, _es, stopStream, closeReqPanel…
    ════════════════════════════════════════════ */
-let WTOKEN=localStorage.getItem('ADV9_WTOKEN')||''; /* 🎫 登入 token：所有寫入需帶，僅存本機不同步 */
+/* WTOKEN 已在 p00.js 宣告：var WTOKEN=localStorage.getItem('ADV9_WTOKEN')||'' */
 
 function mediaHeaders(ct){const h={'apikey':SUPA_KEY};if(WTOKEN)h['x-adv9-token']=WTOKEN;if(ct)h['Content-Type']=ct;if(/^eyJ/.test(SUPA_KEY))h['Authorization']='Bearer '+SUPA_KEY;return h}
 
@@ -415,7 +415,7 @@ const GDRIVE_URL=''; /* 例：https://script.google.com/macros/s/xxxxx/exec ← 
 function gdDelete(src){try{if(typeof src!=='string'||src.indexOf('gd:')!==0||!GDRIVE_URL)return;
 fetch(GDRIVE_URL,{method:'POST',body:JSON.stringify({action:'del',id:src.slice(3)})}).catch(()=>{})}catch(e){}}
 
-let _onlineSet=new Set(),_hbTimer=null;
+/* _onlineSet, _hbTimer 已在 p00.js 宣告 */
 
 function stopHeartbeat(){if(_hbTimer){clearInterval(_hbTimer);_hbTimer=null}}
 
@@ -435,7 +435,7 @@ function updateOnlBadges(){
   }catch(e){}
 }
 
-let _es=null;
+/* _es 已在 p00.js 宣告 */
 
 function stopStream(){try{if(_es)_es.close()}catch(e){}_es=null}
 
