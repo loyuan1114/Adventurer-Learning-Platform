@@ -360,6 +360,7 @@ $('#app').innerHTML=
 '<span class="chip sl">✨ <b id="hudSl">'+g.starlight+'</b></span>'+
 
 '<span class="chip honor">🏅 <b id="hudHonor">'+g.honor+'</b></span>'+
+'<span class="chip ap" style="background:linear-gradient(135deg,#1a1040,#2d1a6e);border:1px solid #7c3aed;color:#c4b5fd">⭐ <b id="hudAP">'+(g.apBalance||0)+'</b></span>'+
 
 (function(){try{var consents=get('ADV9_PARENT_CONSENTS',{requests:[]});var pending=consents.requests.filter(function(r){return r.child===u.username&&r.status==='pending'});return pending.length?'<span class="chip imp" style="cursor:pointer" onclick="childConsentPanel()">📨 家長要求 <b>'+pending.length+'</b></span>':'';}catch(e){return ''}})()+
 
@@ -384,11 +385,34 @@ s('hudLv','👑 Lv.'+g.lv);s('hudTitle','【 '+titleOf(g.lv)+' 】');
 s('hudPow',power(g));s('hudCombo',g.combo);
 
 s('hudCry',g.crystal);s('hudGold',g.gold);s('hudDia',g.diamond);s('hudSl',g.starlight);s('hudHonor',g.honor);
+s('hudAP',g.apBalance||0);
 
 s('hudXpTxt',g.xp+'/'+g.needXp);
 
 const b=document.getElementById('hudXpBar');if(b)b.style.width=(g.xp/g.needXp*100)+'%';
 
+}
+
+function fetchApBalance(){
+  var u=me();if(!u)return;
+  fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'}})
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if(d.ok&&u.g){u.g.apBalance=d.balance||0;u.g.apEarned=d.total_earned||0;saveU(u);hud()}
+  }).catch(function(){});
+}
+
+function awardAp(type,data){
+  var u=me();if(!u)return;
+  var body=Object.assign({},data||{});
+  fetch('/rest/v1/ap/'+type.toLowerCase(),{
+    method:'POST',
+    headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  }).then(function(r){return r.json()})
+  .then(function(d){
+    if(d.ok){u.g.apBalance=d.balance||0;saveU(u);hud();toast('⭐ +'+d.ap+' AP！')}
+  }).catch(function(){});
 }
 
 /* ════════════════════════════════════════════

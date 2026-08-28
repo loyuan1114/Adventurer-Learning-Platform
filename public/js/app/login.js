@@ -155,6 +155,7 @@ function enter(){
   startHeartbeat();
   startFastSync();
   if(u.role==='admin')renderAdmin(u);else if(u.role==='teacher')renderTeacher(u);else if(u.role==='parent')renderParent(u);else renderStudent(u);
+  setTimeout(function(){try{fetchApBalance()}catch(e){}},500);
   try{if(localStorage.getItem('ADV9_UPDATE_RESTORE')){localStorage.removeItem('ADV9_UPDATE_RESTORE');const l=JSON.parse(localStorage.getItem('ADV9_LASTPM')||'{}')||{};if(l.fid&&l.fid!==u.id)setTimeout(()=>{try{openPm(l.fid);setTimeout(()=>{const pb=$('#pmBox');if(pb&&typeof l.top==='number'&&l.top>0)pb.scrollTop=l.top},450)}catch(e){}},700);}}catch(e){}
   if(u.role==='student'){try{deliverRankMail();checkArenaDailyMail();const n=unreadNotifs();if(n)setTimeout(()=>toast('🔔 你有 '+n+' 則新通知'),900);const um=unreadMail(u.g);if(um)setTimeout(()=>toast('📩 信箱有 '+um+' 封未領獎勵'),1600)}catch(e){}}
   if(u.role==='student'&&isGrade9(u)){try{refreshExamDateAI(false).then(()=>{if(me()&&me().id===u.id&&$('#view'))vHome&&vHome()})}catch(e){}}

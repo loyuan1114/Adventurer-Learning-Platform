@@ -90,7 +90,7 @@ var AP_AUDIT=loadJSON(APAUDITFILE,[]); /* AP 審計日誌: [{id,admin,action,tar
 var AP_RULES=loadJSON(path.join(DATA,'ap_rules.json'),{ /* AP 規則 */
   rules:{},
   global_caps:{daily_total:10000,weekly_total:50000,monthly_total:200000,seven_day_rolling:30000},
-  platform_min:{steps:{ap_per_unit:30,steps_per_ap:1,daily_cap:100},games:{daily_cap:200},creation:{daily_cap:100},sports:{daily_cap:200},learning:{daily_cap:300},music:{daily_cap:200},community:{daily_cap:150}},
+  platform_min:{steps:{ap_per_unit:1,steps_per_ap:30,daily_cap:100},game:{daily_cap:200,ap_per_unit:10},creation:{daily_cap:100,ap_per_unit:15},sports:{daily_cap:200,ap_per_km:0.5},learning:{daily_cap:300,ap_per_unit:5},music:{daily_cap:200,ap_per_unit:10},community:{daily_cap:150,ap_per_unit:5},commendation:{daily_cap:50,ap_per_unit:1,ratio:10}},
   school_overrides:{}
 });
 function saveAPLedger(){try{fs.writeFileSync(APFILE,JSON.stringify(AP_LEDGER,null,1))}catch(e){console.error('saveAPLedger',e)}}
@@ -1654,8 +1654,8 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
   }
 
 /* ── AP (Adventurer Points) 系統端點 ── */
-  function getApCaps(un){var g=ACC[un]&&ACC[un].g;if(!g){g={}};if(!g.ap)g.ap={balance:0,total_earned:0,total_spent:0,caps:{},ledger:[]};return g.ap;}
-  function checkApCap(un,type,amt){var caps=AP_RULES.rules[type]||AP_RULES.platform_min[type]||{};var cap=caps.daily_cap||0;if(!cap)return{ok:true};var g=getApCaps(un);var used=(g.caps[type]||{daily:0}).daily||0;if(used+amt>cap)return{ok:false,reason:'daily cap exceeded'};return{ok:true};}
+  function getApCaps(un){if(!ACC[un])ACC[un]={g:{}};var g=ACC[un].g;if(!g)g={};if(!g.ap)g.ap={balance:0,total_earned:0,total_spent:0,caps:{},ledger:[]};ACC[un].g=g;return g.ap;}
+  function checkApCap(un,type,amt){var caps=AP_RULES.rules[type.toLowerCase()]||AP_RULES.platform_min[type.toLowerCase()]||{};var cap=caps.daily_cap||0;if(!cap)return{ok:true};var g=getApCaps(un);var used=(g.caps[type]||{daily:0}).daily||0;if(used+amt>cap)return{ok:false,reason:'daily cap exceeded'};return{ok:true};}
   function recordApTx(un,type,amt,src,meta){var g=getApCaps(un);var tx={id:'ap_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),type:type,amount:amt,source:src,meta:meta||{},ts:Date.now()};g.ledger=g.ledger||[];g.ledger.push(tx);if(g.ledger.length>2000)g.ledger=g.ledger.slice(-2000);g.balance=(g.balance||0)+amt;g.total_earned=(g.total_earned||0)+Math.max(0,amt);g.total_spent=(g.total_spent||0)+Math.max(0,-amt);if(amt>0){var t=type;if(!g.caps[t])g.caps[t]={daily:0,weekly:0,monthly:0,last_daily:0,last_weekly:0,last_monthly:0};var now=Date.now(),today=new Date().toISOString().slice(0,10);if(g.caps[t].last_daily!==today){g.caps[t].daily=0;g.caps[t].last_daily=today}if(g.caps[t].last_weekly!==new Date().toISOString().slice(0,10).slice(0,8)){g.caps[t].weekly=0;g.caps[t].last_weekly=new Date().toISOString().slice(0,10).slice(0,8)}g.caps[t].daily=(g.caps[t].daily||0)+amt;}saveUserFile(un);}
   function addApAudit(admin,action,target,oldVal,newVal,reason){AP_AUDIT.push({id:'audit_'+Date.now().toString(36),admin:admin,action:action,target:target,old_val:oldVal,new_val:newVal,reason:reason,ts:Date.now()});if(AP_AUDIT.length>5000)AP_AUDIT=AP_AUDIT.slice(-5000);saveAPAudit();}
   /* AP 端點 */
@@ -1711,8 +1711,234 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
   if(req.method==='GET'&&p==='/rest/v1/ap/stats'){
     var sw3=checkToken(tok);if(!sw3||sw3.role!=='admin'){res.writeHead(403);return res.end('admin only')}
     var totalEarned=0,totalSpent=0,users=0;Object.keys(ACC).forEach(function(un){var g=ACC[un]&&ACC[un].g;if(g&&g.ap){totalEarned+=g.ap.total_earned||0;totalSpent+=g.ap.total_spent||0;users++}});var circulating=totalEarned-totalSpent;var inflationRisk=circulating>AP_RULES.global_caps.seven_day_rolling*10;res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,stats:{total_earned:totalEarned,total_spent:totalSpent,circulating:circulating,active_users:users,inflation_risk:inflationRisk}}));
+}
+  /* ═══════════════════════════════════════════
+     AP 專屬獎勵類型端點 (8 大類)
+     ═══════════════════════════════════════════ */
+  function getSchoolOverrides(un){
+    var u=ACC[un];if(!u)return{};
+    var sch=u.schoolId||u.classId;if(!sch)return{};
+    return AP_RULES.school_overrides[sch]||{};
   }
-/* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
+  function checkAntiCheat(un,type,data){
+    var flags=[];
+    var u=ACC[un];if(!u)return flags;
+    if(type==='GAME'){
+      var gp=u.g?.game?.gameStats||{};
+      if(data.win && data.elo && gp.elo && Math.abs(data.elo-gp.elo)>400)flags.push('elo_anomaly');
+      if(data.duration_sec && data.duration_sec<10)flags.push('too_fast');
+      if(data.win && u.g?.game?.winStreak>10)flags.push('winstreak');
+    }
+    if(type==='STEPS'){
+      if(data.steps>50000)flags.push('implausible_steps');
+      if(u.g?.ap?.caps?.STEPS?.daily>10000)flags.push('cap_bypass');
+    }
+    if(type==='SPONSOR' || type==='SPONSOR_RECEIVED'){
+      if(data.amount && data.amount>1000)flags.push('large_sponsor');
+      if(data.target_user===un)flags.push('self_sponsor');
+    }
+    return flags;
+  }
+  function simulateApReward(un,rulesOverride){
+    var r={ap:0,caps_ok:true,flags:[]};
+    var sch=getSchoolOverrides(un);
+    var rules={...AP_RULES.platform_min,...AP_RULES.rules,...sch,...rulesOverride};
+    Object.keys(rules).forEach(function(t){
+      var rule=rules[t];
+      if(!rule || !rule.enabled)return;
+      var cap=rule.daily_cap||0;
+      var g=getApCaps(un);
+      var used=(g.caps[t]||{daily:0}).daily||0;
+      if(cap && used+rule.ap_per_unit>cap)r.caps_ok=false;
+      r.ap+=rule.ap_per_unit||0;
+    });
+    r.flags=checkAntiCheat(un,'SIMULATE',{});
+    return r;
+  }
+  function applyApReward(un,type,value,data){
+    var sch=getSchoolOverrides(un);
+    var t=type.toLowerCase();
+    var base=AP_RULES.rules[type.toLowerCase()]||AP_RULES.platform_min[t];
+    var rule={...base,...sch};
+    if(!rule || rule.enabled===false)return{ok:false,reason:'disabled'};
+    var amt=0;
+    switch(type){
+      case 'STEPS':
+        var perAp=rule.steps_per_ap||30;
+        amt=Math.floor(value/perAp)*rule.ap_per_unit;
+        break;
+      case 'GAME':
+        var skill=Math.max(0,Math.min(1,(data.elo||1200-800)/1200))*0.5+
+                 Math.max(0,Math.min(1,(data.winrate||0)))*0.3+
+                 Math.max(0,Math.min(1,(data.rank||0)/100))*0.2;
+        amt=Math.floor(rule.ap_per_unit*(0.5+skill));
+        if(data.duration_sec>7200)amt=0;
+        break;
+      case 'CREATION':
+        amt=rule.ap_per_unit;
+        break;
+      case 'MUSIC':
+        amt=rule.ap_per_unit*(1+(data.difficulty||0));
+        break;
+      case 'SPORTS':
+        amt=Math.floor(value*rule.ap_per_km);
+        break;
+      case 'LEARNING':
+        amt=rule.ap_per_unit*(1+(data.difficulty||0));
+        break;
+      case 'COMMUNITY':
+        amt=rule.ap_per_unit;
+        break;
+      case 'COMMENDATION':
+        amt=-Math.abs(value);
+        break;
+      case 'SPONSOR':
+        amt=-Math.abs(value);
+        break;
+      case 'SPONSOR_RECEIVED':
+        amt=Math.abs(value);
+        break;
+    }
+    if(amt===0)return{ok:true,ap:0};
+    var cap=checkApCap(un,type,Math.abs(amt));
+    if(!cap.ok)return{ok:false,reason:cap.reason};
+    var src=type==='SPONSOR'||type==='SPONSOR_RECEIVED'?'player':'system';
+    recordApTx(un,type,amt,src,data);
+    return{ok:true,ap:amt,balance:getApCaps(un).balance};
+  }
+  /* ── 8 大獎勵端點 ── */
+  function apRewardHandler(type,un){
+    return function(req,res){
+      if(req.method!=='POST'){res.writeHead(405);return res.end('method not allowed')}
+      return readBody(req,function(b){try{
+        var j=JSON.parse(b.toString('utf8')||'{}');
+        var rr=applyApReward(un,type,j.value||j.steps||j.distance_km||j.score||j.elo||j.duration_sec||j.correct||j.amount||0,j);
+        if(!rr.ok){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:rr.reason}))}
+        res.writeHead(200,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({ok:true,ap:rr.ap,balance:rr.balance,caps:getApCaps(un).caps}));
+      }catch(e){res.writeHead(400);res.end('bad json')}})
+      };
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/steps'){
+    var s=checkToken(tok);if(!s){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      var res2=applyApReward(s.username,'STEPS',j.steps||j.value||0,j);
+      if(!res2.ok){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:res2.reason}))}
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:true,ap:res2.ap,balance:res2.balance,caps:getApCaps(s.username).caps}));
+    }catch(e){console.error('[STEPS ERROR]',e);res.writeHead(500);res.end('internal error')}})
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/game'){
+    var g=checkToken(tok);if(!g){res.writeHead(401);return res.end('need login')}
+    try { return apRewardHandler('GAME',g.username)(req,res); } catch(e){ console.error('[GAME ERROR]',e); res.writeHead(500); res.end('internal error') }
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/creation'){
+    var c=checkToken(tok);if(!c){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      if(j.action==='sponsor'){
+        var amt=Math.abs(Number(j.amount||0));
+        if(!amt||amt>5000){res.writeHead(400);return res.end('invalid amount')}
+        var tgt=j.target_user;if(!tgt||tgt===c.username){res.writeHead(400);return res.end('invalid target')}
+        var cap=checkApCap(c.username,'SPONSOR',amt);
+        if(!cap.ok){res.writeHead(403);return res.end(JSON.stringify({ok:false,reason:cap.reason}))}
+        recordApTx(c.username,'SPONSOR',-amt,'player',{target:tgt,message:j.message||''});
+        recordApTx(tgt,'SPONSOR_RECEIVED',amt,'player',{from:c.username,message:j.message||''});
+        addApAudit(c.username,'SPONSOR',tgt,0,amt,j.message||'');
+        res.writeHead(200,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({ok:true,balance:getApCaps(c.username).balance}));
+      }else{
+        var r=applyApReward(c.username,'CREATION',1,{work_id:j.work_id,type:j.type});
+        res.writeHead(200,{'Content-Type':'application/json'});
+        res.end(JSON.stringify(r));
+      }}catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/music'){
+    var m=checkToken(tok);if(!m){res.writeHead(401);return res.end('need login')}
+    return apRewardHandler('MUSIC',m.username)(req,res);
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/sports'){
+    var sp=checkToken(tok);if(!sp){res.writeHead(401);return res.end('need login')}
+    return apRewardHandler('SPORTS',sp.username)(req,res);
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/learning'){
+    var l=checkToken(tok);if(!l){res.writeHead(401);return res.end('need login')}
+    return apRewardHandler('LEARNING',l.username)(req,res);
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/community'){
+    var cm=checkToken(tok);if(!cm){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      if(!j.target_user||j.target_user===cm.username){res.writeHead(400);return res.end('invalid target')}
+      var r=applyApReward(cm.username,'COMMUNITY',1,{target:j.target_user,type:j.type,confirmed:j.confirmed_by_target});
+      if(r.ok && j.confirmed_by_target){
+        recordApTx(j.target_user,'COMMUNITY',1,'system',{from:cm.username,type:j.type});
+      }
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify(r));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/commendation'){
+    var cd=checkToken(tok);if(!cd){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      var ratio=(AP_RULES.rules.commendation&&AP_RULES.rules.commendation.ratio)||(AP_RULES.platform_min.commendation&&AP_RULES.platform_min.commendation.ratio)||10;
+      var ap=Math.abs(Math.floor(Number(j.ap_amount||0)/ratio));
+      if(ap<=0){res.writeHead(400);return res.end('invalid ap amount')}
+      var r=applyApReward(cd.username,'COMMENDATION',-ap,{ratio:ratio});
+      if(r.ok){
+        if(!ACC[cd.username].commendations)ACC[cd.username].commendations={total:0,ledger:[]};
+        ACC[cd.username].commendations.total+=ap;
+        ACC[cd.username].commendations.ledger.push({ap:ap,ts:Date.now(),ratio:ratio});
+        saveUserFile(cd.username);
+      }
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:r.ok,commendations_earned:ap,balance:r.balance}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  /* Admin: 預覽/模擬獎勵 */
+  if(req.method==='POST'&&p==='/rest/v1/ap/simulate'){
+    var ad=checkToken(tok);if(!ad||ad.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      var target=j.target_user||ad.username;
+      var r=simulateApReward(target,j.rules_override||{});
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:true,simulation:r}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  /* Admin: 活動期間限定規則 */
+  if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/ap/event_rules'){
+    var er=checkToken(tok);if(!er||er.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8')||'{}');
+      if(!j.id)j.id='evt_'+Date.now().toString(36);
+      if(!AP_RULES.event_rules)AP_RULES.event_rules={};
+      var old=AP_RULES.event_rules[j.id]||null;
+      if(j.remove){delete AP_RULES.event_rules[j.id];}
+      else{AP_RULES.event_rules[j.id]={id:j.id,name:j.name,start:j.start,end:j.end,rules:j.rules,break_caps:!!j.break_caps};}
+      saveAPRules();
+      addApAudit(er.username,j.remove?'EVENT_RULE_REMOVE':'EVENT_RULE_UPSERT',j.id,JSON.stringify(old),JSON.stringify(AP_RULES.event_rules[j.id]||null),j.reason||'');
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  /* 多帳號/同IP檢測 */
+  if(req.method==='GET'&&p==='/rest/v1/ap/anticheat'){
+    var ac=checkToken(tok);if(!ac||ac.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    var ipMap={},deviceMap={},suspects=[];
+    Object.keys(ACC).forEach(function(un){
+      var u=ACC[un];
+      var ip=u.last_ip||'';
+      var dev=u.device_fp||'';
+      if(ip){if(!ipMap[ip])ipMap[ip]=[];ipMap[ip].push(un)}
+      if(dev){if(!deviceMap[dev])deviceMap[dev]=[];deviceMap[dev].push(un)}
+    });
+    Object.keys(ipMap).forEach(function(ip){if(ipMap[ip].length>3)suspects.push({type:'ip',value:ip,accounts:ipMap[ip]})});
+    Object.keys(deviceMap).forEach(function(dev){if(deviceMap[dev].length>2)suspects.push({type:'device',value:dev,accounts:deviceMap[dev]})});
+    res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,suspects:suspects}));
+  }
+  /* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
   if(req.method==='GET'){
     var rel=(p==='/'?'/index.html':p);
     var f2=path.resolve(PUB,'.'+rel);
