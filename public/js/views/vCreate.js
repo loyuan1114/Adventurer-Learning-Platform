@@ -1,365 +1,164 @@
-/* ════════════════════════════════════════════
-   vCreate 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含：心智圖 / 教材漫畫 / AI 播客 / AI 導師
-   ════════════════════════════════════════════ */
-let CR={tab:'mind',gen:0};
-function vCreate(){
-  $('#view').innerHTML=back('vCreate()')+'<h3 class="vt">🎨 創作中心 <span class="vsub">心智圖・教材漫畫・AI 播客・AI 導師</span></h3>'+
-  '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
-  '<button class="btn '+(CR.tab==='mind'?'gold':'ghost')+'" onclick="CR.tab=\'mind\';vCreate()">🗺️ 心智圖</button>'+
-  '<button class="btn '+(CR.tab==='manga'?'gold':'ghost')+'" onclick="CR.tab=\'manga\';vCreate()">📖 教材漫畫</button>'+
-  '<button class="btn '+(CR.tab==='podcast'?'gold':'ghost')+'" onclick="CR.tab=\'podcast\';vCreate()">🎧 AI 播客</button>'+
-  '<button class="btn '+(CR.tab==='info'?'gold':'ghost')+'" onclick="CR.tab=\'info\';vCreate()">📊 資訊圖</button>'+
-  '<button class="btn '+(CR.tab==='live'?'gold':'ghost')+'" onclick="CR.tab=\'live\';vCreate()">🎙️ 即時轉錄</button>'+
-  '<button class="btn '+(CR.tab==='tutor'?'gold':'ghost')+'" onclick="CR.tab=\'tutor\';vCreate()">🤖 AI 導師</button></div>'+
-  '<div id="crBody"></div>';
-  if(CR.tab==='mind')crMinds();
-  else if(CR.tab==='manga')crMangas();
-  else if(CR.tab==='podcast')crPodcasts();
-  else if(CR.tab==='info')crInfos();
-  else if(CR.tab==='live')crLive();
-  else if(CR.tab==='tutor')crTutor();
+/* vCreate — 創作贊助 Dashboard */
+let CR = { balance: 0, ledger: [], loading: false };
+
+function vCreate() {
+  var u = me(); if (!u) return;
+  CR.balance = u.g.apBalance || 0;
+  let h = back() + '<h3 class="vt">🎨 創作贊助 Dashboard <span class="vsub">提交創作・贊助創作者・AP 流動</span></h3>';
+
+  /* ── AP 餘額 ── */
+  h += '<div class="panel2" style="margin-top:12px;text-align:center;padding:18px">';
+  h += '<div style="font-size:11px;color:var(--mut)">目前 AP 餘額</div>';
+  h += '<div id="crBal" style="font-size:36px;font-weight:900;color:var(--gold2);margin-top:4px">' + CR.balance + '</div>';
+  h += '<div style="font-size:11px;color:var(--mut);margin-top:4px">提交創作或贊助他人以累積經驗</div>';
+  h += '</div>';
+
+  /* ── 提交創作 ── */
+  h += '<div class="panel2" style="margin-top:12px">';
+  h += '<b style="color:var(--teal);font-size:15px">📝 提交創作</b>';
+  h += '<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">';
+  h += '<div><label style="font-size:11px;color:var(--mut)">創作標題</label>';
+  h += '<input id="crTitle" class="inp" placeholder="例如：Python 繪圖教學" style="margin-top:4px"></div>';
+  h += '<div><label style="font-size:11px;color:var(--mut)">創作類型</label>';
+  h += '<select id="crType" class="inp" style="margin-top:4px">';
+  h += '<option value="code">💻 程式碼</option>';
+  h += '<option value="art">🎨 繪圖</option>';
+  h += '<option value="writing">✍️ 寫作</option>';
+  h += '</select></div>';
+  h += '<button class="btn teal" onclick="crSubmitCreation()" style="align-self:flex-start">🚀 提交創作</button>';
+  h += '</div></div>';
+
+  /* ── 贊助創作者 ── */
+  h += '<div class="panel2" style="margin-top:12px">';
+  h += '<b style="color:var(--purple);font-size:15px">💝 贊助創作者</b>';
+  h += '<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">';
+  h += '<div><label style="font-size:11px;color:var(--mut)">目標用戶名</label>';
+  h += '<input id="crTarget" class="inp" placeholder="輸入對方用戶名" style="margin-top:4px"></div>';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<div style="flex:1"><label style="font-size:11px;color:var(--mut)">贊助 AP 數量</label>';
+  h += '<input id="crAmount" class="inp" type="number" min="1" value="50" style="margin-top:4px"></div>';
+  h += '</div>';
+  h += '<div><label style="font-size:11px;color:var(--mut)">留言（選填）</label>';
+  h += '<input id="crMsg" class="inp" placeholder="鼓勵的話..." style="margin-top:4px"></div>';
+  h += '<button class="btn gold" onclick="crSubmitSponsor()" style="align-self:flex-start">💝 送出贊助</button>';
+  h += '</div></div>';
+
+  /* ── 最近創作/贊助紀錄 ── */
+  h += '<div class="panel2" style="margin-top:12px">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center">';
+  h += '<b style="color:var(--gold2);font-size:15px">📋 最近創作/贊助紀錄</b>';
+  h += '<button class="btn ghost mini" onclick="crRefreshLedger()">🔄 刷新</button></div>';
+  h += '<div id="crLedger" style="margin-top:10px">';
+  h += CR._renderLedger();
+  h += '</div></div>';
+
+  $('#view').innerHTML = h;
+  crFetchLedger();
 }
 
-async function crApi(method,path,body){
-  try{
-    const r=await fetch(SUPA_URL+path,{method:method,headers:supaHeaders(),body:body?JSON.stringify(body):undefined});
-    return await r.json();
-  }catch(e){toast('伺服器連線失敗','bad');return null}
-}
-
-async function crNotePicker(cb,backFn){
-  const arr=await crApi('GET','/rest/v1/lib/notes')||[];
-  if(!arr.length){toast('請先在「📝 筆記寶庫」建立筆記','bad');return}
-  const box=document.getElementById('crBody');if(!box)return;
-  const backAction=backFn||'crMangas()';
-  const html='<div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto">'+arr.map(n=>'<button onclick="window._crPickNote(\''+n.id+'\')" style="text-align:left;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--txt);font-size:13px">📒 '+esc(n.title)+'</button>').join('')+'</div>'+
-  '<div style="margin-top:8px"><button class="btn ghost" onclick="'+backAction+'">← 返回</button></div>';
-  box.innerHTML=back(backAction)+'<h3 class="vt">📒 選擇筆記</h3>'+html;
-  window._crPickNote=function(id){cb(id)};
-}
-
-/* ── 心智圖：選筆記 → AI 生成節點樹 → SVG 呈現 ── */
-async function crMinds(){
-  const arr=await crApi('GET','/rest/v1/cr/minds')||[];
-  const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crMindNew()">＋ 從筆記生成心智圖</button></div>'+
-  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMindShow(\''+m.id+'\')"><b>🗺️ '+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有心智圖。從筆記生成第一個吧！</p>');
-}
-
-function crMindNew(){crNotePicker(crMindGen,'crMinds()')}
-
-async function crMindGen(noteId){
-  const notes=await crApi('GET','/rest/v1/lib/notes')||[];
-  const n=notes.find(x=>x.id===noteId);if(!n){toast('找不到筆記','bad');return}
-  const content=(n.title||'')+'。'+(n.content||'')+' '+(n.outline||[]).join(' ')+' '+(n.summary||'');
-  toast('AI 生成心智圖...');
-  try{
-    const out=await callAI('根據以下教材，生成心智圖。輸出 JSON：{"root":"主題","nodes":[{"id":1,"text":"節點文字","parent":0}]}，parent 為父節點 id（根節點 parent 為 0）。最多 20 個節點。只輸出 JSON。\n\n教材：\n'+content.slice(0,8000));
-    const m=out.match(/\{[\s\S]*\}/);if(!m)throw new Error('no json');
-    const j=JSON.parse(m[0]);
-    const nodes=j.nodes||[];if(!nodes.length)throw new Error('empty');
-    const mind=await crApi('POST','/rest/v1/cr/minds',{title:n.title,nodes:nodes});
-    if(mind){toast('心智圖已生成','ok');crMindShow(mind.id)}
-  }catch(e){toast('AI 失敗：'+e.message,'bad')}
-}
-
-function crMindShow(id){
-  crApi('GET','/rest/v1/cr/minds').then(arr=>{
-    const m=(arr||[]).find(x=>x.id===id);if(!m)return;
-    const nodes=m.nodes||[];
-    const byId={};nodes.forEach(n=>byId[n.id]=n);
-    const children={};nodes.forEach(n=>{const p=n.parent||0;(children[p]=children[p]||[]).push(n)});
-    const depthMap={};nodes.forEach(n=>{let d=0,p=n.parent;while(p&&byId[p]){d++;p=byId[p].parent||0}depthMap[n.id]=d});
-    const maxD=Math.max(0,...nodes.map(n=>depthMap[n.id]||0));
-    const W=900,H=Math.max(300,maxD*110+60);
-    let svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;background:rgba(0,0,0,.15);border-radius:8px">';
-    const byDepth={};nodes.forEach(n=>{const d=depthMap[n.id]||0;(byDepth[d]=byDepth[d]||[]).push(n)});
-    const pos={};nodes.forEach(n=>{const d=depthMap[n.id]||0;const x=80+d*220;const sib=byDepth[d]||[];const idx=sib.indexOf(n);const span=sib.length||1;const y=(idx+0.5)*(H/span);pos[n.id]={x:x,y:y}});
-    nodes.forEach(n=>{if(n.parent){const p=pos[n.parent];if(p){pos[n.id].y=(pos[n.id].y+p.y)/2;svg+='<line x1="'+p.x+'" y1="'+p.y+'" x2="'+pos[n.id].x+'" y2="'+pos[n.id].y+'" stroke="#8b6ce0" stroke-width="1.5"/>'}}});
-    nodes.forEach(n=>{const p=pos[n.id];const t=(n.text||'').slice(0,40);svg+='<circle cx="'+p.x+'" cy="'+p.y+'" r="16" fill="'+(n.parent?'#3d5afe':'#ffd700')+'" opacity=".9"/>';svg+='<text x="'+(p.x+22)+'" y="'+(p.y+4)+'" fill="#fff" font-size="12">'+esc(t)+'</text>'});
-    svg+='</svg>';
-    $('#view').innerHTML=back('vCreate()')+'<h3 class="vt">🗺️ '+esc(m.title)+'</h3>'+svg+
-    '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn gold" onclick="crMindGen(\''+m.noteId+'\')">🔄 重新生成</button><button class="btn ghost" onclick="crMindDel(\''+m.id+'\')">🗑️ 刪除</button></div>';
-  });
-}
-
-async function crMindDel(id){
-  const r=await crApi('DELETE','/rest/v1/cr/minds/'+id);
-  if(r!==null){toast('已刪除','ok');vCreate()}else{toast('刪除失敗','bad')}
-}
-
-/* ── 教材漫畫：四格漫畫館 / 直接輸入 / 選筆記 → AI 生成分鏡 ── */
-async function crMangas(){
-  const arr=await crApi('GET','/rest/v1/cr/mangas')||[];
-  const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<h3 class="vt">📖 教材漫畫 <span class="vsub">四格漫畫館・AI 生成漫畫</span></h3>'+
-  '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
-  '<button class="btn gold" onclick="cr4koma()">📚 四格漫畫館（預製）</button>'+
-  '<button class="btn teal" onclick="crMangaDirect()">✏️ 直接輸入主題生成漫畫</button>'+
-  '<button class="btn ghost" onclick="crNotePicker(crMangaGen)">📒 從筆記生成漫畫</button></div>'+
-  '<div id="crMangaList">'+
-  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crMangaShow(\''+m.id+'\')">📖 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.panels||[]).length+' 格・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有 AI 生成的漫畫。輸入任何主題，AI 幫你變成漫畫！</p>')+'</div>';
-}
-
-function cr4koma(){
-  const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML=back('crMangas()')+'<h3 class="vt">📚 四格漫畫館</h3>'+
-  '<iframe src="/4koma/4koma-player.html" style="width:100%;height:calc(100vh - 180px);border:none;border-radius:12px;background:#fff"></iframe>';
-}
-
-function crMangaDirect(){
-  const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML=back('vCreate()')+'<h3 class="vt">✏️ 建立教材漫畫</h3>'+
-  '<div class="panel2" style="max-width:700px">'+
-  '<label style="font-size:13px;color:var(--mut)">輸入主題或內容（例如：光合作用、三國演義、二次方程式）</label>'+
-  '<textarea id="crMangaInput" class="inp" rows="5" style="margin-top:6px" placeholder="例如：光合作用是植物利用陽光、水和二氧化碳製造葡萄糖和氧氣的過程..."></textarea>'+
-  '<div style="display:flex;gap:10px;margin-top:8px;align-items:center">'+
-  '<label style="font-size:13px;color:var(--mut)">格數</label>'+
-  '<input id="crMangaPanels" class="inp" type="number" min="3" max="12" value="6" style="width:70px">'+
-  '</div>'+
-  '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn teal" onclick="crMangaDirectGo()">🎨 生成漫畫</button>'+
-  '<button class="btn ghost" onclick="crMangas()">← 返回</button></div></div>';
-}
-
-async function crMangaDirectGo(){
-  const input=document.getElementById('crMangaInput');
-  const panelsEl=document.getElementById('crMangaPanels');
-  const text=(input?input.value:'').trim();
-  const numPanels=Math.min(12,Math.max(3,parseInt(panelsEl?panelsEl.value:'6')||6));
-  if(!text){toast('請輸入主題內容','bad');return}
-  toast('AI 編劇中...');
-  try{
-    const out=await callAI('把以下內容改編成 '+numPanels+' 格教學漫畫（適合國中生，每格要有場景、角色、對白）。輸出 JSON 陣列：[{"scene":"場景描述","character":"出現角色","text":"對白或旁白"}] 共 '+numPanels+' 格。只輸出 JSON 陣列。\n\n內容：\n'+text.slice(0,8000));
-    const m=out.match(/\[[\s\S]*\]/);if(!m)throw new Error('no json');
-    const panels=JSON.parse(m[0]);
-    if(!Array.isArray(panels)||!panels.length)throw new Error('empty');
-    const title=text.slice(0,30)+(text.length>30?'...':'');
-    const manga=await crApi('POST','/rest/v1/cr/mangas',{title:title,panels:panels});
-    if(manga){toast('漫畫已生成','ok');crMangaShow(manga.id)}
-  }catch(e){toast('AI 失敗：'+e.message,'bad')}
-}
-
-async function crMangaGen(noteId){
-  const notes=await crApi('GET','/rest/v1/lib/notes')||[];
-  const n=notes.find(x=>x.id===noteId);if(!n){toast('找不到筆記','bad');return}
-  const content=(n.title||'')+'。'+(n.content||'')+' '+(n.outline||[]).join(' ')+' '+(n.summary||'');
-  toast('AI 編劇中...');
-  try{
-    const out=await callAI('把以下教材改編成 6 格教學漫畫（適合國中生）。輸出 JSON 陣列：[{"scene":"場景描述","character":"出現角色","text":"對白或旁白"}] 共 6 格。只輸出 JSON 陣列。\n\n教材：\n'+content.slice(0,8000));
-    const m=out.match(/\[[\s\S]*\]/);if(!m)throw new Error('no json');
-    const panels=JSON.parse(m[0]);
-    if(!Array.isArray(panels)||!panels.length)throw new Error('empty');
-    const manga=await crApi('POST','/rest/v1/cr/mangas',{title:n.title,panels:panels});
-    if(manga){toast('漫畫已生成','ok');crMangaShow(manga.id)}
-  }catch(e){toast('AI 失敗：'+e.message,'bad')}
-}
-
-function crMangaShow(id){
-  crApi('GET','/rest/v1/cr/mangas').then(arr=>{
-    const m=(arr||[]).find(x=>x.id===id);if(!m)return;
-    const panels=m.panels||[];
-    const colors=['#ff8a80','#80d8ff','#b9f6ca','#ffd8a8','#ea80fc','#a7ffeb'];
-    $('#view').innerHTML=back('vCreate()')+'<h3 class="vt">📖 '+esc(m.title)+'</h3>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">'+panels.map((p,i)=>'<div class="panel2" style="background:'+colors[i%6]+'22;border:2px solid '+colors[i%6]+'">'+
-    '<div style="font-size:11px;color:var(--mut)">第 '+(i+1)+' 格</div>'+
-    '<div style="height:120px;display:flex;align-items:center;justify-content:center;font-size:40px;background:rgba(0,0,0,.15);border-radius:6px;margin:6px 0">'+crIcon(p.scene||'')+'</div>'+
-    '<div style="font-size:11px;color:var(--teal)">'+esc(p.scene||'')+'</div>'+
-    '<div style="font-size:13px;margin-top:4px">'+esc(p.text||'')+'</div>'+
-    '<div style="font-size:11px;margin-top:4px">👤 '+(p.character||'旁白')+'</div></div>').join('')+'</div>'+
-    '<div style="margin-top:10px">'+(m.noteId?'<button class="btn ghost" onclick="crMangaGen(\''+m.noteId+'\')">🔄 重新編劇</button>':'')+'</div>';
-  });
-}
-
-function crIcon(scene){const s=(scene||'');if(s.indexOf('教室')>=0||s.indexOf('葉')>=0||s.indexOf('植物')>=0||s.indexOf('樹')>=0)return '🌿';if(s.indexOf('實驗')>=0||s.indexOf('燒杯')>=0)return '⚗️';if(s.indexOf('太陽')>=0||s.indexOf('光')>=0)return '☀️';if(s.indexOf('水')>=0)return '💧';if(s.indexOf('山')>=0)return '⛰️';if(s.indexOf('星')>=0)return '✨';if(s.indexOf('公式')>=0)return '➗';return '📚'}
-
-/* ── AI 播客：選筆記 → 生成口語稿 → 語音合成（Web Speech API）── */
-async function crPodcasts(){
-  const arr=await crApi('GET','/rest/v1/cr/podcasts')||[];
-  const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crPodcastGen,\'crPodcasts()\')">＋ 從筆記生成 AI 播客</button></div>'+
-  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crPodcastShow(\''+m.id+'\')">🎧 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.script||'').length+' 字</div></div>').join('')+'</div>':'<p class="empty">還沒有播客。把筆記變成「用聽的」吧！</p>');
-}
-
-async function crPodcastGen(noteId){
-  const notes=await crApi('GET','/rest/v1/lib/notes')||[];
-  const n=notes.find(x=>x.id===noteId);if(!n){toast('找不到筆記','bad');return}
-  const content=(n.title||'')+'。'+(n.content||'')+' '+(n.outline||[]).join(' ')+' '+(n.summary||'');
-  toast('AI 撰寫播客稿...');
-  try{
-    const out=await callAI('把以下教材改寫成 2 分鐘的 podcast 口語稿（自然、親切、適合通勤聽）。輸出 JSON：{"title":"集數標題","script":"完整口語稿"}。只輸出 JSON。\n\n教材：\n'+content.slice(0,8000));
-    const m=out.match(/\{[\s\S]*\}/);if(!m)throw new Error('no json');
-    const j=JSON.parse(m[0]);
-    const pod=await crApi('POST','/rest/v1/cr/podcasts',{title:(j.title||n.title),script:(j.script||'')});
-    if(pod){toast('播客已生成','ok');crPodcastShow(pod.id)}
-  }catch(e){toast('AI 失敗：'+e.message,'bad')}
-}
-
-function crPodcastShow(id){
-  crApi('GET','/rest/v1/cr/podcasts').then(arr=>{
-    const m=(arr||[]).find(x=>x.id===id);if(!m)return;
-    $('#view').innerHTML=back('vCreate()')+'<h3 class="vt">🎧 '+esc(m.title)+'</h3>'+
-    '<div class="panel2"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'+
-    '<button class="btn teal" onclick="crSpeak()">🔊 播放</button>'+
-    '<button class="btn ghost" onclick="speechSynthesis.cancel()">⏹ 停止</button>'+
-    '<button class="btn ghost" onclick="crPodcastGen(\''+m.noteId+'\')">🔄 重新生成</button></div>'+
-    '<div style="font-size:13.5px;line-height:2;white-space:pre-wrap">'+esc(m.script||'')+'</div></div>';
-  });
-}
-
-function crSpeak(){
-  try{
-    const t=document.querySelector('#view .panel2');const txt=(t&&t.textContent)||'';
-    const ut=new SpeechSynthesisUtterance(txt);
-    ut.lang=langPref()||'zh-TW';ut.rate=1;speechSynthesis.cancel();speechSynthesis.speak(ut);
-  }catch(e){toast('語音無法播放','bad')}
-}
-
-/* ── 資訊圖：選筆記 → AI 生成摘要視覺化（統計數字 + 重點段落）── */
-async function crInfos(){
-  const arr=await crApi('GET','/rest/v1/cr/infos')||[];
-  const box=document.getElementById('crBody');if(!box)return;
-  box.innerHTML='<div style="margin-bottom:10px"><button class="btn teal" onclick="crNotePicker(crInfoGen,\'crInfos()\')">＋ 從筆記生成資訊圖</button></div>'+
-  (arr.length?'<div style="display:flex;flex-wrap:wrap;gap:10px">'+arr.map(m=>'<div class="panel2" style="flex:1;min-width:220px;cursor:pointer" onclick="crInfoShow(\''+m.id+'\')">📊 <b>'+esc(m.title)+'</b><div style="font-size:11px;color:var(--mut)">'+(m.sections||[]).length+' 段・'+new Date(m.updatedAt).toLocaleString()+'</div></div>').join('')+'</div>':'<p class="empty">還沒有資訊圖。把筆記變成一眼看懂的視覺摘要吧！</p>');
-}
-
-async function crInfoGen(noteId){
-  const notes=await crApi('GET','/rest/v1/lib/notes')||[];
-  const n=notes.find(x=>x.id===noteId);if(!n){toast('找不到筆記','bad');return}
-  const content=(n.title||'')+'。'+(n.content||'')+' '+(n.outline||[]).join(' ')+' '+(n.summary||'');
-  toast('AI 製作資訊圖...');
-  try{
-    const out=await callAI('根據以下教材，製作一頁式資訊圖（infographic）。輸出 JSON：{"title":"標題","hero":"一句話總結（大字）","stats":[{"label":"統計數字標籤","value":"數字或百分比"}...3-4 個],"sections":[{"title":"重點標題","points":["重點1","重點2"]}...3-5 段]}。只輸出 JSON。\n\n教材：\n'+content.slice(0,8000));
-    const m=out.match(/\{[\s\S]*\}/);if(!m)throw new Error('no json');
-    const j=JSON.parse(m[0]);
-    if(!(j.sections&&j.sections.length))throw new Error('empty');
-    const info=await crApi('POST','/rest/v1/cr/infos',{title:(j.title||n.title),hero:(j.hero||''),stats:Array.isArray(j.stats)?j.stats:[],sections:j.sections});
-    if(info){toast('資訊圖已生成','ok');crInfoShow(info.id)}
-  }catch(e){toast('AI 失敗：'+e.message,'bad')}
-}
-
-function crInfoShow(id){
-  crApi('GET','/rest/v1/cr/infos').then(arr=>{
-    const m=(arr||[]).find(x=>x.id===id);if(!m)return;
-    const sections=m.sections||[],stats=m.stats||[];
-    const colors=['#ffd740','#3d5afe','#00e676','#ff6e40','#e040fb','#00bcd4'];
-    $('#view').innerHTML=back('vCreate()')+'<h3 class="vt">📊 '+esc(m.title)+'</h3>'+
-    '<div class="panel2" style="border-left:5px solid var(--gold2);background:linear-gradient(135deg,rgba(255,215,64,.08),rgba(61,90,254,.08))">'+
-    '<div style="font-size:26px;font-weight:900;font-family:var(--serif);line-height:1.4;text-align:center;padding:10px">'+esc(m.hero||'')+'</div>'+
-    (stats.length?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:14px">'+stats.map((s,i)=>'<div class="panel2" style="text-align:center;padding:12px;background:rgba(0,0,0,.18)"><div style="font-size:26px;font-weight:900;color:'+colors[i%6]+'">'+esc(s.value||'')+'</div><div style="font-size:11px;color:var(--mut)">'+esc(s.label||'')+'</div></div>').join('')+'</div>':'')+
-    '<div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">'+sections.map((s,i)=>'<div class="panel2" style="border-top:3px solid '+colors[i%6]+'"><b style="color:'+colors[i%6]+'">'+esc(s.title||'')+'</b><ul style="margin:8px 0 0 18px;font-size:13px;line-height:1.8">'+(s.points||[]).map(esc).map(x=>'<li>'+x+'</li>').join('')+'</ul></div>').join('')+'</div></div>'+
-    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" onclick="crInfoGen(\''+m.noteId+'\')">🔄 重新生成</button><button class="btn ghost" onclick="crInfoExport(\''+m.id+'\')">📤 匯出圖片</button><button class="btn ghost" onclick="crInfoDel(\''+m.id+'\')">🗑️ 刪除</button></div>';
-  });
-}
-
-async function crInfoDel(id){
-  const r=await crApi('DELETE','/rest/v1/cr/infos/'+id);
-  if(r!==null){toast('已刪除','ok');vCreate()}else{toast('刪除失敗','bad')}
-}
-
-function crInfoExport(id){
-  const el=document.querySelector('#view .panel2');
-  if(!el){toast('請先開啟資訊圖','bad');return}
-  try{
-    import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js').then(function(mod){
-      (mod.default||mod.html2canvas||window.html2canvas)(el,{backgroundColor:'#121212',scale:2}).then(function(canvas){
-        const a=document.createElement('a');a.download=(id||'infographic')+'.png';a.href=canvas.toDataURL('image/png');a.click();
-        toast('已匯出 PNG','ok');
-      });
-    });
-  }catch(e){toast('匯出失敗：'+e.message,'bad')}
-}
-
-/* ── 即時轉錄：Web Speech API 語音轉文字 → 存成筆記 ── */
-let CR_REC=null,CR_REC_TXT='',CR_REC_FINAL='';
-function crLive(){
-  const box=document.getElementById('crBody');if(!box)return;
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  box.innerHTML='<div class="panel2"><b style="color:var(--teal)">🎙️ 即時轉錄</b> <span style="font-size:12px;color:var(--mut)">說話自動轉文字，結束後可一鍵存成筆記</span>'+
-  '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+
-  '<button class="btn teal" onclick="crRecStart()">▶ 開始錄音</button>'+
-  '<button class="btn ghost" onclick="crRecStop()">⏹ 停止</button>'+
-  '<button class="btn gold" onclick="crRecSave()">💾 存成筆記</button>'+
-  '<button class="btn ghost" onclick="crRecClear()">🗑️ 清除</button></div>'+
-  '<div id="crRecStatus" style="margin-top:10px;font-size:12px;color:var(--mut)">尚未開始</div>'+
-  '<div id="crRecText" class="panel2" style="margin-top:10px;min-height:120px;white-space:pre-wrap;line-height:1.8;font-size:14px">'+(CR_REC_TXT?esc(CR_REC_TXT):'<span style="color:var(--mut)">轉錄文字會顯示在這裡…</span>')+'</div></div>'+
-  (window.SpeechRecognition||window.webkitSpeechRecognition?'':'<div class="panel2" style="margin-top:10px;border-left:4px solid var(--red)">⚠️ 此瀏覽器不支援語音辨識，請改用 Chrome/Edge。</div>');
-}
-
-function crRecStart(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){toast('瀏覽器不支援語音辨識','bad');return}
-  try{speechSynthesis.cancel();}catch(e){}
-  CR_REC_TXT=CR_REC_TXT||'';CR_REC_FINAL='';
-  const rec=new SR();
-  rec.lang=langPref()||'zh-TW';rec.continuous=true;rec.interimResults=true;
-  rec.onresult=e=>{
-    let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){const tr=e.results[i][0].transcript;if(e.results[i].isFinal)CR_REC_FINAL+=tr+' ';else interim+=tr}
-    const status=document.getElementById('crRecStatus');
-    if(status){status.textContent='🎙️ 錄音中… 已轉錄 '+CR_REC_FINAL.split(' ').length+' 字'+(interim?'：'+interim:'')}
-    const box=document.getElementById('crRecText');
-    if(box)box.innerHTML=esc(CR_REC_FINAL+interim);
-  };
-  rec.onerror=e=>{const s=document.getElementById('crRecStatus');if(s)s.textContent='❌ 錯誤：'+e.error;toast('錄音錯誤：'+e.error,'bad')};
-  rec.onend=()=>{const s=document.getElementById('crRecStatus');if(s)s.textContent='⏹ 已停止（共轉錄 '+CR_REC_FINAL.split(' ').length+' 字）'};
-  CR_REC=rec;rec.start();
-  const s=document.getElementById('crRecStatus');if(s)s.textContent='🎙️ 開始錄音…';
-}
-
-function crRecStop(){if(CR_REC){try{CR_REC.stop()}catch(e){}CR_REC=null;const s=document.getElementById('crRecStatus');if(s)s.textContent='⏹ 已停止（共轉錄 '+CR_REC_FINAL.split(' ').length+' 字）'}}
-
-function crRecClear(){CR_REC_TXT='';CR_REC_FINAL='';const box=document.getElementById('crRecText');if(box)box.innerHTML='<span style="color:var(--mut)">轉錄文字會顯示在這裡…</span>';const s=document.getElementById('crRecStatus');if(s)s.textContent='已清除'}
-
-async function crRecSave(){
-  const txt=(CR_REC_FINAL||'').trim()||(CR_REC_TXT||'').trim();
-  if(txt.length<5){toast('沒有可儲存的轉錄內容','bad');return}
-  const title=(prompt('筆記標題：',new Date().toLocaleString()+' 轉錄')||'').trim()||'未命名轉錄';
-  const r=await crApi('POST','/rest/v1/cr/transcripts',{title:title,text:txt,noteId:''});
-  if(r){
-    const n=await crApi('POST','/rest/v1/lib/notes',{title:title,sourceType:'audio',content:txt,outline:[],summary:'',definitions:[],tags:['轉錄'],sources:['🎙️ 語音轉錄']});
-    if(n){toast('已存成筆記','ok');setTimeout(vNotes,600)}
+CR._renderLedger = function () {
+  var led = CR.ledger || [];
+  var types = ['CREATION', 'SPONSOR'];
+  var icons = { CREATION: '📝', SPONSOR: '💝' };
+  var names = { CREATION: '提交創作', SPONSOR: '贊助' };
+  var filtered = [];
+  for (var i = 0; i < led.length; i++) {
+    if (types.indexOf(led[i].type) >= 0) filtered.push(led[i]);
   }
-}
-
-/* ── AI 導師：針對筆記內容問答，對話記錄存 server ── */
-async function crTutor(){
-  const hist=await crApi('GET','/rest/v1/cr/tutors')||[];
-  const box=document.getElementById('crBody');if(!box)return;
-  let chatHtml=(hist.length?hist.map(m=>'<div style="max-width:85%"><div style="background:rgba(61,90,254,.2);padding:8px 10px;border-radius:8px 8px 8px 2px">'+esc(m.q)+'</div><div style="background:rgba(0,0,0,.2);padding:8px 10px;border-radius:8px 2px 8px 8px;margin-top:3px">'+esc(m.a)+'</div><div style="font-size:10px;color:var(--mut)">'+new Date(m.t).toLocaleTimeString()+'</div></div>').join(''):'<div style="text-align:center;color:var(--mut);font-size:11px">開始提問吧！</div>');
-  box.innerHTML='<div class="panel2"><b>🤖 AI 導師</b> <span style="font-size:12px;color:var(--mut)">針對你的筆記提問，AI 會根據內容回答</span>'+
-  '<div style="margin-top:8px"><select id="crTutorNote" class="inp" onchange="crTutorCtx()"><option value="">不指定（自由提問）</option></select></div>'+
-  '<div id="crTutorChat" style="max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin:10px 0;padding:10px;background:rgba(0,0,0,.15);border-radius:8px">'+chatHtml+'</div>'+
-  '<div style="display:flex;gap:8px"><input id="crTutorQ" class="inp" placeholder="輸入你的問題..." onkeydown="crTutorEnter(event)"><button class="btn teal" onclick="crTutorAsk()">送出</button></div></div>';
-  crApi('GET','/rest/v1/lib/notes').then(notes=>{
-    const sel=document.getElementById('crTutorNote');if(!sel)return;
-    sel.innerHTML='<option value="">不指定（自由提問）</option>'+(notes||[]).map(n=>'<option value="'+n.id+'">'+esc(n.title)+'</option>').join('');
-    const chosen=localStorage.getItem('ADV9_TUTOR_NOTE');if(chosen)sel.value=chosen;
-  });
-}
-
-function crTutorEnter(ev){if(ev&&ev.key==='Enter')crTutorAsk()}
-
-let crTutorCtxNote='';
-function crTutorCtx(){const s=document.getElementById('crTutorNote');crTutorCtxNote=s?s.value:'';try{localStorage.setItem('ADV9_TUTOR_NOTE',crTutorCtxNote)}catch(e){}}
-
-async function crTutorAsk(){
-  const el=document.getElementById('crTutorQ');
-  const q=(el?el.value:'').trim();if(!q)return;
-  const chat=document.getElementById('crTutorChat');if(!chat)return;
-  chat.innerHTML+='<div style="max-width:85%;align-self:flex-end;background:rgba(0,230,118,.15);padding:8px 10px;border-radius:8px 8px 2px 8px">'+esc(q)+'</div>';
-  document.getElementById('crTutorQ').value='';
-  let ctx='';
-  if(crTutorCtxNote){
-    const notes=await crApi('GET','/rest/v1/lib/notes')||[];
-    const n=notes.find(x=>x.id===crTutorCtxNote);
-    if(n)ctx=(n.content||'')+' '+(n.outline||[]).join(' ')+' '+(n.summary||'');
+  if (!filtered.length) return '<div style="color:var(--mut);font-size:12px;padding:8px 0">尚無創作/贊助紀錄</div>';
+  var html = '<div style="max-height:260px;overflow-y:auto">';
+  for (var j = 0; j < filtered.length && j < 30; j++) {
+    var tx = filtered[j];
+    var icon = icons[tx.type] || '⭐';
+    var name = names[tx.type] || tx.type;
+    var meta = tx.meta || {};
+    var detail = '';
+    if (tx.type === 'CREATION') detail = (meta.title || '無標題') + '（' + (meta.creation_type || '') + '）';
+    else if (tx.type === 'SPONSOR') detail = '→ ' + (meta.target_user || '') + (meta.message ? '：' + meta.message : '');
+    var time = tx.ts ? new Date(tx.ts).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) : '';
+    var color = tx.amount > 0 ? 'var(--gold2)' : 'var(--teal)';
+    var sign = tx.amount > 0 ? '+' : '';
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+    html += '<span style="font-size:16px">' + icon + '</span>';
+    html += '<div style="flex:1;font-size:12px"><b>' + name + '</b> <span style="color:var(--mut)">' + detail + '</span></div>';
+    html += '<span style="font-size:12px;color:var(--mut)">' + time + '</span>';
+    html += '<span style="font-size:13px;font-weight:700;color:' + color + '">' + sign + tx.amount + ' AP</span>';
+    html += '</div>';
   }
-  toast('AI 思考中...');
-  try{
-    const a=await callAI((ctx?'根據以下筆記內容回答問題，引用筆記內容佐證：\n筆記：'+ctx.slice(0,8000)+'\n\n問題：':'請以教學者的口吻回答國中生：')+q,'你是一個親切耐心的 AI 導師，善用比喻與生活例子');
-    chat.innerHTML+='<div style="max-width:85%;background:rgba(0,0,0,.25);padding:8px 10px;border-radius:8px 2px 8px 8px;white-space:pre-wrap">'+esc(a)+'</div>';
-    crApi('POST','/rest/v1/cr/tutors',{q:q,a:a,t:new Date().toISOString()});
-    chat.scrollTop=chat.scrollHeight;
-  }catch(e){toast('AI 失敗：'+e.message,'bad')}
+  html += '</div>';
+  return html;
+};
+
+function crFetchLedger() {
+  fetch('/rest/v1/ap/ledger', { headers: { 'x-adv9-token': WTOKEN } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.ok) { CR.ledger = d.ledger || []; CR._updateLedger(); }
+    }).catch(function () { });
+  fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.ok) { CR.balance = d.balance || 0; CR._updateBal(); }
+    }).catch(function () { });
+}
+
+CR._updateLedger = function () {
+  var el = document.getElementById('crLedger');
+  if (el) el.innerHTML = CR._renderLedger();
+};
+
+CR._updateBal = function () {
+  var el = document.getElementById('crBal');
+  if (el) el.textContent = CR.balance;
+};
+
+function crRefreshLedger() { crFetchLedger(); }
+
+function crSubmitCreation() {
+  var titleEl = document.getElementById('crTitle');
+  var typeEl = document.getElementById('crType');
+  var title = (titleEl ? titleEl.value : '').trim();
+  var type = typeEl ? typeEl.value : 'code';
+  if (!title) { toast('⚠️ 請輸入創作標題', 'bad'); return; }
+  fetch('/rest/v1/ap/creation', {
+    method: 'POST',
+    headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title, creation_type: type })
+  }).then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.ok) {
+        toast('📝 創作已提交！+' + d.ap + ' AP');
+        CR.balance = d.balance || 0;
+        fetchApBalance();
+        crFetchLedger();
+        if (titleEl) titleEl.value = '';
+      } else { toast('❌ ' + (d.reason || '提交失敗'), 'bad'); }
+    }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
+}
+
+function crSubmitSponsor() {
+  var targetEl = document.getElementById('crTarget');
+  var amountEl = document.getElementById('crAmount');
+  var msgEl = document.getElementById('crMsg');
+  var target = (targetEl ? targetEl.value : '').trim();
+  var amount = parseInt(amountEl ? amountEl.value : '0', 10);
+  var message = (msgEl ? msgEl.value : '').trim();
+  if (!target) { toast('⚠️ 請輸入目標用戶名', 'bad'); return; }
+  if (!amount || amount <= 0) { toast('⚠️ 請輸入有效 AP 數量', 'bad'); return; }
+  fetch('/rest/v1/ap/creation', {
+    method: 'POST',
+    headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'sponsor', target_user: target, amount: amount, message: message })
+  }).then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.ok) {
+        toast('💝 已贊助 ' + target + ' ' + amount + ' AP！');
+        CR.balance = d.balance || 0;
+        fetchApBalance();
+        crFetchLedger();
+        if (targetEl) targetEl.value = '';
+        if (amountEl) amountEl.value = '50';
+        if (msgEl) msgEl.value = '';
+      } else { toast('❌ ' + (d.reason || '贊助失敗'), 'bad'); }
+    }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
 }
