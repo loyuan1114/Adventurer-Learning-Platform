@@ -398,8 +398,8 @@ function fetchApBalance(){
   fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'}})
   .then(function(r){return r.json()})
   .then(function(d){
-    if(d.ok&&u.g){u.g.apBalance=d.balance||0;u.g.apEarned=d.total_earned||0;saveU(u);hud()}
-  }).catch(function(){});
+    if(d.ok&&u.g){u.g.apBalance=d.balance||0;u.g.apEarned=d.total_earned||0;saveU(u);hud();console.log('[AP] balance:',d.balance)}
+  }).catch(function(e){console.error('[AP] fetch error:',e)});
 }
 
 function awardAp(type,data){
