@@ -27,6 +27,8 @@ $('#view').innerHTML=
 
 '<div style="background:rgba(0,0,0,.25);border:1px dashed #6b4a1f;color:#ffb26b;padding:8px 12px;border-radius:5px;font-size:12.5px;margin-bottom:14px">'+pick(TIPS)+'</div>'+
 
+featCatsHtml()+
+
 '<div class="featCat">⭐ AP 獎勵中心</div>'+
 '<div class="featGrid">'+
 '<div class="feat" style="--fc:#4caf50" onclick="needJs([\'js/views/vFreePoints.js\']).then(()=>vFreePoints())"><span class="fIco">🚶</span><b>步數獎勵</b><i>30步=1AP・每日上限100</i></div>'+
@@ -36,9 +38,7 @@ $('#view').innerHTML=
 '<div class="feat" style="--fc:#00bcd4" onclick="needJs([\'js/views/vLearn.js\']).then(()=>vLearn())"><span class="fIco">📚</span><b>學習獎勵</b><i>答題賺AP・困難題加倍</i></div>'+
 '<div class="feat" style="--fc:#9c27b0" onclick="needJs([\'js/views/vChatV.js\']).then(()=>vChatV())"><span class="fIco">💬</span><b>社群貢獻</b><i>幫助他人・導師活動</i></div>'+
 '<div class="feat" style="--fc:#ffd700" onclick="needJs([\'js/views/vShopV.js\']).then(()=>vShopV())"><span class="fIco">🏫</span><b>嘉獎兌換</b><i>10AP=1嘉獎</i></div>'+
-'</div>'+
-
-featCatsHtml();
+'</div>';
 
 if(u.role==='student')setTimeout(tutorGuide,700); /* 首登新手引導（只顯示一次）*/
 

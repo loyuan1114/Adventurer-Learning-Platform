@@ -15,6 +15,32 @@ function vLearn() {
   h += '<div class="panel2" style="text-align:center;padding:14px"><div style="font-size:11px;color:var(--mut)">學習每日上限</div><div id="lvCap" style="font-size:28px;font-weight:900;color:var(--orange);margin-top:4px">' + LV._capDisplay() + '</div></div>';
   h += '</div></div>';
 
+  /* ── 修煉場活動（完成可賺 AP） ── */
+  h += '<div class="panel2" style="margin-top:12px">';
+  h += '<b style="color:var(--gold2);font-size:15px">📚 修煉場活動 <span style="font-size:11px;color:var(--mut);font-weight:400">完成可賺 AP</span></b>';
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px">';
+
+  var activities = [
+    { id: 'dungeon', icon: '⚔️', name: '修煉場', ap: 5, fn: "needJs(['js/views/vDungeon.js']).then(()=>vDungeon())" },
+    { id: 'videos', icon: '🎬', name: '影片專區', ap: 3, fn: "needJs(['js/views/vVideos.js']).then(()=>vVideos())" },
+    { id: 'wrong', icon: '❌', name: '錯題重練', ap: 5, fn: "needJs(['js/views/vWrong.js']).then(()=>vWrong())" },
+    { id: 'lab', icon: '🧪', name: '自然實驗室', ap: 4, fn: "needJs(['js/views/vLab.js']).then(()=>vLab())" },
+    { id: 'explain', icon: '📖', name: '課本講解', ap: 3, fn: "vSubj()" },
+    { id: 'homework', icon: '📝', name: '班級作業', ap: 4, fn: "needJs(['js/views/vHomework.js']).then(()=>vHomework())" },
+    { id: 'lang', icon: '🌍', name: '語言包', ap: 3, fn: "needJs(['js/views/vLangStudy.js']).then(()=>vLangStudy())" },
+    { id: 'stats', icon: '📊', name: '統計報表', ap: 0, fn: "needJs(['js/views/vStats.js']).then(()=>vStats())" }
+  ];
+
+  for (var a = 0; a < activities.length; a++) {
+    var act = activities[a];
+    h += '<div class="feat" style="--fc:' + (act.ap > 0 ? '#4caf50' : '#607d8b') + ';cursor:pointer" onclick="' + act.fn + '">';
+    h += '<span class="fIco">' + act.icon + '</span>';
+    h += '<b>' + act.name + '</b>';
+    h += '<i>' + (act.ap > 0 ? '+' + act.ap + ' AP' : '查看統計') + '</i>';
+    h += '</div>';
+  }
+  h += '</div></div>';
+
   /* ── 學習提交 ── */
   h += '<div class="panel2" style="margin-top:12px">';
   h += '<b style="color:var(--teal);font-size:15px">📝 記錄學習</b>';

@@ -33,6 +33,10 @@ function vFreePoints() {
   h += '</select></div>';
   h += '<div><label style="font-size:11px;color:var(--mut)">距離 (km)</label>';
   h += '<input id="fpDist" class="inp" type="number" min="0.1" step="0.1" value="3" style="width:100px;margin-top:4px"></div>';
+  h += '<div><label style="font-size:11px;color:var(--mut)">照片證明</label>';
+  h += '<input id="fpSportProof" type="file" accept="image/*" style="display:none" onchange="fpSportPreview(this)">';
+  h += '<button class="btn ghost mini" onclick="document.getElementById(\'fpSportProof\').click()" style="margin-top:4px">📷 選擇照片</button>';
+  h += '<div id="fpSportPreview" style="margin-top:4px"></div></div>';
   h += '<button class="btn teal" onclick="fpSubmitSport()" style="height:38px">✅ 提交運動</button>';
   h += '</div></div>';
 
@@ -165,25 +169,80 @@ function fpSubmitSteps() {
     }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
 }
 
+function fpSportPreview(input) {
+  var preview = document.getElementById('fpSportPreview');
+  if (!preview) return;
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      preview.innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;max-height:80px;border-radius:6px;border:1px solid rgba(255,255,255,.1)">';
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    preview.innerHTML = '';
+  }
+}
+
+var _fpSportPhotoData = null;
+
 function fpSubmitSport() {
   var sel = document.getElementById('fpSport');
   var distEl = document.getElementById('fpDist');
+  var proofInput = document.getElementById('fpSportProof');
   var sport = sel ? sel.value : 'running';
   var dist = parseFloat(distEl ? distEl.value : '0');
   if (!dist || dist <= 0) { toast('⚠️ 請輸入有效距離', 'bad'); return; }
-  fetch('/rest/v1/ap/sports', {
-    method: 'POST',
-    headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ distance_km: dist, sport: sport })
-  }).then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d.ok) {
-        toast('🏃 +' + d.ap + ' AP！（' + sport + ' ' + dist + 'km）');
-        FP.balance = d.balance || 0;
-        fetchApBalance();
-        fpFetchLedger();
-      } else { toast('❌ ' + (d.reason || '提交失敗'), 'bad'); }
-    }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
+
+  var body = { distance_km: dist, sport: sport };
+
+  function doSubmit(photoBase64) {
+    if (photoBase64) body.photo_proof = photoBase64;
+    fetch('/rest/v1/ap/sports', {
+      method: 'POST',
+      headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.ok) {
+          toast('🏃 +' + d.ap + ' AP！（' + sport + ' ' + dist + 'km）');
+          FP.balance = d.balance || 0;
+          fetchApBalance();
+          fpFetchLedger();
+          var preview = document.getElementById('fpSportPreview');
+          if (preview) preview.innerHTML = '';
+          if (proofInput) proofInput.value = '';
+        } else {
+          if (d.reason && d.reason.indexOf('photo') >= 0) {
+            toast('⚠️ 伺服器不支援照片上傳，已忽略照片提交', 'warn');
+            body.photo_proof = undefined;
+            fetch('/rest/v1/ap/sports', {
+              method: 'POST',
+              headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ distance_km: dist, sport: sport })
+            }).then(function (r2) { return r2.json(); })
+              .then(function (d2) {
+                if (d2.ok) {
+                  toast('🏃 +' + d2.ap + ' AP！（' + sport + ' ' + dist + 'km）');
+                  FP.balance = d2.balance || 0;
+                  fetchApBalance();
+                  fpFetchLedger();
+                } else { toast('❌ ' + (d2.reason || '提交失敗'), 'bad'); }
+              }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
+          } else {
+            toast('❌ ' + (d.reason || '提交失敗'), 'bad');
+          }
+        }
+      }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
+  }
+
+  if (proofInput && proofInput.files && proofInput.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function (e) { doSubmit(e.target.result); };
+    reader.onerror = function () { doSubmit(null); };
+    reader.readAsDataURL(proofInput.files[0]);
+  } else {
+    doSubmit(null);
+  }
 }
 
 function fpQuickGame(game) {

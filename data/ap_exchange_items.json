@@ -1,0 +1,7 @@
+{
+  "items": [
+    {"id":"commendation","name":"嘉獎","icon":"🏅","ap_cost":10,"description":"10 AP = 1 嘉獎","enabled":true},
+    {"id":"coupon","name":"兌換券","icon":"🎫","ap_cost":50,"description":"50 AP = 1 張","enabled":true},
+    {"id":"title","name":"特殊稱號","icon":"⭐","ap_cost":100,"description":"解鎖特殊稱號","enabled":true}
+  ]
+}

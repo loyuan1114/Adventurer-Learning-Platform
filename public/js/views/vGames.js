@@ -19,14 +19,14 @@ function vGames(){
         '<div id="vGMAp" style="font-size:28px;font-weight:900;color:var(--gold2)">'+S.gameAp+'</div>'+
       '</div>'+
     '</div>'+
-    '<div class="panel2" style="margin-bottom:14px">'+
+    (u.role==='admin'?'<div class="panel2" style="margin-bottom:14px">'+
       '<b style="color:var(--gold2)">📊 遊戲統計</b>'+
       '<div style="display:flex;gap:16px;margin-top:10px;font-size:14px;flex-wrap:wrap">'+
         '<span>Elo: <b style="color:var(--teal)" id="vGMElo">'+S.elo+'</b></span>'+
         '<span>勝率: <b style="color:var(--gold2)" id="vGMWin">'+S.winRate+'%</b></span>'+
         '<span>排名: <b style="color:var(--txt)" id="vGMRank">'+esc(S.rank)+'</b></span>'+
       '</div>'+
-    '</div>'+
+    '</div>':'')+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+
       '<button class="btn teal mini" onclick="vGMSelectType(\'math\')">🧮 數學小挑戰</button>'+
       '<button class="btn mini" onclick="vGMSelectType(\'logic\')">🧩 邏輯謎題</button>'+
