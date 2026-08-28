@@ -105,9 +105,9 @@ async function vGMSubmit(){
   if(!type){toast('請選擇遊戲類型','bad');return}
   if(!elo){toast('請輸入 Elo 分數','bad');return}
   try{
-    var r=await fetch('/rest/v1/ap/music',{
+    var r=await fetch('/rest/v1/ap/game',{
       method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
-      body:JSON.stringify({title:type,genre:'game',difficulty:elo>1800?1:0})
+      body:JSON.stringify({elo:elo,winrate:winRate/100,rank:rank||'—',duration_sec:timeSec})
     });
     var d=await r.json();
     if(d.ok){

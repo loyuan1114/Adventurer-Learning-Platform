@@ -27,6 +27,7 @@ window.get=get;window.set=set;
 /* 🛡️ 防注入：清除使用者輸入中的 HTML/腳本危險字元（用於訊息、昵稱、動態等儲存前清洗）*/
 /* 帳號合法性：僅允許英數底線點，防止異常輸入 */
 function validUsername(u){return /^[A-Za-z0-9_.@-]{2,40}$/.test(String(u||''))}
+function IS_ADMIN(){var u=me();return u&&u.role==='admin'}
 /* 🔒 密碼規則：只能是英文字母/數字/特殊符號（可印 ASCII），不能有中文或空白，至少 4 碼 */
 /* 🔐 SHA-256（純 JS，支援 file:// 離線）：用於固定管理員密碼雜湊（加密儲存，不存明文）*/
 function sha256(ascii){function R(v,a){return(v>>>a)|(v<<(32-a));}var mp=Math.pow,mw=mp(2,32),res='';var words=[],abl=ascii.length*8;var hash=sha256.h=sha256.h||[],k=sha256.k=sha256.k||[],pc=k.length,ic={};for(var cand=2;pc<64;cand++){if(!ic[cand]){for(var i=0;i<313;i+=cand)ic[i]=cand;hash[pc]=(mp(cand,.5)*mw)|0;k[pc++]=(mp(cand,1/3)*mw)|0;}}ascii+='\x80';while(ascii.length%64-56)ascii+='\x00';for(var i=0;i<ascii.length;i++){var j=ascii.charCodeAt(i);if(j>>8)return'';words[i>>2]|=j<<((3-i)%4)*8;}words[words.length]=(abl/mw)|0;words[words.length]=abl;for(var j=0;j<words.length;){var w=words.slice(j,j+=16),oh=hash;hash=hash.slice(0,8);for(var i=0;i<64;i++){var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];var t1=hash[7]+(R(e,6)^R(e,11)^R(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(R(w15,7)^R(w15,18)^(w15>>>3))+w[i-7]+(R(w2,17)^R(w2,19)^(w2>>>10)))|0);var t2=(R(a,2)^R(a,13)^R(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;}for(var i=0;i<8;i++)hash[i]=(hash[i]+oh[i])|0;}for(var i=0;i<8;i++)for(var j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16);}return res;}

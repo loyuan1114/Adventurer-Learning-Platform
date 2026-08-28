@@ -3,7 +3,7 @@
    ════════════════════════════════════════════ */
 async function vAdminPanel(){
   if(!(typeof IS_ADMIN==='function'&&IS_ADMIN())) return toast('⚠️ 僅管理員可進入','bad');
-  const h=back()+'<h3 class="vt">📊 AP 管理控制台 <span class="vsub">規則設定・手動發放・審計追蹤</span></h3>';
+  let h=back()+'<h3 class="vt">📊 AP 管理控制台 <span class="vsub">規則設定・手動發放・審計追蹤</span></h3>';
   h+='<div id="apTabs" style="display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap"></div>';
   h+='<div id="apContent"></div>';
   $('#view').innerHTML=h;
