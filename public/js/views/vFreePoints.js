@@ -148,6 +148,7 @@ FP._updateEarned = function () {
 };
 
 function fpRefreshLedger() { fpFetchLedger(); }
+window.fpRefreshLedger = fpRefreshLedger;
 
 function fpSubmitSteps() {
   var inp = document.getElementById('fpSteps');
@@ -168,6 +169,7 @@ function fpSubmitSteps() {
       } else { toast('❌ ' + (d.reason || '提交失敗'), 'bad'); }
     }).catch(function () { toast('❌ 網路錯誤', 'bad'); });
 }
+window.fpSubmitSteps = fpSubmitSteps;
 
 function fpSportPreview(input) {
   var preview = document.getElementById('fpSportPreview');
@@ -182,6 +184,7 @@ function fpSportPreview(input) {
     preview.innerHTML = '';
   }
 }
+window.fpSportPreview = fpSportPreview;
 
 var _fpSportPhotoData = null;
 
@@ -244,9 +247,12 @@ function fpSubmitSport() {
     doSubmit(null);
   }
 }
+window.fpSubmitSport = fpSubmitSport;
 
 function fpQuickGame(game) {
   var names = { quiz: '小測驗', puzzle: '數學練習', challenge: '程式挑戰' };
   toast('🎮 啟動' + (names[game] || game) + '…');
   setTimeout(function () { if (typeof tGo === 'function') tGo(game); else toast('功能載入中…','bad'); }, 500);
 }
+window.fpQuickGame = fpQuickGame;
+window.vFreePoints = vFreePoints;
