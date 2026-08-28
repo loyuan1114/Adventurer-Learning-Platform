@@ -38,5 +38,35 @@
   "new_val": 500,
   "reason": "test",
   "ts": 1787907579295
+ },
+ {
+  "id": "audit_mtcu4oh4",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 100,
+  "reason": "test grant",
+  "ts": 1787914498792
+ },
+ {
+  "id": "audit_mtcu7pee",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 100,
+  "reason": "test grant",
+  "ts": 1787914639958
+ },
+ {
+  "id": "audit_mtcudae0",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 100,
+  "reason": "test grant",
+  "ts": 1787914900440
  }
 ]

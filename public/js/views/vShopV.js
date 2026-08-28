@@ -72,9 +72,12 @@ function _svRenderItems(){
       '<span style="font-size:14px">'+esc(it.icon)+' '+esc(it.name)+'<span style="color:var(--mut);font-size:12px;margin-left:6px">'+esc(it.description)+'</span></span>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
         '<span style="font-size:13px;color:var(--gold2)">'+it.ap_cost+' AP</span>'+
-        '<button class="btn" onclick="_svExchange(\''+esc(it.id)+'\')"'+(canAfford?'':' disabled style="opacity:0.5;cursor:not-allowed"')+'>兌換</button>'+
+        '<button class="btn sv-exchange-btn" data-id="'+esc(it.id)+'"'+(canAfford?'':' disabled style="opacity:0.5;cursor:not-allowed"')+'>兌換</button>'+
       '</div></div>';
   }).join('');
+  el.querySelectorAll('.sv-exchange-btn').forEach(function(btn){
+    btn.onclick=function(){_svExchange(this.getAttribute('data-id'))};
+  });
 }
 
 function _svUpdateLedger(){

@@ -172,9 +172,9 @@ async function apGrant(el){
 }
 
 async function apDoGrant(){
-  const user=($('#apGrantUser')||{}).value||'';
-  const amt=+(($('#apGrantAmt')||{}).value||0);
-  const reason=($('#apGrantReason')||{}).value||'';
+  const user=($('#apGrantUser')?.value||'').trim();
+  const amt=+(($('#apGrantAmt')?.value||'0'));
+  const reason=($('#apGrantReason')?.value||'').trim();
   const msg=$('#apGrantMsg');
   const res=$('#apGrantResult');
   if(!user.trim()){msg.textContent='⚠️ 請輸入目標用戶名';msg.style.color='#ffcc80';return;}

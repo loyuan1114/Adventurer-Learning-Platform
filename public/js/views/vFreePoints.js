@@ -248,5 +248,5 @@ function fpSubmitSport() {
 function fpQuickGame(game) {
   var names = { quiz: '小測驗', puzzle: '數學練習', challenge: '程式挑戰' };
   toast('🎮 啟動' + (names[game] || game) + '…');
-  setTimeout(function () { if (typeof tGo === 'function') tGo('quiz'); }, 500);
+  setTimeout(function () { if (typeof tGo === 'function') tGo(game); else toast('功能載入中…','bad'); }, 500);
 }

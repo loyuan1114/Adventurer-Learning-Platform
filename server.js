@@ -21,7 +21,6 @@ const ACCESSLOG=path.join(DATA,'access.log'); /* 存取日誌：診斷「同步�
 const ONLINEFILE=path.join(DATA,'online.json'); /* 上線狀態：客戶端每 ~25 秒心跳報到 */
 const DOLLFILE=path.join(DATA,'dolls.json'),SHOPFILE=path.join(DATA,'shop.json'),EVENTFILE=path.join(DATA,'events.json');
 const SETTINGSDIR=path.join(DATA,'settings'), SYSSETFILE=path.join(SETTINGSDIR,'system.json');
-const APFILE=path.join(DATA,'ap_ledger.json'); /* AP 交易帳本 */
 const APAUDITFILE=path.join(DATA,'ap_audit.json'); /* AP 審計日誌 */
 const EXCHANGEITEMSFILE=path.join(DATA,'ap_exchange_items.json'); /* 兌換項目 */
 const PORT=process.env.PORT||8080;
@@ -86,7 +85,6 @@ async function verifyHash(pw,hash,salt){
 function loadJSON(f,d){try{return JSON.parse(fs.readFileSync(f,'utf8'))||d}catch(e){return d}}
 
 var KV=loadJSON(KVFILE,{}), ACC={}, TOK=loadJSON(TOKFILE,{});
-var AP_LEDGER=loadJSON(APFILE,{}); /* AP 交易帳本: {username: [{id,type,amount,source,meta,ts}]} */
 var AP_AUDIT=loadJSON(APAUDITFILE,[]); /* AP 審計日誌: [{id,admin,action,target,old_val,new_val,reason,ts}] */
 var AP_EXCHANGE_ITEMS=loadJSON(EXCHANGEITEMSFILE,{items:[
   {id:'commendation',name:'嘉獎',icon:'🏅',ap_cost:10,description:'10 AP = 1 嘉獎',enabled:true},
@@ -99,10 +97,9 @@ var AP_RULES=loadJSON(path.join(DATA,'ap_rules.json'),{ /* AP 規則 */
   platform_min:{steps:{ap_per_unit:1,steps_per_ap:30,daily_cap:100},game:{daily_cap:200,ap_per_unit:10},creation:{daily_cap:100,ap_per_unit:15},sports:{daily_cap:200,ap_per_km:0.5},learning:{daily_cap:300,ap_per_unit:5},music:{daily_cap:200,ap_per_unit:10},community:{daily_cap:150,ap_per_unit:5},commendation:{daily_cap:50,ap_per_unit:1,ratio:10}},
   school_overrides:{}
 });
-function saveAPLedger(){try{fs.writeFileSync(APFILE,JSON.stringify(AP_LEDGER,null,1))}catch(e){console.error('saveAPLedger',e)}}
-function saveAPAudit(){try{fs.writeFileSync(APAUDITFILE,JSON.stringify(AP_AUDIT,null,1))}catch(e){console.error('saveAPAudit',e)}}
-function saveAPRules(){try{fs.writeFileSync(path.join(DATA,'ap_rules.json'),JSON.stringify(AP_RULES,null,2))}catch(e){console.error('saveAPRules',e)}}
-function saveAPExchangeItems(){try{fs.writeFileSync(EXCHANGEITEMSFILE,JSON.stringify(AP_EXCHANGE_ITEMS,null,2))}catch(e){console.error('saveAPExchangeItems',e)}}
+function saveAPAudit(){try{var tmp=APAUDITFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_AUDIT,null,1));fs.renameSync(tmp,APAUDITFILE)}catch(e){console.error('saveAPAudit',e)}}
+function saveAPRules(){try{var FILE=path.join(DATA,'ap_rules.json');var tmp=FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_RULES,null,2));fs.renameSync(tmp,FILE)}catch(e){console.error('saveAPRules',e)}}
+function saveAPExchangeItems(){try{var tmp=EXCHANGEITEMSFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_EXCHANGE_ITEMS,null,2));fs.renameSync(tmp,EXCHANGEITEMSFILE)}catch(e){console.error('saveAPExchangeItems',e)}}
 var DOLL=loadJSON(DOLLFILE,{}), SHOP=loadJSON(SHOPFILE,[]), EVENTS=loadJSON(EVENTFILE,[]);
 var SYSSET=loadJSON(SYSSETFILE, {
   max_level: 300,
@@ -119,9 +116,6 @@ function saveTOK(){try{fs.writeFileSync(TOKFILE, JSON.stringify(TOK, null, 2))}c
 function saveDOLL(){try{fs.writeFileSync(DOLLFILE, JSON.stringify(DOLL, null, 2))}catch(e){console.error('saveDOLL', e)}}
 function saveSHOP(){try{fs.writeFileSync(SHOPFILE, JSON.stringify(SHOP, null, 2))}catch(e){console.error('saveSHOP', e)}}
 function saveEVENTS(){try{fs.writeFileSync(EVENTFILE, JSON.stringify(EVENTS, null, 2))}catch(e){console.error('saveEVENTS', e)}}
-function loadAPLedger(){try{return JSON.parse(fs.readFileSync(APFILE,'utf8'))||{}}catch(e){return {}}}
-function saveAPLedger(d){try{fs.writeFileSync(APFILE, JSON.stringify(d, null, 2))}catch(e){console.error('saveAPLedger', e)}}
-var AP_LEDGER=loadAPLedger();
 function saveACC(){Object.keys(ACC).forEach(function(un){saveUserFile(un)})}
 
 /* ── 叢集（多 CPU）：master 持權威狀態、worker 跑 HTTP ──
@@ -140,7 +134,8 @@ if(IS_WORKER){
   saveUserFile=function(username){if(!username)return;ipcSend({__adv9:1,t:'acc',un:username,d:ACC[username]||null})};
   deleteUserFile=function(username){if(!username)return;ipcSend({__adv9:1,t:'acc-del',un:username})};
   saveOnline=function(){var now=Date.now();if(now-_onlineSaveT<15000)return;_onlineSaveT=now;ipcSend({__adv9:1,t:'online',d:ONLINE})};
-  saveAPLedger=function(){ipcSend({__adv9:1,t:'ap_ledger',d:AP_LEDGER})};
+  saveAPAudit=function(){ipcSend({__adv9:1,t:'ap_audit',d:AP_AUDIT})};
+  saveAPRules=function(){ipcSend({__adv9:1,t:'ap_rules',d:AP_RULES})};
   saveAPExchangeItems=function(){ipcSend({__adv9:1,t:'ap_exchange_items',d:AP_EXCHANGE_ITEMS})};
   reconcileIndex=function(){};
   /* 登入時向 master 補查帳號（建帳/改密碼後立即登入的競態：master 權威狀態）*/
@@ -1669,7 +1664,8 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     var capInfo=g.caps[type]||{daily:0,weekly:0,monthly:0,last_daily:'',last_weekly:'',last_monthly:''};
     var now=new Date(),today=now.toISOString().slice(0,10);
     if(capInfo.last_daily!==today){capInfo.daily=0;capInfo.last_daily=today}
-    var weekKey=now.toISOString().slice(0,10).slice(0,8);
+    var wd=new Date(now);wd.setHours(0,0,0,0);wd.setDate(wd.getDate()+3-(wd.getDay()+6)%7);
+    var weekKey=wd.getFullYear()+'-W'+String(Math.ceil(((wd-new Date(wd.getFullYear(),0,4))/864e5+1)/7)).padStart(2,'0');
     if(capInfo.last_weekly!==weekKey){capInfo.weekly=0;capInfo.last_weekly=weekKey}
     var monthKey=now.toISOString().slice(0,7);
     if(capInfo.last_monthly!==monthKey){capInfo.monthly=0;capInfo.last_monthly=monthKey}
@@ -1691,7 +1687,10 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     if(amt>0){
       var t=type;
       if(!g.caps[t])g.caps[t]={daily:0,weekly:0,monthly:0,last_daily:'',last_weekly:'',last_monthly:''};
-      var now=new Date(),today=now.toISOString().slice(0,10),weekKey=now.toISOString().slice(0,10).slice(0,8),monthKey=now.toISOString().slice(0,7);
+      var now=new Date(),today=now.toISOString().slice(0,10);
+      var wd=new Date(now);wd.setHours(0,0,0,0);wd.setDate(wd.getDate()+3-(wd.getDay()+6)%7);
+      var weekKey=wd.getFullYear()+'-W'+String(Math.ceil(((wd-new Date(wd.getFullYear(),0,4))/864e5+1)/7)).padStart(2,'0');
+      var monthKey=now.toISOString().slice(0,7);
       if(g.caps[t].last_daily!==today){g.caps[t].daily=0;g.caps[t].last_daily=today}
       if(g.caps[t].last_weekly!==weekKey){g.caps[t].weekly=0;g.caps[t].last_weekly=weekKey}
       if(g.caps[t].last_monthly!==monthKey){g.caps[t].monthly=0;g.caps[t].last_monthly=monthKey}
@@ -1732,7 +1731,9 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     var sw=checkToken(tok);if(!sw){res.writeHead(401);return res.end('need login')}
     return readBody(req,function(b){try{
       var j=JSON.parse(b.toString('utf8'));var type=String(j.type||'');var amt=Number(j.amount||0);var meta=j.meta||{};
-      if(!type||!amt){res.writeHead(400);return res.end('missing params')};
+      if(!Number.isFinite(amt)||amt<=0){res.writeHead(400);return res.end('invalid amount')}
+      if(!type){res.writeHead(400);return res.end('missing params')};
+      var bal=getApCaps(sw.username).balance||0;if(bal<amt){res.writeHead(403);return res.end('insufficient balance')};
       var cap=checkApCap(sw.username,type,amt);if(!cap.ok){res.writeHead(403);return res.end('cap exceeded: '+cap.reason)};
       recordApTx(sw.username,type,-amt,'spend',meta);
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,balance:getApCaps(sw.username).balance}));
@@ -1831,6 +1832,8 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     var base=AP_RULES.rules[type.toLowerCase()]||AP_RULES.platform_min[t];
     var rule={...base,...sch};
     if(!rule || rule.enabled===false)return{ok:false,reason:'disabled'};
+    var acFlags=checkAntiCheat(un,type,data||{});
+    if(acFlags&&acFlags.includes('reject'))return{ok:false,reason:'anti-cheat: suspicious activity'};
     var amt=0;
     switch(type){
       case 'STEPS':
@@ -1877,6 +1880,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
         break;
     }
     if(amt===0)return{ok:true,ap:0};
+    if(amt<0){var bal=getApCaps(un).balance||0;if(bal+amt<0)return{ok:false,reason:'insufficient balance'};}
     var cap=checkApCap(un,type,Math.abs(amt));
     if(!cap.ok)return{ok:false,reason:cap.reason};
     var src=type==='SPONSOR'||type==='SPONSOR_RECEIVED'?'player':'system';
@@ -1923,6 +1927,8 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
         var tgt=j.target_user;if(!tgt||tgt===c.username){res.writeHead(400);return res.end('invalid target')}
         var cap=checkApCap(c.username,'SPONSOR',amt);
         if(!cap.ok){res.writeHead(403);return res.end(JSON.stringify({ok:false,reason:cap.reason}))}
+        var targetCap=checkApCap(tgt,'SPONSOR_RECEIVED',amt);
+        if(!targetCap.ok){res.writeHead(403);return res.end(JSON.stringify({ok:false,reason:'target '+targetCap.reason}))}
         recordApTx(c.username,'SPONSOR',-amt,'player',{target:tgt,message:j.message||''});
         recordApTx(tgt,'SPONSOR_RECEIVED',amt,'player',{from:c.username,message:j.message||''});
         addApAudit(c.username,'SPONSOR',tgt,0,amt,j.message||'');
@@ -1953,7 +1959,10 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       if(!j.target_user||j.target_user===cm.username){res.writeHead(400);return res.end('invalid target')}
       var r=applyApReward(cm.username,'COMMUNITY',1,{target:j.target_user,type:j.type,confirmed:j.confirmed_by_target});
       if(r.ok && j.confirmed_by_target){
-        recordApTx(j.target_user,'COMMUNITY',1,'system',{from:cm.username,type:j.type});
+        var targetCap=checkApCap(j.target_user,'COMMUNITY',1);
+        if(targetCap.ok){
+          recordApTx(j.target_user,'COMMUNITY',1,'system',{from:cm.username,type:j.type});
+        }
       }
       res.writeHead(200,{'Content-Type':'application/json'});
       res.end(JSON.stringify(r));
@@ -2323,8 +2332,9 @@ if(cluster.isMaster){
       else if(m.t==='shop'){SHOP=m.d;saveSHOP();_broadcast({__adv9:1,t:'shop',d:SHOP});}
       else if(m.t==='events'){EVENTS=m.d;saveEVENTS();_broadcast({__adv9:1,t:'events',d:EVENTS});}
       else if(m.t==='sysset'){SYSSET=m.d;saveSYSSET();_broadcast({__adv9:1,t:'sysset',d:SYSSET});}
-      else if(m.t==='ap_ledger'){AP_LEDGER=m.d;saveAPLedger();_broadcast({__adv9:1,t:'ap_ledger',d:AP_LEDGER});}
       else if(m.t==='ap_exchange_items'){AP_EXCHANGE_ITEMS=m.d;saveAPExchangeItems();_broadcast({__adv9:1,t:'ap_exchange_items',d:AP_EXCHANGE_ITEMS});}
+      else if(m.t==='ap_audit'){AP_AUDIT=m.d||[];saveAPAudit();_broadcast({__adv9:1,t:'ap_audit',d:AP_AUDIT})}
+      else if(m.t==='ap_rules'){AP_RULES=m.d||{};saveAPRules();_broadcast({__adv9:1,t:'ap_rules',d:AP_RULES})}
       else if(m.t==='acc-fetch'){try{cluster.workers[w.id]&&cluster.workers[w.id].send({__adv9:1,t:'acc-fetch-resp',un:m.un,d:ACC[m.un]||null})}catch(e){}}
     }catch(e){console.error('[cluster] master handler',e&&e.message)}
   });
@@ -2339,7 +2349,7 @@ if(cluster.isMaster){
   });
   process.on('SIGTERM',function(){process.exitRequested=1;for(var id in cluster.workers){try{cluster.workers[id].kill()}catch(e){}}setTimeout(function(){process.exit(0)},1500)});
   process.on('SIGINT',function(){process.exitRequested=1;for(var id in cluster.workers){try{cluster.workers[id].kill()}catch(e){}}setTimeout(function(){process.exit(0)},1500)});
-  function forkWorker(){var w=cluster.fork();w.send({__adv9:1,t:'boot',build:BUILD,kv:KV,acc:ACC,online:ONLINE,doll:DOLL,shop:SHOP,events:EVENTS,sysset:SYSSET});return w}
+  function forkWorker(){var w=cluster.fork();w.send({__adv9:1,t:'boot',build:BUILD,kv:KV,acc:ACC,online:ONLINE,doll:DOLL,shop:SHOP,events:EVENTS,sysset:SYSSET,apRules:AP_RULES,audit:AP_AUDIT});return w}
   /* 每 30 秒從主檔復原帳號（master 權威；復原出新帳號才廣播）*/
   var _accSet=new Set(Object.keys(ACC));
   setInterval(function(){
@@ -2369,7 +2379,7 @@ if(cluster.isMaster){
   process.on('message',function(m){
     if(!m||m.__adv9!==1)return;
     if(m.t==='boot'){
-      BUILD=m.build;KV=m.kv||{};ACC=m.acc||{};ONLINE=m.online||{};DOLL=m.doll||{};SHOP=m.shop||[];EVENTS=m.events||[];SYSSET=m.sysset||SYSSET;
+      BUILD=m.build;KV=m.kv||{};ACC=m.acc||{};ONLINE=m.online||{};DOLL=m.doll||{};SHOP=m.shop||[];EVENTS=m.events||[];SYSSET=m.sysset||SYSSET;AP_RULES=m.apRules||AP_RULES;AP_AUDIT=m.audit||AP_AUDIT;
       if(!booted){booted=true;server.listen(PORT,'0.0.0.0',function(){
         var url='http://127.0.0.1:'+PORT;
         console.log('');
@@ -2398,8 +2408,9 @@ if(cluster.isMaster){
     else if(m.t==='shop'){SHOP=m.d}
     else if(m.t==='events'){EVENTS=m.d}
     else if(m.t==='sysset'){SYSSET=m.d}
-    else if(m.t==='ap_ledger'){AP_LEDGER=m.d}
     else if(m.t==='ap_exchange_items'){AP_EXCHANGE_ITEMS=m.d}
+    else if(m.t==='ap_audit'){AP_AUDIT=m.d||[]}
+    else if(m.t==='ap_rules'){AP_RULES=m.d||{}}
   });
   process.on('disconnect',function(){console.error('[cluster] master 斷線，worker 退出');process.exit(1)});
   setTimeout(function(){if(!booted){console.error('[cluster] 未收到 master boot，退出');process.exit(1)}},5000);
