@@ -1,0 +1,42 @@
+[
+ {
+  "id": "audit_mtcpwtrl",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 100,
+  "reason": "test grant",
+  "ts": 1787907413937
+ },
+ {
+  "id": "audit_mtcpxk3r",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 500,
+  "reason": "test",
+  "ts": 1787907448071
+ },
+ {
+  "id": "audit_mtcpyzcz",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 500,
+  "reason": "test",
+  "ts": 1787907514499
+ },
+ {
+  "id": "audit_mtcq0dcv",
+  "admin": "adv9boss",
+  "action": "ADMIN_GRANT",
+  "target": "student",
+  "old_val": 0,
+  "new_val": 500,
+  "reason": "test",
+  "ts": 1787907579295
+ }
+]

@@ -1,5 +1,5 @@
-/* ════════════════════════════════════════════
-   vClasses 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
-   含 1 個單位：vClasses
-   ════════════════════════════════════════════ */
-function vClasses(){const classes=get(LS.classes,{ids:[],names:{}});const users=get(LS.users,[]);let html='<h3 class="vt">🏫 班級管理</h3><span class="vsub">管理系統中的班級</span>';html+='<div class="panel2" style="margin-top:15px;padding:14px;margin-bottom:14px"><b style="font-size:14px">➕ 新增班級</b><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input id="newClassId" placeholder="班級代號（如 704）" style="padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);width:140px"><input id="newClassName" placeholder="班級名稱（如 七年四班）" style="padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--txt);flex:1;min-width:160px"><button class="btn teal" onclick="addClass()">新增</button></div></div>';html+='<div style="display:flex;flex-direction:column;gap:8px">';if(classes.ids.length===0){html+='<p class="empty" style="text-align:center;padding:20px">尚無班級</p>'}else{classes.ids.forEach(id=>{const name=classes.names[id]||id;const stuCount=users.filter(u=>u.role==='student'&&u.classId===id).length;html+='<div class="panel2" style="padding:12px;display:flex;align-items:center;gap:12px"><div style="flex:1"><b>'+name+'</b><span style="font-size:12px;color:var(--mut);margin-left:8px">('+id+') — '+stuCount+' 名學生</span></div><button class="btn mini teal" onclick="editClassName(\''+id+'\')">編輯</button><button class="btn mini danger" onclick="removeClass(\''+id+'\')">刪除</button></div>'})}html+='</div>';$('#view').innerHTML=html}
+/* vClasses -- stub: 待實作 */
+function vClasses(){
+  const h = '<h2 class="mt">Classes <span style="font-size:13px;color:var(--mut)">(建構中)</span></h2>';
+  openModal(h);
+}

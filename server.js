@@ -21,6 +21,8 @@ const ACCESSLOG=path.join(DATA,'access.log'); /* 存取日誌：診斷「同步�
 const ONLINEFILE=path.join(DATA,'online.json'); /* 上線狀態：客戶端每 ~25 秒心跳報到 */
 const DOLLFILE=path.join(DATA,'dolls.json'),SHOPFILE=path.join(DATA,'shop.json'),EVENTFILE=path.join(DATA,'events.json');
 const SETTINGSDIR=path.join(DATA,'settings'), SYSSETFILE=path.join(SETTINGSDIR,'system.json');
+const APFILE=path.join(DATA,'ap_ledger.json'); /* AP 交易帳本 */
+const APAUDITFILE=path.join(DATA,'ap_audit.json'); /* AP 審計日誌 */
 const PORT=process.env.PORT||8080;
 const USERS_KEY='ADV9_USERS';
 /* 資料隔離：下列 key 為全服共享（社交/系統/市集/聊天/排名/好友/公告等），原樣保留；
@@ -83,6 +85,17 @@ async function verifyHash(pw,hash,salt){
 function loadJSON(f,d){try{return JSON.parse(fs.readFileSync(f,'utf8'))||d}catch(e){return d}}
 
 var KV=loadJSON(KVFILE,{}), ACC={}, TOK=loadJSON(TOKFILE,{});
+var AP_LEDGER=loadJSON(APFILE,{}); /* AP 交易帳本: {username: [{id,type,amount,source,meta,ts}]} */
+var AP_AUDIT=loadJSON(APAUDITFILE,[]); /* AP 審計日誌: [{id,admin,action,target,old_val,new_val,reason,ts}] */
+var AP_RULES=loadJSON(path.join(DATA,'ap_rules.json'),{ /* AP 規則 */
+  rules:{},
+  global_caps:{daily_total:10000,weekly_total:50000,monthly_total:200000,seven_day_rolling:30000},
+  platform_min:{steps:{ap_per_unit:30,steps_per_ap:1,daily_cap:100},games:{daily_cap:200},creation:{daily_cap:100},sports:{daily_cap:200},learning:{daily_cap:300},music:{daily_cap:200},community:{daily_cap:150}},
+  school_overrides:{}
+});
+function saveAPLedger(){try{fs.writeFileSync(APFILE,JSON.stringify(AP_LEDGER,null,1))}catch(e){console.error('saveAPLedger',e)}}
+function saveAPAudit(){try{fs.writeFileSync(APAUDITFILE,JSON.stringify(AP_AUDIT,null,1))}catch(e){console.error('saveAPAudit',e)}}
+function saveAPRules(){try{fs.writeFileSync(path.join(DATA,'ap_rules.json'),JSON.stringify(AP_RULES,null,2))}catch(e){console.error('saveAPRules',e)}}
 var DOLL=loadJSON(DOLLFILE,{}), SHOP=loadJSON(SHOPFILE,[]), EVENTS=loadJSON(EVENTFILE,[]);
 var SYSSET=loadJSON(SYSSETFILE, {
   max_level: 300,
@@ -99,6 +112,9 @@ function saveTOK(){try{fs.writeFileSync(TOKFILE, JSON.stringify(TOK, null, 2))}c
 function saveDOLL(){try{fs.writeFileSync(DOLLFILE, JSON.stringify(DOLL, null, 2))}catch(e){console.error('saveDOLL', e)}}
 function saveSHOP(){try{fs.writeFileSync(SHOPFILE, JSON.stringify(SHOP, null, 2))}catch(e){console.error('saveSHOP', e)}}
 function saveEVENTS(){try{fs.writeFileSync(EVENTFILE, JSON.stringify(EVENTS, null, 2))}catch(e){console.error('saveEVENTS', e)}}
+function loadAPLedger(){try{return JSON.parse(fs.readFileSync(APFILE,'utf8'))||{}}catch(e){return {}}}
+function saveAPLedger(d){try{fs.writeFileSync(APFILE, JSON.stringify(d, null, 2))}catch(e){console.error('saveAPLedger', e)}}
+var AP_LEDGER=loadAPLedger();
 function saveACC(){Object.keys(ACC).forEach(function(un){saveUserFile(un)})}
 
 /* ── 叢集（多 CPU）：master 持權威狀態、worker 跑 HTTP ──
@@ -117,6 +133,7 @@ if(IS_WORKER){
   saveUserFile=function(username){if(!username)return;ipcSend({__adv9:1,t:'acc',un:username,d:ACC[username]||null})};
   deleteUserFile=function(username){if(!username)return;ipcSend({__adv9:1,t:'acc-del',un:username})};
   saveOnline=function(){var now=Date.now();if(now-_onlineSaveT<15000)return;_onlineSaveT=now;ipcSend({__adv9:1,t:'online',d:ONLINE})};
+  saveAPLedger=function(){ipcSend({__adv9:1,t:'ap_ledger',d:AP_LEDGER})};
   reconcileIndex=function(){};
   /* 登入時向 master 補查帳號（建帳/改密碼後立即登入的競態：master 權威狀態）*/
   var _accFetchWaiters={};
@@ -249,7 +266,7 @@ function checkToken(t){
   if(s.length!==44)return null;
   try{
     if(!crypto.timingSafeEqual(Buffer.from(s),Buffer.from(tokenSig(p))))return null;
-    var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if(e.exp&&e.exp<Date.now())return null;if((e.tv||0)!==accTokenVer(e.u))return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student',exp:e.exp}
+    var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if((e.tv||0)!==accTokenVer(e.u))return null;if(e.exp&&e.exp<Date.now())return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student',exp:e.exp}
   }catch(x){return null}
 }
 /* 抹除憑證欄位，避免任何 GET 回應外洩密碼/雜湊/鹽 */
@@ -323,8 +340,9 @@ function corsOrigin(req){
   var o=req&&req.headers&&req.headers.origin||'';
   if(!o)return null;
   try{var h=new URL(o).hostname}catch(e){return null}
-  /* 允許清單：localhost/127.0.0.1 任意 port + env ADV9_ALLOWED_ORIGINS（完整 origin 精確比對）*/
-  if(h==='localhost'||h==='127.0.0.1')return o;
+  /* 允許清單：localhost/127.0.0.1 只有特定 port + env ADV9_ALLOWED_ORIGINS（完整 origin 精確比對）*/
+  var ALLOWED_LOCAL_PORTS=process.env.ADV9_ALLOWED_PORTS?process.env.ADV9_ALLOWED_PORTS.split(',').map(Number):[8080,3000,5000];
+  try{var u=new URL(o);var p=u.port||(u.protocol==='https:'?443:80);if((h==='localhost'||h==='127.0.0.1')&&ALLOWED_LOCAL_PORTS.includes(Number(p)))return o;}catch(e){}
   var extra=process.env.ADV9_ALLOWED_ORIGINS||'';
   if(extra){var list=extra.split(',').map(function(s){return s.trim()}).filter(Boolean);if(list.indexOf(o)>=0)return o;}
   return null;
@@ -332,12 +350,12 @@ function corsOrigin(req){
 function cors(res,req){var origin=corsOrigin(req);if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');}res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS,PATCH');res.setHeader('Access-Control-Allow-Headers','Content-Type,x-adv9-token');res.setHeader('Access-Control-Expose-Headers','Content-Type');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'");res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');}
 /* 輸入清洗：所有寫入 KV 的資料都過此函式——字串截斷、陣列/物件深度與數量設上限，防超長輸入塞爆記憶體 */
 function sanitizeInput(v,depth){
-  if(depth>6)return undefined;
+  if(depth>6)throw new Error('Object depth exceeded');
   if(typeof v==='string'){return v.length>100000?v.slice(0,100000):v;}
   if(typeof v==='number'){return isFinite(v)?v:0;}
   if(v===null||v===undefined||typeof v==='boolean')return v;
-  if(Array.isArray(v)){if(v.length>2000)return undefined;var a=[];for(var i=0;i<v.length;i++){var s=sanitizeInput(v[i],depth+1);if(s!==undefined)a.push(s)}return a;}
-  if(typeof v==='object'){var keys=Object.keys(v);if(keys.length>2000)return undefined;var o={};for(var j=0;j<keys.length;j++){var s2=sanitizeInput(v[keys[j]],depth+1);if(s2!==undefined)o[keys[j]]=s2}return o;}
+  if(Array.isArray(v)){if(v.length>2000)throw new Error('Array too large');var a=[];for(var i=0;i<v.length;i++){var s=sanitizeInput(v[i],depth+1);if(s!==undefined)a.push(s)}return a;}
+  if(typeof v==='object'){var keys=Object.keys(v);if(keys.length>2000)throw new Error('Object too large');var o={};for(var j=0;j<keys.length;j++){var s2=sanitizeInput(v[keys[j]],depth+1);if(s2!==undefined)o[keys[j]]=s2}return o;}
   return undefined;
 }
 function readBody(req,cb){var ch=[],len=0,max=5*1024*1024,done=false;req.on('data',function(c){len+=c.length;if(len>max&&!done){done=true;try{req.destroy(new Error('body too large'))}catch(e){}cb(null);return}if(!done)ch.push(c)});req.on('end',function(){if(!done){done=true;cb(Buffer.concat(ch))}});req.on('error',function(){if(!done){done=true;cb(null)}});}
@@ -957,7 +975,7 @@ var ext='.docx';
     if(!name||name.startsWith('.')){res.writeHead(400);return res.end('invalid filename')}
     var file=path.join(MEDIA,name);
     if(req.method==='GET'){return fs.readFile(file,function(e,d){if(e){res.writeHead(404);return res.end('not found')}var ext=path.extname(name).toLowerCase();res.writeHead(200,{'Content-Type':MIME[ext]||'application/octet-stream','Cache-Control':'public,max-age=31536000'});res.end(d)});}
-    if(req.method==='POST'||req.method==='PUT'){ var _muw=checkToken(tok); if(!_muw){res.writeHead(401);return res.end('need login')} if(_muw.role!=='admin'&&_muw.role!=='teacher'){res.writeHead(403);return res.end('forbidden')} return readBody(req,function(b){if(!b){res.writeHead(400);return res.end('no body')}if(b.length>5*1024*1024){res.writeHead(413);return res.end('file too large')}fs.writeFile(file,b,function(e){if(e){res.writeHead(500);return res.end('write err')}res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({Key:'media/'+name}))})});}
+    if(req.method==='POST'||req.method==='PUT'){ var _muw=checkToken(tok); if(!_muw){res.writeHead(401);return res.end('need login')} if(_muw.role!=='admin'&&_muw.role!=='teacher'){res.writeHead(403);return res.end('forbidden')} return readBody(req,function(b){if(!b){res.writeHead(400);return res.end('no body')}if(b.length>5*1024*1024){res.writeHead(413);return res.end('file too large')}var ct=req.headers['content-type']||'';var ALLOWED_MIMES=['image/','video/','audio/'];if(!ALLOWED_MIMES.some(function(m){return ct.startsWith(m)})){res.writeHead(400);return res.end('invalid mime type')}var ext=path.extname(name).toLowerCase();var ALLOWED_EXTS=['.png','.jpg','.jpeg','.gif','.webp','.mp4','.webm','.mp3','.ogg','.wav','.flac','.m4a','.opus'];if(!ALLOWED_EXTS.includes(ext)){res.writeHead(400);return res.end('invalid file extension')}fs.writeFile(file,b,function(e){if(e){res.writeHead(500);return res.end('write err')}res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({Key:'media/'+name}))})});}
     if(req.method==='DELETE'){ var _mdw=checkToken(tok); if(!_mdw){res.writeHead(401);return res.end('need login')} if(_mdw.role!=='admin'&&_mdw.role!=='teacher'){res.writeHead(403);return res.end('forbidden')} fs.unlink(file,function(){});res.writeHead(200);return res.end('[]');}
   }
   /* 娃娃 API（依擁有者 / admin 授權）*/
@@ -1122,10 +1140,13 @@ var ext='.docx';
     return readBody(req,function(b){try{
       var j2=JSON.parse(b.toString('utf8')||'{}');
       var prompt=j2.prompt||'請回答：1+1=? 只回答數字';
-      /* 轉發到 provider */
+      /* SSRF 防護：只允許已知 provider host */
+      var ALLOWED_AI_HOSTS=['api.openai.com','api.deepseek.com','generativelanguage.googleapis.com','dashscope.aliyuncs.com','api.moonshot.cn','127.0.0.1','localhost'];
       var timeout=prov.timeout||15000;
       var url=prov.base_url||'';
       if(prov.provider_type==='ol'){url='/rest/v1/ai/ollama';}
+      if(url.startsWith('http')){
+        try{var uh=new URL(url).hostname;if(!ALLOWED_AI_HOSTS.includes(uh)){res.writeHead(403);return res.end('host not allowed');}}catch(e){res.writeHead(400);return res.end('bad url');}}
       var payload;
       if(prov.provider_type==='gm'){
         url='https://generativelanguage.googleapis.com/v1beta/models/'+prov.model_name+':generateContent?key='+prov.api_key;
@@ -1632,7 +1653,66 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     delete bucket[rid];saveKV();res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true}));
   }
 
-  /* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
+/* ── AP (Adventurer Points) 系統端點 ── */
+  function getApCaps(un){var g=ACC[un]&&ACC[un].g;if(!g){g={}};if(!g.ap)g.ap={balance:0,total_earned:0,total_spent:0,caps:{},ledger:[]};return g.ap;}
+  function checkApCap(un,type,amt){var caps=AP_RULES.rules[type]||AP_RULES.platform_min[type]||{};var cap=caps.daily_cap||0;if(!cap)return{ok:true};var g=getApCaps(un);var used=(g.caps[type]||{daily:0}).daily||0;if(used+amt>cap)return{ok:false,reason:'daily cap exceeded'};return{ok:true};}
+  function recordApTx(un,type,amt,src,meta){var g=getApCaps(un);var tx={id:'ap_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),type:type,amount:amt,source:src,meta:meta||{},ts:Date.now()};g.ledger=g.ledger||[];g.ledger.push(tx);if(g.ledger.length>2000)g.ledger=g.ledger.slice(-2000);g.balance=(g.balance||0)+amt;g.total_earned=(g.total_earned||0)+Math.max(0,amt);g.total_spent=(g.total_spent||0)+Math.max(0,-amt);if(amt>0){var t=type;if(!g.caps[t])g.caps[t]={daily:0,weekly:0,monthly:0,last_daily:0,last_weekly:0,last_monthly:0};var now=Date.now(),today=new Date().toISOString().slice(0,10);if(g.caps[t].last_daily!==today){g.caps[t].daily=0;g.caps[t].last_daily=today}if(g.caps[t].last_weekly!==new Date().toISOString().slice(0,10).slice(0,8)){g.caps[t].weekly=0;g.caps[t].last_weekly=new Date().toISOString().slice(0,10).slice(0,8)}g.caps[t].daily=(g.caps[t].daily||0)+amt;}saveUserFile(un);}
+  function addApAudit(admin,action,target,oldVal,newVal,reason){AP_AUDIT.push({id:'audit_'+Date.now().toString(36),admin:admin,action:action,target:target,old_val:oldVal,new_val:newVal,reason:reason,ts:Date.now()});if(AP_AUDIT.length>5000)AP_AUDIT=AP_AUDIT.slice(-5000);saveAPAudit();}
+  /* AP 端點 */
+  if(req.method==='GET'&&p==='/rest/v1/ap/balance'){
+    var bw=checkToken(tok);if(!bw){res.writeHead(401);return res.end('need login')}
+    var target=decodeURIComponent(new URL(req.url,'http://x').searchParams.get('target')||bw.username);
+    if(target!==bw.username && bw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    var g=getApCaps(target);res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,balance:g.balance,total_earned:g.total_earned,total_spent:g.total_spent,caps:g.caps,ledger:g.ledger.slice(-100)}));
+  }
+  if(req.method==='GET'&&p==='/rest/v1/ap/ledger'){
+    var lw=checkToken(tok);if(!lw){res.writeHead(401);return res.end('need login')}
+    var target=decodeURIComponent(new URL(req.url,'http://x').searchParams.get('target')||lw.username);
+    if(target!==lw.username && lw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    var g=getApCaps(target);res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,ledger:g.ledger.slice(-200)}));
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/grant'){
+    var gw=checkToken(tok);if(!gw||gw.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));var target=String(j.target||'').trim();var amt=Number(j.amount||0);var reason=String(j.reason||'').trim();
+      if(!target||!amt||!reason){res.writeHead(400);return res.end('missing params')};var targetAcc=ACC[target];if(!targetAcc){res.writeHead(404);return res.end('target not found')};
+      recordApTx(target,'ADMIN_GRANT',amt,'admin',{admin:gw.username,reason:reason});
+      addApAudit(gw.username,'ADMIN_GRANT',target,0,amt,reason);
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,balance:getApCaps(target).balance}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  if(req.method==='POST'&&p==='/rest/v1/ap/spend'){
+    var sw=checkToken(tok);if(!sw){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));var type=String(j.type||'');var amt=Number(j.amount||0);var meta=j.meta||{};
+      if(!type||!amt){res.writeHead(400);return res.end('missing params')};
+      var cap=checkApCap(sw.username,type,amt);if(!cap.ok){res.writeHead(403);return res.end('cap exceeded: '+cap.reason)};
+      recordApTx(sw.username,type,-amt,'spend',meta);
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,balance:getApCaps(sw.username).balance}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  if(req.method==='GET'&&p==='/rest/v1/ap/rules'){
+    var rw=checkToken(tok);if(!rw||rw.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,rules:AP_RULES}));
+  }
+  if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/ap/rules'){
+    var rw2=checkToken(tok);if(!rw2||rw2.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));var old=JSON.parse(JSON.stringify(AP_RULES));
+      if(j.rules){AP_RULES.rules=j.rules}if(j.global_caps){AP_RULES.global_caps=j.global_caps}if(j.platform_min){AP_RULES.platform_min=j.platform_min}if(j.school_overrides){AP_RULES.school_overrides=j.school_overrides}
+      saveAPRules();addApAudit(rw2.username,'RULE_UPDATE','AP_RULES',JSON.stringify(old),JSON.stringify(AP_RULES),j.reason||'');
+      res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+  if(req.method==='GET'&&p==='/rest/v1/ap/audit'){
+    var aw=checkToken(tok);if(!aw||aw.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    var limit=Number(new URL(req.url,'http://x').searchParams.get('limit')||100);res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,audit:AP_AUDIT.slice(-limit)}));
+  }
+  if(req.method==='GET'&&p==='/rest/v1/ap/stats'){
+    var sw3=checkToken(tok);if(!sw3||sw3.role!=='admin'){res.writeHead(403);return res.end('admin only')}
+    var totalEarned=0,totalSpent=0,users=0;Object.keys(ACC).forEach(function(un){var g=ACC[un]&&ACC[un].g;if(g&&g.ap){totalEarned+=g.ap.total_earned||0;totalSpent+=g.ap.total_spent||0;users++}});var circulating=totalEarned-totalSpent;var inflationRisk=circulating>AP_RULES.global_caps.seven_day_rolling*10;res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,stats:{total_earned:totalEarned,total_spent:totalSpent,circulating:circulating,active_users:users,inflation_risk:inflationRisk}}));
+  }
+/* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
   if(req.method==='GET'){
     var rel=(p==='/'?'/index.html':p);
     var f2=path.resolve(PUB,'.'+rel);
@@ -1653,6 +1733,9 @@ function createWebSocketServer(server) {
     } catch(e) {}
     var wsAuth = checkToken(wsTok);
     if (!wsAuth) { socket.destroy(); return; }
+    /* CSWSH 防護：驗證 Origin */
+    var wsOrigin=req.headers.origin;
+    if(!wsOrigin||!corsOrigin({headers:{origin:wsOrigin}})){socket.destroy();return;}
 
     var key = req.headers['sec-websocket-key'];
     var accept = crypto.createHash('sha1')
@@ -1929,6 +2012,7 @@ if(cluster.isMaster){
       else if(m.t==='shop'){SHOP=m.d;saveSHOP();_broadcast({__adv9:1,t:'shop',d:SHOP});}
       else if(m.t==='events'){EVENTS=m.d;saveEVENTS();_broadcast({__adv9:1,t:'events',d:EVENTS});}
       else if(m.t==='sysset'){SYSSET=m.d;saveSYSSET();_broadcast({__adv9:1,t:'sysset',d:SYSSET});}
+      else if(m.t==='ap_ledger'){AP_LEDGER=m.d;saveAPLedger();_broadcast({__adv9:1,t:'ap_ledger',d:AP_LEDGER});}
       else if(m.t==='acc-fetch'){try{cluster.workers[w.id]&&cluster.workers[w.id].send({__adv9:1,t:'acc-fetch-resp',un:m.un,d:ACC[m.un]||null})}catch(e){}}
     }catch(e){console.error('[cluster] master handler',e&&e.message)}
   });
@@ -2002,6 +2086,7 @@ if(cluster.isMaster){
     else if(m.t==='shop'){SHOP=m.d}
     else if(m.t==='events'){EVENTS=m.d}
     else if(m.t==='sysset'){SYSSET=m.d}
+    else if(m.t==='ap_ledger'){AP_LEDGER=m.d}
   });
   process.on('disconnect',function(){console.error('[cluster] master 斷線，worker 退出');process.exit(1)});
   setTimeout(function(){if(!booted){console.error('[cluster] 未收到 master boot，退出');process.exit(1)}},5000);

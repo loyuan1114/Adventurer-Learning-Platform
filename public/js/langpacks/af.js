@@ -1,3 +1,0 @@
-/* 語言包：阿非利卡語 (af) ｜ v4.1 本地詞庫　共 30 單字 */
-window.LANG_PACKS=window.LANG_PACKS||{};
-window.LANG_PACKS['af']=[["你好", "Hallo"], ["謝謝", "Dankie"], ["再見", "Totsiens"], ["早安", "Goeie môre"], ["晚安", "Goeie nag"], ["是", "Ja"], ["不是", "Nee"], ["水", "Water"], ["朋友", "Vriend"], ["學校", "Skool"], ["學習", "Leer"], ["老師", "Onderwyser"], ["學生", "Student"], ["書", "Boek"], ["愛", "Liefde"], ["家", "Huis"], ["太陽", "Son"], ["月亮", "Maan"], ["天空", "Hemel"], ["貓", "Kat"], ["狗", "Hond"], ["食物", "Kos"], ["一", "Een"], ["二", "Twee"], ["三", "Drie"], ["今天", "Vandag"], ["明天", "Môre"], ["你好嗎", "Hoe gaan dit"], ["再見了", "Vaarwel"], ["歡迎", "Welkom"]];
