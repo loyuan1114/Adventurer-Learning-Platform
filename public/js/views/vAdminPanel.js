@@ -3,6 +3,10 @@
    ════════════════════════════════════════════ */
 function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 async function vAdminPanel(){
+  if(!WTOKEN){
+    $('#view').innerHTML=back()+'<div class="panel2" style="padding:20px;text-align:center"><b style="color:#ffcc80">⚠️ Token 已過期或遺失</b><div style="margin-top:10px;font-size:12px;color:var(--mut)">請重新登入以取得新 token</div><button class="btn teal" style="margin-top:12px" onclick="logout()">🔐 重新登入</button></div>';
+    return;
+  }
   if(!(typeof IS_ADMIN==='function'&&IS_ADMIN())) return toast('⚠️ 僅管理員可進入','bad');
   let h=back()+'<h3 class="vt">📊 AP 管理控制台 <span class="vsub">規則設定・手動發放・審計追蹤</span></h3>';
   h+='<div id="apTabs" style="display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap"></div>';
