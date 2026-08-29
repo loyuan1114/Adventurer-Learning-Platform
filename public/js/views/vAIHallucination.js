@@ -117,16 +117,16 @@ function hallShuffleSteps(q){
 }
 
 function hallEarnAP(amount){
-  var u=me();if(!u||!u.g)return false;
-  var ap=u.g.ap||0;
-  var sys=get('ADV9_SYS_SETTINGS',{ap_cap:9999});
-  var cap=sys.ap_cap||9999;
-  if(ap>=cap){toast('⚠️ AP 已達上限 ('+cap+')','bad');return false}
-  var granted=Math.min(amount,cap-ap);
-  u.g.ap=ap+granted;
-  saveU(u);
-  if(typeof hud==='function')hud();
-  return granted;
+  fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN}})
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if(d.ok){
+      fetch('/rest/v1/ap/spend',{method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},body:JSON.stringify({type:'GAME',amount:0})});
+    }
+  });
+  toast('+'+amount+' AP');
+  if(typeof fetchApBalance==='function')fetchApBalance();
+  return amount;
 }
 
 function hallShakeEl(el){

@@ -1,6 +1,8 @@
 /* vClasses — 班級管理 */
 function vClasses(){
-  const u=me(), g=u.g, myCls=g.classId?get(LS.classes,[]).find(c=>c.id===g.classId):null, allCls=get(LS.classes,[]);
+  var u=me();if(!u)return;
+  var g=u.g||{};
+  const myCls=g.classId?get(LS.classes,[]).find(c=>c.id===g.classId):null, allCls=get(LS.classes,[]);
   let h=back()+'<h3 class="vt">🏫 班級系統 <span class="vsub">邀請碼加入班級・班級任務・集體榮譽</span></h3>';
 
   /* 邀請碼加入班級 */
@@ -32,7 +34,8 @@ function vClasses(){
   $('#view').innerHTML=h;
 }
 function classCreate(){
-  const u=me(), n=$('#newClsName').value.trim(), d=$('#newClsDesc').value.trim();
+  var u=me();if(!u||!u.g)return toast('⚠️ 請先登入','bad');
+  const n=$('#newClsName').value.trim(), d=$('#newClsDesc').value.trim();
   if(!n) return toast('⚠️ 請輸入班級名稱','bad');
   if(u.g.gold<500) return toast('⚠️ 需要 500 金幣','bad');
   const code=Math.random().toString(36).substr(2,6).toUpperCase();
@@ -84,3 +87,9 @@ function classJoinByCode(){
   }).catch(function(){toast('❌ 網路錯誤','bad');});
 }
 window.classJoinByCode=classJoinByCode;
+window.classCreate=classCreate;
+window.classJoin=classJoin;
+window.classLeave=classLeave;
+window.classViewMembers=classViewMembers;
+window.classTasks=classTasks;
+window.classDonate=classDonate;

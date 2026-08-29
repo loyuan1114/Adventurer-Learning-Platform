@@ -40,26 +40,30 @@ function scrollEquipDurabilityDrop() {
   return dropped;
 }
 
+var _scrollLoading=false;
 function scrollPurchase() {
-  const u = me(); if (!u || !u.g) return toast('⚠️ 請先登入', 'bad');
+  if(_scrollLoading)return;
+  _scrollLoading=true;
+  const u = me(); if (!u || !u.g) { _scrollLoading=false; return toast('⚠️ 請先登入', 'bad'); }
   fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
     .then(r => r.json())
     .then(d => {
-      if (!d.ok) return toast('❌ 查詢失敗', 'bad');
-      if ((d.balance || 0) < SCROLL_COST_AP) return toast('❌ AP 不足（需 ' + SCROLL_COST_AP + '）', 'bad');
+      if (!d.ok) { _scrollLoading=false; return toast('❌ 查詢失敗', 'bad'); }
+      if ((d.balance || 0) < SCROLL_COST_AP) { _scrollLoading=false; return toast('❌ AP 不足（需 ' + SCROLL_COST_AP + '）', 'bad'); }
       fetch('/rest/v1/ap/spend', {
         method: 'POST',
         headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: SCROLL_COST_AP, reason: '購買靈魂卷軸' })
       }).then(r2 => r2.json()).then(d2 => {
+        _scrollLoading=false;
         if (!d2.ok) return toast('❌ ' + (d2.reason || '購買失敗'), 'bad');
         const sd = scrollData();
         sd.count++;
         scrollSave(sd);
         toast('✅ 購買成功！靈魂卷軸 x1');
         vSoulScroll();
-      }).catch(() => toast('❌ 網路錯誤', 'bad'));
-    }).catch(() => toast('❌ 網路錯誤', 'bad'));
+      }).catch(() => { _scrollLoading=false; toast('❌ 網路錯誤', 'bad'); });
+    }).catch(() => { _scrollLoading=false; toast('❌ 網路錯誤', 'bad'); });
 }
 
 function scrollUse() {

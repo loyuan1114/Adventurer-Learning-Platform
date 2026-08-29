@@ -265,3 +265,6 @@ function thCodeSave() {
 }
 window.thCodeSave = thCodeSave;
 window.vTHome=vTHome;
+window.vTHomeAnalysis=vTHomeAnalysis;
+window.vTHomeStudent=vTHomeStudent;
+window.thomeCopyCode=thomeCopyCode;

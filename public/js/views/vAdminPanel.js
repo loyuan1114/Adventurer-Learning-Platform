@@ -128,8 +128,7 @@ async function apRules(el){
 }
 
 async function apSaveRules(){
-  const msg=$('#apRulesMsg');
-  msg.textContent='⏳ 儲存中…';msg.style.color='var(--mut)';
+  var msg=$('#apRulesMsg');if(msg){msg.textContent='⏳ 儲存中…';msg.style.color='var(--mut)';}
   const rules=window._apRulesData?.rules||{};
   const types=['daily_login','quiz_correct','quiz_perfect','streak_bonus','homework_done','homework_perfect','daily_mission','weekly_mission','pk_win','pk_loss','trading','tutor'];
   types.forEach(k=>{
@@ -417,3 +416,7 @@ window.apAssignClass=function(username){apAssignStudent(username)};
 window.apCreateClass=apCreateClass;
 window.apAssignStudent=apAssignStudent;
 window.apLoadClassManagement=apLoadClassManagement;
+window.apSaveRules=apSaveRules;
+window.apDoGrant=apDoGrant;
+window.apDoUserQuery=apDoUserQuery;
+window.apLoadTab=apLoadTab;

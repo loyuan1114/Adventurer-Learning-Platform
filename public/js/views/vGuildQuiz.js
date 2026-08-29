@@ -97,11 +97,23 @@ function gqSubmit() {
   const d = gqData();
   d.totalAttempts++;
 
+  function saveAndRender() {
+    d.history = d.history.slice(0, 50);
+    gqSave(d);
+    vGuildQuiz();
+  }
+
   if (result.pass) {
     d.passCount++;
     d.streak++;
     d.bestStreak = Math.max(d.bestStreak, d.streak);
     d.guildPoints += GQ_GUILD_PASS;
+    d.history.unshift({
+      q: gqCurrentQuestion.q || '(未知題目)',
+      pass: true,
+      ts: Date.now(),
+      score: result.score
+    });
     fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
       .then(r => r.json())
       .then(bal => {
@@ -112,19 +124,21 @@ function gqSubmit() {
             body: JSON.stringify({ amount: -GQ_PASS_BONUS_AP, reason: '公會質詢通過獎勵' })
           }).then(r2 => r2.json()).then(() => {
             toast('🎉 + ' + GQ_PASS_BONUS_AP + ' AP + 公會 +' + GQ_GUILD_PASS + ' 分！');
-          }).catch(() => {});
-        }
-      }).catch(() => {});
-    d.history.unshift({
-      q: gqCurrentQuestion.q || '(未知題目)',
-      pass: true,
-      ts: Date.now(),
-      score: result.score
-    });
+            saveAndRender();
+          }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
+        } else { saveAndRender(); }
+      }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
   } else {
     d.failCount++;
     d.streak = 0;
     d.guildPoints = Math.max(0, d.guildPoints + GQ_GUILD_FAIL);
+    d.history.unshift({
+      q: gqCurrentQuestion.q || '(未知題目)',
+      pass: false,
+      ts: Date.now(),
+      score: result.score,
+      reason: result.reason
+    });
     fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
       .then(r => r.json())
       .then(bal => {
@@ -135,20 +149,11 @@ function gqSubmit() {
             body: JSON.stringify({ amount: GQ_FAIL_PENALTY_AP, reason: '公會質詢失敗懲罰' })
           }).then(r2 => r2.json()).then(() => {
             toast('💀 失敗反噬！- ' + GQ_FAIL_PENALTY_AP + ' AP，公會 -' + Math.abs(GQ_GUILD_FAIL) + ' 分');
-          }).catch(() => {});
-        }
-      }).catch(() => {});
-    d.history.unshift({
-      q: gqCurrentQuestion.q || '(未知題目)',
-      pass: false,
-      ts: Date.now(),
-      score: result.score,
-      reason: result.reason
-    });
+            saveAndRender();
+          }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
+        } else { saveAndRender(); }
+      }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
   }
-  d.history = d.history.slice(0, 50);
-  gqSave(d);
-  vGuildQuiz();
 }
 
 function gqRenderLeaderboard() {

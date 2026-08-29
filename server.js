@@ -110,12 +110,12 @@ var SYSSET=loadJSON(SYSSETFILE, {
   refund_amount: 5000,
   promo_codes: {}
 });
-function saveSYSSET(){try{fs.writeFileSync(SYSSETFILE, JSON.stringify(SYSSET, null, 2))}catch(e){console.error('saveSYSSET', e)}}
-function saveKV(){try{fs.writeFileSync(KVFILE, JSON.stringify(KV, null, 2))}catch(e){console.error('saveKV', e)}}
-function saveTOK(){try{fs.writeFileSync(TOKFILE, JSON.stringify(TOK, null, 2))}catch(e){console.error('saveTOK', e)}}
-function saveDOLL(){try{fs.writeFileSync(DOLLFILE, JSON.stringify(DOLL, null, 2))}catch(e){console.error('saveDOLL', e)}}
-function saveSHOP(){try{fs.writeFileSync(SHOPFILE, JSON.stringify(SHOP, null, 2))}catch(e){console.error('saveSHOP', e)}}
-function saveEVENTS(){try{fs.writeFileSync(EVENTFILE, JSON.stringify(EVENTS, null, 2))}catch(e){console.error('saveEVENTS', e)}}
+function saveSYSSET(){try{var tmp=SYSSETFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(SYSSET,null,2));fs.renameSync(tmp,SYSSETFILE)}catch(e){console.error('saveSYSSET',e)}}
+function saveKV(){try{var tmp=KVFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(KV,null,2));fs.renameSync(tmp,KVFILE)}catch(e){console.error('saveKV',e)}}
+function saveTOK(){try{var tmp=TOKFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(TOK,null,2));fs.renameSync(tmp,TOKFILE)}catch(e){console.error('saveTOK',e)}}
+function saveDOLL(){try{var tmp=DOLLFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(DOLL,null,2));fs.renameSync(tmp,DOLLFILE)}catch(e){console.error('saveDOLL',e)}}
+function saveSHOP(){try{var tmp=SHOPFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(SHOP,null,2));fs.renameSync(tmp,SHOPFILE)}catch(e){console.error('saveSHOP',e)}}
+function saveEVENTS(){try{var tmp=EVENTFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(EVENTS,null,2));fs.renameSync(tmp,EVENTFILE)}catch(e){console.error('saveEVENTS',e)}}
 function saveACC(){Object.keys(ACC).forEach(function(un){saveUserFile(un)})}
 
 /* ── 叢集（多 CPU）：master 持權威狀態、worker 跑 HTTP ──
@@ -313,6 +313,7 @@ async function mergeUsers(incoming,w){
         if(!created.createdAt)created.createdAt=new Date().toISOString();
         if(!created.id)created.id=un;
         if(!created.role)created.role='student';
+        if(isStaff&&created.role!=='admin'&&created.role!=='teacher')created.role='student';
         if(created.tokenVer==null)created.tokenVer=0;
         ACC[un]=created;
         saveUserFile(un);
@@ -2085,6 +2086,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     var aw=checkToken(tok);if(!aw||(aw.role!=='admin'&&aw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}
     return readBody(req,function(b){try{
       var j=JSON.parse(b.toString('utf8'));
+      if(aw.role==='teacher'){var teacherAcc=ACC[aw.username];var managedIds=(teacherAcc&&teacherAcc.managedClassIds)||[];if(j.classId&&managedIds.indexOf(j.classId)===-1){res.writeHead(403);return res.end('you can only manage your own classes')}}
       var studentId=String(j.studentId||'').trim();
       var classId=String(j.classId||'').trim();
       if(!studentId){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'缺少學生帳號'}))}
