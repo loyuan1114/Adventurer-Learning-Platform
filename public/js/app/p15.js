@@ -936,9 +936,14 @@ async function impersonate(username){
   const target=localUsers.find(x=>x.username===username);
   if(!target){toast('⚠️ 找不到帳號：'+username,'bad');return;}
   const m=me();
+  if(!WTOKEN){toast('⚠️ Token 遺失，請先重新登入','bad');return;}
   try{
     const r=await fetch('/rest/v1/admin/impersonate',{method:'POST',headers:{'Content-Type':'application/json','x-adv9-token':WTOKEN},body:JSON.stringify({username:username})});
-    const d=await r.json().catch(()=>({ok:false}));
+    let d;
+    try{d=await r.json();}catch(e){
+      const txt=await r.text().catch(()=>'');
+      d={ok:false,reason:txt||('HTTP '+r.status)};
+    }
     if(d.ok&&d.token){
       WTOKEN=d.token;
       try{localStorage.setItem('ADV9_WTOKEN',d.token)}catch(e){}
@@ -946,12 +951,10 @@ async function impersonate(username){
       toast('🎭 已切換到 '+target.name+'（'+d.role+'）');
       enter();
     }else{
-      toast('❌ 模擬登入失敗：'+(d.reason||'未知錯誤'),'bad');
+      toast('❌ 模擬登入失敗：'+(d.reason||('HTTP '+r.status)),'bad');
     }
   }catch(e){
-    set(LS.ses,{u:username,imp:m?m.username:false});
-    toast('⚠️ 切換到 '+target.name+'（離線模式）');
-    enter();
+    toast('❌ 網路錯誤：'+e.message,'bad');
   }
 }
 
