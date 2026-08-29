@@ -819,7 +819,7 @@ async function needJs(list){
   const out=await Promise.all(list.map(src=>new Promise(res=>{
     if(JSLOAD[src])return res(true);
     const t=document.createElement('script');
-    t.src=src+(src.includes('?')?'&':'?')+'v=3';t.onload=()=>{JSLOAD[src]=1;res(true)};t.onerror=()=>res(false);
+    t.src=src+(src.includes('?')?'&':'?')+'v=5';t.onload=()=>{JSLOAD[src]=1;res(true)};t.onerror=()=>res(false);
     document.head.appendChild(t);
   })));
   return out.every(Boolean);
