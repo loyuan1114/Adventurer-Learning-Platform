@@ -342,7 +342,7 @@ async function vPixel(){
 }
 
 async function vVideo(){
-  if(!await needJs(['js/views/vVideo.js']))return toast('模組載入失敗，請重新整理頁面','bad');
+  if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vVideo();
 }
 

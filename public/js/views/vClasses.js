@@ -1,23 +1,27 @@
 /* vClasses — 班級管理 */
 function vClasses(){
   const u=me(), g=u.g, myCls=g.classId?get(LS.classes,[]).find(c=>c.id===g.classId):null, allCls=get(LS.classes,[]);
-  let h=back()+'<h3 class="vt">🏫 班級系統 <span class="vsub">加入/創建班級・班級任務・集體榮譽</span></h3>';
+  let h=back()+'<h3 class="vt">🏫 班級系統 <span class="vsub">邀請碼加入班級・班級任務・集體榮譽</span></h3>';
+
+  /* 邀請碼加入班級 */
+  h+='<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(--gold2)">';
+  h+='<b style="color:var(--gold2);font-size:15px">🔑 使用邀請碼加入班級</b>';
+  if(u.classId){
+    h+='<div style="margin-top:8px;font-size:12px;color:var(--teal)">✅ 你已加入班級：<b>' + esc(u.classId) + '</b></div>';
+    h+='<button class="btn ghost mini" style="margin-top:6px" onclick="classJoinByCode()">🔄 更換班級</button>';
+  }else{
+    h+='<div style="margin-top:8px;font-size:12px;color:var(--mut)">向老師索取邀請碼，輸入後即可加入班級</div>';
+  }
+  h+='<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">';
+  h+='<div><label style="font-size:11px;color:var(--mut)">班級邀請碼</label>';
+  h+='<input id="classCodeInput" class="inp" style="margin-top:4px;width:160px" placeholder="例: ABC123" value="' + esc(u.classCode || '') + '"></div>';
+  h+='<button class="btn gold" onclick="classJoinByCode()" style="height:36px">🚀 加入班級</button>';
+  h+='</div></div>';
 
   if(myCls){
     h+='<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(--teal)"><b style="color:var(--teal)">🏠 我的班級：'+esc(myCls.name)+'</b>';
     h+=`<div class="skTxt" style="margin-top:6px">班級代碼：<code>${myCls.code}</code> ｜ 成員：${myCls.members.length} 人 ｜ 基金：${numFmt(myCls.fund||0)} 金 ｜ 等級：Lv.${myCls.lv||1}</div>`;
     h+=`<div class="rwRow" style="margin-top:8px"><button class="rwChip" onclick="classViewMembers()">👥 成員名單</button><button class="rwChip" onclick="classTasks()">📋 班級任務</button><button class="rwChip" onclick="classDonate()">💰 捐獻基金</button><button class="rwChip danger" onclick="classLeave()">🚪 退出班級</button></div></div>`;
-  }else{
-    h+='<div class="panel2" style="margin-bottom:12px"><b>🔍 瀏覽現有班級</b>';
-    if(!allCls.length) h+='<div class="empty">尚無班級，快創建第一個！</div>';
-    else{
-      h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-top:8px">';
-      allCls.forEach(c=>{
-        h+=`<div class="panel2" style="padding:12px"><b>${esc(c.name)}</b><div class="skTxt">代碼：${c.code} ｜ ${c.members.length} 人 ｜ Lv.${c.lv||1}</div><button class="btn mini" style="margin-top:8px" onclick="classJoin('${c.id}')">🚪 申請加入</button></div>`;
-      });
-      h+='</div>';
-    }
-    h+='</div>';
   }
 
   h+='<div class="panel2"><b style="color:var(--gold2)">➕ 創建新班級</b>';
@@ -62,3 +66,21 @@ function classDonate(){
   u.g.gold-=amt; const cls=get(LS.classes,[]).find(c=>c.id===u.g.classId); if(cls){cls.fund=(cls.fund||0)+amt; set(LS.classes,get(LS.classes,[]));}
   set(LS.users,get(LS.users,[])); toast(`✅ 捐獻 ${amt} 金幣`); vClasses();
 }
+function classJoinByCode(){
+  var el=document.getElementById('classCodeInput');
+  var code=el?el.value.trim():'';
+  if(!code||code.length<3){toast('⚠️ 請輸入有效的邀請碼（至少3個字元）','bad');return;}
+  fetch('/rest/v1/class/join',{
+    method:'POST',
+    headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
+    body:JSON.stringify({classCode:code})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.ok){
+      var u=me();
+      if(u){u.classId=d.classId;u.classCode=code;saveU(u);}
+      toast('✅ 成功加入班級！老師：'+d.teacher);
+      vClasses();
+    }else{toast('❌ '+(d.reason||'加入失敗'),'bad');}
+  }).catch(function(){toast('❌ 網路錯誤','bad');});
+}
+window.classJoinByCode=classJoinByCode;

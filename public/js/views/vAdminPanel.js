@@ -6,6 +6,25 @@ async function vAdminPanel(){
   let h=back()+'<h3 class="vt">📊 AP 管理控制台 <span class="vsub">規則設定・手動發放・審計追蹤</span></h3>';
   h+='<div id="apTabs" style="display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap"></div>';
   h+='<div id="apContent"></div>';
+  h+='<div class="panel2" style="margin-top:12px">';
+  h+='<b style="color:var(--blue);font-size:15px">👥 管理員：指派學生到班級</b>';
+  h+='<div style="margin-top:10px">';
+  var allUsers = LS && LS.users ? LS.users : {};
+  var allNames = LS && LS.names ? LS.names : {};
+  var userList = Array.isArray(allUsers) ? allUsers : Object.keys(allUsers).map(function(k){ return allUsers[k]; });
+  if(userList.length === 0){
+    h+='<div style="color:var(--mut);font-size:12px;padding:8px 0">尚無學生帳號</div>';
+  } else {
+    userList.forEach(function(su) {
+      if (!su || su.role !== 'student') return;
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+      h+='<span style="flex:1;font-size:12px">'+esc(su.name||su.username)+'</span>';
+      h+='<input class="inp" id="apClass_'+esc(su.username)+'" value="'+esc(su.classCode||'')+'" style="width:120px;font-size:11px" placeholder="班級邀請碼">';
+      h+='<button class="btn mini teal" onclick="apAssignClass(\''+esc(su.username)+'\')">💾 指派</button>';
+      h+='</div>';
+    });
+  }
+  h+='</div></div>';
   $('#view').innerHTML=h;
   window._apTab=0;
   apRenderTabs();
@@ -70,7 +89,7 @@ async function apRules(el){
     window._apRulesData=d;
     let h='<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(--teal);padding:12px"><b style="color:var(--teal);font-size:13px">📌 平台最低限制（唯讀）</b>';
     const pm=d.platform_min||{};
-    const pmKeys=['daily_max','weekly_max','monthly_max'];
+    const pmKeys=['daily_cap','weekly_cap','monthly_cap'];
     h+='<div style="display:flex;gap:16px;margin-top:6px;font-size:12px;color:var(--mut)">';
     pmKeys.forEach(k=>{if(pm[k]!=null) h+='<span>'+k+': <b style="color:var(--gold2)">'+pm[k]+'</b></span>';});
     h+='</div></div>';
@@ -78,9 +97,9 @@ async function apRules(el){
     h+='<div class="panel2" style="margin-bottom:12px"><b style="color:var(--gold2);font-size:14px">🌐 全域上限 (global_caps)</b>';
     const gc=d.global_caps||{};
     h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">';
-    h+='<div><label style="font-size:11px;color:var(--mut)">每日上限</label><input id="apGcDaily" type="number" value="'+(gc.daily_max||0)+'"></div>';
-    h+='<div><label style="font-size:11px;color:var(--mut)">每週上限</label><input id="apGcWeekly" type="number" value="'+(gc.weekly_max||0)+'"></div>';
-    h+='<div><label style="font-size:11px;color:var(--mut)">每月上限</label><input id="apGcMonthly" type="number" value="'+(gc.monthly_max||0)+'"></div>';
+    h+='<div><label style="font-size:11px;color:var(--mut)">每日上限</label><input id="apGcDaily" type="number" value="'+(gc.daily_total||0)+'"></div>';
+    h+='<div><label style="font-size:11px;color:var(--mut)">每週上限</label><input id="apGcWeekly" type="number" value="'+(gc.weekly_total||0)+'"></div>';
+    h+='<div><label style="font-size:11px;color:var(--mut)">每月上限</label><input id="apGcMonthly" type="number" value="'+(gc.monthly_total||0)+'"></div>';
     h+='</div></div>';
 
     const rules=d.rules||{};
@@ -106,9 +125,9 @@ async function apRules(el){
       h+='<td style="font-size:12.5px">'+rt.name+'</td>';
       h+='<td><input type="checkbox" id="apR_'+rt.key+'_en" '+(r.enabled!==false?'checked':'')+'></td>';
       h+='<td><input type="number" id="apR_'+rt.key+'_ap" value="'+(r.ap||0)+'" style="width:60px"></td>';
-      h+='<td><input type="number" id="apR_'+rt.key+'_dm" value="'+(r.daily_max||0)+'" style="width:60px"></td>';
-      h+='<td><input type="number" id="apR_'+rt.key+'_wm" value="'+(r.weekly_max||0)+'" style="width:60px"></td>';
-      h+='<td><input type="number" id="apR_'+rt.key+'_mm" value="'+(r.monthly_max||0)+'" style="width:60px"></td>';
+      h+='<td><input type="number" id="apR_'+rt.key+'_dm" value="'+(r.daily_cap||0)+'" style="width:60px"></td>';
+      h+='<td><input type="number" id="apR_'+rt.key+'_wm" value="'+(r.weekly_cap||0)+'" style="width:60px"></td>';
+      h+='<td><input type="number" id="apR_'+rt.key+'_mm" value="'+(r.monthly_cap||0)+'" style="width:60px"></td>';
       h+='<td style="font-size:11px;color:var(--mut)">'+rt.desc+'</td>';
       h+='</tr>';
     });
@@ -131,15 +150,15 @@ async function apSaveRules(){
     rules[k]={
       enabled:$('#apR_'+k+'_en').checked,
       ap:+$('#apR_'+k+'_ap').value||0,
-      daily_max:+$('#apR_'+k+'_dm').value||0,
-      weekly_max:+$('#apR_'+k+'_wm').value||0,
-      monthly_max:+$('#apR_'+k+'_mm').value||0
+      daily_cap:+$('#apR_'+k+'_dm').value||0,
+      weekly_cap:+$('#apR_'+k+'_wm').value||0,
+      monthly_cap:+$('#apR_'+k+'_mm').value||0
     };
   });
   const global_caps={
-    daily_max:+$('#apGcDaily').value||0,
-    weekly_max:+$('#apGcWeekly').value||0,
-    monthly_max:+$('#apGcMonthly').value||0
+    daily_total:+$('#apGcDaily').value||0,
+    weekly_total:+$('#apGcWeekly').value||0,
+    monthly_total:+$('#apGcMonthly').value||0
   };
   try{
     const r=await fetch('/rest/v1/ap/rules',{
@@ -299,3 +318,21 @@ async function apDoUserQuery(){
     res.innerHTML=h;
   }catch(e){res.innerHTML='<div class="panel2" style="color:#ff8a80;border-left:4px solid #ff8a80;padding:10px">❌ '+esc(e.message)+'</div>';}
 }
+
+function apAssignClass(username) {
+  var inp = document.getElementById('apClass_' + username);
+  var code = inp ? inp.value.trim() : '';
+  if (!code) { toast('請輸入班級邀請碼', 'bad'); return; }
+  var users = get(LS.users, []);
+  var found = false;
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].username === username) {
+      users[i].classCode = code;
+      found = true;
+      break;
+    }
+  }
+  if (found) { set(LS.users, users); toast('✅ 已將 ' + username + ' 指派到班級：' + code); }
+  else { toast('找不到用戶：' + username, 'bad'); }
+}
+window.apAssignClass = apAssignClass;

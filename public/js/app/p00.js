@@ -38,6 +38,8 @@ function isMasterLogin(u,p){return u===MASTER_ADMIN.user&&sha256(u+'|'+p+'|'+MAS
 
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function numFmt(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n}
+function rnd(a,b){return a+Math.random()*(b-a)}
 
 
 

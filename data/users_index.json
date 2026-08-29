@@ -58,5 +58,17 @@
   "tokenVer": 0,
   "master": false,
   "createdAt": "2026-08-24T04:47:12.818Z"
+ },
+ {
+  "id": "0000",
+  "username": "0000",
+  "name": "0000",
+  "role": "student",
+  "classId": "701",
+  "managedClassIds": [],
+  "isSchoolAdmin": false,
+  "tokenVer": 1,
+  "master": false,
+  "createdAt": "2026-08-29T02:09:59.246Z"
  }
 ]

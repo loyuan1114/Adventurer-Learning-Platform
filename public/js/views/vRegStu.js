@@ -78,7 +78,7 @@ function vRegStu(){
 
   h+='<div style="display:flex;gap:8px;margin-top:16px">';
   h+='<button class="btn teal" onclick="regSubmit()" style="flex:1">🎯 註冊帳號</button>';
-  h+='<button class="btn ghost" onclick="back()" style="flex:0.4">⬅ 返回</button>';
+  h+='<button class="btn ghost" onclick="vHome()" style="flex:0.4">⬅ 返回</button>';
   h+='</div>';
 
   h+='<div id="regResult" style="margin-top:12px"></div>';

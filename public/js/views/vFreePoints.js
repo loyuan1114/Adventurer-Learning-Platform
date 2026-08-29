@@ -23,7 +23,7 @@ function vFreePoints() {
 
   /* ── 運動獎勵 ── */
   h += '<div class="panel2" style="margin-top:12px">';
-  h += '<b style="color:var(--teal);font-size:15px">🏃 運動獎勵 <span style="font-size:11px;font-weight:400;color:var(--mut)">跑步/游泳賺AP・每日上限2AP</span></b>';
+  h += '<b style="color:var(--teal);font-size:15px">🏃 運動獎勵 <span style="font-size:11px;font-weight:400;color:var(--mut)">跑步/游泳賺AP・每日上限200AP</span></b>';
   h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:flex-end">';
   h += '<div><label style="font-size:11px;color:var(--mut)">選擇運動</label>';
   h += '<select id="fpSport" class="inp" style="width:130px;margin-top:4px">';
@@ -43,7 +43,7 @@ function vFreePoints() {
   /* ── 運動每日上限 ── */
   h += '<div class="panel2" style="margin-top:8px;display:flex;gap:16px;align-items:center">';
   h += '<span style="font-size:12px;color:var(--mut)">🏃 運動今日已領: <b id="fpSportEarned" style="color:var(--teal)">' + FP._earnedToday('SPORTS') + ' AP</b></span>';
-  h += '<span style="font-size:12px;color:var(--mut)">剩餘: <b id="fpSportRemain" style="color:var(--gold2)">' + FP._remainDisplay('SPORTS', 2) + ' AP</b></span>';
+  h += '<span style="font-size:12px;color:var(--mut)">剩餘: <b id="fpSportRemain" style="color:var(--gold2)">' + FP._remainDisplay('SPORTS', 200) + ' AP</b></span>';
   h += '</div>';
 
   /* ── 快速遊戲/學習入口 ── */
@@ -114,7 +114,7 @@ FP._allCapsTable = function () {
   var caps = FP.caps || {};
   var types = [
     { key: 'STEPS', name: '🚶 步數', daily: 100, weekly: 700, monthly: 3000 },
-    { key: 'SPORTS', name: '🏃 運動', daily: 2, weekly: 14, monthly: 60 },
+    { key: 'SPORTS', name: '🏃 運動', daily: 200, weekly: 1400, monthly: 6000 },
     { key: 'GAME', name: '🎮 遊戲', daily: 200, weekly: 1000, monthly: 4000 },
     { key: 'CREATION', name: '🎨 創作', daily: 100, weekly: 500, monthly: 2000 },
     { key: 'LEARNING', name: '📚 學習', daily: 300, weekly: 1500, monthly: 6000 },
@@ -200,7 +200,7 @@ FP._updateCap = function () {
   var el = document.getElementById('fpCap');
   if (el) el.innerHTML = FP._capDisplay('STEPS');
   var el2 = document.getElementById('fpSportRemain');
-  if (el2) el2.textContent = FP._remainDisplay('SPORTS', 2) + ' AP';
+  if (el2) el2.textContent = FP._remainDisplay('SPORTS', 200) + ' AP';
 };
 
 FP._updateEarned = function () {
@@ -301,7 +301,7 @@ function fpSubmitSport() {
           if (proofInput) proofInput.value = '';
         } else {
           var msg = d.reason || '提交失敗';
-          if (msg.indexOf('daily') >= 0) msg = '今日運動上限已達（2 AP/天），明天再來！';
+          if (msg.indexOf('daily') >= 0) msg = '今日運動上限已達（200 AP/天），明天再來！';
           toast('❌ ' + msg, 'bad');
         }
       }).catch(function () {

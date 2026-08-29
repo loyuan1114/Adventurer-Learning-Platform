@@ -94,7 +94,7 @@ var AP_EXCHANGE_ITEMS=loadJSON(EXCHANGEITEMSFILE,{items:[
 var AP_RULES=loadJSON(path.join(DATA,'ap_rules.json'),{ /* AP 規則 */
   rules:{},
   global_caps:{daily_total:10000,weekly_total:50000,monthly_total:200000,seven_day_rolling:30000},
-  platform_min:{steps:{ap_per_unit:1,steps_per_ap:30,daily_cap:100},game:{daily_cap:200,ap_per_unit:10},creation:{daily_cap:100,ap_per_unit:15},sports:{daily_cap:200,ap_per_km:0.5},learning:{daily_cap:300,ap_per_unit:5},music:{daily_cap:200,ap_per_unit:10},community:{daily_cap:150,ap_per_unit:5},commendation:{daily_cap:50,ap_per_unit:1,ratio:10}},
+  platform_min:{steps:{ap_per_unit:1,steps_per_ap:30,daily_cap:100,weekly_cap:700,monthly_cap:3000},game:{daily_cap:200,weekly_cap:1000,monthly_cap:4000,ap_per_unit:10},creation:{daily_cap:100,weekly_cap:500,monthly_cap:2000,ap_per_unit:15},sports:{daily_cap:200,weekly_cap:1400,monthly_cap:6000,ap_per_km:0.5},learning:{daily_cap:300,weekly_cap:1500,monthly_cap:6000,ap_per_unit:5},music:{daily_cap:200,weekly_cap:1000,monthly_cap:4000,ap_per_unit:10},community:{daily_cap:150,weekly_cap:750,monthly_cap:3000,ap_per_unit:5},commendation:{daily_cap:50,weekly_cap:200,monthly_cap:800,ap_per_unit:1,ratio:10}},
   school_overrides:{}
 });
 function saveAPAudit(){try{var tmp=APAUDITFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_AUDIT,null,1));fs.renameSync(tmp,APAUDITFILE)}catch(e){console.error('saveAPAudit',e)}}
@@ -468,6 +468,30 @@ var server=http.createServer(function(req,res){
     });
     var cwRows=Object.keys(byClass).map(function(k){return byClass[k]}).sort(function(a,b){return (b.total-a.total)||(b.minutes-a.minutes)});
     res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,rows:cwRows}));
+  }
+  /* 📋 班級邀請碼加入：學生輸入邀請碼加入班級 */
+  if(req.method==='POST'&&p==='/rest/v1/class/join'){
+    var cjw=checkToken(tok);if(!cjw){res.writeHead(401);return res.end('need login')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var code=String(j.classCode||'').trim();
+      if(!code||code.length<3){res.writeHead(400);return res.end(JSON.stringify({ok:false,reason:'邀請碼至少3個字元'}))}
+      var foundTeacher=null;
+      Object.keys(ACC).forEach(function(un){
+        var t=ACC[un];if(!t)return;
+        if((t.role==='teacher'||t.role==='admin')&&t.classCode===code){
+          foundTeacher=t;
+        }
+      });
+      if(!foundTeacher){res.writeHead(404);return res.end(JSON.stringify({ok:false,reason:'邀請碼不正確，請確認後重新輸入'}))}
+      var studentAcc=ACC[cjw.username];
+      if(!studentAcc){res.writeHead(404);return res.end(JSON.stringify({ok:false,reason:'帳號不存在'}))}
+      studentAcc.classCode=code;
+      studentAcc.classId=foundTeacher.classId||foundTeacher.managedClassIds&&foundTeacher.managedClassIds[0]||code;
+      saveUserFile(cjw.username);
+      res.writeHead(200,{'Content-Type':'application/json'});
+      return res.end(JSON.stringify({ok:true,classId:studentAcc.classId,teacher:foundTeacher.name||foundTeacher.username}));
+    }catch(e){res.writeHead(500);return res.end('server error')}});
   }
   /* 🧩 數獨 9x9：py 出題（sudoku_gen.py）、同場競速 + 個人最佳（v4.0）*/
   function sudokuRun(){
@@ -1734,7 +1758,6 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       if(!Number.isFinite(amt)||amt<=0){res.writeHead(400);return res.end('invalid amount')}
       if(!type){res.writeHead(400);return res.end('missing params')};
       var bal=getApCaps(sw.username).balance||0;if(bal<amt){res.writeHead(403);return res.end('insufficient balance')};
-      var cap=checkApCap(sw.username,type,amt);if(!cap.ok){res.writeHead(403);return res.end('cap exceeded: '+cap.reason)};
       recordApTx(sw.username,type,-amt,'spend',meta);
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,balance:getApCaps(sw.username).balance}));
     }catch(e){res.writeHead(400);res.end('bad json')}})

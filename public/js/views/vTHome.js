@@ -138,6 +138,11 @@ function vTHome(){
   h+='<div style="flex:1;padding:10px;background:#1a1a2e;border-radius:8px;font-family:monospace;font-size:14px;color:var(--gold2);text-align:center;letter-spacing:2px">'+esc(myClassCode||'尚未設定')+'</div>';
   h+='<button class="btn ghost mini" onclick="thomeCopyCode()">📋 複製</button>';
   h+='</div>';
+  h+='<div style="margin-top:8px;display:flex;gap:8px;align-items:flex-end">';
+  h+='<div><label style="font-size:11px;color:var(--mut)">設定邀請碼</label>';
+  h+='<input id="thCodeInput" class="inp" value="' + esc(u.classCode || '') + '" style="margin-top:4px;width:140px" placeholder="輸入邀請碼"></div>';
+  h+='<button class="btn gold mini" onclick="thCodeSave()">💾 儲存</button>';
+  h+='</div>';
   h+='<div style="font-size:11px;color:var(--mut);margin-top:6px">💡 將此邀請碼提供給學生，註冊時輸入即可加入你的班級。</div>';
   h+='</div>';
 
@@ -250,4 +255,13 @@ function thomeCopyCode(){
     toast('邀請碼：'+code);
   }
 }
+function thCodeSave() {
+  var el = document.getElementById('thCodeInput');
+  var code = el ? el.value.trim() : '';
+  if (!code || code.length < 3) { toast('邀請碼至少3個字元', 'bad'); return; }
+  var u = me();
+  if (u) { u.classCode = code; saveU(u); }
+  toast('✅ 邀請碼已儲存：' + code);
+}
+window.thCodeSave = thCodeSave;
 window.vTHome=vTHome;
