@@ -1,4 +1,4 @@
-const CACHE_NAME = 'adv9-v4';
+const CACHE_NAME = 'adv9-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html'
