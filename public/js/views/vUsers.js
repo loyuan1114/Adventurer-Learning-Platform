@@ -4,7 +4,9 @@
    ════════════════════════════════════════════ */
 function vUsers(){
 const classes=get(LS.classes,{ids:[],names:{}});
-const clsOpts=classes.ids.map(id=>'<option value="'+id+'">'+(classes.names[id]||id)+'</option>').join('');
+const clsIds=Array.isArray(classes.ids)?classes.ids:[];
+const clsNames=(classes.names&&typeof classes.names==='object')?classes.names:{};
+const clsOpts=clsIds.map(id=>'<option value="'+id+'">'+(clsNames[id]||id)+'</option>').join('');
 const us=get(LS.users,[]);
 $('#view').innerHTML='<h3 class="vt">👥 所有用戶 <span class="vsub">共 <b id="uCount">'+us.length+'</b> 人</span></h3>'+
 '<div class="panel2" style="margin-bottom:14px"><b style="color:var(--gold2)">➕ 建立帳號（教師/學生/家長）</b>'+

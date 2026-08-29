@@ -7,6 +7,7 @@ async function vAdminPanel(){
     $('#view').innerHTML=back()+'<div class="panel2" style="padding:20px;text-align:center"><b style="color:#ffcc80">⚠️ Token 已過期或遺失</b><div style="margin-top:10px;font-size:12px;color:var(--mut)">請重新登入以取得新 token</div><button class="btn teal" style="margin-top:12px" onclick="logout()">🔐 重新登入</button></div>';
     return;
   }
+  if(!(await apVerifyToken()))return;
   if(!(typeof IS_ADMIN==='function'&&IS_ADMIN())) return toast('⚠️ 僅管理員可進入','bad');
   let h=back()+'<h3 class="vt">📊 AP 管理控制台 <span class="vsub">規則設定・手動發放・審計追蹤</span></h3>';
   h+='<div id="apTabs" style="display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap"></div>';
@@ -21,6 +22,22 @@ async function vAdminPanel(){
   apLoadTab(0);
   apLoadClassManagement();
 }
+
+async function apVerifyToken(){
+  if(!WTOKEN)return false;
+  try{
+    var r=await fetch('/rest/v1/users',{headers:{'x-adv9-token':WTOKEN}});
+    if(r.status===401||r.status===403){
+      WTOKEN='';
+      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入','bad');
+      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+      return false;
+    }
+    return true;
+  }catch(e){return true}
+}
+window.apVerifyToken=apVerifyToken;
 
 function apRenderTabs(){
   const tabs=['📊 統計總覽','⚙️ 獎勵規則','💰 手動發放','📋 審計日誌','🔍 用戶查詢'];
