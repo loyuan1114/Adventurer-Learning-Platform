@@ -19,7 +19,7 @@
   "classId": null,
   "managedClassIds": [],
   "isSchoolAdmin": true,
-  "tokenVer": 42,
+  "tokenVer": 47,
   "master": true,
   "createdAt": "2026-08-24T04:01:38.787Z"
  },
@@ -52,8 +52,12 @@
   "username": "teacher",
   "name": "老師",
   "role": "teacher",
-  "classId": null,
-  "managedClassIds": [],
+  "classId": "cls_mte59ovp1mpz",
+  "managedClassIds": [
+   "cls_mte3qn6jjusu",
+   "cls_mte59ov2affc",
+   "cls_mte59ovp1mpz"
+  ],
   "isSchoolAdmin": false,
   "tokenVer": 0,
   "master": false,
