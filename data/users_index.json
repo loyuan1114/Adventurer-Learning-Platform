@@ -19,7 +19,7 @@
   "classId": null,
   "managedClassIds": [],
   "isSchoolAdmin": true,
-  "tokenVer": 54,
+  "tokenVer": 55,
   "master": true,
   "createdAt": "2026-08-24T04:01:38.787Z"
  },
@@ -52,13 +52,14 @@
   "username": "teacher",
   "name": "老師",
   "role": "teacher",
-  "classId": "cls_mte5ps2h8cfy",
+  "classId": "cls_mte6lf5up4eg",
   "managedClassIds": [
    "cls_mte3qn6jjusu",
    "cls_mte59ov2affc",
    "cls_mte59ovp1mpz",
    "cls_mte5ps2aourx",
-   "cls_mte5ps2h8cfy"
+   "cls_mte5ps2h8cfy",
+   "cls_mte6lf5up4eg"
   ],
   "isSchoolAdmin": false,
   "tokenVer": 0,

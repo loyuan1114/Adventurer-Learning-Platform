@@ -457,9 +457,9 @@ function tPub(){
 
 PUB={qs:[],pdf:null};
 
-const u=me();const classes=u.managedClassIds||[];
-
+const u=me();const myIds=(u.managedClassIds||[]).concat(u.classId?[u.classId]:[]).filter(function(x,i,a){return a.indexOf(x)===i;});
 $('#view').innerHTML='<h3 class="vt">📝 發布班級作業</h3>'+
+'<div id="tPubClassWrap" style="margin:10px 0;color:var(--mut);font-size:12px">⏳ 載入班級…</div>'+
 
 '<div class="panel2" style="display:flex;flex-direction:column;gap:10px;max-width:640px">'+
 
@@ -467,7 +467,7 @@ $('#view').innerHTML='<h3 class="vt">📝 發布班級作業</h3>'+
 
 '<div id="hwGradeWrap" style="display:none"><label class="mlab">選擇年級（可複選，例：勾 7 和 9 = 七年級+九年級）<span style="display:flex;gap:10px;flex-wrap:wrap;margin-top:5px">'+['7','8','9'].map(g=>'<label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="hwGrade'+g+'" value="'+g+'" style="width:auto">'+g+' 年級</label>').join('')+'</span></label></div>'+
 
-'<div id="hwClassWrap"><label class="mlab">選擇班級<select id="hwClass">'+classes.map(c=>'<option value="'+c+'">'+c+' 班</option>').join('')+'</select></label></div>'+
+'<div id="hwClassWrap"><label class="mlab">選擇班級<select id="hwClass"><option value="">（載入中…）</option></select></label></div>'+
 
 '<label class="mlab">作業標題<input id="hwTitle" placeholder="例：第七章數學作業"></label>'+
 
@@ -502,6 +502,28 @@ $('#view').innerHTML='<h3 class="vt">📝 發布班級作業</h3>'+
 '<button class="btn big" onclick="hwPublish()">📢 發布作業</button></div>';
 
 renderPubQs();
+
+fetch('/rest/v1/class/list',{headers:{'x-adv9-token':WTOKEN}}).then(function(r){return r.json()}).then(function(d){
+  var sel=document.getElementById('hwClass');
+  var wrap=document.getElementById('tPubClassWrap');
+  if(!sel)return;
+  if(!d||!d.ok||!Array.isArray(d.classes)){
+    if(wrap)wrap.innerHTML='<span style="color:#ff8a80">❌ 載入班級失敗</span>';
+    sel.innerHTML='<option value="">（載入失敗）</option>';
+    return;
+  }
+  var myClasses=d.classes.filter(function(c){return myIds.indexOf(c.id)>=0;});
+  if(!myClasses.length){
+    sel.innerHTML='<option value="">（尚未管理任何班級，請先到 🏫 班級管理認領）</option>';
+    if(wrap)wrap.innerHTML='<span style="color:var(--mut)">💡 提示：到「🏫 班級管理」建立或認領班級後，這裡就能選擇了</span>';
+    return;
+  }
+  sel.innerHTML=myClasses.map(function(c){return '<option value="'+c.id+'">'+c.name+' ('+c.code+')</option>'}).join('');
+  if(wrap)wrap.innerHTML='<span style="color:var(--mut)">已載入 '+myClasses.length+' 個班級</span>';
+}).catch(function(){
+  var sel=document.getElementById('hwClass');
+  if(sel)sel.innerHTML='<option value="">（載入失敗）</option>';
+});
 
 }
 
