@@ -319,8 +319,8 @@ async function apLoadClassManagement(){
     if(!d.ok)throw new Error(d.reason||'載入失敗');
     var classes=d.classes||[];
 
-    var allUsers=LS&&LS.users?LS.users:{};
-    var userList=Array.isArray(allUsers)?allUsers:Object.keys(allUsers).map(function(k){return allUsers[k]});
+    var allUsers=get(LS.users,[]);
+    var userList=Array.isArray(allUsers)?allUsers:[];
     var students=userList.filter(function(u){return u&&u.role==='student'});
 
     var h='<div style="margin-top:10px">';
@@ -333,14 +333,15 @@ async function apLoadClassManagement(){
     if(classes.length===0){
       h+='<div style="color:var(--mut);font-size:12px;padding:8px 0">尚無班級</div>';
     }else{
-      h+='<div class="tblWrap"><table><thead><tr><th>班級名稱</th><th>邀請碼</th><th>教師</th><th>學生數</th><th>建立時間</th></tr></thead><tbody>';
+      h+='<div class="tblWrap"><table><thead><tr><th>班級名稱</th><th>邀請碼</th><th>教師</th><th>學生數</th><th>建立時間</th><th>操作</th></tr></thead><tbody>';
       classes.forEach(function(c){
         h+='<tr>';
         h+='<td style="font-size:12.5px">'+esc(c.name)+'</td>';
         h+='<td style="font-size:12px;font-family:monospace;color:var(--gold2)">'+esc(c.code)+'</td>';
-        h+='<td style="font-size:12px">'+esc(c.teacherId)+'</td>';
+        h+='<td style="font-size:12px">'+(c.teacherId?esc(c.teacherId):'<span style="color:var(--mut)">無</span>')+'</td>';
         h+='<td style="font-size:12px;text-align:center">'+c.studentCount+'</td>';
         h+='<td style="font-size:11px;color:var(--mut)">'+(c.createdAt?new Date(c.createdAt).toLocaleDateString():'-')+'</td>';
+        h+='<td><button class="btn mini danger" onclick="apDeleteClass(\''+esc(c.id)+'\',\''+esc(c.name)+'\')">刪除</button></td>';
         h+='</tr>';
       });
       h+='</tbody></table></div>';
@@ -397,6 +398,25 @@ async function apCreateClass(){
     }
   }catch(e){if(msg){msg.textContent='❌ '+e.message;msg.style.color='#ff8a80';}}
 }
+
+async function apDeleteClass(classId,className){
+  if(!confirm('確定刪除班級「'+className+'」？此操作無法復原！'))return;
+  try{
+    var r=await fetch('/rest/v1/class/delete',{
+      method:'POST',
+      headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({classId:classId})
+    });
+    var d=await safeJson(r);
+    if(d.ok){
+      toast('✅ 班級已刪除');
+      apLoadClassManagement();
+    }else{
+      toast('❌ '+(d.reason||'刪除失敗'),'bad');
+    }
+  }catch(e){toast('❌ 網路錯誤：'+e.message,'bad');}
+}
+window.apDeleteClass=apDeleteClass;
 
 async function apAssignStudent(username){
   var sel=document.getElementById('clsAssign_'+username);
