@@ -1,4 +1,5 @@
 /* vFreePoints — 步數/運動 Dashboard */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 let FP = { balance: 0, caps: {}, ledger: [], loading: false };
 
 function vFreePoints() {
@@ -180,12 +181,12 @@ FP._renderLedger = function () {
 
 function fpFetchLedger() {
   fetch('/rest/v1/ap/ledger', { headers: { 'x-adv9-token': WTOKEN }, cache: 'no-store' })
-    .then(function (r) { return r.json(); })
+    .then(safeJson)
     .then(function (d) {
       if (d.ok) { FP.ledger = d.ledger || []; FP._updateLedger(); FP._updateEarned(); }
     }).catch(function () { });
   fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN }, cache: 'no-store' })
-    .then(function (r) { return r.json(); })
+    .then(safeJson)
     .then(function (d) {
       if (d.ok) { FP.balance = d.balance || 0; FP.caps = d.caps || {}; FP._updateBal(); FP._updateCap(); FP._updateEarned(); }
     }).catch(function () { });
@@ -230,7 +231,7 @@ function fpSubmitSteps() {
     method: 'POST',
     headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify({ steps: steps })
-  }).then(function (r) { return r.json(); })
+  }).then(safeJson)
     .then(function (d) {
       FP.loading = false;
       if (btn) { btn.textContent = '🏃 提交步數'; btn.disabled = false; }
@@ -291,7 +292,7 @@ function fpSubmitSport() {
       method: 'POST',
       headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
-    }).then(function (r) { return r.json(); })
+    }).then(safeJson)
       .then(function (d) {
         FP.loading = false;
         if (btn) { btn.textContent = '✅ 提交運動'; btn.disabled = false; }

@@ -1,4 +1,5 @@
 /* vGuildQuiz — 公會質詢：解釋你的答案 */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 const GQ_KEY = 'ADV9_GUILD_QUIZ';
 const GQ_MIN_CHARS = 50;
 const GQ_PASS_BONUS_AP = 15;
@@ -114,20 +115,9 @@ function gqSubmit() {
       ts: Date.now(),
       score: result.score
     });
-    fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
-      .then(r => r.json())
-      .then(bal => {
-        if (bal.ok) {
-          fetch('/rest/v1/ap/spend', {
-            method: 'POST',
-            headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: -GQ_PASS_BONUS_AP, reason: '公會質詢通過獎勵' })
-          }).then(r2 => r2.json()).then(() => {
-            toast('🎉 + ' + GQ_PASS_BONUS_AP + ' AP + 公會 +' + GQ_GUILD_PASS + ' 分！');
-            saveAndRender();
-          }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
-        } else { saveAndRender(); }
-      }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
+    toast('🎉 + ' + GQ_PASS_BONUS_AP + ' AP + 公會 +' + GQ_GUILD_PASS + ' 分！');
+    if(typeof fetchApBalance==='function') fetchApBalance();
+    saveAndRender();
   } else {
     d.failCount++;
     d.streak = 0;
@@ -139,20 +129,14 @@ function gqSubmit() {
       score: result.score,
       reason: result.reason
     });
-    fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
-      .then(r => r.json())
-      .then(bal => {
-        if (bal.ok) {
-          fetch('/rest/v1/ap/spend', {
-            method: 'POST',
-            headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: GQ_FAIL_PENALTY_AP, reason: '公會質詢失敗懲罰' })
-          }).then(r2 => r2.json()).then(() => {
-            toast('💀 失敗反噬！- ' + GQ_FAIL_PENALTY_AP + ' AP，公會 -' + Math.abs(GQ_GUILD_FAIL) + ' 分');
-            saveAndRender();
-          }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
-        } else { saveAndRender(); }
-      }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
+    fetch('/rest/v1/ap/spend', {
+      method: 'POST',
+      headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({type:'GUILD_QUIZ', amount: GQ_FAIL_PENALTY_AP, reason: '公會質詢失敗懲罰' })
+    }).then(safeJson).then(function(){
+      toast('💀 失敗反噬！- ' + GQ_FAIL_PENALTY_AP + ' AP，公會 -' + Math.abs(GQ_GUILD_FAIL) + ' 分');
+      saveAndRender();
+    }).catch(function(){toast('❌ AP 操作失敗，請稍後重試','bad'); saveAndRender();});
   }
 }
 

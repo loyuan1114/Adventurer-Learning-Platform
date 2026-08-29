@@ -1,4 +1,5 @@
 /* vLearn — 學習獎勵 Dashboard */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 let LV = { balance: 0, caps: {}, ledger: [], loading: false };
 
 function vLearn() {
@@ -172,12 +173,12 @@ function lvHighlightDiff() {
 
 function lvFetchLedger() {
   fetch('/rest/v1/ap/ledger', { headers: { 'x-adv9-token': WTOKEN } })
-    .then(function (r) { return r.json(); })
+    .then(safeJson)
     .then(function (d) {
       if (d.ok) { LV.ledger = d.ledger || []; LV._updateLedger(); LV._updateEarned(); }
     }).catch(function () { });
   fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
-    .then(function (r) { return r.json(); })
+    .then(safeJson)
     .then(function (d) {
       if (d.ok) { LV.balance = d.balance || 0; LV.caps = d.caps || {}; LV._updateBal(); LV._updateCap(); }
     }).catch(function () { });
@@ -215,7 +216,7 @@ function lvSubmitLearning() {
     method: 'POST',
     headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify({ subject: subject, duration_min: duration, difficulty: difficulty })
-  }).then(function (r) { return r.json(); })
+  }).then(safeJson)
     .then(function (d) {
       if (d.ok) {
         toast('📚 +' + d.ap + ' AP！（' + subject + ' ' + duration + ' 分鐘）');

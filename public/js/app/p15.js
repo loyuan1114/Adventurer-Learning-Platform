@@ -858,13 +858,15 @@ openModal('<h3 class="mt">'+(isAdmin?'👥 建立新帳號':'📝 新增帳號')
 
 '<label class="mlab">姓名<input id="nuName" placeholder="例：王小明"></label>'+
 
-'<label class="mlab" id="nuClsWrap2">班級（學生）<input id="nuClass" placeholder="例：701"></label>'+
+'<label class="mlab" id="nuClsWrap2">班級（學生）<select id="nuClass"><option value="">未分班</option></select></label>'+
 
 '<label class="mlab">帳號<input id="nuUser" placeholder="英文或數字"></label>'+
 
 '<label class="mlab">密碼<input id="nuPass" placeholder="至少 4 碼，僅限英文/數字/符號"></label>'+
 
 '<div class="mBtns"><button class="btn ghost" onclick="closeModal()">取消</button><button class="btn" onclick="createUser()">建立</button></div>');
+
+if(SUPA_ON&&WTOKEN){fetch(SUPA_URL+'/rest/v1/class/list',{headers:{'x-adv9-token':WTOKEN}}).then(function(r){return r.json()}).then(function(d){if(d.ok&&d.classes){var sel=document.getElementById('nuClass');if(!sel)return;d.classes.forEach(function(c){var opt=document.createElement('option');opt.value=c.id;opt.textContent=c.name+' ('+c.code+')';sel.appendChild(opt)})}}).catch(function(){})}
 
 }
 

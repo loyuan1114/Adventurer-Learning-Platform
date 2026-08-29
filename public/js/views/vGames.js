@@ -1,6 +1,7 @@
 /* ════════════════════════════════════════════
    vGames — 遊戲獎勵 Dashboard（Game AP）
    ════════════════════════════════════════════ */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 function vGames(){
   var u=me();if(!u){toast('請先登入','bad');return}
   var S={balance:0,gameMins:0,gameAp:0,elo:1500,winRate:0,rank:'—',ledger:[]};
@@ -60,11 +61,11 @@ function vGMSelectType(t){var el=$('#vGMType');if(el)el.value=t}
 function _vgmFetchData(){
   var S=window._vGM;if(!S)return;
   fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.balance=d.balance||0;_vgmUpdateStats()}
     }).catch(function(){});
   fetch('/rest/v1/ap/ledger',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.ledger=d.ledger||[];_vgmUpdateLedger()}
     }).catch(function(){});
 }
@@ -109,7 +110,7 @@ async function vGMSubmit(){
       method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({elo:elo,winrate:winRate/100,rank:rank||'—',duration_sec:timeSec})
     });
-    var d=await r.json();
+    var d=await safeJson(r);
     if(d.ok){
       toast('✅ 遊戲提交成功！+'+d.ap+' AP');
       var u=me();if(u&&u.g){

@@ -1,4 +1,5 @@
 /* vCreate — 創作贊助 Dashboard */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 let CR = { balance: 0, ledger: [], loading: false };
 
 function vCreate() {
@@ -91,12 +92,12 @@ CR._renderLedger = function () {
 
 function crFetchLedger() {
   fetch('/rest/v1/ap/ledger', { headers: { 'x-adv9-token': WTOKEN } })
-    .then(function (r) { return r.json(); })
+    .then(safeJson)
     .then(function (d) {
       if (d.ok) { CR.ledger = d.ledger || []; CR._updateLedger(); }
     }).catch(function () { });
   fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
-    .then(function (r) { return r.json(); })
+    .then(safeJson)
     .then(function (d) {
       if (d.ok) { CR.balance = d.balance || 0; CR._updateBal(); }
     }).catch(function () { });
@@ -124,7 +125,7 @@ function crSubmitCreation() {
     method: 'POST',
     headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify({ title: title, creation_type: type })
-  }).then(function (r) { return r.json(); })
+  }).then(safeJson)
     .then(function (d) {
       if (d.ok) {
         toast('📝 創作已提交！+' + d.ap + ' AP');
@@ -149,7 +150,7 @@ function crSubmitSponsor() {
     method: 'POST',
     headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'sponsor', target_user: target, amount: amount, message: message })
-  }).then(function (r) { return r.json(); })
+  }).then(safeJson)
     .then(function (d) {
       if (d.ok) {
         toast('💝 已贊助 ' + target + ' ' + amount + ' AP！');

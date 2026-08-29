@@ -1,4 +1,5 @@
 /* vSoulScroll — 靈魂卷軸：AI 消耗品 */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 const SCROLL_COST_AP = 200;
 const SCROLL_SAN_DROP = 20;
 const SCROLL_XP_DUR_MS = 86400000;
@@ -46,15 +47,15 @@ function scrollPurchase() {
   _scrollLoading=true;
   const u = me(); if (!u || !u.g) { _scrollLoading=false; return toast('⚠️ 請先登入', 'bad'); }
   fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
-    .then(r => r.json())
+    .then(safeJson)
     .then(d => {
       if (!d.ok) { _scrollLoading=false; return toast('❌ 查詢失敗', 'bad'); }
       if ((d.balance || 0) < SCROLL_COST_AP) { _scrollLoading=false; return toast('❌ AP 不足（需 ' + SCROLL_COST_AP + '）', 'bad'); }
       fetch('/rest/v1/ap/spend', {
         method: 'POST',
         headers: { 'x-adv9-token': WTOKEN, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: SCROLL_COST_AP, reason: '購買靈魂卷軸' })
-      }).then(r2 => r2.json()).then(d2 => {
+        body: JSON.stringify({type:'SCROLL', amount: SCROLL_COST_AP, reason: '購買靈魂卷軸' })
+      }).then(safeJson).then(d2 => {
         _scrollLoading=false;
         if (!d2.ok) return toast('❌ ' + (d2.reason || '購買失敗'), 'bad');
         const sd = scrollData();

@@ -1,4 +1,5 @@
 /* vClasses — 班級管理 */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 function vClasses(){
   var u=me();if(!u)return;
   var g=u.g||{};
@@ -77,7 +78,7 @@ function classJoinByCode(){
     method:'POST',
     headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
     body:JSON.stringify({classCode:code})
-  }).then(function(r){return r.json()}).then(function(d){
+  }).then(safeJson).then(function(d){
     if(d.ok){
       var u=me();
       if(u){u.classId=d.classId;u.classCode=code;saveU(u);}

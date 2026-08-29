@@ -1,6 +1,7 @@
 /* ════════════════════════════════════════════
    vShopV — 兌換系統 Dashboard（Exchange/Redemption）
    ════════════════════════════════════════════ */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 function vShopV(){
   var u=me();if(!u){toast('請先登入','bad');return}
   var S={balance:0,commendations:0,exchangeCount:0,items:[],ledger:[]};
@@ -33,11 +34,11 @@ function _svFetchData(){
   var S=window._vSV;if(!S)return;
   var u=me();if(u&&u.g){S.commendations=u.g.commendations||0}
   fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.balance=d.balance||0;_svUpdateStats()}
     }).catch(function(){});
   fetch('/rest/v1/ap/exchange_items',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.items=d.items||[];_svRenderItems()}
     }).catch(function(){
       S.items=[
@@ -48,7 +49,7 @@ function _svFetchData(){
       _svRenderItems();
     });
   fetch('/rest/v1/ap/ledger',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.ledger=d.ledger||[];_svUpdateLedger()}
     }).catch(function(){});
 }
@@ -108,7 +109,7 @@ async function _svExchange(itemId){
       method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({item_id:itemId,quantity:1})
     });
-    var d=await r.json();
+    var d=await safeJson(r);
     if(d.ok){
       var qtyAdded=d.commendations_earned||1;
       toast('✅ 兌換成功！'+esc(d.item_name||item.name)+' ×'+qtyAdded);

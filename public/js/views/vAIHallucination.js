@@ -2,6 +2,7 @@
    vAIHallucination — AI 幻象破除模式
    找出 AI 導師解題步驟中的幻覺錯誤
    ════════════════════════════════════════════ */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 var HALL_STATE={q:null,phase:'IDLE',combo:0,streak:0,stats:null,steps:[],wrongIdx:-1,answered:false,round:0,baseAP:10,feedback:'',feedbackType:''};
 
 var HALL_QUESTIONS=[
@@ -117,15 +118,9 @@ function hallShuffleSteps(q){
 }
 
 function hallEarnAP(amount){
-  fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN}})
-  .then(function(r){return r.json()})
-  .then(function(d){
-    if(d.ok){
-      fetch('/rest/v1/ap/spend',{method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},body:JSON.stringify({type:'GAME',amount:0})});
-    }
-  });
-  toast('+'+amount+' AP');
+  // AP is awarded server-side via game completion; just sync balance
   if(typeof fetchApBalance==='function')fetchApBalance();
+  toast('+'+amount+' AP');
   return amount;
 }
 

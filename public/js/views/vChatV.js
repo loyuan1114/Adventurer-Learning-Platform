@@ -1,6 +1,7 @@
 /* ════════════════════════════════════════════
    vChatV — 社群互助 Dashboard（Community AP）
    ════════════════════════════════════════════ */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 function vChatV(){
   const u=me();
   if(!u){toast('請先登入','bad');return}
@@ -48,11 +49,11 @@ function _cvFetchData(){
   var S=window._vCV;if(!S)return;
   var u=me();if(u&&u.g){S.helpCount=u.g.communityHelps||0}
   fetch('/rest/v1/ap/balance',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.balance=d.balance||0;S.caps=d.caps||{};_cvUpdateStats()}
     }).catch(function(){});
   fetch('/rest/v1/ap/ledger',{headers:{'x-adv9-token':WTOKEN}})
-    .then(function(r){return r.json()}).then(function(d){
+    .then(safeJson).then(function(d){
       if(d.ok){S.ledger=d.ledger||[];_cvUpdateLedger()}
     }).catch(function(){});
 }
@@ -90,7 +91,7 @@ async function vCVSubmitHelp(){
       method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({action:'help',target_user:target,detail:detail||undefined})
     });
-    var d=await r.json();
+    var d=await safeJson(r);
     if(d.ok){
       toast('✅ 幫助成功！+'+d.ap+' AP');
       var u=me();if(u&&u.g){u.g.apBalance=d.balance||0;saveU(u)}
@@ -110,7 +111,7 @@ async function vCVBecomeMentor(){
       method:'POST',headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({action:'mentor',target_user:target})
     });
-    var d=await r.json();
+    var d=await safeJson(r);
     if(d.ok){
       toast('✅ 導師活動成功！+'+d.ap+' AP');
       var u=me();if(u&&u.g){u.g.apBalance=d.balance||0;saveU(u)}
