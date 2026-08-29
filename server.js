@@ -439,6 +439,19 @@ var server=http.createServer(function(req,res){
     reconcileIndex();
     res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});return res.end(JSON.stringify({ok:true,index:indexOfACC()}));
   }
+  /* 🎭 管理員模擬登入：取得目標用戶的新 token */
+  if(req.method==='POST'&&p==='/rest/v1/admin/impersonate'){
+    var iw2=checkToken(tok);if(!iw2||iw2.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var targetUser=String(j.username||'').trim();
+      if(!targetUser||!ACC[targetUser]){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到帳號'}))}
+      var targetRole=ACC[targetUser].role||'student';
+      var newTok=newToken(targetUser,targetRole);
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:true,token:newTok,username:targetUser,role:targetRole,impersonator:iw2.username}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
   /* 👥 用戶列表（老師/管理員）：回傳簡化版用戶清單 */
   if(req.method==='GET'&&p==='/rest/v1/users'){
     var uw=checkToken(tok);if(!uw){res.writeHead(401);return res.end('need login')}

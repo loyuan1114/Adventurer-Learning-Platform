@@ -931,16 +931,45 @@ us.map(x=>'<option value="'+esc(x.username)+'">'+(x.role==='teacher'?'👩‍�
 function doImp(){const v=$('#impSel').value;if(!v)return toast('⚠️ 請選擇帳號','bad');closeModal();impersonate(v)}
 
 /* 模擬登入：直接用本機（已從雲端同步）的帳號資料，無需連網、無需密碼；資料庫並無 users 表，原本的雲端抓取一定失敗 */
-function impersonate(username){
+async function impersonate(username){
   const localUsers=get(LS.users,[]);
   const target=localUsers.find(x=>x.username===username);
   if(!target){toast('⚠️ 找不到帳號：'+username,'bad');return;}
   const m=me();
-  set(LS.ses,{u:username,imp:m?m.username:false});
-  enter();
+  try{
+    const r=await fetch('/rest/v1/admin/impersonate',{method:'POST',headers:{'Content-Type':'application/json','x-adv9-token':WTOKEN},body:JSON.stringify({username:username})});
+    const d=await r.json().catch(()=>({ok:false}));
+    if(d.ok&&d.token){
+      WTOKEN=d.token;
+      try{localStorage.setItem('ADV9_WTOKEN',d.token)}catch(e){}
+      set(LS.ses,{u:username,imp:m?m.username:false});
+      toast('🎭 已切換到 '+target.name+'（'+d.role+'）');
+      enter();
+    }else{
+      toast('❌ 模擬登入失敗：'+(d.reason||'未知錯誤'),'bad');
+    }
+  }catch(e){
+    set(LS.ses,{u:username,imp:m?m.username:false});
+    toast('⚠️ 切換到 '+target.name+'（離線模式）');
+    enter();
+  }
 }
 
-function backAdmin(){const s=get(LS.ses);if(s&&s.imp){set(LS.ses,{u:s.imp,imp:false});enter()}else logout()}
+async function backAdmin(){
+  const s=get(LS.ses);
+  if(s&&s.imp){
+    try{
+      const r=await fetch('/rest/v1/admin/impersonate',{method:'POST',headers:{'Content-Type':'application/json','x-adv9-token':WTOKEN},body:JSON.stringify({username:s.imp})});
+      const d=await r.json().catch(()=>({ok:false}));
+      if(d.ok&&d.token){
+        WTOKEN=d.token;
+        try{localStorage.setItem('ADV9_WTOKEN',d.token)}catch(e){}
+      }
+    }catch(e){}
+    set(LS.ses,{u:s.imp,imp:false});
+    enter();
+  }else logout();
+}
 
 /* 🕒 在線跨過 21:00 時自動發放排行榜信件（每 5 分鐘檢查一次）*/
 
