@@ -293,6 +293,6 @@ function aGo(tab){
 
 if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
 
-else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='aiprovider')vAiProvider();else if(tab==='socratic')vSocraticAdmin();else if(tab==='classes')vClasses();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='trust')vTrust();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
+else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='aiprovider')vAiProvider();else if(tab==='socratic')vSocraticAdmin();else if(tab==='classes')vAdminPanel();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='trust')vTrust();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
 
 }
