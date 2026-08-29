@@ -1,5 +1,16 @@
 /* vClasses — 班級系統（學生/老師版） */
-function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
+function safeJson(r){
+  if(!r.ok){
+    if(r.status===401||r.status===403){
+      WTOKEN='';
+      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入','bad');
+      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+    }
+    return r.text().then(function(t){throw new Error(t||('HTTP '+r.status))});
+  }
+  return r.json();
+}
 function vClasses(){
   var u=me();if(!u)return;
   if(!WTOKEN){
