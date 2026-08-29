@@ -419,6 +419,85 @@ var server=http.createServer(function(req,res){
 
   /* 管理資料的權威寫入端點：帳號/API 不再依賴前端 localStorage 或延遲佇列 */
   if(req.method==='POST'&&p==='/rest/v1/admin/users/create'){var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}return readBody(req,async function(b){try{var nu=JSON.parse(b.toString('utf8'));if(!nu.username||!nu.password){res.writeHead(400);return res.end('missing account')}if(!isValidUsername(nu.username)){res.writeHead(400);return res.end('invalid username')}if(ACC[nu.username]){res.writeHead(409);return res.end('account exists')}if(!nu.createdAt)nu.createdAt=new Date().toISOString();if(!nu.role)nu.role='student';await mergeUsers([nu],cw);saveKV();saveIndex();res.writeHead(201,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,user:sanitize(ACC[nu.username])}))}catch(e){res.writeHead(400);res.end('bad account')}})}
+  /* POST /rest/v1/admin/users/bulk_create - 批量建立帳號 */
+  if(req.method==='POST'&&p==='/rest/v1/admin/users/bulk_create'){
+    var cw=checkToken(tok);if(!cw||cw.role!=='admin'){res.writeHead(403);return res.end(JSON.stringify({ok:false,reason:'forbidden'}))}
+    return readBody(req,async function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var role=String(j.role||'').trim();
+      var lines=String(j.text||'').trim().split(/\r?\n/).filter(function(l){return l.trim()});
+      if(!role||!['teacher','student','parent'].includes(role)){res.writeHead(400);return res.end(JSON.stringify({ok:false,reason:'角色錯誤'}))}
+      if(!lines.length){res.writeHead(400);return res.end(JSON.stringify({ok:false,reason:'無資料'}))}
+      
+      var classes=KV['ADV9_CLASSES']||[];
+      if(!Array.isArray(classes))classes=[];
+      var existingUsernames=Object.keys(ACC);
+      var results={created:0,failed:0,errors:[]};
+      
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i].trim();
+        if(!line)continue;
+        var parts=line.split(/\s+/);
+        if(role==='student'){
+          if(parts.length<3){results.failed++;results.errors.push('第 '+(i+1)+' 行：學生需 姓名 帳號 密碼 [班級]');continue;}
+          var name=parts[0],username=parts[1],password=parts[2],className=parts[3]||'';
+          if(!isValidUsername(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號格式錯誤');continue;}
+          if(existingUsernames.includes(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號已存在 '+username);continue;}
+          if(password.length<4){results.failed++;results.errors.push('第 '+(i+1)+' 行：密碼至少 4 碼');continue;}
+          
+          var classId=null;
+          if(className){
+            var cls=classes.find(function(c){return c.name===className||c.code===className;});
+            if(cls)classId=cls.id;
+            else{
+              var newClassId='cls_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+              var newCode=Math.random().toString(36).slice(2,8).toUpperCase();
+              classes.push({id:newClassId,name:className,teacherId:null,code:newCode,createdAt:new Date().toISOString()});
+              classId=newClassId;
+            }
+          }
+          
+          var createdAt=new Date().toISOString();
+          var newUser={id:'usr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),username:username,name:name,role:'student',classId:classId,createdAt:createdAt};
+          await mergeUsers([newUser],cw);
+          existingUsernames.push(username);
+          results.created++;
+          
+        }else if(role==='teacher'){
+          if(parts.length<3){results.failed++;results.errors.push('第 '+(i+1)+' 行：老師需 姓名 帳號 密碼');continue;}
+          var name=parts[0],username=parts[1],password=parts[2];
+          if(!isValidUsername(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號格式錯誤');continue;}
+          if(existingUsernames.includes(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號已存在 '+username);continue;}
+          if(password.length<4){results.failed++;results.errors.push('第 '+(i+1)+' 行：密碼至少 4 碼');continue;}
+          
+          var createdAt=new Date().toISOString();
+          var newUser={id:'usr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),username:username,name:name,role:'teacher',managedClassIds:[],createdAt:createdAt};
+          await mergeUsers([newUser],cw);
+          existingUsernames.push(username);
+          results.created++;
+          
+        }else{
+          if(parts.length<3){results.failed++;results.errors.push('第 '+(i+1)+' 行：家長需 姓名 帳號 密碼');continue;}
+          var name=parts[0],username=parts[1],password=parts[2];
+          if(!isValidUsername(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號格式錯誤');continue;}
+          if(existingUsernames.includes(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號已存在 '+username);continue;}
+          if(password.length<4){results.failed++;results.errors.push('第 '+(i+1)+' 行：密碼至少 4 碼');continue;}
+          
+          var createdAt=new Date().toISOString();
+          var newUser={id:'usr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),username:username,name:name,role:'parent',createdAt:createdAt};
+          await mergeUsers([newUser],cw);
+          existingUsernames.push(username);
+          results.created++;
+        }
+      }
+      
+      KV['ADV9_CLASSES']=classes;
+      saveKV();
+      saveIndex();
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:true,created:results.created,failed:results.failed,errors:results.errors}));
+    }catch(e){res.writeHead(400);res.end(JSON.stringify({ok:false,reason:'bad json'}))}})
+  }
   /* 刪除帳號（僅管理員；主管理員不可刪；同步移除獨立帳號檔與其私有 KV 資料）*/
   if(req.method==='POST'&&p==='/rest/v1/admin/users/delete'){
     var dw=checkToken(tok); if(!dw || dw.role!=='admin'){res.writeHead(403);return res.end('forbidden')}
