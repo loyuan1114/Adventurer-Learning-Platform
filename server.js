@@ -433,45 +433,72 @@ var server=http.createServer(function(req,res){
       if(!Array.isArray(classes))classes=[];
       var existingUsernames=Object.keys(ACC);
       var results={created:0,failed:0,errors:[]};
+
+      function findOrCreateClass(className){
+        if(!className)return null;
+        var cls=classes.find(function(c){return c.name===className||c.code===className;});
+        if(cls)return cls.id;
+        var newClassId='cls_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+        var newCode=className.replace(/[^\w]/g,'').toUpperCase().slice(0,8)||Math.random().toString(36).slice(2,8).toUpperCase();
+        classes.push({id:newClassId,name:className,teacherId:null,code:newCode,createdAt:new Date().toISOString()});
+        return newClassId;
+      }
+      function makeUserId(){
+        return 'usr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      }
       
       for(var i=0;i<lines.length;i++){
         var line=lines[i].trim();
         if(!line)continue;
         var parts=line.split(/\s+/);
         if(role==='student'){
-          if(parts.length<3){results.failed++;results.errors.push('第 '+(i+1)+' 行：學生需 姓名 帳號 密碼 [班級]');continue;}
-          var name=parts[0],username=parts[1],password=parts[2],className=parts[3]||'';
+          /* 支援兩種格式：
+             格式A（新）：姓名 班級 座號 密碼  → 帳號=密碼
+             格式B（舊）：姓名 帳號 密碼 [班級]
+          */
+          var name,username,password,className;
+          if(parts.length>=4){
+            name=parts[0];className=parts[1];password=parts[3];username=password;
+          }else if(parts.length>=3){
+            name=parts[0];username=parts[1];password=parts[2];className=parts[3]||'';
+          }else{
+            results.failed++;results.errors.push('第 '+(i+1)+' 行：學生需 姓名 班級 座號 密碼 或 姓名 帳號 密碼 [班級]');continue;
+          }
+          if(!name||!username||!password){results.failed++;results.errors.push('第 '+(i+1)+' 行：資料不完整');continue;}
           if(!isValidUsername(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號格式錯誤');continue;}
           if(existingUsernames.includes(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號已存在 '+username);continue;}
           if(password.length<4){results.failed++;results.errors.push('第 '+(i+1)+' 行：密碼至少 4 碼');continue;}
           
-          var classId=null;
-          if(className){
-            var cls=classes.find(function(c){return c.name===className||c.code===className;});
-            if(cls)classId=cls.id;
-            else{
-              var newClassId='cls_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-              var newCode=Math.random().toString(36).slice(2,8).toUpperCase();
-              classes.push({id:newClassId,name:className,teacherId:null,code:newCode,createdAt:new Date().toISOString()});
-              classId=newClassId;
-            }
-          }
+          var classId=className?findOrCreateClass(className):null;
           
           var createdAt=new Date().toISOString();
-          var newUser={id:'usr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),username:username,name:name,role:'student',classId:classId,createdAt:createdAt};
+          var newUser={id:makeUserId(),username:username,name:name,role:'student',classId:classId,createdAt:createdAt};
           await mergeUsers([newUser],cw);
           existingUsernames.push(username);
           results.created++;
           
         }else if(role==='teacher'){
-          if(parts.length<3){results.failed++;results.errors.push('第 '+(i+1)+' 行：老師需 姓名 帳號 密碼');continue;}
-          var name=parts[0],username=parts[1],password=parts[2];
+          /* 支援兩種格式：
+             格式A（新）：姓名 班級 座號 密碼  → 帳號=密碼
+             格式B（舊）：姓名 帳號 密碼
+          */
+          var name,username,password,className;
+          if(parts.length>=4){
+            name=parts[0];className=parts[1];password=parts[3];username=password;
+          }else if(parts.length>=3){
+            name=parts[0];username=parts[1];password=parts[2];
+          }else{
+            results.failed++;results.errors.push('第 '+(i+1)+' 行：老師需 姓名 帳號 密碼');continue;
+          }
+          if(!name||!username||!password){results.failed++;results.errors.push('第 '+(i+1)+' 行：資料不完整');continue;}
           if(!isValidUsername(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號格式錯誤');continue;}
           if(existingUsernames.includes(username)){results.failed++;results.errors.push('第 '+(i+1)+' 行：帳號已存在 '+username);continue;}
           if(password.length<4){results.failed++;results.errors.push('第 '+(i+1)+' 行：密碼至少 4 碼');continue;}
           
+          var classId=className?findOrCreateClass(className):null;
+          var managedIds=classId?[classId]:[];
           var createdAt=new Date().toISOString();
-          var newUser={id:'usr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),username:username,name:name,role:'teacher',managedClassIds:[],createdAt:createdAt};
+          var newUser={id:makeUserId(),username:username,name:name,role:'teacher',classId:classId,managedClassIds:managedIds,createdAt:createdAt};
           await mergeUsers([newUser],cw);
           existingUsernames.push(username);
           results.created++;
@@ -659,7 +686,7 @@ var server=http.createServer(function(req,res){
     res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,currentId:sk3.current?sk3.current.id:null,done:done,best:best}));
   }
   if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/admin/users/sync'){
-    var aw=checkToken(tok); if(!aw || (aw.role!=='admin'&&aw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}
+    var aw=checkToken(tok); if(!aw || (aw.role!=='admin'&&aw.role!=='teacher')){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'forbidden'}))}
     return readBody(req,async function(b){try{var j=JSON.parse(b.toString('utf8'));await mergeUsers(j.users||j,aw);saveKV();saveIndex();console.log('[SYNC]',aw.username,'role='+aw.role,'users='+((Array.isArray(j.users)?j.users:j)||[]).length);res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,users:usersArray()}))}catch(e){res.writeHead(400);res.end('bad users')}})
   }
   if((req.method==='POST'||req.method==='PUT')&&p==='/rest/v1/admin/api_keys'){
@@ -1914,7 +1941,35 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       saveAPExchangeItems();
       addApAudit(eia.username,'EXCHANGE_ITEMS_UPDATE','items',null,JSON.stringify(safe),'');
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,items:safe}));
-    }catch(e){res.writeHead(400);res.end('bad json')}})
+    }catch(e){res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,reason:'bad json'}))})
+  }
+  /* GET /rest/v1/ap/redemptions - 取得所有學生兌換記錄（管理員專用） */
+  if(req.method==='GET'&&p==='/rest/v1/ap/redemptions'){
+    var riw=checkToken(tok);if(!riw||riw.role!=='admin'){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'admin only'}))}
+    try{
+      var all=[];
+      Object.keys(ACC).forEach(function(un){
+        var u=ACC[un];if(!u||u.role!=='student')return;
+        var ledger=u.commendations?.ledger||[];
+        ledger.forEach(function(tx){
+          if(tx.item_id||tx.item_name){
+            all.push({
+              ts:tx.ts,
+              student:un,
+              studentName:u.name||un,
+              itemId:tx.item_id,
+              itemName:tx.item_name,
+              quantity:tx.quantity||1,
+              apCost:Math.abs(tx.ap||0),
+              status:'completed'
+            });
+          }
+        });
+      });
+      all.sort(function(a,b){return (b.ts||0)-(a.ts||0)});
+      res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});
+      res.end(JSON.stringify({ok:true,redemptions:all}));
+    }catch(e){res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,reason:'bad request'}))}
   }
   /* ═══════════════════════════════════════════
      AP 專屬獎勵類型端點 (8 大類)

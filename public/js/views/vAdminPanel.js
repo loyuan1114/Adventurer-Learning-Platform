@@ -52,7 +52,7 @@ async function apVerifyToken(){
 window.apVerifyToken=apVerifyToken;
 
 function apRenderTabs(){
-  const tabs=['📊 統計總覽','⚙️ 獎勵規則','💰 手動發放','📋 審計日誌','🔍 用戶查詢'];
+  const tabs=['📊 統計總覽','⚙️ 獎勵規則','💰 手動發放','📋 審計日誌','🔍 用戶查詢','🛍️ 學生兌換'];
   $('#apTabs').innerHTML=tabs.map((t,i)=>'<button class="btn '+(window._apTab===i?'':'ghost')+' mini" onclick="apLoadTab('+i+')" style="font-size:12.5px">'+t+'</button>').join('');
 }
 
@@ -65,6 +65,7 @@ function apLoadTab(idx){
   else if(idx===2) apGrant(el);
   else if(idx===3) apAudit(el);
   else if(idx===4) apUserSearch(el);
+  else if(idx===5) apRedemption(el);
 }
 
 /* ──────────── Tab 1: 統計總覽 ──────────── */
@@ -474,3 +475,33 @@ window.apSaveRules=apSaveRules;
 window.apDoGrant=apDoGrant;
 window.apDoUserQuery=apDoUserQuery;
 window.apLoadTab=apLoadTab;
+
+async function apRedemption(el){
+  el.innerHTML='<div style="padding:20px;color:var(--mut);text-align:center">⏳ 載入學生兌換記錄…</div>';
+  try{
+    const r=await fetch('/rest/v1/ap/redemptions',{headers:{'x-adv9-token':WTOKEN}});
+    const d=await safeJson(r);
+    if(!d.ok)throw new Error(d.msg||'載入失敗');
+    const items=d.redemptions||[];
+    
+    if(!items.length){
+      el.innerHTML='<div class="empty" style="padding:20px;text-align:center">暫無學生兌換記錄</div>';
+      return;
+    }
+    
+    let h='<div class="tblWrap"><table><thead><tr><th>時間</th><th>學生</th><th>兌換項目</th><th>花費 AP</th><th>狀態</th></tr></thead><tbody>';
+    items.forEach(tx=>{
+      h+='<tr>';
+      h+='<td style="font-size:11.5px;white-space:nowrap">'+(tx.ts?new Date(tx.ts).toLocaleString():'')+'</td>';
+      h+='<td style="font-size:12px">'+esc(tx.studentName||tx.student||'')+' <span style="color:var(--mut)">('+esc(tx.student||'')+')</span></td>';
+      h+='<td style="font-size:12px">'+esc(tx.itemName||tx.item||'')+'</td>';
+      h+='<td style="font-size:12px;text-align:center;color:#ff8a80">'+(tx.apCost||tx.cost||0)+' AP</td>';
+      h+='<td style="font-size:12px;text-align:center"><span style="color:'+(tx.status==='completed'?'var(--green)':'#ffcc80')+'">'+(tx.status==='completed'?'✅ 已完成':tx.status==='pending'?'⏳ 待處理':'❌ 失敗')+'</span></td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+    h+='<div style="margin-top:10px;font-size:12px;color:var(--mut)">共 '+items.length+' 筆記錄</div>';
+    el.innerHTML=h;
+  }catch(e){el.innerHTML='<div class="panel2" style="color:#ff8a80;border-left:4px solid #ff8a80;padding:10px">❌ '+esc(e.message)+'</div>';}
+}
+window.apRedemption=apRedemption;

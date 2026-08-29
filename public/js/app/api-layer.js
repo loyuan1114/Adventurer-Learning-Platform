@@ -75,7 +75,19 @@ if(k==='ADV9_USERS'){
   /* 只有管理員/教師能同步帳號清單；學生與未登入一律靜默略過（伺服器會回 403）*/
   const r=_curSyncRole();
   if(r!=='admin'&&r!=='teacher')return;
-  fetch(SUPA_URL+'/rest/v1/admin/users/sync',{method:'POST',headers:supaHeaders(),body:JSON.stringify({users:v})}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>{console.warn('VPS account save failed',e);if(!window._supaUsersWarnAt||Date.now()-window._supaUsersWarnAt>30000){window._supaUsersWarnAt=Date.now();const why=(e&&e.message)?e.message:'無法連線';toast('⚠️ 帳號同步至 VPS 失敗（'+why+'），請檢查連線後重試','bad')}});
+  fetch(SUPA_URL+'/rest/v1/admin/users/sync',{method:'POST',headers:supaHeaders(),body:JSON.stringify({users:v})}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>{
+    if(!window._supaUsersWarnAt||Date.now()-window._supaUsersWarnAt>30000){
+      window._supaUsersWarnAt=Date.now();
+      let why=(e&&e.message)?e.message:'無法連線';
+      try{
+        const errBody=JSON.parse(why);
+        if(errBody&&errBody.reason)why=errBody.reason;
+      }catch(_){}
+      if(why.indexOf('forbidden')<0&&why.indexOf('403')<0){
+        toast('⚠️ 帳號同步至 VPS 失敗（'+why+'），請檢查連線後重試','bad');
+      }
+    }
+  });
   return;
 }
 if(k==='ADV9_APIKEYS'){
