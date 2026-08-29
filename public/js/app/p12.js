@@ -19,7 +19,7 @@ $('#app').innerHTML=
 
 '<main id="view" class="panel view"></main></div>';
 
-aGo('users');
+setTimeout(function(){try{aGo('users')}catch(e){}},100);
 
 }
 
@@ -289,10 +289,10 @@ set('ADV9_PARENT_CONSENTS',consents);
 toast('已撤銷查看權限');
 }
 
-function aGo(tab){
-
-if(tab==='users')vUsers();else if(tab==='grant')vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
-
+async function aGo(tab){
+try{
+if(tab==='users'){if(typeof vUsers!=='function'){await needJs(['js/views/vUsers.js'])}vUsers();}
+else if(tab==='grant')vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')vDollAdmin();else if(tab==="guilds")vGuildsAdmin();else if(tab==='content')vContentAdmin();else if(tab==='books')vBooksAdmin();else if(tab==='codes')vCodesAdmin();else if(tab==='post')vPostAdmin();
 else if(tab==='monitor')vMonitor();else if(tab==='stats')vAStats();else if(tab==='api')vApiKeys();else if(tab==='aiprovider')vAiProvider();else if(tab==='socratic')vSocraticAdmin();else if(tab==='classes')vAdminPanel();else if(tab==='game')vGameSet();else if(tab==='lang')vLangStudy();else if(tab==='trust')vTrust();else if(tab==='student_view')renderStudent(me());else vResetAdmin();
-
+}catch(e){toast('❌ 載入失敗：'+e.message,'bad')}
 }
