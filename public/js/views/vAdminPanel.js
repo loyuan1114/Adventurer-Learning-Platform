@@ -1,6 +1,7 @@
 /* ════════════════════════════════════════════
    vAdminPanel — AP 管理控制台（管理員專用）
    ════════════════════════════════════════════ */
+function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 async function vAdminPanel(){
   if(!(typeof IS_ADMIN==='function'&&IS_ADMIN())) return toast('⚠️ 僅管理員可進入','bad');
   let h=back()+'<h3 class="vt">📊 AP 管理控制台 <span class="vsub">規則設定・手動發放・審計追蹤</span></h3>';
@@ -38,7 +39,7 @@ async function apStats(el){
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--mut)">⏳ 載入統計資料…</div>';
   try{
     const r=await fetch('/rest/v1/ap/stats',{headers:{'x-adv9-token':WTOKEN}});
-    const d=await r.json();
+    const d=await safeJson(r);
     if(!d.ok) throw new Error(d.msg||'載入失敗');
     const s=d.stats;
     let h='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px">';
@@ -70,7 +71,7 @@ async function apRules(el){
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--mut)">⏳ 載入規則…</div>';
   try{
     const r=await fetch('/rest/v1/ap/rules',{headers:{'x-adv9-token':WTOKEN}});
-    const d=await r.json();
+    const d=await safeJson(r);
     if(!d.ok) throw new Error(d.msg||'載入失敗');
     window._apRulesData=d;
     let h='<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(--teal);padding:12px"><b style="color:var(--teal);font-size:13px">📌 平台最低限制（唯讀）</b>';
@@ -151,7 +152,7 @@ async function apSaveRules(){
       headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({rules,global_caps,reason:'管理員後台修改獎勵規則'})
     });
-    const d=await r.json();
+    const d=await safeJson(r);
     if(d.ok){msg.textContent='✅ 已儲存';msg.style.color='var(--teal)';toast('✅ 規則已更新');}
     else throw new Error(d.msg||'儲存失敗');
   }catch(e){msg.textContent='❌ '+e.message;msg.style.color='#ff8a80';}
@@ -192,7 +193,7 @@ async function apDoGrant(){
       headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({target_user:user.trim(),amount:amt,reason:reason.trim(),type:'ADMIN_GRANT'})
     });
-    const d=await r.json();
+    const d=await safeJson(r);
     if(d.ok){
       msg.textContent='✅ 已發放 '+amt+' AP 給 '+user.trim();msg.style.color='var(--teal)';
       toast('✅ 已發放 AP');
@@ -212,7 +213,7 @@ async function apAudit(el){
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--mut)">⏳ 載入審計日誌…</div>';
   try{
     const r=await fetch('/rest/v1/ap/audit?limit=100',{headers:{'x-adv9-token':WTOKEN}});
-    const d=await r.json();
+    const d=await safeJson(r);
     if(!d.ok) throw new Error(d.msg||'載入失敗');
     const logs=d.audit||[];
     let h='<div class="panel2"><b style="color:var(--gold2);font-size:14px">📋 最近 '+logs.length+' 筆審計紀錄</b>';
@@ -257,7 +258,7 @@ async function apDoUserQuery(){
   res.innerHTML='<div style="color:var(--mut);font-size:12px">⏳ 查詢中…</div>';
   try{
     const r=await fetch('/rest/v1/ap/balance?target='+encodeURIComponent(user),{headers:{'x-adv9-token':WTOKEN}});
-    const d=await r.json();
+    const d=await safeJson(r);
     if(!d.ok) throw new Error(d.msg||'查詢失敗');
     const b=d.balance||d;
     let h='<div class="panel2" style="border-left:4px solid var(--teal);padding:12px">';
@@ -310,7 +311,7 @@ async function apLoadClassManagement(){
   el.innerHTML='<div style="padding:12px;color:var(--mut)">⏳ 載入班級資料…</div>';
   try{
     var r=await fetch('/rest/v1/class/list',{headers:{'x-adv9-token':WTOKEN}});
-    var d=await r.json();
+    var d=await safeJson(r);
     if(!d.ok)throw new Error(d.reason||'載入失敗');
     var classes=d.classes||[];
 
@@ -381,7 +382,7 @@ async function apCreateClass(){
       headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({name:name})
     });
-    var d=await r.json();
+    var d=await safeJson(r);
     if(d.ok){
       if(msg){msg.textContent='✅ 已建立班級：'+d.name+'（邀請碼：'+d.code+'）';msg.style.color='var(--teal)';}
       toast('✅ 班級已建立');
@@ -402,7 +403,7 @@ async function apAssignStudent(username){
       headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
       body:JSON.stringify({studentId:username,classId:classId})
     });
-    var d=await r.json();
+    var d=await safeJson(r);
     if(d.ok){
       toast('✅ 已將 '+username+' 指派到'+(classId?'班級':'未分班'));
       apLoadClassManagement();
