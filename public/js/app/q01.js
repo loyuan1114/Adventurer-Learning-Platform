@@ -1179,6 +1179,7 @@ FEATS.push(
   ['♾️','∞ 神階換取','七階段考驗・神級學科換取','#7e57c2','vInfinityExchange()'],
   ['🧪','雙倍增益與商店','星辰幣・4種雙倍・7種時長','#ffa726','vBuffStore()'],
   ['💻','虛擬終端','AI 驅動・模擬真實指令列','#00e676','vTerminal()'],
+  ['🤖','AI 幻象破除','找出 AI 導師的幻覺錯誤・連擊加成','#e040fb','vAIHallucination()'],
   ['👑','管理員系統控制台','等級上限・單項上限・備份還原・禮包碼','#e53935','vAdminPanel()', true]
 );
 
@@ -1190,6 +1191,15 @@ async function vTerminal(){
   if(!await needJs(['js/views/vTerminal.js']))return toast('模組載入失敗，請重新整理頁面','bad');
   vTerminal();
 }
+
+/* ════════════════════════════════════════════
+   vAIHallucination 畫面模組（懶載入）
+   ════════════════════════════════════════════ */
+async function vAIHallucination(){
+  if(!await needJs(['js/views/vAIHallucination.js']))return toast('模組載入失敗','bad');
+  vAIHallucination();
+}
+window.vAIHallucination = vAIHallucination;
 
 
 /* Real-time PK WebSocket */
@@ -1261,3 +1271,17 @@ function handleCompMsg(m){
     openModal(h);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   靈魂卷軸 & 公會質詢 懶載入
+   ══════════════════════════════════════════════════════════════ */
+async function vSoulScroll(){
+  if(!await needJs(['js/views/vSoulScroll.js']))return toast('模組載入失敗','bad');
+  vSoulScroll();
+}
+window.vSoulScroll = vSoulScroll;
+async function vGuildQuiz(){
+  if(!await needJs(['js/views/vGuildQuiz.js']))return toast('模組載入失敗','bad');
+  vGuildQuiz();
+}
+window.vGuildQuiz = vGuildQuiz;

@@ -1,5 +1,17 @@
 [
  {
+  "id": "0000",
+  "username": "0000",
+  "name": "0000",
+  "role": "student",
+  "classId": "701",
+  "managedClassIds": [],
+  "isSchoolAdmin": false,
+  "tokenVer": 1,
+  "master": false,
+  "createdAt": "2026-08-29T02:33:43.126Z"
+ },
+ {
   "id": "adv9boss",
   "username": "adv9boss",
   "name": "總管理員",
@@ -7,7 +19,7 @@
   "classId": null,
   "managedClassIds": [],
   "isSchoolAdmin": true,
-  "tokenVer": 39,
+  "tokenVer": 40,
   "master": true,
   "createdAt": "2026-08-24T04:01:38.787Z"
  },
@@ -28,7 +40,7 @@
   "username": "student",
   "name": "學生",
   "role": "student",
-  "classId": null,
+  "classId": "cls_mte17gjpxq4z",
   "managedClassIds": [],
   "isSchoolAdmin": false,
   "tokenVer": 0,
@@ -58,17 +70,5 @@
   "tokenVer": 0,
   "master": false,
   "createdAt": "2026-08-24T04:47:12.818Z"
- },
- {
-  "id": "0000",
-  "username": "0000",
-  "name": "0000",
-  "role": "student",
-  "classId": "701",
-  "managedClassIds": [],
-  "isSchoolAdmin": false,
-  "tokenVer": 1,
-  "master": false,
-  "createdAt": "2026-08-29T02:09:59.246Z"
  }
 ]

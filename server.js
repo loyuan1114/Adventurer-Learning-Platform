@@ -2055,6 +2055,73 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
     Object.keys(deviceMap).forEach(function(dev){if(deviceMap[dev].length>2)suspects.push({type:'device',value:dev,accounts:deviceMap[dev]})});
     res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,suspects:suspects}));
   }
+  /* ═══ 班級管理 API（admin/teacher 直接建立班級、指派學生）═══ */
+
+  /* POST /rest/v1/class/create - 建立新班級 */
+  if(req.method==='POST'&&p==='/rest/v1/class/create'){
+    var cw=checkToken(tok);if(!cw||(cw.role!=='admin'&&cw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var name=String(j.name||'').trim();
+      if(!name){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'班級名稱不可為空'}))}
+      if(name.length>64){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'班級名稱過長'}))}
+      var classes=KV['ADV9_CLASSES']||[];
+      if(!Array.isArray(classes))classes=[];
+      var classId='cls_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      var code=Math.random().toString(36).slice(2,8).toUpperCase();
+      var newClass={id:classId,name:name,teacherId:cw.username,code:code,createdAt:new Date().toISOString()};
+      classes.push(newClass);
+      KV['ADV9_CLASSES']=classes;
+      saveKV();
+      if(cw.role==='teacher'&&!ACC[cw.username].managedClassIds)ACC[cw.username].managedClassIds=[];
+      if(cw.role==='teacher'&&ACC[cw.username].managedClassIds.indexOf(classId)<0){ACC[cw.username].managedClassIds.push(classId);saveUserFile(cw.username);}
+      res.writeHead(201,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:true,classId:classId,code:code,name:name}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+
+  /* POST /rest/v1/class/assign - 指派學生到班級 */
+  if(req.method==='POST'&&p==='/rest/v1/class/assign'){
+    var aw=checkToken(tok);if(!aw||(aw.role!=='admin'&&aw.role!=='teacher')){res.writeHead(403);return res.end('forbidden')}
+    return readBody(req,function(b){try{
+      var j=JSON.parse(b.toString('utf8'));
+      var studentId=String(j.studentId||'').trim();
+      var classId=String(j.classId||'').trim();
+      if(!studentId){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'缺少學生帳號'}))}
+      if(!ACC[studentId]){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到學生帳號：'+studentId}))}
+      if(classId){
+        var classes=KV['ADV9_CLASSES']||[];
+        if(!Array.isArray(classes))classes=[];
+        var found=classes.find(function(c){return c.id===classId});
+        if(!found){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到班級'}))}
+      }
+      var oldClassId=ACC[studentId].classId||null;
+      ACC[studentId].classId=classId||null;
+      saveUserFile(studentId);
+      saveIndex();
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({ok:true,studentId:studentId,classId:classId,oldClassId:oldClassId}));
+    }catch(e){res.writeHead(400);res.end('bad json')}})
+  }
+
+  /* GET /rest/v1/class/list - 列出所有班級（含學生人數） */
+  if(req.method==='GET'&&p==='/rest/v1/class/list'){
+    var lw=checkToken(tok);if(!lw){res.writeHead(401);return res.end('need login')}
+    var classes=KV['ADV9_CLASSES']||[];
+    if(!Array.isArray(classes))classes=[];
+    var studentCounts={};
+    Object.keys(ACC).forEach(function(un){
+      var u=ACC[un];if(!u||u.role!=='student')return;
+      var cid=u.classId||'';
+      if(cid)studentCounts[cid]=(studentCounts[cid]||0)+1;
+    });
+    var result=classes.map(function(c){
+      return {id:c.id,name:c.name,teacherId:c.teacherId,code:c.code,createdAt:c.createdAt,studentCount:studentCounts[c.id]||0};
+    });
+    res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});
+    return res.end(JSON.stringify({ok:true,classes:result}));
+  }
+
   /* 靜態檔（path.resolve + 前綴檢查防路徑穿越）*/
   if(req.method==='GET'){
     var rel=(p==='/'?'/index.html':p);

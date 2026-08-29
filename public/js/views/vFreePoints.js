@@ -3,7 +3,12 @@ let FP = { balance: 0, caps: {}, ledger: [], loading: false };
 
 function vFreePoints() {
   var u = me(); if (!u) return;
+  // Clear any stale FP data from previous session
+  FP.balance = 0; FP.caps = {}; FP.ledger = [];
+  // CRITICAL: Reset FP from current user to prevent stale data from previous user
   FP.balance = u.g.apBalance || 0;
+  FP.caps = {};
+  FP.ledger = [];
   let h = back() + '<h3 class="vt">🚶 步數/運動 Dashboard <span class="vsub">步數獎勵・運動獎勵・遊戲獎勵</span></h3>';
 
   /* ── 步數獎勵 ── */
@@ -174,12 +179,12 @@ FP._renderLedger = function () {
 };
 
 function fpFetchLedger() {
-  fetch('/rest/v1/ap/ledger', { headers: { 'x-adv9-token': WTOKEN } })
+  fetch('/rest/v1/ap/ledger', { headers: { 'x-adv9-token': WTOKEN }, cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.ok) { FP.ledger = d.ledger || []; FP._updateLedger(); FP._updateEarned(); }
     }).catch(function () { });
-  fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN } })
+  fetch('/rest/v1/ap/balance', { headers: { 'x-adv9-token': WTOKEN }, cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.ok) { FP.balance = d.balance || 0; FP.caps = d.caps || {}; FP._updateBal(); FP._updateCap(); FP._updateEarned(); }

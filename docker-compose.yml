@@ -1,4 +1,21 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=adv9db
+      - POSTGRES_USER=adv9
+      - POSTGRES_PASSWORD=adv9pass
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adv9 -d adv9db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   adv9:
     build: .
     ports:
@@ -9,5 +26,10 @@ services:
     environment:
       - NODE_ENV=production
       - ADV9_PEPPER=
+      - DATABASE_URL=postgresql://adv9:adv9pass@postgres:5432/adv9db
+    depends_on:
+      postgres:
+        condition: service_healthy
 volumes:
   adv9-data:
+  pg-data:

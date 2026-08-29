@@ -7,28 +7,14 @@ async function vAdminPanel(){
   h+='<div id="apTabs" style="display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap"></div>';
   h+='<div id="apContent"></div>';
   h+='<div class="panel2" style="margin-top:12px">';
-  h+='<b style="color:var(--blue);font-size:15px">👥 管理員：指派學生到班級</b>';
-  h+='<div style="margin-top:10px">';
-  var allUsers = LS && LS.users ? LS.users : {};
-  var allNames = LS && LS.names ? LS.names : {};
-  var userList = Array.isArray(allUsers) ? allUsers : Object.keys(allUsers).map(function(k){ return allUsers[k]; });
-  if(userList.length === 0){
-    h+='<div style="color:var(--mut);font-size:12px;padding:8px 0">尚無學生帳號</div>';
-  } else {
-    userList.forEach(function(su) {
-      if (!su || su.role !== 'student') return;
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
-      h+='<span style="flex:1;font-size:12px">'+esc(su.name||su.username)+'</span>';
-      h+='<input class="inp" id="apClass_'+esc(su.username)+'" value="'+esc(su.classCode||'')+'" style="width:120px;font-size:11px" placeholder="班級邀請碼">';
-      h+='<button class="btn mini teal" onclick="apAssignClass(\''+esc(su.username)+'\')">💾 指派</button>';
-      h+='</div>';
-    });
-  }
-  h+='</div></div>';
+  h+='<b style="color:var(--blue);font-size:15px">📚 班級管理</b>';
+  h+='<div id="clsManageSection"></div>';
+  h+='</div>';
   $('#view').innerHTML=h;
   window._apTab=0;
   apRenderTabs();
   apLoadTab(0);
+  apLoadClassManagement();
 }
 
 function apRenderTabs(){
@@ -319,20 +305,115 @@ async function apDoUserQuery(){
   }catch(e){res.innerHTML='<div class="panel2" style="color:#ff8a80;border-left:4px solid #ff8a80;padding:10px">❌ '+esc(e.message)+'</div>';}
 }
 
-function apAssignClass(username) {
-  var inp = document.getElementById('apClass_' + username);
-  var code = inp ? inp.value.trim() : '';
-  if (!code) { toast('請輸入班級邀請碼', 'bad'); return; }
-  var users = get(LS.users, []);
-  var found = false;
-  for (var i = 0; i < users.length; i++) {
-    if (users[i].username === username) {
-      users[i].classCode = code;
-      found = true;
-      break;
+async function apLoadClassManagement(){
+  var el=document.getElementById('clsManageSection');
+  if(!el)return;
+  el.innerHTML='<div style="padding:12px;color:var(--mut)">⏳ 載入班級資料…</div>';
+  try{
+    var r=await fetch('/rest/v1/class/list',{headers:{'x-adv9-token':WTOKEN}});
+    var d=await r.json();
+    if(!d.ok)throw new Error(d.reason||'載入失敗');
+    var classes=d.classes||[];
+
+    var allUsers=LS&&LS.users?LS.users:{};
+    var userList=Array.isArray(allUsers)?allUsers:Object.keys(allUsers).map(function(k){return allUsers[k]});
+    var students=userList.filter(function(u){return u&&u.role==='student'});
+
+    var h='<div style="margin-top:10px">';
+    h+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">';
+    h+='<input id="clsNewName" class="inp" placeholder="新班級名稱" style="flex:1;font-size:12px">';
+    h+='<button class="btn mini teal" onclick="apCreateClass()">➕ 建立班級</button>';
+    h+='<span id="clsMsg" style="font-size:12px;color:var(--mut)"></span>';
+    h+='</div>';
+
+    if(classes.length===0){
+      h+='<div style="color:var(--mut);font-size:12px;padding:8px 0">尚無班級</div>';
+    }else{
+      h+='<div class="tblWrap"><table><thead><tr><th>班級名稱</th><th>邀請碼</th><th>教師</th><th>學生數</th><th>建立時間</th></tr></thead><tbody>';
+      classes.forEach(function(c){
+        h+='<tr>';
+        h+='<td style="font-size:12.5px">'+esc(c.name)+'</td>';
+        h+='<td style="font-size:12px;font-family:monospace;color:var(--gold2)">'+esc(c.code)+'</td>';
+        h+='<td style="font-size:12px">'+esc(c.teacherId)+'</td>';
+        h+='<td style="font-size:12px;text-align:center">'+c.studentCount+'</td>';
+        h+='<td style="font-size:11px;color:var(--mut)">'+(c.createdAt?new Date(c.createdAt).toLocaleDateString():'-')+'</td>';
+        h+='</tr>';
+      });
+      h+='</tbody></table></div>';
     }
-  }
-  if (found) { set(LS.users, users); toast('✅ 已將 ' + username + ' 指派到班級：' + code); }
-  else { toast('找不到用戶：' + username, 'bad'); }
+
+    h+='<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px">';
+    h+='<b style="color:var(--teal);font-size:13px">👤 指派學生到班級</b>';
+    if(students.length===0){
+      h+='<div style="color:var(--mut);font-size:12px;padding:8px 0">尚無學生帳號</div>';
+    }else{
+      h+='<div style="margin-top:8px">';
+      students.forEach(function(su){
+        var currentClass=su.classId||'';
+        h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)">';
+        h+='<span style="flex:1;font-size:12px">'+esc(su.name||su.username)+'</span>';
+        h+='<select id="clsAssign_'+esc(su.username)+'" class="inp" style="width:160px;font-size:11px">';
+        h+='<option value="">-- 未分班 --</option>';
+        classes.forEach(function(c){
+          var sel=c.id===currentClass?' selected':'';
+          h+='<option value="'+esc(c.id)+'"'+sel+'>'+esc(c.name)+'</option>';
+        });
+        h+='</select>';
+        h+='<button class="btn mini teal" onclick="apAssignStudent(\''+esc(su.username)+'\')">💾 存檔</button>';
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+    h+='</div>';
+    el.innerHTML=h;
+  }catch(e){el.innerHTML='<div style="color:#ff8a80;font-size:12px">❌ '+esc(e.message)+'</div>';}
 }
-window.apAssignClass = apAssignClass;
+
+async function apCreateClass(){
+  var inp=document.getElementById('clsNewName');
+  var msg=document.getElementById('clsMsg');
+  var name=(inp?inp.value:'').trim();
+  if(!name){if(msg){msg.textContent='⚠️ 請輸入班級名稱';msg.style.color='#ffcc80';}return;}
+  if(msg){msg.textContent='⏳ 建立中…';msg.style.color='var(--mut)';}
+  try{
+    var r=await fetch('/rest/v1/class/create',{
+      method:'POST',
+      headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({name:name})
+    });
+    var d=await r.json();
+    if(d.ok){
+      if(msg){msg.textContent='✅ 已建立班級：'+d.name+'（邀請碼：'+d.code+'）';msg.style.color='var(--teal)';}
+      toast('✅ 班級已建立');
+      if(inp)inp.value='';
+      apLoadClassManagement();
+    }else{
+      if(msg){msg.textContent='❌ '+d.reason;msg.style.color='#ff8a80';}
+    }
+  }catch(e){if(msg){msg.textContent='❌ '+e.message;msg.style.color='#ff8a80';}}
+}
+
+async function apAssignStudent(username){
+  var sel=document.getElementById('clsAssign_'+username);
+  var classId=sel?sel.value:'';
+  try{
+    var r=await fetch('/rest/v1/class/assign',{
+      method:'POST',
+      headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({studentId:username,classId:classId})
+    });
+    var d=await r.json();
+    if(d.ok){
+      toast('✅ 已將 '+username+' 指派到'+(classId?'班級':'未分班'));
+      apLoadClassManagement();
+    }else{
+      toast('❌ '+d.reason,'bad');
+    }
+  }catch(e){toast('❌ '+e.message,'bad');}
+}
+
+window.apAssignClass=function(username){apAssignStudent(username)};
+window.apCreateClass=apCreateClass;
+window.apAssignStudent=apAssignStudent;
+window.apLoadClassManagement=apLoadClassManagement;
