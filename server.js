@@ -439,6 +439,23 @@ var server=http.createServer(function(req,res){
     reconcileIndex();
     res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});return res.end(JSON.stringify({ok:true,index:indexOfACC()}));
   }
+  /* 👥 用戶列表（老師/管理員）：回傳簡化版用戶清單 */
+  if(req.method==='GET'&&p==='/rest/v1/users'){
+    var uw=checkToken(tok);if(!uw){res.writeHead(401);return res.end('need login')}
+    var users=[];
+    Object.keys(ACC).forEach(function(un){
+      var a=ACC[un];if(!a)return;
+      users.push({
+        username:un,
+        name:a.name||un,
+        role:a.role||'student',
+        classId:a.classId||null,
+        classCode:a.classCode||null,
+        managedClassIds:a.managedClassIds||[]
+      });
+    });
+    res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});return res.end(JSON.stringify({ok:true,users:users}));
+  }
   /* 👁 上線狀態心跳：有效 token 每 ~25 秒報到；回應在線名單（隱藏上線者會被過濾掉）*/
   if(req.method==='POST'&&p==='/rest/v1/user/heartbeat'){
     var hw=checkToken(tok); if(!hw){res.writeHead(401);return res.end('unauthorized')}

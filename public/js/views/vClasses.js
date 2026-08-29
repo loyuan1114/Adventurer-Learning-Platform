@@ -1,96 +1,169 @@
-/* vClasses — 班級管理 */
+/* vClasses — 班級系統（學生/老師版） */
 function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
 function vClasses(){
   var u=me();if(!u)return;
   var g=u.g||{};
-  const myCls=g.classId?get(LS.classes,[]).find(c=>c.id===g.classId):null, allCls=get(LS.classes,[]);
-  let h=back()+'<h3 class="vt">🏫 班級系統 <span class="vsub">邀請碼加入班級・班級任務・集體榮譽</span></h3>';
+  var role=u.role||'student';
+  var h=back()+'<h3 class="vt">🏫 班級系統 <span class="vsub">'+(role==='teacher'?'管理班級學生':'查看班級資訊')+'</span></h3>';
 
-  /* 邀請碼加入班級 */
-  h+='<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(--gold2)">';
-  h+='<b style="color:var(--gold2);font-size:15px">🔑 使用邀請碼加入班級</b>';
-  if(u.classId){
-    h+='<div style="margin-top:8px;font-size:12px;color:var(--teal)">✅ 你已加入班級：<b>' + esc(u.classId) + '</b></div>';
-    h+='<button class="btn ghost mini" style="margin-top:6px" onclick="classJoinByCode()">🔄 更換班級</button>';
+  if(role==='teacher'){
+    /* 老師版：顯示自己班級的學生列表 */
+    h+='<div class="panel2" style="margin-top:12px">';
+    h+='<b style="color:var(--teal);font-size:15px">📋 我的班級學生</b>';
+    h+='<div id="classList" style="margin-top:10px">載入中…</div>';
+    h+='</div>';
+
+    /* 新增學生到班級 */
+    h+='<div class="panel2" style="margin-top:12px">';
+    h+='<b style="color:var(--gold2);font-size:15px">➕ 新增學生到班級</b>';
+    h+='<div style="margin-top:8px;font-size:12px;color:var(--mut)">從未分班學生中選擇加入你的班級</div>';
+    h+='<div id="addStudentList" style="margin-top:10px">載入中…</div>';
+    h+='</div>';
+
   }else{
-    h+='<div style="margin-top:8px;font-size:12px;color:var(--mut)">向老師索取邀請碼，輸入後即可加入班級</div>';
-  }
-  h+='<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">';
-  h+='<div><label style="font-size:11px;color:var(--mut)">班級邀請碼</label>';
-  h+='<input id="classCodeInput" class="inp" style="margin-top:4px;width:160px" placeholder="例: ABC123" value="' + esc(u.classCode || '') + '"></div>';
-  h+='<button class="btn gold" onclick="classJoinByCode()" style="height:36px">🚀 加入班級</button>';
-  h+='</div></div>';
+    /* 學生版：顯示自己的班級資訊 */
+    h+='<div class="panel2" style="margin-top:12px">';
+    if(g.classId){
+      h+='<b style="color:var(--teal);font-size:15px">🏠 我的班級</b>';
+      h+='<div style="margin-top:8px" id="myClassInfo">載入中…</div>';
+    }else{
+      h+='<b style="color:var(--orange);font-size:15px">⚠️ 尚未分班</b>';
+      h+='<div style="margin-top:8px;font-size:12px;color:var(--mut)">請聯繫管理員或老師將你加入班級</div>';
+    }
+    h+='</div>';
 
-  if(myCls){
-    h+='<div class="panel2" style="margin-bottom:12px;border-left:4px solid var(--teal)"><b style="color:var(--teal)">🏠 我的班級：'+esc(myCls.name)+'</b>';
-    h+=`<div class="skTxt" style="margin-top:6px">班級代碼：<code>${myCls.code}</code> ｜ 成員：${myCls.members.length} 人 ｜ 基金：${numFmt(myCls.fund||0)} 金 ｜ 等級：Lv.${myCls.lv||1}</div>`;
-    h+=`<div class="rwRow" style="margin-top:8px"><button class="rwChip" onclick="classViewMembers()">👥 成員名單</button><button class="rwChip" onclick="classTasks()">📋 班級任務</button><button class="rwChip" onclick="classDonate()">💰 捐獻基金</button><button class="rwChip danger" onclick="classLeave()">🚪 退出班級</button></div></div>`;
+    /* 班級成員 */
+    if(g.classId){
+      h+='<div class="panel2" style="margin-top:12px">';
+      h+='<b style="color:var(--purple);font-size:15px">👥 班級成員</b>';
+      h+='<div id="memberList" style="margin-top:10px">載入中…</div>';
+      h+='</div>';
+    }
   }
-
-  h+='<div class="panel2"><b style="color:var(--gold2)">➕ 創建新班級</b>';
-  h+='<input id="newClsName" placeholder="班級名稱" style="margin-top:8px">';
-  h+='<input id="newClsDesc" placeholder="班級簡介/招生條件" style="margin-top:6px">';
-  h+='<div class="mBtns" style="margin-top:10px"><button class="btn" onclick="classCreate()">創建班級 (500 金)</button></div></div>';
 
   $('#view').innerHTML=h;
+
+  /* 載入班級資料 */
+  if(role==='teacher'){
+    vClassesLoadTeacher();
+  }else if(g.classId){
+    vClassesLoadStudent(g.classId);
+  }
 }
-function classCreate(){
-  var u=me();if(!u||!u.g)return toast('⚠️ 請先登入','bad');
-  const n=$('#newClsName').value.trim(), d=$('#newClsDesc').value.trim();
-  if(!n) return toast('⚠️ 請輸入班級名稱','bad');
-  if(u.g.gold<500) return toast('⚠️ 需要 500 金幣','bad');
-  const code=Math.random().toString(36).substr(2,6).toUpperCase();
-  const cls={id:'cls'+Date.now(),name:n,desc:d,code,owner:u.id,members:[u.id],fund:0,lv:1,exp:0,created:Date.now()};
-  const all=get(LS.classes,[]); all.push(cls); set(LS.classes,all);
-  u.g.classId=cls.id; u.g.gold-=500; set(LS.users,get(LS.users,[]));
-  toast('✅ 班級創建成功！'); vClasses();
+window.vClasses=vClasses;
+
+function vClassesLoadTeacher(){
+  var u=me();if(!u)return;
+  var teacherClassId=u.classId||'';
+  fetch('/rest/v1/class/list',{headers:{'x-adv9-token':WTOKEN}}).then(safeJson).then(function(d){
+    if(!d.ok||!d.classes)return;
+    var myClass=d.classes.find(function(c){return c.id===teacherClassId});
+    if(!myClass){
+      var el=document.getElementById('classList');
+      if(el)el.innerHTML='<div style="color:var(--mut);font-size:12px">你尚未被指派班級，請聯繫管理員</div>';
+      return;
+    }
+
+    /* 顯示班級資訊 */
+    var infoEl=document.getElementById('classList');
+    if(infoEl){
+      infoEl.innerHTML='<div style="font-size:13px"><b>'+esc(myClass.name)+'</b> <span style="color:var(--mut)">('+esc(myClass.code)+')</span> ｜ 學生 '+myClass.studentCount+' 人</div>';
+    }
+
+    /* 載入班級學生 */
+    fetch('/rest/v1/users',{headers:{'x-adv9-token':WTOKEN}}).then(safeJson).then(function(res){
+      if(!res.ok)return;
+      var students=(res.users||[]).filter(function(s){return s.classId===teacherClassId&&s.role==='student';});
+      var addList=document.getElementById('addStudentList');
+      if(!students.length){
+        if(addList)addList.innerHTML='<div style="color:var(--mut);font-size:12px">班級內無學生</div>';
+        return;
+      }
+      var html='';
+      students.forEach(function(s){
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+        html+='<span style="font-size:16px">🧑‍🎓</span>';
+        html+='<div style="flex:1;font-size:12px"><b>'+esc(s.name||s.username)+'</b> <span style="color:var(--mut)">@'+esc(s.username)+'</span></div>';
+        html+='<button class="btn ghost mini" onclick="vClassRemoveStudent(\''+esc(s.username)+'\')" style="font-size:10px;color:#ef4444">移除</button>';
+        html+='</div>';
+      });
+      var listEl=document.getElementById('memberList');
+      if(listEl)listEl.innerHTML=html;
+    }).catch(function(){});
+
+    /* 載入未分班學生 */
+    fetch('/rest/v1/users',{headers:{'x-adv9-token':WTOKEN}}).then(safeJson).then(function(res){
+      if(!res.ok)return;
+      var unassigned=(res.users||[]).filter(function(s){return !s.classId&&s.role==='student';});
+      var addEl=document.getElementById('addStudentList');
+      if(!unassigned.length){
+        if(addEl)addEl.innerHTML='<div style="color:var(--mut);font-size:12px">無未分班學生</div>';
+        return;
+      }
+      var html='';
+      unassigned.forEach(function(s){
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+        html+='<span style="font-size:16px">🧑‍🎓</span>';
+        html+='<div style="flex:1;font-size:12px"><b>'+esc(s.name||s.username)+'</b> <span style="color:var(--mut)">@'+esc(s.username)+'</span></div>';
+        html+='<button class="btn mini" onclick="vClassAddStudent(\''+esc(s.username)+'\')">加入班級</button>';
+        html+='</div>';
+      });
+      if(addEl)addEl.innerHTML=html;
+    }).catch(function(){});
+
+  }).catch(function(){});
 }
-function classJoin(id){
-  const u=me(), cls=get(LS.classes,[]).find(c=>c.id===id); if(!cls) return;
-  if(cls.members.includes(u.id)) return toast('⚠️ 已在該班級','bad');
-  cls.members.push(u.id); u.g.classId=id; set(LS.classes,get(LS.classes,[])); set(LS.users,get(LS.users,[]));
-  toast('✅ 成功加入班級'); vClasses();
+
+function vClassesLoadStudent(classId){
+  fetch('/rest/v1/class/list',{headers:{'x-adv9-token':WTOKEN}}).then(safeJson).then(function(d){
+    if(!d.ok||!d.classes)return;
+    var myClass=d.classes.find(function(c){return c.id===classId});
+    if(!myClass)return;
+    var el=document.getElementById('myClassInfo');
+    if(el){
+      el.innerHTML='<div style="font-size:13px"><b>'+esc(myClass.name)+'</b> <span style="color:var(--mut)">('+esc(myClass.code)+')</span> ｜ 學生 '+myClass.studentCount+' 人</div>';
+    }
+    /* 載入成員 */
+    fetch('/rest/v1/users',{headers:{'x-adv9-token':WTOKEN}}).then(safeJson).then(function(res){
+      if(!res.ok)return;
+      var students=(res.users||[]).filter(function(s){return s.classId===classId&&s.role==='student';});
+      var el2=document.getElementById('memberList');
+      if(!el2)return;
+      if(!students.length){el2.innerHTML='<div style="color:var(--mut);font-size:12px">班級內無學生</div>';return;}
+      var html='';
+      students.forEach(function(s){
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+        html+='<span style="font-size:16px">🧑‍🎓</span>';
+        html+='<div style="flex:1;font-size:12px"><b>'+esc(s.name||s.username)+'</b> <span style="color:var(--mut)">@'+esc(s.username)+'</span></div>';
+        html+='</div>';
+      });
+      el2.innerHTML=html;
+    }).catch(function(){});
+  }).catch(function(){});
 }
-function classLeave(){
-  if(!confirm('確定退出班級？')) return;
-  const u=me(), cls=get(LS.classes,[]).find(c=>c.id===u.g.classId); if(!cls) return;
-  cls.members=cls.members.filter(x=>x!==u.id); u.g.classId=null; set(LS.classes,get(LS.classes,[])); set(LS.users,get(LS.users,[]));
-  toast('🚪 已退出班級'); vClasses();
-}
-function classViewMembers(){
-  const u=me(), cls=get(LS.classes,[]).find(c=>c.id===u.g.classId); if(!cls) return;
-  let h='<div class="mt">班級成員</div>';
-  h+=cls.members.map(id=>{const m=get(LS.users,[]).find(x=>x.id===id); return m?`<div class="frIt"><div style="font-size:24px">${m.prof?.avatar?avatarHtml(m,36):'🧑‍🎓'}</div><div class="collInfo"><b>${esc(m.name)}</b><div class="skTxt">Lv.${m.g?.lv||1} ｜ ${m.id===cls.owner?'👑 班長':m.id===u.id?'👤 你':'👥 成員'}</div></div></div>`:''}).join('');
-  openModal(h);
-}
-function classTasks(){toast('📋 班級任務功能開發中…')}
-function classDonate(){
-  const u=me(), amt=prompt('捐獻金額：'); if(!amt||isNaN(amt)||amt<1) return;
-  if(u.g.gold<amt) return toast('⚠️ 金幣不足','bad');
-  u.g.gold-=amt; const cls=get(LS.classes,[]).find(c=>c.id===u.g.classId); if(cls){cls.fund=(cls.fund||0)+amt; set(LS.classes,get(LS.classes,[]));}
-  set(LS.users,get(LS.users,[])); toast(`✅ 捐獻 ${amt} 金幣`); vClasses();
-}
-function classJoinByCode(){
-  var el=document.getElementById('classCodeInput');
-  var code=el?el.value.trim():'';
-  if(!code||code.length<3){toast('⚠️ 請輸入有效的邀請碼（至少3個字元）','bad');return;}
-  fetch('/rest/v1/class/join',{
+
+function vClassAddStudent(username){
+  var u=me();if(!u)return;
+  fetch('/rest/v1/class/assign',{
     method:'POST',
     headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
-    body:JSON.stringify({classCode:code})
+    body:JSON.stringify({studentId:username,classId:u.classId||''})
   }).then(safeJson).then(function(d){
-    if(d.ok){
-      var u=me();
-      if(u){u.classId=d.classId;u.classCode=code;saveU(u);}
-      toast('✅ 成功加入班級！老師：'+d.teacher);
-      vClasses();
-    }else{toast('❌ '+(d.reason||'加入失敗'),'bad');}
+    if(d.ok){toast('✅ 已加入班級');vClassesLoadTeacher();}
+    else{toast('❌ '+(d.reason||'操作失敗'),'bad');}
   }).catch(function(){toast('❌ 網路錯誤','bad');});
 }
-window.classJoinByCode=classJoinByCode;
-window.classCreate=classCreate;
-window.classJoin=classJoin;
-window.classLeave=classLeave;
-window.classViewMembers=classViewMembers;
-window.classTasks=classTasks;
-window.classDonate=classDonate;
+window.vClassAddStudent=vClassAddStudent;
+
+function vClassRemoveStudent(username){
+  if(!confirm('確定移除此學生？'))return;
+  fetch('/rest/v1/class/assign',{
+    method:'POST',
+    headers:{'x-adv9-token':WTOKEN,'Content-Type':'application/json'},
+    body:JSON.stringify({studentId:username,classId:''})
+  }).then(safeJson).then(function(d){
+    if(d.ok){toast('✅ 已移除');vClassesLoadTeacher();}
+    else{toast('❌ '+(d.reason||'操作失敗'),'bad');}
+  }).catch(function(){toast('❌ 網路錯誤','bad');});
+}
+window.vClassRemoveStudent=vClassRemoveStudent;
