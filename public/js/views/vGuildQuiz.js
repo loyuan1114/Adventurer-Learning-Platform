@@ -1,5 +1,17 @@
 /* vGuildQuiz — 公會質詢：解釋你的答案 */
-function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
+function safeJson(r){
+  if(!r.ok){
+    if(r.status===401||r.status===403){
+      WTOKEN='';
+      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入','bad');
+      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+      return Promise.resolve({ok:false,reason:'auth_error'});
+    }
+    return r.text().then(function(t){throw new Error(t||('HTTP '+r.status))});
+  }
+  return r.json();
+}
 const GQ_KEY = 'ADV9_GUILD_QUIZ';
 const GQ_MIN_CHARS = 50;
 const GQ_PASS_BONUS_AP = 15;

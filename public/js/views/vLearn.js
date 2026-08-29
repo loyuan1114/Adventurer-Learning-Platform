@@ -1,5 +1,17 @@
 /* vLearn — 學習獎勵 Dashboard */
-function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
+function safeJson(r){
+  if(!r.ok){
+    if(r.status===401||r.status===403){
+      WTOKEN='';
+      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入','bad');
+      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+      return Promise.resolve({ok:false,reason:'auth_error'});
+    }
+    return r.text().then(function(t){throw new Error(t||('HTTP '+r.status))});
+  }
+  return r.json();
+}
 let LV = { balance: 0, caps: {}, ledger: [], loading: false };
 
 function vLearn() {

@@ -2,7 +2,19 @@
    vAIHallucination — AI 幻象破除模式
    找出 AI 導師解題步驟中的幻覺錯誤
    ════════════════════════════════════════════ */
-function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
+function safeJson(r){
+  if(!r.ok){
+    if(r.status===401||r.status===403){
+      WTOKEN='';
+      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入','bad');
+      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+      return Promise.resolve({ok:false,reason:'auth_error'});
+    }
+    return r.text().then(function(t){throw new Error(t||('HTTP '+r.status))});
+  }
+  return r.json();
+}
 var HALL_STATE={q:null,phase:'IDLE',combo:0,streak:0,stats:null,steps:[],wrongIdx:-1,answered:false,round:0,baseAP:10,feedback:'',feedbackType:''};
 
 var HALL_QUESTIONS=[

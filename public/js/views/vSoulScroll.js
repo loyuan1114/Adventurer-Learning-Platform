@@ -1,5 +1,17 @@
 /* vSoulScroll — 靈魂卷軸：AI 消耗品 */
-function safeJson(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t)})}
+function safeJson(r){
+  if(!r.ok){
+    if(r.status===401||r.status===403){
+      WTOKEN='';
+      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入','bad');
+      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+      return Promise.resolve({ok:false,reason:'auth_error'});
+    }
+    return r.text().then(function(t){throw new Error(t||('HTTP '+r.status))});
+  }
+  return r.json();
+}
 const SCROLL_COST_AP = 200;
 const SCROLL_SAN_DROP = 20;
 const SCROLL_XP_DUR_MS = 86400000;
