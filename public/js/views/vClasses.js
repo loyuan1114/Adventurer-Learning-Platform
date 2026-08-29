@@ -136,6 +136,7 @@ function vClsAdd(){
       toast('✅ 班級已建立');
       vClsLoadTeacher();
     }else{
+      if(d.reason==='auth_error')return;
       if(msg){msg.textContent='❌ '+(d.reason||'建立失敗');msg.style.color='#ff8a80';}
     }
   }).catch(function(e){if(msg){msg.textContent='❌ 網路錯誤：'+e.message;msg.style.color='#ff8a80';}});
@@ -158,7 +159,7 @@ function vClsClaim(classId){
       }catch(e){}
       vClsLoadTeacher();
     }else{
-      toast('❌ '+(d.reason||'認領失敗'),'bad');
+      if(d.reason!=='auth_error')toast('❌ '+(d.reason||'認領失敗'),'bad');
     }
   }).catch(function(e){toast('❌ 網路錯誤：'+e.message,'bad');});
 }
@@ -184,7 +185,7 @@ function vClsDelete(classId){
       }catch(e){}
       vClsLoadTeacher();
     }else{
-      toast('❌ '+(d.reason||'刪除失敗'),'bad');
+      if(d.reason!=='auth_error')toast('❌ '+(d.reason||'刪除失敗'),'bad');
     }
   }).catch(function(e){toast('❌ 網路錯誤：'+e.message,'bad');});
 }
@@ -227,7 +228,7 @@ function vClassAddStudent(username){
     body:JSON.stringify({studentId:username,classId:classId})
   }).then(safeJson).then(function(d){
     if(d.ok){toast('✅ 已加入班級');vClsLoadTeacher();}
-    else{toast('❌ '+(d.reason||'操作失敗'),'bad');}
+    else{if(d.reason!=='auth_error')toast('❌ '+(d.reason||'操作失敗'),'bad');}
   }).catch(function(){toast('❌ 網路錯誤','bad');});
 }
 window.vClassAddStudent=vClassAddStudent;
@@ -240,7 +241,7 @@ function vClassRemoveStudent(username){
     body:JSON.stringify({studentId:username,classId:''})
   }).then(safeJson).then(function(d){
     if(d.ok){toast('✅ 已移除');vClsLoadTeacher();}
-    else{toast('❌ '+(d.reason||'操作失敗'),'bad');}
+    else{if(d.reason!=='auth_error')toast('❌ '+(d.reason||'操作失敗'),'bad');}
   }).catch(function(){toast('❌ 網路錯誤','bad');});
 }
 window.vClassRemoveStudent=vClassRemoveStudent;
