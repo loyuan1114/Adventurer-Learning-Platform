@@ -65,3 +65,35 @@ window.fetchMyManagedClasses=fetchMyManagedClasses;
 window.fetchUser=fetchUser;
 window.getClassName=getClassName;
 window.getClassCode=getClassCode;
+
+/* ════════════════════════════════════════════
+   定期同步：每 30 秒從 Server 拉取最新資料更新 localStorage
+   ════════════════════════════════════════════ */
+(function(){
+  if(window._adv9SyncStarted)return;window._adv9SyncStarted=true;
+  var syncInterval=30000;
+  
+  async function syncData(){
+    if(!WTOKEN)return;
+    try{
+      var users=await fetchUsers();
+      if(users.length){
+        var existing=get(LS.users,[]);
+        var map={};
+        existing.forEach(function(u){map[u.username]=u;});
+        users.forEach(function(u){if(map[u.username]){Object.assign(map[u.username],u);}});
+        set(LS.users,Object.values(map));
+      }
+      
+      var classes=await fetchClasses();
+      if(classes.length){
+        var cd={ids:classes.map(function(c){return c.id;}),names:{}};
+        classes.forEach(function(c){cd.names[c.id]=c.name;});
+        set(LS.classes,cd);
+      }
+    }catch(e){console.warn('同步失敗:',e);}
+  }
+  
+  setInterval(syncData,syncInterval);
+  setTimeout(syncData,5000);
+})();
