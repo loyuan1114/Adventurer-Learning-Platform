@@ -1,6 +1,6 @@
 ﻿{
   "name": "adv9",
-  "version": "7.0.2",
+  "version": "9.0.0",
   "description": "冒險者學習平台（教師管理 + 學生學習 + AI 出題）",
   "main": "server.js",
   "scripts": {

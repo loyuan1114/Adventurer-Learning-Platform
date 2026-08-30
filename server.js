@@ -2710,7 +2710,7 @@ if(cluster.isMaster){
         console.log('');
         console.log('  ╔══════════════════════════════════════════╗');
         console.log('  ║  🎮 Adventurer Learning Platform        ║');
-        console.log('  ║  冒險者學習平台 v8.0.1                  ║');
+        console.log('  ║  冒險者學習平台 v9.0.0                  ║');
         console.log('  ╠══════════════════════════════════════════╣');
         console.log('  ║  🌐 '+url+'               ║');
         console.log('  ╚══════════════════════════════════════════╝');
