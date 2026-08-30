@@ -23,6 +23,7 @@ const DOLLFILE=path.join(DATA,'dolls.json'),SHOPFILE=path.join(DATA,'shop.json')
 const SETTINGSDIR=path.join(DATA,'settings'), SYSSETFILE=path.join(SETTINGSDIR,'system.json');
 const APAUDITFILE=path.join(DATA,'ap_audit.json'); /* AP 審計日誌 */
 const EXCHANGEITEMSFILE=path.join(DATA,'ap_exchange_items.json'); /* 兌換項目 */
+const CLASSESFILE=path.join(DATA,'classes.json'); /* 班級資料（獨立檔案，繞過 KV IPC 競態）*/
 const PORT=process.env.PORT||8080;
 const USERS_KEY='ADV9_USERS';
 /* 資料隔離：下列 key 為全服共享（社交/系統/市集/聊天/排名/好友/公告等），原樣保留；
@@ -100,6 +101,11 @@ var AP_RULES=loadJSON(path.join(DATA,'ap_rules.json'),{ /* AP 規則 */
 function saveAPAudit(){try{var tmp=APAUDITFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_AUDIT,null,1));fs.renameSync(tmp,APAUDITFILE)}catch(e){console.error('saveAPAudit',e)}}
 function saveAPRules(){try{var FILE=path.join(DATA,'ap_rules.json');var tmp=FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_RULES,null,2));fs.renameSync(tmp,FILE)}catch(e){console.error('saveAPRules',e)}}
 function saveAPExchangeItems(){try{var tmp=EXCHANGEITEMSFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(AP_EXCHANGE_ITEMS,null,2));fs.renameSync(tmp,EXCHANGEITEMSFILE)}catch(e){console.error('saveAPExchangeItems',e)}}
+
+/* ── 班級資料：獨立檔案 classes.json（繞過 KV IPC 競態）── */
+function loadClasses(){try{var c=JSON.parse(fs.readFileSync(CLASSESFILE,'utf8'));return Array.isArray(c)?c:[]}catch(e){return KV['ADV9_CLASSES']||[]}}
+function saveClasses(cls){try{var tmp=CLASSESFILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(cls,null,1));fs.renameSync(tmp,CLASSESFILE);KV['ADV9_CLASSES']=cls;saveKV();}catch(e){console.error('saveClasses',e)}}
+
 var DOLL=loadJSON(DOLLFILE,{}), SHOP=loadJSON(SHOPFILE,[]), EVENTS=loadJSON(EVENTFILE,[]);
 var SYSSET=loadJSON(SYSSETFILE, {
   max_level: 300,
@@ -239,6 +245,11 @@ if(KV[USERS_KEY]){
   });
   delete KV[USERS_KEY];
   saveKV();
+}
+
+/* 遷移：若 classes.json 不存在但 KV 有班級資料，搬入 classes.json */
+if(!fs.existsSync(CLASSESFILE)&&Array.isArray(KV['ADV9_CLASSES'])&&KV['ADV9_CLASSES'].length){
+  try{saveClasses(KV['ADV9_CLASSES']);console.log('[MIGRATE] KV ADV9_CLASSES → classes.json ('+KV['ADV9_CLASSES'].length+' classes)')}catch(e){console.error('migrate classes',e)}
 }
 
 /* 種子：主管理員（只存雜湊，不存明文）*/
@@ -429,8 +440,7 @@ var server=http.createServer(function(req,res){
       if(!role||!['teacher','student','parent'].includes(role)){res.writeHead(400);return res.end(JSON.stringify({ok:false,reason:'角色錯誤'}))}
       if(!lines.length){res.writeHead(400);return res.end(JSON.stringify({ok:false,reason:'無資料'}))}
       
-      var classes=KV['ADV9_CLASSES']||[];
-      if(!Array.isArray(classes))classes=[];
+      var classes=loadClasses();
       var existingUsernames=Object.keys(ACC);
       var results={created:0,failed:0,errors:[]};
 
@@ -518,8 +528,7 @@ var server=http.createServer(function(req,res){
         }
       }
       
-      KV['ADV9_CLASSES']=classes;
-      saveKV();
+      saveClasses(classes);
       saveIndex();
       res.writeHead(200,{'Content-Type':'application/json'});
       res.end(JSON.stringify({ok:true,created:results.created,failed:results.failed,errors:results.errors}));
@@ -2238,16 +2247,14 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       if(!name){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'班級名稱不可為空'}))}
       if(name.length>64){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'班級名稱過長'}))}
       if(code.length>32){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'班級代號過長'}))}
-      var classes=KV['ADV9_CLASSES']||[];
-      if(!Array.isArray(classes))classes=[];
+      var classes=loadClasses();
       if(code&&classes.find(function(c){return c.code===code})){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'此班級代號已存在'}))}
       var classId='cls_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       if(!code)code=Math.random().toString(36).slice(2,8).toUpperCase();
       var teacherId=(cw.role==='teacher'?cw.username:null);
       var newClass={id:classId,name:name,teacherId:teacherId,code:code,createdAt:new Date().toISOString()};
       classes.push(newClass);
-      KV['ADV9_CLASSES']=classes;
-      saveKV();
+      saveClasses(classes);
       if(cw.role==='teacher'){
         if(!ACC[cw.username].managedClassIds)ACC[cw.username].managedClassIds=[];
         if(ACC[cw.username].managedClassIds.indexOf(classId)<0){ACC[cw.username].managedClassIds.push(classId);saveUserFile(cw.username);}
@@ -2267,14 +2274,12 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       var j=JSON.parse(b.toString('utf8'));
       var classId=String(j.classId||'').trim();
       if(!classId){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'缺少班級 ID'}))}
-      var classes=KV['ADV9_CLASSES']||[];
-      if(!Array.isArray(classes))classes=[];
+      var classes=loadClasses();
       var cls=classes.find(function(c){return c.id===classId});
       if(!cls){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到班級'}))}
       if(cls.teacherId&&cls.teacherId!==clw.username){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'此班級已有老師：'+cls.teacherId}))}
       cls.teacherId=clw.username;
-      KV['ADV9_CLASSES']=classes;
-      saveKV();
+      saveClasses(classes);
       var acc=ACC[clw.username];
       acc.classId=classId;
       if(!acc.managedClassIds)acc.managedClassIds=[];
@@ -2293,14 +2298,12 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       var j=JSON.parse(b.toString('utf8'));
       var classId=String(j.classId||'').trim();
       if(!classId){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'缺少班級 ID'}))}
-      var classes=KV['ADV9_CLASSES']||[];
-      if(!Array.isArray(classes))classes=[];
+      var classes=loadClasses();
       var cls=classes.find(function(c){return c.id===classId});
       if(!cls){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到班級'}))}
       if(dlw.role==='teacher'&&cls.teacherId!==dlw.username){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'只能刪除自己管理的班級'}))}
       classes=classes.filter(function(c){return c.id!==classId});
-      KV['ADV9_CLASSES']=classes;
-      saveKV();
+      saveClasses(classes);
       Object.keys(ACC).forEach(function(un){
         var acc=ACC[un];if(!acc)return;
         if(acc.classId===classId)acc.classId=null;
@@ -2324,8 +2327,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       if(!studentId){res.writeHead(400,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'缺少學生帳號'}))}
       if(!ACC[studentId]){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到學生帳號：'+studentId}))}
       if(classId){
-        var classes=KV['ADV9_CLASSES']||[];
-        if(!Array.isArray(classes))classes=[];
+        var classes=loadClasses();
         var found=classes.find(function(c){return c.id===classId});
         if(!found){res.writeHead(404,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,reason:'找不到班級'}))}
       }
@@ -2341,8 +2343,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
   /* GET /rest/v1/class/list - 列出所有班級（含學生人數） */
   if(req.method==='GET'&&p==='/rest/v1/class/list'){
     var lw=checkToken(tok);if(!lw){res.writeHead(401);return res.end('need login')}
-    var classes=KV['ADV9_CLASSES']||[];
-    if(!Array.isArray(classes))classes=[];
+    var classes=loadClasses();
     var studentCounts={};
     Object.keys(ACC).forEach(function(un){
       var u=ACC[un];if(!u||u.role!=='student')return;

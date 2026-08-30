@@ -36,11 +36,16 @@ async function apVerifyToken(){
   try{
     var r=await fetch('/rest/v1/users',{headers:{'x-adv9-token':WTOKEN}});
     if(r.status===401||r.status===403){
-      WTOKEN='';
-      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
-      toast('⚠️ Token 已失效，請重新登入','bad');
-      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
-      return false;
+      await new Promise(function(res){setTimeout(res,300)});
+      var r2=await fetch('/rest/v1/users',{headers:{'x-adv9-token':WTOKEN}});
+      if(r2.status===401||r2.status===403){
+        WTOKEN='';
+        try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+        toast('⚠️ Token 已失效，請重新登入','bad');
+        setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
+        return false;
+      }
+      return true;
     }
     return true;
   }catch(e){return false}
