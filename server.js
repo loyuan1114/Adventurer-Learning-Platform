@@ -1941,7 +1941,7 @@ if(req.method==='GET'&&p==='/rest/v1/lib/progress'){
       saveAPExchangeItems();
       addApAudit(eia.username,'EXCHANGE_ITEMS_UPDATE','items',null,JSON.stringify(safe),'');
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,items:safe}));
-    }catch(e){res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,reason:'bad json'}))})
+    }catch(e){res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,reason:'bad json'}))}})
   }
   /* GET /rest/v1/ap/redemptions - 取得所有學生兌換記錄（管理員專用） */
   if(req.method==='GET'&&p==='/rest/v1/ap/redemptions'){
