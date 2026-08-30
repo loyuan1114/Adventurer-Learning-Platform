@@ -30,12 +30,12 @@ const VIDEO_HUB='videos.html'; /* 影片專區（自架部署改用 ASCII 檔名
 
 async function vVideos(){
   if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vVideos();
+  await vVideos();
 }
 /* 直接播放影片（不經過 vVideoSub，直接顯示影片列表）*/
 async function vVideosDirect(){
   if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vVideos();
+  await vVideos();
 }
 
 
@@ -67,7 +67,7 @@ function showRewardFX(rewards){const icons={gold:'💰',crystal:'💎',diamond:'
    ════════════════════════════════════════════ */
 async function vVideoSub(subj){
   if(!await needJs(['js/views/vVideoSub.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vVideoSub(subj);
+  await vVideoSub(subj);
 }
 
 
@@ -223,7 +223,7 @@ function checkArenaDailyMail(){
    ════════════════════════════════════════════ */
 async function vMail(){
   if(!await needJs(['js/views/vMail.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vMail();
+  await vMail();
 }
 
 
@@ -260,7 +260,7 @@ if(typeof vMail==='function')vMail();
    ════════════════════════════════════════════ */
 async function vNotifs(){
   if(!await needJs(['js/views/vNotifs.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vNotifs();
+  await vNotifs();
 }
 
 
@@ -306,7 +306,7 @@ set(LS.stories,st);vStory();
    ════════════════════════════════════════════ */
 async function vStory(){
   if(!await needJs(['js/views/vStory.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vStory();
+  await vStory();
 }
 
 
@@ -479,7 +479,7 @@ toast('🎁 '+s.name+' 開啟：'+matTxt+(gotChar?'｜🧑 '+gotChar:''));vGuild
    ════════════════════════════════════════════ */
 async function vLearn(){
   if(!await needJs(['js/views/vLearn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vLearn();
+  await vLearn();
 }
 
 
@@ -533,7 +533,7 @@ const GUILD_NEED=lv=>lv*1000; /* 升級所需捐獻金幣＝等級×1000 */
    ════════════════════════════════════════════ */
 async function vGuild(){
   if(!await needJs(['js/views/vGuild.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGuild();
+  await vGuild();
 }
 
 

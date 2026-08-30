@@ -207,7 +207,7 @@ const collLvCost=lv=>({au:120+lv*80,cr:25+lv*15});
    ════════════════════════════════════════════ */
 async function vColl(){
   if(!await needJs(['js/views/vColl.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vColl();
+  await vColl();
 }
 
 

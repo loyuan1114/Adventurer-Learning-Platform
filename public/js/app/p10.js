@@ -22,7 +22,7 @@
    ════════════════════════════════════════════ */
 async function vCodes(){
   if(!await needJs(['js/views/vCodes.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vCodes();
+  await vCodes();
 }
 
 
@@ -119,7 +119,7 @@ function socialTabs(active){const g=me()&&me().g;const um=g?unreadMail(g):0;retu
    ════════════════════════════════════════════ */
 async function vSocial(tab){
   if(!await needJs(['js/views/vFriends.js', 'js/views/vGroup.js', 'js/views/vMail.js', 'js/views/vStory.js', 'js/views/vSocial.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vSocial(tab);
+  await vSocial(tab);
 }
 
 
@@ -151,7 +151,7 @@ const yesterday=(d)=>{const dt=new Date(d);dt.setDate(dt.getDate()-1);return dt.
    ════════════════════════════════════════════ */
 async function vFriends(){
   if(!await needJs(['js/views/vFriends.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vFriends();
+  await vFriends();
 }
 
 
@@ -617,7 +617,7 @@ toast('已撤回交易');vFriends();
    ════════════════════════════════════════════ */
 async function vGroup(){
   if(!await needJs(['js/views/vGroup.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGroup();
+  await vGroup();
 }
 
 
@@ -833,7 +833,7 @@ toast('💥 群組��'+gr.name+'」已解散');vGroup();
    ════════════════════════════════════════════ */
 async function vHomework(){
   if(!await needJs(['js/views/vHomework.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vHomework();
+  await vHomework();
 }
 
 

@@ -22,7 +22,7 @@
    ════════════════════════════════════════════ */
 async function vMarket(){
   if(!await needJs(['js/views/vGShop.js', 'js/views/vMarket.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vMarket();
+  await vMarket();
 }
 
 
@@ -132,7 +132,7 @@ saveU(u);toast('↩️ 已下架「'+it.w.n+'」，物品已退回背包');vMark
    ════════════════════════════════════════════ */
 async function vForge(){
   if(!await needJs(['js/views/vForge.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vForge();
+  await vForge();
 }
 
 
@@ -212,7 +212,7 @@ vForge();
    ════════════════════════════════════════════ */
 async function vBag(){
   if(!await needJs(['js/views/vBag.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vBag();
+  await vBag();
 }
 
 
@@ -361,7 +361,7 @@ return arr.map((e,i)=>({...e,rank:i+1}));
    ════════════════════════════════════════════ */
 async function vRank(){
   if(!await needJs(['js/views/vRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vRank();
+  await vRank();
 }
 
 

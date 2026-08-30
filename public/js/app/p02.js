@@ -115,16 +115,16 @@ let LQ={code:'',name:'',q:null,phase:'IDLE',sel:-1,t0:0,diff:45};
    ════════════════════════════════════════════ */
 async function vLangStudy(){
   if(!await needJs(['js/views/vLangStudy.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vLangStudy();
+  await vLangStudy();
 }
 /* ═══ 新增模組：AI 端點 / 找碴 / 沙盒 / 同意 / 信任 / 思考報告 / 蘇格拉底 ═══ */
-async function vAiProvider(){if(!await needJs(['js/views/vAiProvider.js']))return toast('模組載入失敗','bad');vAiProvider();}
-async function vFindError(){if(!await needJs(['js/views/vSocratic.js','js/views/vFindError.js']))return toast('模組載入失敗','bad');vFindError();}
-async function vSandbox(){if(!await needJs(['js/views/vSocratic.js','js/views/vSandbox.js']))return toast('模組載入失敗','bad');vSandbox();}
-async function vConsent(){if(!await needJs(['js/views/vConsent.js']))return toast('模組載入失敗','bad');vConsent();}
-async function vTrust(){if(!await needJs(['js/views/vTrust.js']))return toast('模組載入失敗','bad');vTrust();}
-async function vThinkingReport(){if(!await needJs(['js/views/vThinkingTrace.js']))return toast('模組載入失敗','bad');vThinkingReport();}
-async function vSocraticAdmin(){if(!await needJs(['js/views/vSocratic.js']))return toast('模組載入失敗，請重新整理頁面','bad');vSocraticAdmin();}
+async function vAiProvider(){if(!await needJs(['js/views/vAiProvider.js']))return toast('模組載入失敗','bad');await vAiProvider();}
+async function vFindError(){if(!await needJs(['js/views/vSocratic.js','js/views/vFindError.js']))return toast('模組載入失敗','bad');await vFindError();}
+async function vSandbox(){if(!await needJs(['js/views/vSocratic.js','js/views/vSandbox.js']))return toast('模組載入失敗','bad');await vSandbox();}
+async function vConsent(){if(!await needJs(['js/views/vConsent.js']))return toast('模組載入失敗','bad');await vConsent();}
+async function vTrust(){if(!await needJs(['js/views/vTrust.js']))return toast('模組載入失敗','bad');await vTrust();}
+async function vThinkingReport(){if(!await needJs(['js/views/vThinkingTrace.js']))return toast('模組載入失敗','bad');await vThinkingReport();}
+async function vSocraticAdmin(){if(!await needJs(['js/views/vSocratic.js']))return toast('模組載入失敗，請重新整理頁面','bad');await vSocraticAdmin();}
 /* vLangStudy 已修復參數轉發 */
 
 
@@ -683,13 +683,13 @@ function isGrade9(u){return !u.graduated&&/^9/.test(String(u.classId||''))}
    vHome 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 2 個單位：vHome, tutorGuide
    ════════════════════════════════════════════ */
-async function vNotes(){if(!await needJs(['js/views/vNotes.js']))return toast('模組載入失敗，請重新整理頁面','bad');if(!nbImportShare())vNotes();}
-async function vCreate(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');vCreate();}
-async function vTutor(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');CR.tab='tutor';vCreate();}
-async function vJourney(){if(!await needJs(['js/views/vJourney.js']))return toast('模組載入失敗，請重新整理頁面','bad');vJourney();}
+async function vNotes(){if(!await needJs(['js/views/vNotes.js']))return toast('模組載入失敗，請重新整理頁面','bad');if(!nbImportShare())await vNotes();}
+async function vCreate(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');await vCreate();}
+async function vTutor(){if(!await needJs(['js/views/vCreate.js']))return toast('模組載入失敗，請重新整理頁面','bad');CR.tab='tutor';await vCreate();}
+async function vJourney(){if(!await needJs(['js/views/vJourney.js']))return toast('模組載入失敗，請重新整理頁面','bad');await vJourney();}
 async function vHome(){
   if(!await needJs(['js/views/vHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vHome();
+  await vHome();
 }
 
 

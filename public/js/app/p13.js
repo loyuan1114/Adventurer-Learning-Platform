@@ -84,7 +84,7 @@ function adminSendMail(){
    ════════════════════════════════════════════ */
 async function vGrantAdmin(){
   if(!await needJs(['js/views/vGrantAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGrantAdmin();
+  await vGrantAdmin();
 }
 
 

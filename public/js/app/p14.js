@@ -25,7 +25,7 @@ let _dAdminCat='角色',_dAdminEditId=null,_dAdminEditIdx=-1;
    ════════════════════════════════════════════ */
 async function vDollAdmin(){
   if(!await needJs(['js/views/vDollAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vDollAdmin();
+  await vDollAdmin();
 }
 
 

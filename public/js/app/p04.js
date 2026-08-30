@@ -183,7 +183,7 @@ openModal('<h3 class="mt">🔥 限次觀看內容 <span style="font-size:11px;co
    ════════════════════════════════════════════ */
 async function vSubj(){
   if(!await needJs(['js/views/vSubj.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vSubj();
+  await vSubj();
 }
 
 
@@ -216,7 +216,7 @@ async function vSubj(){
 
 async function vUnitList(subj){
   if(!await needJs(['js/views/vUnitList.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vUnitList(subj);
+  await vUnitList(subj);
 }
 
 
@@ -271,7 +271,7 @@ function parseAiQuestions(text,subject){let cleaned=text.trim();cleaned=cleaned.
 
 async function vReady(sem,unit){
   if(!await needJs(['js/views/vReady.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vReady(sem,unit);
+  await vReady(sem,unit);
 }
 
 
@@ -394,7 +394,7 @@ function showLevelUpFX(newLv){const overlay=document.createElement('div');overla
 
 async function vQuestion(){
   if(!await needJs(['js/views/vQuestion.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vQuestion();
+  await vQuestion();
 }
 
 
@@ -524,7 +524,7 @@ return R;
    ════════════════════════════════════════════ */
 async function vResult(ok,el,R){
   if(!await needJs(['js/views/vResult.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vResult(ok,el,R);
+  await vResult(ok,el,R);
 }
 
 

@@ -43,7 +43,7 @@ return '<b style="color:var(--gold2)">🃏 卡池等級 Lv.'+lv+' / 100</b> <spa
    ════════════════════════════════════════════ */
 async function vGacha(){
   if(!await needJs(['js/views/vGacha.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGacha();
+  await vGacha();
 }
 
 
@@ -192,7 +192,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a);
 
 async function vSpeedMatch(){
   if(!await needJs(['js/views/vSpeedMatch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vSpeedMatch();
+  await vSpeedMatch();
 }
 
 
@@ -305,7 +305,7 @@ function arenaDiff(floor){return Math.min(100,5+floor);} /* 難度隨層數提�
    ════════════════════════════════════════════ */
 async function vPK(){
   if(!await needJs(['js/views/vSpeedMatch.js', 'js/views/vPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vPK();
+  await vPK();
 }
 
 
@@ -662,7 +662,7 @@ toast('🎁 競技塔第 '+r+' 名獎勵已領取！');vPK();
    ════════════════════════════════════════════ */
 async function vPkRank(){
   if(!await needJs(['js/views/vPkRank.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vPkRank();
+  await vPkRank();
 }
 
 
@@ -693,7 +693,7 @@ async function vPkRank(){
    ════════════════════════════════════════════ */
 async function vClassPK(){
   if(!await needJs(['js/views/vClassPK.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vClassPK();
+  await vClassPK();
 }
 
 
@@ -789,7 +789,7 @@ return TERR_MAP[subj].t.filter(t=>g.territory.owned[subj+'|'+t.n]).length;
    ════════════════════════════════════════════ */
 async function vTerr(){
   if(!await needJs(['js/views/vTerr.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vTerr();
+  await vTerr();
 }
 
 

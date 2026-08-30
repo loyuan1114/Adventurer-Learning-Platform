@@ -64,7 +64,7 @@ if(!list.every(m=>m.status==='CLAIMED'))g._allDone=false;
    ════════════════════════════════════════════ */
 async function vMiss(){
   if(!await needJs(['js/views/vMiss.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vMiss();
+  await vMiss();
 }
 
 
@@ -166,7 +166,7 @@ const SHOP_POOL=[
    ════════════════════════════════════════════ */
 async function vShopV(){
   if(!await needJs(['js/views/vShopV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vShopV();
+  await vShopV();
 }
 
 
@@ -302,7 +302,7 @@ const GSHOP_ITEMS=[
 
 async function vGShop(){
   if(!await needJs(['js/views/vMarket.js', 'js/views/vGShop.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGShop();
+  await vGShop();
 }
 
 

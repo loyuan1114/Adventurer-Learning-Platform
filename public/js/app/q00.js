@@ -37,7 +37,7 @@
    ════════════════════════════════════════════ */
 async function vAiQuiz(){
   if(!await needJs(['js/views/vAiQuiz.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vAiQuiz();
+  await vAiQuiz();
 }
 
 
@@ -325,7 +325,7 @@ function _dPetResp(doll){
    ════════════════════════════════════════════ */
 async function vDoll(){
   if(!await needJs(['js/views/vDoll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vDoll();
+  await vDoll();
 }
 
 
@@ -338,12 +338,12 @@ async function vDoll(){
    ════════════════════════════════════════════ */
 async function vPixel(){
   if(!await needJs(['js/views/vPixel.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vPixel();
+  await vPixel();
 }
 
 async function vVideo(){
   if(!await needJs(['js/views/vVideos.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vVideo();
+  await vVideo();
 }
 
 
@@ -436,7 +436,7 @@ let CW_STATE={rows:[],ts:0};
 
 async function vClassWar(){
   if(!await needJs(['js/views/vClassWar.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vClassWar();
+  await vClassWar();
 }
 
 function cwLoad(){

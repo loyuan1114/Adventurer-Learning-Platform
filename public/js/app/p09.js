@@ -22,7 +22,7 @@
    ════════════════════════════════════════════ */
 async function vTitleV(){
   if(!await needJs(['js/views/vTitleV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vTitleV();
+  await vTitleV();
 }
 
 
@@ -68,7 +68,7 @@ saveU(u);hud();toast('🏅 成就「'+a.n+'」階段'+(claimed+1)+' 已領取！
    ════════════════════════════════════════════ */
 async function vExch(){
   if(!await needJs(['js/views/vExch.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vExch();
+  await vExch();
 }
 
 
@@ -120,7 +120,7 @@ saveU(u);hud();toast('✅ 兌換成功');vExch();
    ════════════════════════════════════════════ */
 async function vLab(){
   if(!await needJs(['js/views/vLab.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vLab();
+  await vLab();
 }
 
 
