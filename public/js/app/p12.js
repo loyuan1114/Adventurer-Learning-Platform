@@ -294,5 +294,5 @@ try{
 if(tab==='users'){if(typeof vUsers!=='function'){await needJs(['js/views/vUsers.js'])}await vUsers();}
 else if(tab==='grant')await vGrantAdmin();else if(tab==='mail_admin')vAdminMail();else if(tab==='dolls')await vDollAdmin();else if(tab==="guilds")await vGuildsAdmin();else if(tab==='content')await vContentAdmin();else if(tab==='books')await vBooksAdmin();else if(tab==='codes')await vCodesAdmin();else if(tab==='post')await vPostAdmin();
 else if(tab==='monitor')await vMonitor();else if(tab==='stats')await vAStats();else if(tab==='api')await vApiKeys();else if(tab==='aiprovider')await vAiProvider();else if(tab==='socratic')await vSocraticAdmin();else if(tab==='classes')await vAdminPanel();else if(tab==='game')await vGameSet();else if(tab==='lang')await vLangStudy();else if(tab==='trust')await vTrust();else if(tab==='student_view')renderStudent(me());else await vResetAdmin();
-}catch(e){toast('❌ 載入失敗：'+e.message,'bad')}
+}catch(e){console.error('[aGo] tab='+tab+' error:',e);toast('❌ 載入失敗：'+e.message,'bad')}
 }

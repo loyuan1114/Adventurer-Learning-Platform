@@ -82,7 +82,7 @@ function vMonitorRefresh() {
     for (var i = 0; i < Math.min(ranking.length, 10); i++) {
       var r = ranking[i];
       html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
-      html += '<span style="font-size:14px;width:24px">' + (medals[i] || (i + 1) + '.')</span>';
+      html += '<span style="font-size:14px;width:24px">' + (medals[i] || (i + 1) + '.') + '</span>';
       html += '<div style="flex:1;font-size:12px"><b>' + (r.name || r.id) + '</b></div>';
       html += '<span style="font-size:11px;color:var(--mut)">Lv.' + r.level + '</span>';
       html += '<span style="font-size:12px;font-weight:700;color:var(--gold2)">' + (key === 'ap' ? r.ap + ' AP' : r.xp + ' XP') + '</span>';
