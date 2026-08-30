@@ -2,7 +2,15 @@
    vUsers 畫面模組（splitall.py 自動拆分，懶載入：進入此畫面才載入）
    含 1 個單位：vUsers
    ════════════════════════════════════════════ */
-function vUsers(){
+async function vUsers(){
+try{
+  var _cls=await fetchClasses();
+  if(_cls&&_cls.length){
+    var _cd={ids:_cls.map(function(c){return c.id;}),names:{}};
+    _cls.forEach(function(c){_cd.names[c.id]=c.name;});
+    set(LS.classes,_cd);
+  }
+}catch(e){}
 const classes=get(LS.classes,{ids:[],names:{}});
 const clsIds=Array.isArray(classes.ids)?classes.ids:[];
 const clsNames=(classes.names&&typeof classes.names==='object')?classes.names:{};
