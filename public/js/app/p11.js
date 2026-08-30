@@ -22,7 +22,7 @@
    ════════════════════════════════════════════ */
 async function vWrong(){
   if(!await needJs(['js/views/vWrong.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vWrong();
+  await vWrong();
 }
 
 
@@ -64,7 +64,7 @@ vQuestion();
    ════════════════════════════════════════════ */
 async function vStats(){
   if(!await needJs(['js/views/vStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vStats();
+  await vStats();
 }
 
 
@@ -222,7 +222,7 @@ function musicInit(){if(MUSIC.audio)return;const a=new Audio();a.loop=true;a.vol
 
 async function vSet(){
   if(!await needJs(['js/views/vSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vSet();
+  await vSet();
 }
 
 function renderMusicYt(){
@@ -357,7 +357,7 @@ return '<div class="chatMsg '+(mine?'mine':'')+(isSys?' system':c.role||'')+'">'
    ════════════════════════════════════════════ */
 async function vChatV(){
   if(!await needJs(['js/views/vChatV.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vChatV();
+  await vChatV();
 }
 
 
@@ -395,7 +395,7 @@ set(LS.chat,ch);$('#chatIn').value='';vChatV()}
    ════════════════════════════════════════════ */
 async function vAnn(){
   if(!await needJs(['js/views/vAnn.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vAnn();
+  await vAnn();
 }
 
 
@@ -870,7 +870,7 @@ toast('📤 已分享作業模板給 '+(fr?fr.name:'好友')+'！');
    ════════════════════════════════════════════ */
 async function vRoster(fGrade,fClass){
   if(!await needJs(['js/views/vRoster.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vRoster(fGrade,fClass);
+  await vRoster(fGrade,fClass);
 }
 
 
@@ -973,7 +973,7 @@ const mb=$('#mbody');if(mb)mb.style.maxWidth='900px'; /* 加寬面板以容納 1
 
 async function vAiAudit(){
   if(!await needJs(['js/views/vAiAudit.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vAiAudit();
+  await vAiAudit();
 }
 
 
@@ -1023,7 +1023,7 @@ callGemini(prompt,'你是客觀的學習數據分析師，只提供參考研判�
    ════════════════════════════════════════════ */
 async function vMonitor(){
   if(!await needJs(['js/views/vMonitor.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vMonitor();
+  await vMonitor();
 }
 
 

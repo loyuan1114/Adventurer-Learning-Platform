@@ -233,7 +233,7 @@ function eqUpgradeCost(lv,rarity){return rarity==='∞'?Math.max(1,Math.ceil(lv/
    ════════════════════════════════════════════ */
 async function vEquip(){
   if(!await needJs(['js/views/vEquip.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vEquip();
+  await vEquip();
 }
 
 
@@ -380,7 +380,7 @@ function dunLog(html){ /* 前置加入日誌，最多保留 60 筆，避免快�
    ════════════════════════════════════════════ */
 async function vDungeon(){
   if(!await needJs(['js/views/vDungeon.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vDungeon();
+  await vDungeon();
 }
 
 
@@ -679,7 +679,7 @@ function dunCancel(){
 
 async function vReroll(){
   if(!await needJs(['js/views/vReroll.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vReroll();
+  await vReroll();
 }
 
 
@@ -777,7 +777,7 @@ function isFreePointsFullyAllocated(){
    ════════════════════════════════════════════ */
 async function vFreePoints(){
   if(!await needJs(['js/views/vFreePoints.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vFreePoints();
+  await vFreePoints();
 }
 
 
@@ -839,7 +839,7 @@ function resetFreePoints(){
 
 async function vInfinityExchange(){
   if(!await needJs(['js/views/vInfinityExchange.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vInfinityExchange();
+  await vInfinityExchange();
 }
 
 
@@ -917,7 +917,7 @@ function activeBuff(t){const b=checkBuffActive();return (b&&(!t||b.type===t))?b:
    ════════════════════════════════════════════ */
 async function vBuffStore(){
   if(!await needJs(['js/views/vBuffStore.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vBuffStore();
+  await vBuffStore();
 }
 
 
@@ -1049,7 +1049,7 @@ function sendGiftBox(buffIndex){
    ════════════════════════════════════════════ */
 async function vAdminPanel(){
   if(!await needJs(['js/views/vAdminPanel.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vAdminPanel();
+  await vAdminPanel();
 }
 
 
@@ -1189,7 +1189,7 @@ FEATS.push(
    ════════════════════════════════════════════ */
 async function vTerminal(){
   if(!await needJs(['js/views/vTerminal.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vTerminal();
+  await vTerminal();
 }
 
 /* ════════════════════════════════════════════
@@ -1197,7 +1197,7 @@ async function vTerminal(){
    ════════════════════════════════════════════ */
 async function vAIHallucination(){
   if(!await needJs(['js/views/vAIHallucination.js']))return toast('模組載入失敗','bad');
-  vAIHallucination();
+  await vAIHallucination();
 }
 window.vAIHallucination = vAIHallucination;
 
@@ -1277,11 +1277,11 @@ function handleCompMsg(m){
    ══════════════════════════════════════════════════════════════ */
 async function vSoulScroll(){
   if(!await needJs(['js/views/vSoulScroll.js']))return toast('模組載入失敗','bad');
-  vSoulScroll();
+  await vSoulScroll();
 }
 window.vSoulScroll = vSoulScroll;
 async function vGuildQuiz(){
   if(!await needJs(['js/views/vGuildQuiz.js']))return toast('模組載入失敗','bad');
-  vGuildQuiz();
+  await vGuildQuiz();
 }
 window.vGuildQuiz = vGuildQuiz;

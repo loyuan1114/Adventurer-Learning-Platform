@@ -22,7 +22,7 @@
    ════════════════════════════════════════════ */
 async function vGuildsAdmin(){
   if(!await needJs(['js/views/vGuildsAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGuildsAdmin();
+  await vGuildsAdmin();
 }
 
 
@@ -76,7 +76,7 @@ set(LS.guilds,guilds.filter(x=>x.id!==id));toast('💥 已解散公會「'+gd.na
    ════════════════════════════════════════════ */
 async function vContentAdmin(){
   if(!await needJs(['js/views/vContentAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vContentAdmin();
+  await vContentAdmin();
 }
 
 
@@ -126,7 +126,7 @@ set(LS.stories,[]);toast('🧹 已清空所有動態');vContentAdmin();
    ════════════════════════════════════════════ */
 async function vBooksAdmin(){
   if(!await needJs(['js/views/vBooksAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vBooksAdmin();
+  await vBooksAdmin();
 }
 
 
@@ -214,7 +214,7 @@ const MISSION_POOL=[
    ════════════════════════════════════════════ */
 async function vGameSet(){
   if(!await needJs(['js/views/vGameSet.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGameSet();
+  await vGameSet();
 }
 
 
@@ -277,7 +277,7 @@ set(LS.users,us);toast('🔄 已重置 '+n+' 名學生的遊戲數據');
    ════════════════════════════════════════════ */
 async function vUsers(){
   if(!await needJs(['js/views/vUsers.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vUsers();
+  await vUsers();
 }
 
 
@@ -415,7 +415,7 @@ uRenderRows();
    ════════════════════════════════════════════ */
 async function vCodesAdmin(){
   if(!await needJs(['js/views/vCodesAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vCodesAdmin();
+  await vCodesAdmin();
 }
 
 
@@ -491,7 +491,7 @@ function delCode(c){if(!confirm('刪除此禮包碼？'))return;set(LS.codes,get
    ════════════════════════════════════════════ */
 async function vPostAdmin(){
   if(!await needJs(['js/views/vPostAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vPostAdmin();
+  await vPostAdmin();
 }
 
 
@@ -538,7 +538,7 @@ const AI_PRIORITY=['openai','deepseek','gemini','qwen','kimi','ollama'];
 
 async function vApiKeys(){
   if(!await needJs(['js/views/vApiKeys.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vApiKeys();
+  await vApiKeys();
 }
 
 
@@ -588,7 +588,7 @@ async function testAllApiKeys(){const data=get(LS.apiKeys,{keys:[],currentIndex:
    ════════════════════════════════════════════ */
 async function vClasses(){
   if(!await needJs(['js/views/vClasses.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vClasses();
+  await vClasses();
 }
 
 
@@ -620,7 +620,7 @@ function editClassName(id){const classes=get(LS.classes,{ids:[],names:{}});const
    ════════════════════════════════════════════ */
 async function vTHome(){
   if(!await needJs(['js/views/vTHome.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vTHome();
+  await vTHome();
 }
 
 
@@ -649,7 +649,7 @@ async function vTHome(){
    ════════════════════════════════════════════ */
 async function vRegStu(){
   if(!await needJs(['js/views/vRegStu.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vRegStu();
+  await vRegStu();
 }
 
 
@@ -796,7 +796,7 @@ async function doRegStu() {
    ════════════════════════════════════════════ */
 async function vAStats(){
   if(!await needJs(['js/views/vAStats.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vAStats();
+  await vAStats();
 }
 
 
@@ -832,7 +832,7 @@ async function vAStats(){
    ════════════════════════════════════════════ */
 async function vResetAdmin(){
   if(!await needJs(['js/views/vResetAdmin.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vResetAdmin();
+  await vResetAdmin();
 }
 
 
@@ -1071,7 +1071,7 @@ function gameStop(){gameKey(null);if(window._gTimer){clearInterval(window._gTime
    ════════════════════════════════════════════ */
 async function vGames(){
   if(!await needJs(['js/views/vGames.js']))return toast('模組載入失敗，請重新整理頁面','bad');
-  vGames();
+  await vGames();
 }
 
 
