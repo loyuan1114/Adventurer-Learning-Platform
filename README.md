@@ -1,6 +1,10 @@
 # 🎮 ADV9 Adventurer Learning Platform v9.0.0
 ## 冒險者學習平台 v9.0.0
 
+> A gamified learning platform: quiz adventures, card-based character development, guild battles, homework assignment, AI assistants, and social interaction.
+>
+> 把課業變成冒險遊戲的學習平台：答題冒險、抽卡養成、公會對戰、作業發布、AI 助理、社群互動。
+
 > **v9.0.0 Highlights / v9.0.0 重點**:
 > - 🏫 **Class Management System** / 班級管理系統（老師認領、批量建立、檔案上傳）
 > - 🎁 **AP Reward System** / AP 獎勵系統（7 種來源、獨立上限、審計日誌、學生兌換）
@@ -58,6 +62,56 @@
 - **Auto-Recovery** / 自動復原 — `users_index.json` backup + reconcile
 - **Graceful Restart** / 平滑重啟 — SIGTERM/SIGINT handling
 - **30-Second Sync** / 30 秒同步 — frontend auto-refresh from server
+
+---
+
+## 📝 Homework Import / 作業檔案匯入
+
+### File Format / 檔案格式
+
+Recommend using `.txt` (Word: File → Save As → Plain Text)
+推薦使用 `.txt`（Word 請另存新檔為純文字）
+
+Each question requires exactly **6 lines**:
+每題固定 **6 行**：
+1. Question / 題目
+2. Option a / 選項 a
+3. Option b / 選項 b
+4. Option c / 選項 c
+5. Option d / 選項 d
+6. Answer / 答案
+
+### Example / 範例
+
+```
+題目：下列哪一個是質數？
+a. 4
+b. 6
+c. 7
+d. 9
+答案：c
+
+題目：水的化學式為何？
+a. CO2
+b. H2O
+c. NaCl
+d. O2
+答案：b
+```
+
+### Quoted Format / 雙引號格式（支援）
+
+You can also wrap each field in quotes, or mix formats:
+也可以每欄位加引號，或混用：
+
+```
+"題目：下列哪一個是質數？"
+"a. 4"
+"b. 6"
+"c. 7"
+"d. 9"
+"答案：c"
+```
 
 ---
 
