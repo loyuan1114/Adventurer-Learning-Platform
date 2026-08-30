@@ -950,6 +950,9 @@ async function impersonate(username){
       set(LS.ses,{u:username,imp:m?m.username:false});
       toast('🎭 已切換到 '+target.name+'（'+d.role+'）');
       enter();
+    }else if(r.status===401||r.status===403){
+      WTOKEN='';try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
+      toast('⚠️ Token 已失效，請重新登入後再試','bad');
     }else{
       toast('❌ 模擬登入失敗：'+(d.reason||('HTTP '+r.status)),'bad');
     }

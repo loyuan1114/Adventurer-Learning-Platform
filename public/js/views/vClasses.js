@@ -2,17 +2,15 @@
 function safeJson(r){
   if(!r.ok){
     if(r.status===401||r.status===403){
-      WTOKEN='';
-      try{localStorage.removeItem('ADV9_WTOKEN')}catch(e){}
-      toast('⚠️ Token 已失效，請重新登入','bad');
-      setTimeout(function(){try{if(typeof logout==='function')logout()}catch(e){location.reload()}},800);
-      return Promise.resolve({ok:false,reason:'auth_error'});
+      return Promise.resolve({ok:false,reason:'auth_error',status:r.status});
     }
     return r.text().then(function(t){throw new Error(t||('HTTP '+r.status))});
   }
   return r.json();
 }
-function vClasses(){
+async function vClasses(){
+  try{var _cls=await fetchClasses();if(_cls&&_cls.length){var _cd={ids:_cls.map(function(c){return c.id;}),names:{}};_cls.forEach(function(c){_cd.names[c.id]=c.name});set(LS.classes,_cd)}}catch(e){}
+
   var u=me();if(!u)return;
   if(!WTOKEN){
     $('#view').innerHTML=back()+'<div class="panel2" style="padding:20px;text-align:center"><b style="color:#ffcc80">⚠️ Token 已過期或遺失</b><div style="margin-top:10px;font-size:12px;color:var(--mut)">請重新登入以取得新 token</div><button class="btn teal" style="margin-top:12px" onclick="logout()">🔐 重新登入</button></div>';
