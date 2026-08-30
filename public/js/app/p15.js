@@ -335,14 +335,15 @@ const tb=$('#uTbody');if(tb)tb.innerHTML=rows;
 const ct=$('#uCount');if(ct)ct.textContent=q?(list.length+' / '+us.length):us.length;
 }
 function adminResetPw(username){
+if(!IS_ADMIN())return toast('⚠️ 僅管理員可執行','bad');
 const us=get(LS.users,[]);const u=us.find(x=>x.username===username);
 if(!u)return toast('⚠️ 找不到帳號','bad');
 const np=prompt('為「'+u.name+'（'+username+'）」設定新密碼（至少 4 碼）：','');
 if(np===null)return;
 const p=(np||'').trim();
 if(p.length<4)return toast('⚠️ 密碼至少 4 碼','bad');
-u.password=p;set(LS.users,us);
- toast('🔑 已重設「'+u.name+'」的密碼為：'+p);
+ u.password=p;set(LS.users,us);
+ toast('🔑 已重設「'+u.name+'」的密碼');
 }
 function adminConsentManage(username){
 const consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
@@ -367,6 +368,7 @@ h+='<div class="mBtns"><button class="btn ghost" onclick="closeModal()">關閉</
 openModal(h);
 }
 function adminConsentRevoke(id,parentUsername){
+if(!IS_ADMIN())return toast('⚠️ 僅管理員可執行','bad');
 const consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
 const req=consents.requests.find(r=>r.id===id);
 if(!req)return toast('找不到紀錄','bad');
@@ -377,6 +379,7 @@ toast('🛡️ 已由管理員撤銷此連結');
 adminConsentManage(parentUsername);
 }
 function adminConsentUnlink(id,parentUsername){
+if(!IS_ADMIN())return toast('⚠️ 僅管理員可執行','bad');
 if(!confirm('確定刪除此連結紀錄？此操作無法復原！'))return;
 const consents=get('ADV9_PARENT_CONSENTS',{requests:[]});
 consents.requests=consents.requests.filter(r=>r.id!==id);
@@ -385,6 +388,7 @@ toast('🗑 已刪除連結紀錄');
 adminConsentManage(parentUsername);
 }
 async function delUser(username){
+if(!IS_ADMIN())return toast('⚠️ 僅管理員可刪除帳號','bad');
 if(!confirm('確定刪除用戶「'+username+'」？此操作無法復原！'))return;
 if(SUPA_ON&&WTOKEN){try{const rr=await fetch(SUPA_URL+'/rest/v1/admin/users/delete',{method:'POST',headers:supaHeaders(),body:JSON.stringify({username})});if(!rr.ok){const msg=await rr.text().catch(()=>'');return toast('⚠️ VPS 刪除失敗（HTTP '+rr.status+'）'+(msg?'：'+msg:''),'bad')}}catch(e){return toast('⚠️ VPS 刪除失敗，帳號未刪除','bad')}}
 const us=get(LS.users,[]).filter(x=>x.username!==username);
@@ -932,6 +936,7 @@ function doImp(){const v=$('#impSel').value;if(!v)return toast('⚠️ 請選擇
 
 /* 模擬登入：直接用本機（已從雲端同步）的帳號資料，無需連網、無需密碼；資料庫並無 users 表，原本的雲端抓取一定失敗 */
 async function impersonate(username){
+  if(!IS_ADMIN())return toast('⚠️ 僅管理員可模擬登入','bad');
   const localUsers=get(LS.users,[]);
   const target=localUsers.find(x=>x.username===username);
   if(!target){toast('⚠️ 找不到帳號：'+username,'bad');return;}

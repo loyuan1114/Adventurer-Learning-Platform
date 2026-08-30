@@ -43,7 +43,7 @@ async function apVerifyToken(){
       return false;
     }
     return true;
-  }catch(e){return true}
+  }catch(e){return false}
 }
 window.apVerifyToken=apVerifyToken;
 

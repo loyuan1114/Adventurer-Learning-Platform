@@ -830,7 +830,7 @@ function onlHtml(user){
   return '<span class="onlBadge '+(on?'on':'off')+'" data-u="'+esc(un)+'">'+(on?'● 線上':'○ 離線')+'</span>';
 }
 
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]));
 
 const fmt=t=>new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
 

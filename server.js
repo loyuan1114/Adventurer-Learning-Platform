@@ -820,8 +820,8 @@ var server=http.createServer(function(req,res){
         if(!j || !j.username){
           res.writeHead(400);return res.end('缺少 username 欄位');
         }
-        var un=String(j.username).replace(/[^a-zA-Z0-9_\-]/g,'').slice(0,64);
-        if(!un){res.writeHead(400);return res.end('username 不合法')}
+        var un=String(j.username).replace(/[^a-zA-Z0-9_\u4e00-\u9fff]/g,'').slice(0,64);
+        if(!un||!isValidUsername(un)){res.writeHead(400);return res.end('username 不合法')}
         if(un===MASTER.user){res.writeHead(403);return res.end('不可覆蓋 master 帳號')}
         var safe={};
         safe.id=un;
@@ -880,11 +880,13 @@ var server=http.createServer(function(req,res){
         if(j.kv){ KV=j.kv; saveKV(); }
         if(Array.isArray(j.users)){
           j.users.forEach(u=>{
-            if(u&&u.username){
+            if(u&&u.username&&typeof u.username==='string'){
               if(u.username===MASTER.user)return;
+              if(!isValidUsername(u.username))return;
               if(u.role)u.role=String(u.role).slice(0,16);
               if(!['admin','teacher','student'].includes(u.role))u.role='student';
               u.master=false;
+              delete u.password;delete u.pwHash;delete u.salt;
               ACC[u.username]=u;
               saveUserFile(u.username);
             }
@@ -1077,7 +1079,7 @@ var ext='.docx';
             var m4;var texts3=[];
             while((m4=re3.exec(rawStr))!==null){texts3.push(m4[1])}
             content=texts3.join('');
-          }catch(e2){content='[解析失敗: '+e2.message+']'}
+          }catch(e2){content='[檔案解析失敗]';console.error('[docx_parse]',e2.message)}
         }
       }else{
         /* 其他格式嘗試當純文字讀取 */
@@ -1100,7 +1102,7 @@ var ext='.docx';
         ok=false;
         if(ex){
           if(ex.master&&!(ex.pwHash&&ex.pwHash.startsWith('$argon2'))){ /* 主管理員首次遷移：SHA-256 → Argon2id */
-            ok=sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)===MASTER.hash;
+            ok=crypto.timingSafeEqual(Buffer.from(sha256(un+'|'+(pw==null?'':pw)+'|'+MASTER.salt)),Buffer.from(MASTER.hash));
             if(ok){var salt=crypto.randomBytes(16).toString('hex');ex.salt=salt;ex.pwHash=await hashPassword(pw==null?'':pw,salt);ex.tokenVer=(ex.tokenVer||0)+1;ex.mustChangePw=false;saveUserFile(un);}
           } else if(ex.master){ /* 主管理員後續登入：Argon2id */
             ok=await verifyHash(pw==null?'':pw,ex.pwHash,ex.salt||SERVER_PEPPER);
@@ -1274,7 +1276,10 @@ var ext='.docx';
       var data=KV['ADV9_AI_PROVIDERS']||{providers:[],usage:[]};
       if(j.id){/* 更新 */
         var idx=data.providers.findIndex(function(x){return x.id===j.id});
-        if(idx>=0){Object.assign(data.providers[idx],j);}
+        if(idx>=0){
+          var safe={id:j.id,model_name:j.model_name,base_url:j.base_url,api_key:j.api_key,display_name:j.display_name,enabled:j.enabled,description:j.description};
+          Object.assign(data.providers[idx],safe);
+        }
         else{j.id='ap_'+Date.now();data.providers.push(j);}
       }else{/* 新增 */
         j.id='ap_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
@@ -1334,7 +1339,7 @@ var ext='.docx';
           }catch(e2){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,status:ures.statusCode,response:body.substring(0,200)}));}
         });
       });
-      req2.on('error',function(e3){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,error:e3.message}));});
+      req2.on('error',function(e3){console.error('[ai_proxy] error:',e3.message);res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,error:'AI 服務暫時無法連線'}));});
       req2.on('timeout',function(){try{req2.destroy()}catch(e4){}res.writeHead(504);res.end(JSON.stringify({ok:false,error:'timeout'}));});
       req2.write(payload);req2.end();
     }catch(e5){res.writeHead(400);res.end('bad json')}});
@@ -1509,7 +1514,7 @@ var ext='.docx';
             result.stdout=r4.stdout||'';result.stderr=r4.stderr||'';result.exit_code=r4.status;
           }else{result.stderr=(rc2.stderr||'')+'\n編譯失敗';result.exit_code=rc2.status;}
         }else{result.error='不支援的語言：'+lang+'。支援：python/cpp/java';}
-      }catch(e5){result.error=e5.message;}
+      }catch(e5){console.error('[sandbox]',e5.message);result.error='執行環境錯誤';}
       finally{try{fs.rmSync(sbDir,{recursive:true,force:true})}catch(ec){}}
       result.time_ms=Date.now()-t0;
       res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));
@@ -1539,6 +1544,7 @@ var ext='.docx';
       if(a==='simulate'){
         var ticks=Math.max(1,Math.min(100000,Number(j.ticks)||1));
         var enemies=Math.max(0,Math.min(1000,Number(j.enemies)||0));
+        var totalIter=ticks*enemies;if(totalIter>50000){enemies=Math.floor(50000/ticks);if(enemies<1)enemies=1;}
         var r=pickRng(String(j.seed||1)),td=0,k=0,ts=0;
         for(var t=0;t<ticks;t++){for(var e=0;e<enemies;e++){if(r()<0.72){td+=8+Math.floor(r()*30);if(r()<0.38)k++}}if(r()<0.02)break;ts++}
         return cb(null,{totalDamage:td,kills:k,tickSurvived:ts,rounds:ticks,fallback:true});
