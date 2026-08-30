@@ -269,7 +269,7 @@ function checkToken(t){
   if(s.length!==44)return null;
   try{
     if(!crypto.timingSafeEqual(Buffer.from(s),Buffer.from(tokenSig(p))))return null;
-    var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if((e.tv||0)!==accTokenVer(e.u))return null;if(e.exp&&e.exp<Date.now())return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student',exp:e.exp}
+    var e=JSON.parse(Buffer.from(p,'base64').toString('utf8'));if(!e||!e.u)return null;if(!ACC[e.u])return null;if((e.tv||0)!==accTokenVer(e.u))return null;return{username:e.u,role:(ACC[e.u]&&ACC[e.u].role)||'student'}
   }catch(x){return null}
 }
 /* 抹除憑證欄位，避免任何 GET 回應外洩密碼/雜湊/鹽 */
