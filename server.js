@@ -261,7 +261,7 @@ function saveOnline(){try{var now=Date.now();if(now-_onlineSaveT<15000)return;_o
 /* token：無狀態 HMAC（任何 worker 皆可驗證，不需共享 token 表）*/
 function tokenSig(p){return crypto.createHmac('sha256',SERVER_PEPPER).update(p).digest('base64')}
 function accTokenVer(un){return (ACC[un]&&ACC[un].tokenVer)||0}
-function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,tv:accTokenVer(un),exp:Date.now()+7*864e5})).toString('base64');return p+'.'+tokenSig(p)}
+function newToken(un,role){var p=Buffer.from(JSON.stringify({u:un,r:role,tv:accTokenVer(un)})).toString('base64');return p+'.'+tokenSig(p)}
 function checkToken(t){
   if(!t)return null;
   var i=t.lastIndexOf('.');if(i<1)return null;
