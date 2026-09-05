@@ -92,7 +92,7 @@ if(k==='ADV9_USERS'){
 }
 if(k==='ADV9_APIKEYS'){
   if(_curSyncRole()!=='admin')return; /* 金鑰同步僅限管理員 */
-  fetch(SUPA_URL+'/rest/v1/admin/api_keys',{method:'POST',headers:supaHeaders(),body:JSON.stringify(v)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>{console.warn('VPS API key save failed',e);toast('⚠️ API 金鑰同步至 VPS 失敗','bad')});
+  fetch(SUPA_URL+'/rest/v1/admin/api_keys',{method:'POST',headers:supaHeaders(),body:JSON.stringify(v)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>{console.warn('VPS API key save failed',e)});
   return;
 }
 _supaQ[k]=v;
